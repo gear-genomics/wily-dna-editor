@@ -248,15 +248,15 @@ my $formHTML = qq{<!DOCTYPE html>
        <td class="WDE_top_bar_cell" rowspan="2"><a class="WDE_top_bar_title">The Wily DNA Editor</a><br>
        <a class="WDE_top_bar_explain" id="top">master DNA sequences, plasmids and restriction enzyme digests</a>
        </td>
-       <td class="WDE_top_bar_cell"><a class="WDE_top_bar_link" href="https://wily-dna-editor.de/more.html">More...</a>
+       <td class="WDE_top_bar_cell"><a class="WDE_top_bar_link" href="https://wily-dna-editor.com/more.html">More...</a>
        </td>
        <td class="WDE_top_bar_cell"><a class="WDE_top_bar_link" href="https://sourceforge.net/projects/the-wily-dna-editor/">Source Code</a>
        </td>
      </tr>
      <tr>
-       <td class="WDE_top_bar_cell"><a class="WDE_top_bar_link" href="https://wily-dna-editor.de/index.html">Main</a>
+       <td class="WDE_top_bar_cell"><a class="WDE_top_bar_link" href="https://wily-dna-editor.com/index.html">Main</a>
        </td>
-       <td class="WDE_top_bar_cell"><a class="WDE_top_bar_link" href="https://wily-dna-editor.de/about.html">About</a>
+       <td class="WDE_top_bar_cell"><a class="WDE_top_bar_link" href="https://wily-dna-editor.com/about.html">About</a>
        </td>
      </tr>
    </table>
