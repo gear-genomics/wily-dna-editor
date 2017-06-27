@@ -1,0 +1,19 @@
+Letter - is - Reverse - Matches - Not Matches
+
+A - A    - T - AN    R  W M  VDH - ctgyskb
+C - C    - G - CN     YS  M BV H - atgrwkd
+G - G    - C - GN    R S K  BVD  - atcywmh
+T - T    - A - TN     Y WK  B DH - acgrsmv
+N - ACGT - N - ACTGN RYSWKM BVDH - 
+
+R - AG   - Y - AGN   R SWKM BVDH - tcy
+Y - CT   - R - CTN    YSWKM BVDH - gar
+S - CG   - S - CGN   RYS KM BVDH - atw
+W - AT   - W - ATN   RY WKM BVDH - cgs
+K - GT   - M - GTN   RYSWK  BVDH - acm
+M - AC   - K - ACN   RYSW M BVDH - tgk
+
+B - CGT  - V -  CTGN RYSWKM BVDH - a
+V - ACG  - B - AC GN RYSWKM BVDH - t
+D - AGT  - H - A TGN RYSWKM BVDH - c
+H - ACT  - D - ACT N RYSWKM BVDH - g

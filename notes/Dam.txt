@@ -1,0 +1,4 @@
+Dam:
+AlwI,BcgI,BclI,BsaBI,BspDI,BspEI,BspHI,ClaI,DpnII,EciI,HphI,Hpy188I,Hpy188III,MboI,MboII,NdeII,NruI,TaqI,XbaI + AccIII
+Dcm:
+Acc65I,AlwNI,ApaI,Asp718I,AvaII,BsaI,EaeI,MscI,NlaIV,PflMI,PpuMI,PspGI,PspOMI,Sau96I,ScrFI,SexAI,StuI,StyD4I + Bsp120I,CfrI,DraII,PflMI,

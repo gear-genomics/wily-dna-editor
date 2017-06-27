@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!--
+Copyright (c) 2017
+Andreas Untergasser. All rights reserved.
+
+    This file is part of the the Wily DNA Editor suite and libraries.
+
+    The the Wily DNA Editor suite and libraries are free software;
+    you can redistribute them and/or modify them under the terms
+    of the GNU General Public License as published by the Free
+    Software Foundation; either version 2 of the License, or (at
+    your option) any later version.
+
+    This software is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this software (file gpl-2.0.txt in the source
+    distribution); if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+  <meta name="viewport" content="width=1034px, initial-scale=1.0">
+  <title>The Wily DNA Editor</title>
+  <style type="text/css">
+    body {
+        color: black;
+        background-color: white;
+        font-size: 100.01%;
+        margin: 1em;
+        padding: 0;
+        text-align: center
+    }
+
+    div#page { text-align: left;
+        margin: auto;
+        width: 1024px;
+    }
+
+    div#WDE_no_javascript {
+        width:900px;
+        border: 2px solid #ccccff;
+        margin: 4px 0px 0px 0px;
+        clear: left;
+        float: left;
+        background-color: rgb(255, 0, 0);
+        overflow:hidden;
+        padding: 0px;
+    }
+
+    .WDE_tab_page {
+        width:900px;
+        border: 2px solid #ccccff;
+        clear: left;
+        float: left;
+        background-color: rgb(255, 255, 230);
+        overflow:hidden;
+        padding: 0px;
+        line-height: 1.2;
+    }
+
+    div#WDE_space {
+        padding: 8px;
+        line-height: 2;
+    }
+
+    div#WDE_enzymes_spacer{
+        font-size: 80%;
+        line-height: 1.5;
+    }
+
+    .WDE_tab_page_no_border {
+        width:900px;
+        clear: left;
+        float: left;
+        background-color: rgb(255, 255, 230);
+        overflow:hidden;
+    }
+
+    div#menuBar { float:left; width:900px; padding: 0px; margin: 8px 0 0 8px; line-height:normal; text-align: left; }
+    div#menuBar ul { margin:0px; padding: 0px; list-style:none; }
+    div#menuBar li { float:left; margin:0; border: 2px solid #ccccff; border-bottom-width: 0; }
+    div#menuBar a { top: 2px; display:block; padding: 0.24em 1em; font-weight: bold; cursor: pointer; }
+
+    div#WDE_top_bar { width: 900px; padding: 0px; border: 2px solid #ccccff;}
+    .WDE_background { background-color:#ccccff; }
+    .WDE_top_bar_table { border:0; width:100%; }
+    .WDE_top_bar_cell { border:0; padding:0.4em;background-color:#ccccff; }
+    .WDE_top_bar_title { font-size: 2.2em; font-weight:700; }
+    .WDE_top_bar_explain { font-size: 1.0em; font-weight:500 }
+    .WDE_top_bar_link { font-weight:bold }
+    .WDE_table_no_border { border:0; width:100%; empty-cells:show; }
+    .WDE_note { background-color:rgb(255,120,60); padding:0px; }
+
+    textarea#sequenceTextarea { font-family:Courier,monospace; width:95%; }
+  </style>
+  <script src="wilyDNAEditor.js"></script>
+</head>
+
+
+<body onLoad="wdeActivateIframe();">
+
+<div id="page">
+
+
+<SCRIPT language=JavaScript>
+var prevTabPage = "WDE_main_tab";
+var prevTab = "tab1";
+
+function showTab(tab,id) {
+        if (id == "" || !document.getElementById(id)) {
+                return;
+        }
+        if (prevTabPage != "" && document.getElementById(prevTabPage)) {
+                document.getElementById(prevTabPage).style.display="none";
+                document.getElementById(prevTab).style.background="white";
+                document.getElementById(prevTab).style.top="0px";
+                document.getElementById(prevTab).style.zIndex="0";
+        }
+        if (tab != "" && document.getElementById(tab)) {
+                document.getElementById(tab).style.background="rgb(255, 255, 230)";
+                document.getElementById(tab).style.position="relative";
+                document.getElementById(tab).style.top="2px";
+                document.getElementById(tab).style.zIndex="1";
+                prevTab = tab;
+        }
+        document.getElementById(id).style.display="inline";
+        prevTabPage = id;
+}
+
+function hideTabs() {
+        document.getElementById('WDE_restriction_sites').style.display="none";
+        document.getElementById('WDE_digest').style.display="none";
+        document.getElementById('WDE_translate').style.display="none";
+        document.getElementById('WDE_settings').style.display="none";
+}
+
+function countUp() {
+    var client = new XMLHttpRequest();
+    client.open('GET', 'https://wily-dna-editor.de/cgi-bin/wdeStatisticsCountOne.cgi');
+    client.send();
+}
+
+</SCRIPT>
+
+
+<div id="WDE_complete">
+
+<form name="mainForm" id="mainForm" action="https://primer3plus.com/cgi-bin/dev/primer3plus.cgi" method="post" enctype="multipart/form-data" onReset="initPage();">
+
+<div id="WDE_top_bar">
+   <table class="WDE_top_bar_table">
+     <colgroup>
+       <col width="60%" class="WDE_background">
+       <col width="20%" class="WDE_background">
+       <col width="20%" class="WDE_background">
+     </colgroup>
+     <tr>
+       <td class="WDE_top_bar_cell" rowspan="2"><a class="WDE_top_bar_title">The Wily DNA Editor</a><br>
+       <a class="WDE_top_bar_explain" id="top">master DNA sequences, plasmids and restriction enzyme digests</a>
+       </td>
+       <td class="WDE_top_bar_cell"><a class="WDE_top_bar_link" href="more.html">More...</a>
+       </td>
+       <td class="WDE_top_bar_cell"><a class="WDE_top_bar_link" href="https://sourceforge.net/projects/the-wily-dna-editor/">Source Code</a>
+       </td>
+     </tr>
+     <tr>
+       <td class="WDE_top_bar_cell"><a class="WDE_top_bar_link" href="help.html">Help</a>
+       </td>
+       <td class="WDE_top_bar_cell"><a class="WDE_top_bar_link" href="about.html">About</a>
+       </td>
+     </tr>
+   </table>
+</div>
+
+<script type="text/javascript">
+    document.write("<style type=\"text/css\">div#WDE_no_javascript { display: none; }</style>");
+</script>
+
+<div id="WDE_no_javascript">
+   <table class="WDE_table_no_border">
+     <tr>
+       <td class="WDE_note">
+            JavaScript is not enabled, please enable JavaScript and refresh the browser. JavaScript is essential for the Wily DNA editor</a>.
+       </td>
+     </tr>
+   </table>
+</div>
+
+<div id="menuBar">
+        <ul>
+        <li id="tab1"><a onclick="showTab('tab1','WDE_main_tab')">Main</a></li>
+        <li id="tab2"><a onclick="showTab('tab2','WDE_restriction_sites')">Restriction Sites</a></li>
+        <li id="tab3"><a onclick="showTab('tab3','WDE_digest')">Digest</a></li>
+        <li id="tab4"><a onclick="showTab('tab4','WDE_translate')">Translate</a></li>
+        <li id="tab5"><a onclick="showTab('tab5','WDE_settings')">Settings</a></li>
+        </ul>
+</div>
+
+<div id="WDE_main_tab" class="WDE_tab_page">
+<div id="WDE_space">
+&nbsp;<a>Load:</a>
+&nbsp;<input type="file" id="WDE_Load_File" value="Load">
+&nbsp;<input type="button" onClick="wdeSaveFasta()" value="Save Fasta">
+&nbsp;<input type="button" onClick="wdeSaveGenBank()" value="Save GeneBank">
+<!-- This function actually triggers the form -->
+&nbsp;<input type="button" onClick="wdeSendP3P()" value="Send to Primer3Plus"/>
+&nbsp;&nbsp;&nbsp;
+&nbsp;<input type="button" id="cmdZeroOneButton" onClick="wdeViewZeroOne()" value="1">
+&nbsp;<input type="button" onClick="wdeViewNumbers()" value="Numbers">
+&nbsp;<input type="button" onClick="wdeNewWindow()" value="+">
+<br />
+&nbsp;<a>Sequence Id:</a>
+&nbsp;<input name="SEQUENCE_ID" value="" type="text" size="60">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;<a>Length:</a>
+&nbsp;<input name="SEQUENCE_LENGTH" value="" type="text" style="text-align:right;" size="10">&nbsp;bp
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;<input type="button" id="cmdCircularButton" onClick="cmdCircularLinear()" value="Circular">
+<br />
+&nbsp;<input type="button" onClick="wdeUpToLow()" value="UPPER -> lower">
+&nbsp;<input type="button" onClick="wdeUpexLow()" value="UPPER <-> lower">
+&nbsp;<input type="button" onClick="wdeLowToUp()" value="lower -> UPPER">
+&nbsp;<input type="button" onClick="wdeCopyPaste()" value="Copy/Paste">
+&nbsp;<input type="button" onClick="wdeRCompSel()" value="Reverse Complement Selection">
+&nbsp;<input type="button" onClick="wdeRComp()" value="Reverse Complement All">
+<br />
+&nbsp;<input type="button" onClick="wdeHighlight()" value="Highlight selected Restriction Sites">
+<br />
+<!-- Hide the textarea and replace it with an iFrame -->
+<textarea name="SEQUENCE_TEMPLATE" rows="12" cols="90" style="display:none;"></textarea>
+<iframe name="WDE_RTF" id="WDE_RTF" style="border:#000000 1px solid; background-color: white; width:800px; height:500px;"></iframe>
+<!-- End replacing the textarea -->
+
+</div>
+</div>
+
+
+<div id="WDE_restriction_sites" class="WDE_tab_page">
+<div id="WDE_space">
+&nbsp;<input type="button" onClick="wdeFindRE()" value="Find All Restriction Sites">
+&nbsp;<input type="button" onClick="wdeHighlight()" value="Highlight in Sequence">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;<input type="checkbox" id="WDE_DAM_DCM" onclick="wdeDamDcm()" checked="">
+&nbsp;<input type="button" onClick="wdeDamDcm()" value="Dam/Dcm">
+<br />
+&nbsp;<a>Select:</a>
+&nbsp;<input type="button" onClick="wdeSelREsel('E', 0)" value="Absent">
+&nbsp;<input type="button" onClick="wdeSelREsel('E', 1)" value="Unique">
+&nbsp;<input type="button" onClick="wdeSelREsel('M', -1)" value="All">
+&nbsp;<input type="button" onClick="wdeSelREdeselect()" value="Deselect All">
+&nbsp;<a>Select by Number:</a>
+&nbsp;<input name="RESTRICTION_NR" value="2" type="text" style="text-align:right;" size="2">
+&nbsp;<input type="button" onClick="wdeSelREselMLE('M')" value="More">
+&nbsp;<input type="button" onClick="wdeSelREselMLE('E')" value="Exact">
+&nbsp;<input type="button" onClick="wdeSelREselMLE('L')" value="Less">
+<br />
+&nbsp;<a>Select by List:</a>
+&nbsp;<input name="RESTRICTION_LIST" value="KpnI, BstBI, HindIII, BamHI" type="text" size="30">
+&nbsp;<input type="button" onClick="wdeSelREListDS('S')" value="Select">
+&nbsp;<input type="button" onClick="wdeSelREListDS('D')" value="Deselect">
+&nbsp;<input type="button" onClick="wdeSetDamDcmMeth()" value="Bla">
+
+
+<br />
+<a style="font-size: 80%;">&nbsp;&nbsp;&nbsp;&nbsp;Ambiguity Codes:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;R = [GA]; Y = [CT]; M = [AC]; K = [GT]; S = [GC]; W = [AT];
+B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACGT] </a>
+
+<div id="WDE_enzymes_spacer">
+&nbsp;<a>Enzyme Tab...</a>
+</div>
+
+</div>
+</div>
+
+
+<div id="WDE_digest" class="WDE_tab_page">
+&nbsp;<a>3 Some Text to fill the emptyness...</a>
+</div>
+
+<div id="WDE_translate" class="WDE_tab_page">
+&nbsp;<a>4 Some Text to fill the emptyness...</a>
+</div>
+
+<div id="WDE_settings" class="WDE_tab_page">
+&nbsp;<a>5 Some Text to fill the emptyness...</a>
+</div>
+
+</form>
+
+</div>
+
+<!-- Remove "countUp();" if you do not want to add to the usage counter -->
+<script type="text/javascript">
+function initPage() {
+    hideTabs();
+    showTab('tab1','WDE_main_tab');
+}
+initPage();
+countUp();
+</script>
+
+</body>
+</html>
+
