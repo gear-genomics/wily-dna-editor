@@ -123,6 +123,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <SCRIPT language=JavaScript>
 var prevTabPage = "WDE_main_tab";
 var prevTab = "tab1";
+var testInstr = 0;
 
 function showTab(tab,id) {
         if (id == "" || !document.getElementById(id)) {
@@ -156,6 +157,23 @@ function countUp() {
     var client = new XMLHttpRequest();
     client.open('GET', 'https://wily-dna-editor.com/cgi-bin/wdeStatisticsCountOne.cgi');
     client.send();
+}
+
+function loadTestSeq() {
+    loadTestScripts();
+	setTimeout(function () {
+        wdeTestLoadLargeSeq();
+    }, 200);
+}
+
+function loadTestScripts() {
+    if (testInstr == 0) {
+	    var scriptBlock = document.createElement('script');
+        scriptBlock.setAttribute("type","text/javascript");
+        scriptBlock.setAttribute("src", "wilyDNAEditorTestSuite.js");
+        document.getElementsByTagName("head")[0].appendChild(scriptBlock);
+		testInstr = 1;
+	}
 }
 
 </SCRIPT>
@@ -301,7 +319,11 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 </div>
 
 <div id="WDE_settings" class="WDE_tab_page">
+<div id="WDE_space">
+&nbsp;<input type="button" onClick="loadTestSeq()" value="Load Test Sequence">
+
 &nbsp;<a>5 Some Text to fill the emptyness...</a>
+</div>
 </div>
 
 </form>
