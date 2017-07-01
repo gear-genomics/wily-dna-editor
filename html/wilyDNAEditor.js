@@ -37,6 +37,10 @@
 var wdeZeroOne = 1;
 var wdeNumbers = 1;
 var wdeCircular = 1;
+var wdeUserVSelect = 0;
+var wdeUserVCount = 0;
+var wdeUserVSeq;
+var wdeUserVPos;
 var wdeREdisp = 0;
 var wdeREvalid = 0;
 var wdeDamDcmSel = 1;
@@ -61,8 +65,8 @@ function wdeActivateIframe(){
     window.frames['WDE_RTF'].document.addEventListener('cut', wdeCutEvent);
     window.frames['WDE_RTF'].document.addEventListener('copy', wdeCopyEvent);
     window.frames['WDE_RTF'].document.addEventListener('paste', wdePasteEvent);
-    var box = document.getElementById("WDE_DAM_DCM");
-    box.checked = true;
+    document.getElementById("WDE_DAM_DCM").checked = true;
+    document.getElementById("WDE_USER_SEL").checked = false;
     wdePopulateEnzmes();
     wdeDrawEnzymes();
 }
@@ -138,6 +142,21 @@ function wdeHighlight(){
         wdeREdisp = 0;
     } else {
         var sel = 0;
+        // Place user defined Sequence
+        if (wdeUserVSelect && (wdeUserVCount > 0)) {
+            sel++;
+            wdeREvalid = 1;
+            var listArr = wdeUserVPos.split(";");
+            for (var i = 1; i < listArr.length; i++) {
+                var posAr = listArr[i].split(",");
+                for (var p = 0; p < parseInt(posAr[1]); p++) {
+                    var curr = parseInt(posAr[0]) - wdeZeroOne + p;
+                    if (curr < end) {
+                        wdeSeqHigh[curr] = "R";
+                    }
+                }
+            }
+        }
         // Place the Masking
         for (var k = 0; k < wdeEnzy.length; k++) {
             if (wdeEnzy[k][2]){
@@ -155,7 +174,7 @@ function wdeHighlight(){
             }
         }
         if (sel > 0) {
-            if (wdeREvalid) {
+            if (wdeREvalid || (wdeUserVSelect && (wdeUserVCount > 0))) {
                 wdeREdisp = 1;
             } else {
                 alert("Please find restriction enzymes first/again.");
@@ -186,6 +205,17 @@ function wdeDamDcm() {
         box.checked=false;
     } else {
         wdeDamDcmSel = 1;
+        box.checked=true;
+    }
+}
+
+function wdeUserSel() {
+    var box = document.getElementById("WDE_USER_SEL");
+    if (wdeUserVSelect) {
+        wdeUserVSelect = 0;
+        box.checked=false;
+    } else {
+        wdeUserVSelect = 1;
         box.checked=true;
     }
 }
@@ -391,8 +421,76 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
     return "<pre> " + outSeq + " </pre>";
 }
 
-function wdeFindRE() {
+function wdeFindUserSeq() {
     // All sequence has to be lowecase to save the convesion later
+    var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML).toLowerCase();
+    wdeUserVSeq = mainForm.elements["WDE_USER_SEQ"].value;
+    var restSeq = wdeCleanSeq(wdeUserVSeq).toLowerCase();
+    if (restSeq.length < 3) {
+        alert("At least 3 bp are required!");
+        return;
+    }   
+    var checkRevCompll = 0;
+    var isATCGonly = true;
+    var reg = /[^ATGCatgc]/
+    if (reg.exec(restSeq)) {
+        isATCGonly = false;
+    }
+    var checkRevComp = false;
+    var revCompRestSeq = wdeReverseComplement(restSeq);
+    if (restSeq !=  revCompRestSeq) {
+        checkRevComp = true;
+        checkRevCompll++;
+    }
+    var restLength = restSeq.length;
+    var restPos = "";
+    var restCount = 0;
+    // Get the end right
+    var end = seq.length - restLength;
+    if (end < 1) {
+        end = 1;
+    }
+    // Test all the words for matches
+    for (var i = 0; i <= end ; i++) {
+        var word = seq.substr(i, restLength);
+        if ((isATCGonly && (word == restSeq)) ||
+            (!isATCGonly && wdeIsSameSeq(word,restSeq))){
+            restCount++;
+            var pos = i + wdeZeroOne;
+            restPos += ";" + pos + "," + restLength;
+        }
+        if ((checkRevComp && isATCGonly && (word == revCompRestSeq)) ||
+            (checkRevComp && !isATCGonly && wdeIsSameSeq(word,revCompRestSeq))){
+            restCount++;
+            var pos = i + wdeZeroOne;
+            restPos += ";" + pos + "," + restLength;
+        }
+    }
+    // Test the circular overlap
+    if (wdeCircular) {
+        for (var i = 1; i < restLength ; i++) {
+            var word = seq.substr(end + i, restLength - i) + seq.substr(0, i);
+            if ((isATCGonly && (word == restSeq)) ||
+                (!isATCGonly && wdeIsSameSeq(word,restSeq))){
+                restCount++;
+                var pos = end + i + wdeZeroOne;
+                restPos += ";" + pos + "," + restLength;
+            }
+            if ((checkRevComp && isATCGonly && (word == revCompRestSeq)) ||
+                (checkRevComp && !isATCGonly && wdeIsSameSeq(word,revCompRestSeq))){
+                restCount++;
+                var pos = end + i + wdeZeroOne;
+                restPos += ";" + pos + "," + restLength;
+            }
+        }
+    }
+    wdeUserVPos = restPos;
+    wdeUserVCount = restCount;
+    document.getElementById("WDE_USER_COUNT").innerHTML = "Hits: " + wdeUserVCount;
+}
+
+function wdeFindRE() {
+    // All sequence has to be lowercase to save the conversion later
     var seqPure = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML).toLowerCase();
     var seq = seqPure;
     var dam = seqPure;

@@ -260,7 +260,7 @@ function loadTestScripts() {
 &nbsp;<input type="button" onClick="wdeRCompSel()" value="Reverse Complement Selection">
 &nbsp;<input type="button" onClick="wdeRComp()" value="Reverse Complement All">
 <br />
-&nbsp;<input type="button" onClick="wdeHighlight()" value="Highlight selected Restriction Sites">
+&nbsp;<input type="button" onClick="wdeHighlight()" value="Highlight Selected Restriction Sites">
 <br />
 <!-- Hide the textarea and replace it with an iFrame -->
 <textarea name="SEQUENCE_TEMPLATE" rows="12" cols="90" style="display:none;"></textarea>
@@ -273,8 +273,16 @@ function loadTestScripts() {
 
 <div id="WDE_restriction_sites" class="WDE_tab_page">
 <div id="WDE_space">
+&nbsp;<input type="checkbox" id="WDE_USER_SEL" onclick="wdeUserSel()">
+&nbsp;<a id="WDE_USER_COUNT">Hits: -</a>
+&nbsp;&nbsp;&nbsp;
+&nbsp;<a>Sequence:</a>
+&nbsp;<input name="WDE_USER_SEQ" value="AGCMGCT" type="text" size="30">
+&nbsp;<input type="button" onClick="wdeFindUserSeq()" value="Find User Sequence">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;<input type="button" onClick="wdeHighlight()" value="Highlight Selected in Sequence">
+<br />
 &nbsp;<input type="button" onClick="wdeFindRE()" value="Find All Restriction Sites">
-&nbsp;<input type="button" onClick="wdeHighlight()" value="Highlight in Sequence">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp;<input type="checkbox" id="WDE_DAM_DCM" onclick="wdeDamDcm()" checked="">
 &nbsp;<input type="button" onClick="wdeDamDcm()" value="Dam/Dcm">
@@ -294,7 +302,6 @@ function loadTestScripts() {
 &nbsp;<input name="RESTRICTION_LIST" value="KpnI, BstBI, HindIII, BamHI" type="text" size="30">
 &nbsp;<input type="button" onClick="wdeSelREListDS('S')" value="Select">
 &nbsp;<input type="button" onClick="wdeSelREListDS('D')" value="Deselect">
-&nbsp;<input type="button" onClick="wdeSetDamDcmMeth()" value="Bla">
 
 
 <br />
