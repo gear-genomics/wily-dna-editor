@@ -39,10 +39,9 @@ var wdeNumbers = 1;
 var wdeCircular = 1;
 var wdeUserVSelect = 0;
 var wdeUserVCount = 0;
-var wdeUserVSeq;
-var wdeUserVPos;
+var wdeUserVSeq = "";
+var wdeUserVPos = "";
 var wdeREdisp = 0;
-var wdeREvalid = 0;
 var wdeDamDcmSel = 1;
 var wdeEnzy=[];
 // [0] = name
@@ -76,7 +75,7 @@ function wdeRepaint(){
 }
 
 function wdePasteEvent (e) {
-    wdeREvalid = 0;
+    wdeSequenceModified();
     setTimeout(function (){
         wdeRepaint();
     }, 0);  
@@ -92,7 +91,7 @@ function wdeCopyEvent (e) {
 function wdeCutEvent (e) {
     e.stopPropagation();
     e.preventDefault();
-    wdeREvalid = 0;
+    wdeSequenceModified();
     var sel = window.frames['WDE_RTF'].getSelection();
     var selection = wdeCleanSeq(sel.toString());
     e.clipboardData.setData('text/plain', selection);
@@ -145,7 +144,6 @@ function wdeHighlight(){
         // Place user defined Sequence
         if (wdeUserVSelect && (wdeUserVCount > 0)) {
             sel++;
-            wdeREvalid = 1;
             var listArr = wdeUserVPos.split(";");
             for (var i = 1; i < listArr.length; i++) {
                 var posAr = listArr[i].split(",");
@@ -174,11 +172,7 @@ function wdeHighlight(){
             }
         }
         if (sel > 0) {
-            if (wdeREvalid || (wdeUserVSelect && (wdeUserVCount > 0))) {
-                wdeREdisp = 1;
-            } else {
-                alert("Please find restriction enzymes first/again.");
-            }
+            wdeREdisp = 1;
         } else {
             alert("No restriction enzymes selected!\n\nSelect at least one restriction enzyme.");
         }
@@ -344,15 +338,29 @@ function wdeCopyPaste() {
 }
 
 function wdeRComp(){
-    wdeREvalid = 0;
+    wdeSequenceModified();
     window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(wdeReverseComplement(wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML)), wdeZeroOne, wdeNumbers);
 }
 
 function wdeRCompSel() {
-    wdeREvalid = 0;
+    wdeSequenceModified();
     wdeModifySelection(wdeReverseComplement);
 }
 
+function wdeSequenceModified(){
+    // This function erases found RS and user seq info
+    // to be used if the sequence is modified 
+    for (var k = 0; k < wdeEnzy.length; k++) {
+        wdeEnzy[k][3] = "-";
+        wdeEnzy[k][4] = "";
+    }
+    wdeUserVCount = 0;
+    document.getElementById("WDE_USER_COUNT").innerHTML = "Hits: -";
+    wdeUserVPos = "";
+    wdeSeqHigh=[];
+    wdeREdisp = 0;
+    wdeDrawEnzymes();
+}
 
 function wdeCleanSeq(seq){
     var retSeq = "";
@@ -369,7 +377,6 @@ function wdeCleanSeq(seq){
     retSeq = wdeRetAmbiqutyOnly(seq);
     return retSeq;
 }
-
 
 function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
     var outSeq = "\n";
@@ -403,7 +410,7 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
             }
         }
         // Place the enzyme selection
-        if (wdeREdisp && wdeREvalid && (wdeSeqHigh[i] != lastBaseMark)) {
+        if (wdeREdisp && (length == wdeSeqHigh.length) && (wdeSeqHigh[i] != lastBaseMark)) {
             if (wdeSeqHigh[i] == "R") {
                 openMark = '<span style="background-color:red">';
                 closeMark = "</span>";
@@ -487,6 +494,8 @@ function wdeFindUserSeq() {
     wdeUserVPos = restPos;
     wdeUserVCount = restCount;
     document.getElementById("WDE_USER_COUNT").innerHTML = "Hits: " + wdeUserVCount;
+    wdeREdisp = 0;
+    wdeRepaint();
 }
 
 function wdeFindRE() {
@@ -582,8 +591,9 @@ function wdeFindRE() {
         wdeEnzy[k][3] = restCount;
         wdeEnzy[k][4] = restPos;
     }
-    wdeREvalid = 1;
-    wdeDrawEnzymes();       
+    wdeDrawEnzymes();
+    wdeREdisp = 0;
+    wdeRepaint();     
 }
 
 function wdeSelEnzymes(checkBox, enzId) {
@@ -1016,254 +1026,254 @@ function wdeSetDamDcmMeth() {
 //
 // Do not modify!!!!
 function wdePopulateEnzmes() {
-    wdeEnzy[0]=["AatII","GACGT^C",0,0,""];
-    wdeEnzy[1]=["AccI","GT^MKAC",0,0,""];
-    wdeEnzy[2]=["Acc65I","G^GTACC",0,0,""];
-    wdeEnzy[3]=["AciI","CCGC(-3/-1)",0,0,""];
-    wdeEnzy[4]=["AclI","AA^CGTT",0,0,""];
-    wdeEnzy[5]=["AcuI","CTGAAG(16/14)",0,0,""];
-    wdeEnzy[6]=["AfeI","AGC^GCT",0,0,""];
-    wdeEnzy[7]=["AflII","C^TTAAG",0,0,""];
-    wdeEnzy[8]=["AflIII","A^CRYGT",0,0,""];
-    wdeEnzy[9]=["AgeI","A^CCGGT",0,0,""];
-    wdeEnzy[10]=["AhdI","GACNNN^NNGTC",0,0,""];
-    wdeEnzy[11]=["AleI","CACNN^NNGTG",0,0,""];
-    wdeEnzy[12]=["AluI","AG^CT",0,0,""];
-    wdeEnzy[13]=["AlwI","GGATC(4/5)",0,0,""];
-    wdeEnzy[14]=["AlwNI","CAGNNN^CTG",0,0,""];
-    wdeEnzy[15]=["ApaI","GGGCC^C",0,0,""];
-    wdeEnzy[16]=["ApaLI","G^TGCAC",0,0,""];
-    wdeEnzy[17]=["ApeKI","G^CWGC",0,0,""];
-    wdeEnzy[18]=["ApoI","R^AATTY",0,0,""];
-    wdeEnzy[19]=["AscI","GG^CGCGCC",0,0,""];
-    wdeEnzy[20]=["AseI","AT^TAAT",0,0,""];
-    wdeEnzy[21]=["AsiSI","GCGAT^CGC",0,0,""];
-    wdeEnzy[22]=["Asp700I","GAANN^NNTTC",0,0,""];
-    wdeEnzy[23]=["Asp718I","G^GTACC",0,0,""];
-    wdeEnzy[24]=["AvaI","C^YCGRG",0,0,""];
-    wdeEnzy[25]=["AvaII","G^GWCC",0,0,""];
-    wdeEnzy[26]=["AvrII","C^CTAGG",0,0,""];
-    wdeEnzy[27]=["BaeGI","GKGCM^C",0,0,""];
-    wdeEnzy[28]=["BamHI","G^GATCC",0,0,""];
-    wdeEnzy[29]=["BanI","G^GYRCC",0,0,""];
-    wdeEnzy[30]=["BanII","GRGCY^C",0,0,""];
-    wdeEnzy[31]=["BbrPI","CAC^GTG",0,0,""];
-    wdeEnzy[32]=["BbsI","GAAGAC(2/6)",0,0,""];
-    wdeEnzy[33]=["BbvI","GCAGC(8/12)",0,0,""];
-    wdeEnzy[34]=["BbvCI","CCTCAGC(-5/-2)",0,0,""];
-    wdeEnzy[35]=["BccI","CCATC(4/5)",0,0,""];
-    wdeEnzy[36]=["BceAI","ACGGC(12/14)",0,0,""];
-    wdeEnzy[37]=["BciVI","GTATCC(6/5)",0,0,""];
-    wdeEnzy[38]=["BclI","T^GATCA",0,0,""];
-    wdeEnzy[39]=["BcoDI","GTCTC(1/5)",0,0,""];
-    wdeEnzy[40]=["BfaI","C^TAG",0,0,""];
-    wdeEnzy[41]=["BfrI","C^TTAAG",0,0,""];
-    wdeEnzy[42]=["BfuAI","ACCTGC(4/8)",0,0,""];
-    wdeEnzy[43]=["BfuCI","^GATC",0,0,""];
-    wdeEnzy[44]=["BglI","GCCNNNN^NGGC",0,0,""];
-    wdeEnzy[45]=["BglII","A^GATCT",0,0,""];
-    wdeEnzy[46]=["BlnI","C^CTAGG",0,0,""];
-    wdeEnzy[47]=["BlpI","GC^TNAGC",0,0,""];
-    wdeEnzy[48]=["BmgBI","CACGTC(-3/-3)",0,0,""];
-    wdeEnzy[49]=["BmrI","ACTGGG(5/4)",0,0,""];
-    wdeEnzy[50]=["BmtI","GCTAG^C",0,0,""];
-    wdeEnzy[51]=["BpmI","CTGGAG(16/14)",0,0,""];
-    wdeEnzy[52]=["Bpu10I","CCTNAGC(-5/-2)",0,0,""];
-    wdeEnzy[53]=["BpuEI","CTTGAG(16/14)",0,0,""];
-    wdeEnzy[54]=["BsaI","GGTCTC(1/5)",0,0,""];
-    wdeEnzy[55]=["BsaAI","YAC^GTR",0,0,""];
-    wdeEnzy[56]=["BsaBI","GATNN^NNATC",0,0,""];
-    wdeEnzy[57]=["BsaHI","GR^CGYC",0,0,""];
-    wdeEnzy[58]=["BsaJI","C^CNNGG",0,0,""];
-    wdeEnzy[59]=["BsaWI","W^CCGGW",0,0,""];
-    wdeEnzy[60]=["BsaXI","(9/12)ACNNNNNCTCC(10/7)",0,0,""];
-    wdeEnzy[61]=["BseRI","GAGGAG(10/8)",0,0,""];
-    wdeEnzy[62]=["BseYI","CCCAGC(-5/-1)",0,0,""];
-    wdeEnzy[63]=["BsgI","GTGCAG(16/14)",0,0,""];
-    wdeEnzy[64]=["BsiEI","CGRY^CG",0,0,""];
-    wdeEnzy[65]=["BsiHKAI","GWGCW^C",0,0,""];
-    wdeEnzy[66]=["BsiWI","C^GTACG",0,0,""];
-    wdeEnzy[67]=["BslI","CCNNNNN^NNGG",0,0,""];
-    wdeEnzy[68]=["BsmI","GAATGC(1/-1)",0,0,""];
-    wdeEnzy[69]=["BsmAI","GTCTC(1/5)",0,0,""];
-    wdeEnzy[70]=["BsmBI","CGTCTC(1/5)",0,0,""];
-    wdeEnzy[71]=["BsmFI","GGGAC(10/14)",0,0,""];
-    wdeEnzy[72]=["BsoBI","C^YCGRG",0,0,""];
-    wdeEnzy[73]=["Bsp1286I","GDGCH^C",0,0,""];
-    wdeEnzy[74]=["BspCNI","CTCAG(9/7)",0,0,""];
-    wdeEnzy[75]=["BspDI","AT^CGAT",0,0,""];
-    wdeEnzy[76]=["BspEI","T^CCGGA",0,0,""];
-    wdeEnzy[77]=["BspHI","T^CATGA",0,0,""];
-    wdeEnzy[78]=["BspMI","ACCTGC(4/8)",0,0,""];
-    wdeEnzy[79]=["BspQI","GCTCTTC(1/4)",0,0,""];
-    wdeEnzy[80]=["BsrI","ACTGG(1/-1)",0,0,""];
-    wdeEnzy[81]=["BsrBI","CCGCTC(-3/-3)",0,0,""];
-    wdeEnzy[82]=["BsrDI","GCAATG(2/0)",0,0,""];
-    wdeEnzy[83]=["BsrFI","R^CCGGY",0,0,""];
-    wdeEnzy[84]=["BsrGI","T^GTACA",0,0,""];
-    wdeEnzy[85]=["BssHII","G^CGCGC",0,0,""];
-    wdeEnzy[86]=["BssSI","CACGAG(-5/-1)",0,0,""];
-    wdeEnzy[87]=["BstAPI","GCANNNN^NTGC",0,0,""];
-    wdeEnzy[88]=["BstBI","TT^CGAA",0,0,""];
-    wdeEnzy[89]=["BstEII","G^GTNACC",0,0,""];
-    wdeEnzy[90]=["BstNI","CC^WGG",0,0,""];
-    wdeEnzy[91]=["BstUI","CG^CG",0,0,""];
-    wdeEnzy[92]=["BstXI","CCANNNNN^NTGG",0,0,""];
-    wdeEnzy[93]=["BstYI","R^GATCY",0,0,""];
-    wdeEnzy[94]=["BstZ17I","GTA^TAC",0,0,""];
-    wdeEnzy[95]=["Bsu36I","CC^TNAGG",0,0,""];
-    wdeEnzy[96]=["BtgI","C^CRYGG",0,0,""];
-    wdeEnzy[97]=["BtgZI","GCGATG(10/14)",0,0,""];
-    wdeEnzy[98]=["BtsI","GCAGTG(2/0)",0,0,""];
-    wdeEnzy[99]=["BtsIMutI","CAGTG(2/0)",0,0,""];
-    wdeEnzy[100]=["BtsCI","GGATG(2/0)",0,0,""];
-    wdeEnzy[101]=["Cac8I","GCN^NGC",0,0,""];
-    wdeEnzy[102]=["CfoI","GCG^C",0,0,""];
-    wdeEnzy[103]=["ClaI","AT^CGAT",0,0,""];
-    wdeEnzy[104]=["CviAII","C^ATG",0,0,""];
-    wdeEnzy[105]=["CviQI","G^TAC",0,0,""];
-    wdeEnzy[106]=["DdeI","C^TNAG",0,0,""];
-    wdeEnzy[107]=["DpnI","GA^TC",0,0,""];
-    wdeEnzy[108]=["DpnII","^GATC",0,0,""];
-    wdeEnzy[109]=["DraI","TTT^AAA",0,0,""];
-    wdeEnzy[110]=["DraIII","CACNNN^GTG",0,0,""];
-    wdeEnzy[111]=["DrdI","GACNNNN^NNGTC",0,0,""];
-    wdeEnzy[112]=["EaeI","Y^GGCCR",0,0,""];
-    wdeEnzy[113]=["EagI","C^GGCCG",0,0,""];
-    wdeEnzy[114]=["EarI","CTCTTC(1/4)",0,0,""];
-    wdeEnzy[115]=["EciI","GGCGGA(11/9)",0,0,""];
-    wdeEnzy[116]=["Eco47III","AGC^GCT",0,0,""];
-    wdeEnzy[117]=["EcoNI","CCTNN^NNNAGG",0,0,""];
-    wdeEnzy[118]=["EcoO109I","RG^GNCCY",0,0,""];
-    wdeEnzy[119]=["EcoP15I","CAGCAG(25/27)",0,0,""];
-    wdeEnzy[120]=["EcoRI","G^AATTC",0,0,""];
-    wdeEnzy[121]=["EcoRV","GAT^ATC",0,0,""];
-    wdeEnzy[122]=["Eco53kI","GAG^CTC",0,0,""];
-    wdeEnzy[123]=["FatI","^CATG",0,0,""];
-    wdeEnzy[124]=["FauI","CCCGC(4/6)",0,0,""];
-    wdeEnzy[125]=["Fnu4HI","GC^NGC",0,0,""];
-    wdeEnzy[126]=["FokI","GGATG(9/13)",0,0,""];
-    wdeEnzy[127]=["FseI","GGCCGG^CC",0,0,""];
-    wdeEnzy[128]=["FspI","TGC^GCA",0,0,""];
-    wdeEnzy[129]=["HaeII","RGCGC^Y",0,0,""];
-    wdeEnzy[130]=["HaeIII","GG^CC",0,0,""];
-    wdeEnzy[131]=["HgaI","GACGC(5/10)",0,0,""];
-    wdeEnzy[132]=["HhaI","GCG^C",0,0,""];
-    wdeEnzy[133]=["HinP1I","G^CGC",0,0,""];
-    wdeEnzy[134]=["HincII","GTY^RAC",0,0,""];
-    wdeEnzy[135]=["HindII","GTY^RAC",0,0,""];
-    wdeEnzy[136]=["HindIII","A^AGCTT",0,0,""];
-    wdeEnzy[137]=["HinfI","G^ANTC",0,0,""];
-    wdeEnzy[138]=["HpaI","GTT^AAC",0,0,""];
-    wdeEnzy[139]=["HpaII","C^CGG",0,0,""];
-    wdeEnzy[140]=["HphI","GGTGA(8/7)",0,0,""];
-    wdeEnzy[141]=["Hpy99I","CGWCG^",0,0,""];
-    wdeEnzy[142]=["Hpy166II","GTN^NAC",0,0,""];
-    wdeEnzy[143]=["Hpy188I","TCN^GA",0,0,""];
-    wdeEnzy[144]=["Hpy188III","TC^NNGA",0,0,""];
-    wdeEnzy[145]=["HpyAV","CCTTC(6/5)",0,0,""];
-    wdeEnzy[146]=["HpyCH4III","ACN^GT",0,0,""];
-    wdeEnzy[147]=["HpyCH4IV","A^CGT",0,0,""];
-    wdeEnzy[148]=["HpyCH4V","TG^CA",0,0,""];
-    wdeEnzy[149]=["KasI","G^GCGCC",0,0,""];
-    wdeEnzy[150]=["KpnI","GGTAC^C",0,0,""];
-    wdeEnzy[151]=["KspI","CCGC^GG",0,0,""];
-    wdeEnzy[152]=["MaeI","C^TAG",0,0,""];
-    wdeEnzy[153]=["MaeII","A^CGT",0,0,""];
-    wdeEnzy[154]=["MaeIII","^GTNAC",0,0,""];
-    wdeEnzy[155]=["MboI","^GATC",0,0,""];
-    wdeEnzy[156]=["MboII","GAAGA(8/7)",0,0,""];
-    wdeEnzy[157]=["MfeI","C^AATTG",0,0,""];
-    wdeEnzy[158]=["MluI","A^CGCGT",0,0,""];
-    wdeEnzy[159]=["MluCI","^AATT",0,0,""];
-    wdeEnzy[160]=["MluNI","TGG^CCA",0,0,""];
-    wdeEnzy[161]=["MlyI","GAGTC(5/5)",0,0,""];
-    wdeEnzy[162]=["MmeI","TCCRAC(20/18)",0,0,""];
-    wdeEnzy[163]=["MnlI","CCTC(7/6)",0,0,""];
-    wdeEnzy[164]=["MroI","T^CCGGA",0,0,""];
-    wdeEnzy[165]=["MscI","TGG^CCA",0,0,""];
-    wdeEnzy[166]=["MseI","T^TAA",0,0,""];
-    wdeEnzy[167]=["MslI","CAYNN^NNRTG",0,0,""];
-    wdeEnzy[168]=["MspI","C^CGG",0,0,""];
-    wdeEnzy[169]=["MspA1I","CMG^CKG",0,0,""];
-    wdeEnzy[170]=["MunI","C^AATTG",0,0,""];
-    wdeEnzy[171]=["MvaI","CC^WGG",0,0,""];
-    wdeEnzy[172]=["MvnI","CG^CG",0,0,""];
-    wdeEnzy[173]=["MwoI","GCNNNNN^NNGC",0,0,""];
-    wdeEnzy[174]=["NaeI","GCC^GGC",0,0,""];
-    wdeEnzy[175]=["NarI","GG^CGCC",0,0,""];
-    wdeEnzy[176]=["NciI","CC^SGG",0,0,""];
-    wdeEnzy[177]=["NcoI","C^CATGG",0,0,""];
-    wdeEnzy[178]=["NdeI","CA^TATG",0,0,""];
-    wdeEnzy[179]=["NdeII","^GATC",0,0,""];
-    wdeEnzy[180]=["NgoMIV","G^CCGGC",0,0,""];
-    wdeEnzy[181]=["NheI","G^CTAGC",0,0,""];
-    wdeEnzy[182]=["NlaIII","CATG^",0,0,""];
-    wdeEnzy[183]=["NlaIV","GGN^NCC",0,0,""];
-    wdeEnzy[184]=["NmeAIII","GCCGAG(21/19)",0,0,""];
-    wdeEnzy[185]=["NotI","GC^GGCCGC",0,0,""];
-    wdeEnzy[186]=["NruI","TCG^CGA",0,0,""];
-    wdeEnzy[187]=["NsiI","ATGCA^T",0,0,""];
-    wdeEnzy[188]=["NspI","RCATG^Y",0,0,""];
-    wdeEnzy[189]=["PacI","TTAAT^TAA",0,0,""];
-    wdeEnzy[190]=["PaeR7I","C^TCGAG",0,0,""];
-    wdeEnzy[191]=["PciI","A^CATGT",0,0,""];
-    wdeEnzy[192]=["PflFI","GACN^NNGTC",0,0,""];
-    wdeEnzy[193]=["PflMI","CCANNNN^NTGG",0,0,""];
-    wdeEnzy[194]=["PleI","GAGTC(4/5)",0,0,""];
-    wdeEnzy[195]=["PluTI","GGCGC^C",0,0,""];
-    wdeEnzy[196]=["PmeI","GTTT^AAAC",0,0,""];
-    wdeEnzy[197]=["PmlI","CAC^GTG",0,0,""];
-    wdeEnzy[198]=["PpuMI","RG^GWCCY",0,0,""];
-    wdeEnzy[199]=["PshAI","GACNN^NNGTC",0,0,""];
-    wdeEnzy[200]=["PsiI","TTA^TAA",0,0,""];
-    wdeEnzy[201]=["PspGI","^CCWGG",0,0,""];
-    wdeEnzy[202]=["PspOMI","G^GGCCC",0,0,""];
-    wdeEnzy[203]=["PspXI","VC^TCGAGB",0,0,""];
-    wdeEnzy[204]=["PstI","CTGCA^G",0,0,""];
-    wdeEnzy[205]=["PvuI","CGAT^CG",0,0,""];
-    wdeEnzy[206]=["PvuII","CAG^CTG",0,0,""];
-    wdeEnzy[207]=["RsaI","GT^AC",0,0,""];
-    wdeEnzy[208]=["RsrII","CG^GWCCG",0,0,""];
-    wdeEnzy[209]=["SacI","GAGCT^C",0,0,""];
-    wdeEnzy[210]=["SacII","CCGC^GG",0,0,""];
-    wdeEnzy[211]=["SalI","G^TCGAC",0,0,""];
-    wdeEnzy[212]=["SapI","GCTCTTC(1/4)",0,0,""];
-    wdeEnzy[213]=["Sau96I","G^GNCC",0,0,""];
-    wdeEnzy[214]=["Sau3AI","^GATC",0,0,""];
-    wdeEnzy[215]=["SbfI","CCTGCA^GG",0,0,""];
-    wdeEnzy[216]=["ScaI","AGT^ACT",0,0,""];
-    wdeEnzy[217]=["ScrFI","CC^NGG",0,0,""];
-    wdeEnzy[218]=["SexAI","A^CCWGGT",0,0,""];
-    wdeEnzy[219]=["SfaNI","GCATC(5/9)",0,0,""];
-    wdeEnzy[220]=["SfcI","C^TRYAG",0,0,""];
-    wdeEnzy[221]=["SfoI","GGC^GCC",0,0,""];
-    wdeEnzy[222]=["SfuI","TT^CGAA",0,0,""];
-    wdeEnzy[223]=["SgrAI","CR^CCGGYG",0,0,""];
-    wdeEnzy[224]=["SmaI","CCC^GGG",0,0,""];
-    wdeEnzy[225]=["SmlI","C^TYRAG",0,0,""];
-    wdeEnzy[226]=["SnaBI","TAC^GTA",0,0,""];
-    wdeEnzy[227]=["SpeI","A^CTAGT",0,0,""];
-    wdeEnzy[228]=["SphI","GCATG^C",0,0,""];
-    wdeEnzy[229]=["SrfI","GCCC^GGGC",0,0,""];
-    wdeEnzy[230]=["SspI","AAT^ATT",0,0,""];
-    wdeEnzy[231]=["StuI","AGG^CCT",0,0,""];
-    wdeEnzy[232]=["StyI","C^CWWGG",0,0,""];
-    wdeEnzy[233]=["StyD4I","^CCNGG",0,0,""];
-    wdeEnzy[234]=["SwaI","ATTT^AAAT",0,0,""];
-    wdeEnzy[235]=["TaqI","T^CGA",0,0,""];
-    wdeEnzy[236]=["TfiI","G^AWTC",0,0,""];
-    wdeEnzy[237]=["Tru9I","T^TAA",0,0,""];
-    wdeEnzy[238]=["TseI","G^CWGC",0,0,""];
-    wdeEnzy[239]=["Tsp45I","^GTSAC",0,0,""];
-    wdeEnzy[240]=["TspMI","C^CCGGG",0,0,""];
-    wdeEnzy[241]=["TspRI","CASTGNN^",0,0,""];
-    wdeEnzy[242]=["Tth111I","GACN^NNGTC",0,0,""];
-    wdeEnzy[243]=["XbaI","T^CTAGA",0,0,""];
-    wdeEnzy[244]=["XhoI","C^TCGAG",0,0,""];
-    wdeEnzy[245]=["XmaI","C^CCGGG",0,0,""];
-    wdeEnzy[246]=["XmnI","GAANN^NNTTC",0,0,""];
-    wdeEnzy[247]=["ZraI","GAC^GTC",0,0,""];
+    wdeEnzy[0]=["AatII","GACGT^C",0,"-",""];
+    wdeEnzy[1]=["AccI","GT^MKAC",0,"-",""];
+    wdeEnzy[2]=["Acc65I","G^GTACC",0,"-",""];
+    wdeEnzy[3]=["AciI","CCGC(-3/-1)",0,"-",""];
+    wdeEnzy[4]=["AclI","AA^CGTT",0,"-",""];
+    wdeEnzy[5]=["AcuI","CTGAAG(16/14)",0,"-",""];
+    wdeEnzy[6]=["AfeI","AGC^GCT",0,"-",""];
+    wdeEnzy[7]=["AflII","C^TTAAG",0,"-",""];
+    wdeEnzy[8]=["AflIII","A^CRYGT",0,"-",""];
+    wdeEnzy[9]=["AgeI","A^CCGGT",0,"-",""];
+    wdeEnzy[10]=["AhdI","GACNNN^NNGTC",0,"-",""];
+    wdeEnzy[11]=["AleI","CACNN^NNGTG",0,"-",""];
+    wdeEnzy[12]=["AluI","AG^CT",0,"-",""];
+    wdeEnzy[13]=["AlwI","GGATC(4/5)",0,"-",""];
+    wdeEnzy[14]=["AlwNI","CAGNNN^CTG",0,"-",""];
+    wdeEnzy[15]=["ApaI","GGGCC^C",0,"-",""];
+    wdeEnzy[16]=["ApaLI","G^TGCAC",0,"-",""];
+    wdeEnzy[17]=["ApeKI","G^CWGC",0,"-",""];
+    wdeEnzy[18]=["ApoI","R^AATTY",0,"-",""];
+    wdeEnzy[19]=["AscI","GG^CGCGCC",0,"-",""];
+    wdeEnzy[20]=["AseI","AT^TAAT",0,"-",""];
+    wdeEnzy[21]=["AsiSI","GCGAT^CGC",0,"-",""];
+    wdeEnzy[22]=["Asp700I","GAANN^NNTTC",0,"-",""];
+    wdeEnzy[23]=["Asp718I","G^GTACC",0,"-",""];
+    wdeEnzy[24]=["AvaI","C^YCGRG",0,"-",""];
+    wdeEnzy[25]=["AvaII","G^GWCC",0,"-",""];
+    wdeEnzy[26]=["AvrII","C^CTAGG",0,"-",""];
+    wdeEnzy[27]=["BaeGI","GKGCM^C",0,"-",""];
+    wdeEnzy[28]=["BamHI","G^GATCC",0,"-",""];
+    wdeEnzy[29]=["BanI","G^GYRCC",0,"-",""];
+    wdeEnzy[30]=["BanII","GRGCY^C",0,"-",""];
+    wdeEnzy[31]=["BbrPI","CAC^GTG",0,"-",""];
+    wdeEnzy[32]=["BbsI","GAAGAC(2/6)",0,"-",""];
+    wdeEnzy[33]=["BbvI","GCAGC(8/12)",0,"-",""];
+    wdeEnzy[34]=["BbvCI","CCTCAGC(-5/-2)",0,"-",""];
+    wdeEnzy[35]=["BccI","CCATC(4/5)",0,"-",""];
+    wdeEnzy[36]=["BceAI","ACGGC(12/14)",0,"-",""];
+    wdeEnzy[37]=["BciVI","GTATCC(6/5)",0,"-",""];
+    wdeEnzy[38]=["BclI","T^GATCA",0,"-",""];
+    wdeEnzy[39]=["BcoDI","GTCTC(1/5)",0,"-",""];
+    wdeEnzy[40]=["BfaI","C^TAG",0,"-",""];
+    wdeEnzy[41]=["BfrI","C^TTAAG",0,"-",""];
+    wdeEnzy[42]=["BfuAI","ACCTGC(4/8)",0,"-",""];
+    wdeEnzy[43]=["BfuCI","^GATC",0,"-",""];
+    wdeEnzy[44]=["BglI","GCCNNNN^NGGC",0,"-",""];
+    wdeEnzy[45]=["BglII","A^GATCT",0,"-",""];
+    wdeEnzy[46]=["BlnI","C^CTAGG",0,"-",""];
+    wdeEnzy[47]=["BlpI","GC^TNAGC",0,"-",""];
+    wdeEnzy[48]=["BmgBI","CACGTC(-3/-3)",0,"-",""];
+    wdeEnzy[49]=["BmrI","ACTGGG(5/4)",0,"-",""];
+    wdeEnzy[50]=["BmtI","GCTAG^C",0,"-",""];
+    wdeEnzy[51]=["BpmI","CTGGAG(16/14)",0,"-",""];
+    wdeEnzy[52]=["Bpu10I","CCTNAGC(-5/-2)",0,"-",""];
+    wdeEnzy[53]=["BpuEI","CTTGAG(16/14)",0,"-",""];
+    wdeEnzy[54]=["BsaI","GGTCTC(1/5)",0,"-",""];
+    wdeEnzy[55]=["BsaAI","YAC^GTR",0,"-",""];
+    wdeEnzy[56]=["BsaBI","GATNN^NNATC",0,"-",""];
+    wdeEnzy[57]=["BsaHI","GR^CGYC",0,"-",""];
+    wdeEnzy[58]=["BsaJI","C^CNNGG",0,"-",""];
+    wdeEnzy[59]=["BsaWI","W^CCGGW",0,"-",""];
+    wdeEnzy[60]=["BsaXI","(9/12)ACNNNNNCTCC(10/7)",0,"-",""];
+    wdeEnzy[61]=["BseRI","GAGGAG(10/8)",0,"-",""];
+    wdeEnzy[62]=["BseYI","CCCAGC(-5/-1)",0,"-",""];
+    wdeEnzy[63]=["BsgI","GTGCAG(16/14)",0,"-",""];
+    wdeEnzy[64]=["BsiEI","CGRY^CG",0,"-",""];
+    wdeEnzy[65]=["BsiHKAI","GWGCW^C",0,"-",""];
+    wdeEnzy[66]=["BsiWI","C^GTACG",0,"-",""];
+    wdeEnzy[67]=["BslI","CCNNNNN^NNGG",0,"-",""];
+    wdeEnzy[68]=["BsmI","GAATGC(1/-1)",0,"-",""];
+    wdeEnzy[69]=["BsmAI","GTCTC(1/5)",0,"-",""];
+    wdeEnzy[70]=["BsmBI","CGTCTC(1/5)",0,"-",""];
+    wdeEnzy[71]=["BsmFI","GGGAC(10/14)",0,"-",""];
+    wdeEnzy[72]=["BsoBI","C^YCGRG",0,"-",""];
+    wdeEnzy[73]=["Bsp1286I","GDGCH^C",0,"-",""];
+    wdeEnzy[74]=["BspCNI","CTCAG(9/7)",0,"-",""];
+    wdeEnzy[75]=["BspDI","AT^CGAT",0,"-",""];
+    wdeEnzy[76]=["BspEI","T^CCGGA",0,"-",""];
+    wdeEnzy[77]=["BspHI","T^CATGA",0,"-",""];
+    wdeEnzy[78]=["BspMI","ACCTGC(4/8)",0,"-",""];
+    wdeEnzy[79]=["BspQI","GCTCTTC(1/4)",0,"-",""];
+    wdeEnzy[80]=["BsrI","ACTGG(1/-1)",0,"-",""];
+    wdeEnzy[81]=["BsrBI","CCGCTC(-3/-3)",0,"-",""];
+    wdeEnzy[82]=["BsrDI","GCAATG(2/0)",0,"-",""];
+    wdeEnzy[83]=["BsrFI","R^CCGGY",0,"-",""];
+    wdeEnzy[84]=["BsrGI","T^GTACA",0,"-",""];
+    wdeEnzy[85]=["BssHII","G^CGCGC",0,"-",""];
+    wdeEnzy[86]=["BssSI","CACGAG(-5/-1)",0,"-",""];
+    wdeEnzy[87]=["BstAPI","GCANNNN^NTGC",0,"-",""];
+    wdeEnzy[88]=["BstBI","TT^CGAA",0,"-",""];
+    wdeEnzy[89]=["BstEII","G^GTNACC",0,"-",""];
+    wdeEnzy[90]=["BstNI","CC^WGG",0,"-",""];
+    wdeEnzy[91]=["BstUI","CG^CG",0,"-",""];
+    wdeEnzy[92]=["BstXI","CCANNNNN^NTGG",0,"-",""];
+    wdeEnzy[93]=["BstYI","R^GATCY",0,"-",""];
+    wdeEnzy[94]=["BstZ17I","GTA^TAC",0,"-",""];
+    wdeEnzy[95]=["Bsu36I","CC^TNAGG",0,"-",""];
+    wdeEnzy[96]=["BtgI","C^CRYGG",0,"-",""];
+    wdeEnzy[97]=["BtgZI","GCGATG(10/14)",0,"-",""];
+    wdeEnzy[98]=["BtsI","GCAGTG(2/0)",0,"-",""];
+    wdeEnzy[99]=["BtsIMutI","CAGTG(2/0)",0,"-",""];
+    wdeEnzy[100]=["BtsCI","GGATG(2/0)",0,"-",""];
+    wdeEnzy[101]=["Cac8I","GCN^NGC",0,"-",""];
+    wdeEnzy[102]=["CfoI","GCG^C",0,"-",""];
+    wdeEnzy[103]=["ClaI","AT^CGAT",0,"-",""];
+    wdeEnzy[104]=["CviAII","C^ATG",0,"-",""];
+    wdeEnzy[105]=["CviQI","G^TAC",0,"-",""];
+    wdeEnzy[106]=["DdeI","C^TNAG",0,"-",""];
+    wdeEnzy[107]=["DpnI","GA^TC",0,"-",""];
+    wdeEnzy[108]=["DpnII","^GATC",0,"-",""];
+    wdeEnzy[109]=["DraI","TTT^AAA",0,"-",""];
+    wdeEnzy[110]=["DraIII","CACNNN^GTG",0,"-",""];
+    wdeEnzy[111]=["DrdI","GACNNNN^NNGTC",0,"-",""];
+    wdeEnzy[112]=["EaeI","Y^GGCCR",0,"-",""];
+    wdeEnzy[113]=["EagI","C^GGCCG",0,"-",""];
+    wdeEnzy[114]=["EarI","CTCTTC(1/4)",0,"-",""];
+    wdeEnzy[115]=["EciI","GGCGGA(11/9)",0,"-",""];
+    wdeEnzy[116]=["Eco47III","AGC^GCT",0,"-",""];
+    wdeEnzy[117]=["EcoNI","CCTNN^NNNAGG",0,"-",""];
+    wdeEnzy[118]=["EcoO109I","RG^GNCCY",0,"-",""];
+    wdeEnzy[119]=["EcoP15I","CAGCAG(25/27)",0,"-",""];
+    wdeEnzy[120]=["EcoRI","G^AATTC",0,"-",""];
+    wdeEnzy[121]=["EcoRV","GAT^ATC",0,"-",""];
+    wdeEnzy[122]=["Eco53kI","GAG^CTC",0,"-",""];
+    wdeEnzy[123]=["FatI","^CATG",0,"-",""];
+    wdeEnzy[124]=["FauI","CCCGC(4/6)",0,"-",""];
+    wdeEnzy[125]=["Fnu4HI","GC^NGC",0,"-",""];
+    wdeEnzy[126]=["FokI","GGATG(9/13)",0,"-",""];
+    wdeEnzy[127]=["FseI","GGCCGG^CC",0,"-",""];
+    wdeEnzy[128]=["FspI","TGC^GCA",0,"-",""];
+    wdeEnzy[129]=["HaeII","RGCGC^Y",0,"-",""];
+    wdeEnzy[130]=["HaeIII","GG^CC",0,"-",""];
+    wdeEnzy[131]=["HgaI","GACGC(5/10)",0,"-",""];
+    wdeEnzy[132]=["HhaI","GCG^C",0,"-",""];
+    wdeEnzy[133]=["HinP1I","G^CGC",0,"-",""];
+    wdeEnzy[134]=["HincII","GTY^RAC",0,"-",""];
+    wdeEnzy[135]=["HindII","GTY^RAC",0,"-",""];
+    wdeEnzy[136]=["HindIII","A^AGCTT",0,"-",""];
+    wdeEnzy[137]=["HinfI","G^ANTC",0,"-",""];
+    wdeEnzy[138]=["HpaI","GTT^AAC",0,"-",""];
+    wdeEnzy[139]=["HpaII","C^CGG",0,"-",""];
+    wdeEnzy[140]=["HphI","GGTGA(8/7)",0,"-",""];
+    wdeEnzy[141]=["Hpy99I","CGWCG^",0,"-",""];
+    wdeEnzy[142]=["Hpy166II","GTN^NAC",0,"-",""];
+    wdeEnzy[143]=["Hpy188I","TCN^GA",0,"-",""];
+    wdeEnzy[144]=["Hpy188III","TC^NNGA",0,"-",""];
+    wdeEnzy[145]=["HpyAV","CCTTC(6/5)",0,"-",""];
+    wdeEnzy[146]=["HpyCH4III","ACN^GT",0,"-",""];
+    wdeEnzy[147]=["HpyCH4IV","A^CGT",0,"-",""];
+    wdeEnzy[148]=["HpyCH4V","TG^CA",0,"-",""];
+    wdeEnzy[149]=["KasI","G^GCGCC",0,"-",""];
+    wdeEnzy[150]=["KpnI","GGTAC^C",0,"-",""];
+    wdeEnzy[151]=["KspI","CCGC^GG",0,"-",""];
+    wdeEnzy[152]=["MaeI","C^TAG",0,"-",""];
+    wdeEnzy[153]=["MaeII","A^CGT",0,"-",""];
+    wdeEnzy[154]=["MaeIII","^GTNAC",0,"-",""];
+    wdeEnzy[155]=["MboI","^GATC",0,"-",""];
+    wdeEnzy[156]=["MboII","GAAGA(8/7)",0,"-",""];
+    wdeEnzy[157]=["MfeI","C^AATTG",0,"-",""];
+    wdeEnzy[158]=["MluI","A^CGCGT",0,"-",""];
+    wdeEnzy[159]=["MluCI","^AATT",0,"-",""];
+    wdeEnzy[160]=["MluNI","TGG^CCA",0,"-",""];
+    wdeEnzy[161]=["MlyI","GAGTC(5/5)",0,"-",""];
+    wdeEnzy[162]=["MmeI","TCCRAC(20/18)",0,"-",""];
+    wdeEnzy[163]=["MnlI","CCTC(7/6)",0,"-",""];
+    wdeEnzy[164]=["MroI","T^CCGGA",0,"-",""];
+    wdeEnzy[165]=["MscI","TGG^CCA",0,"-",""];
+    wdeEnzy[166]=["MseI","T^TAA",0,"-",""];
+    wdeEnzy[167]=["MslI","CAYNN^NNRTG",0,"-",""];
+    wdeEnzy[168]=["MspI","C^CGG",0,"-",""];
+    wdeEnzy[169]=["MspA1I","CMG^CKG",0,"-",""];
+    wdeEnzy[170]=["MunI","C^AATTG",0,"-",""];
+    wdeEnzy[171]=["MvaI","CC^WGG",0,"-",""];
+    wdeEnzy[172]=["MvnI","CG^CG",0,"-",""];
+    wdeEnzy[173]=["MwoI","GCNNNNN^NNGC",0,"-",""];
+    wdeEnzy[174]=["NaeI","GCC^GGC",0,"-",""];
+    wdeEnzy[175]=["NarI","GG^CGCC",0,"-",""];
+    wdeEnzy[176]=["NciI","CC^SGG",0,"-",""];
+    wdeEnzy[177]=["NcoI","C^CATGG",0,"-",""];
+    wdeEnzy[178]=["NdeI","CA^TATG",0,"-",""];
+    wdeEnzy[179]=["NdeII","^GATC",0,"-",""];
+    wdeEnzy[180]=["NgoMIV","G^CCGGC",0,"-",""];
+    wdeEnzy[181]=["NheI","G^CTAGC",0,"-",""];
+    wdeEnzy[182]=["NlaIII","CATG^",0,"-",""];
+    wdeEnzy[183]=["NlaIV","GGN^NCC",0,"-",""];
+    wdeEnzy[184]=["NmeAIII","GCCGAG(21/19)",0,"-",""];
+    wdeEnzy[185]=["NotI","GC^GGCCGC",0,"-",""];
+    wdeEnzy[186]=["NruI","TCG^CGA",0,"-",""];
+    wdeEnzy[187]=["NsiI","ATGCA^T",0,"-",""];
+    wdeEnzy[188]=["NspI","RCATG^Y",0,"-",""];
+    wdeEnzy[189]=["PacI","TTAAT^TAA",0,"-",""];
+    wdeEnzy[190]=["PaeR7I","C^TCGAG",0,"-",""];
+    wdeEnzy[191]=["PciI","A^CATGT",0,"-",""];
+    wdeEnzy[192]=["PflFI","GACN^NNGTC",0,"-",""];
+    wdeEnzy[193]=["PflMI","CCANNNN^NTGG",0,"-",""];
+    wdeEnzy[194]=["PleI","GAGTC(4/5)",0,"-",""];
+    wdeEnzy[195]=["PluTI","GGCGC^C",0,"-",""];
+    wdeEnzy[196]=["PmeI","GTTT^AAAC",0,"-",""];
+    wdeEnzy[197]=["PmlI","CAC^GTG",0,"-",""];
+    wdeEnzy[198]=["PpuMI","RG^GWCCY",0,"-",""];
+    wdeEnzy[199]=["PshAI","GACNN^NNGTC",0,"-",""];
+    wdeEnzy[200]=["PsiI","TTA^TAA",0,"-",""];
+    wdeEnzy[201]=["PspGI","^CCWGG",0,"-",""];
+    wdeEnzy[202]=["PspOMI","G^GGCCC",0,"-",""];
+    wdeEnzy[203]=["PspXI","VC^TCGAGB",0,"-",""];
+    wdeEnzy[204]=["PstI","CTGCA^G",0,"-",""];
+    wdeEnzy[205]=["PvuI","CGAT^CG",0,"-",""];
+    wdeEnzy[206]=["PvuII","CAG^CTG",0,"-",""];
+    wdeEnzy[207]=["RsaI","GT^AC",0,"-",""];
+    wdeEnzy[208]=["RsrII","CG^GWCCG",0,"-",""];
+    wdeEnzy[209]=["SacI","GAGCT^C",0,"-",""];
+    wdeEnzy[210]=["SacII","CCGC^GG",0,"-",""];
+    wdeEnzy[211]=["SalI","G^TCGAC",0,"-",""];
+    wdeEnzy[212]=["SapI","GCTCTTC(1/4)",0,"-",""];
+    wdeEnzy[213]=["Sau96I","G^GNCC",0,"-",""];
+    wdeEnzy[214]=["Sau3AI","^GATC",0,"-",""];
+    wdeEnzy[215]=["SbfI","CCTGCA^GG",0,"-",""];
+    wdeEnzy[216]=["ScaI","AGT^ACT",0,"-",""];
+    wdeEnzy[217]=["ScrFI","CC^NGG",0,"-",""];
+    wdeEnzy[218]=["SexAI","A^CCWGGT",0,"-",""];
+    wdeEnzy[219]=["SfaNI","GCATC(5/9)",0,"-",""];
+    wdeEnzy[220]=["SfcI","C^TRYAG",0,"-",""];
+    wdeEnzy[221]=["SfoI","GGC^GCC",0,"-",""];
+    wdeEnzy[222]=["SfuI","TT^CGAA",0,"-",""];
+    wdeEnzy[223]=["SgrAI","CR^CCGGYG",0,"-",""];
+    wdeEnzy[224]=["SmaI","CCC^GGG",0,"-",""];
+    wdeEnzy[225]=["SmlI","C^TYRAG",0,"-",""];
+    wdeEnzy[226]=["SnaBI","TAC^GTA",0,"-",""];
+    wdeEnzy[227]=["SpeI","A^CTAGT",0,"-",""];
+    wdeEnzy[228]=["SphI","GCATG^C",0,"-",""];
+    wdeEnzy[229]=["SrfI","GCCC^GGGC",0,"-",""];
+    wdeEnzy[230]=["SspI","AAT^ATT",0,"-",""];
+    wdeEnzy[231]=["StuI","AGG^CCT",0,"-",""];
+    wdeEnzy[232]=["StyI","C^CWWGG",0,"-",""];
+    wdeEnzy[233]=["StyD4I","^CCNGG",0,"-",""];
+    wdeEnzy[234]=["SwaI","ATTT^AAAT",0,"-",""];
+    wdeEnzy[235]=["TaqI","T^CGA",0,"-",""];
+    wdeEnzy[236]=["TfiI","G^AWTC",0,"-",""];
+    wdeEnzy[237]=["Tru9I","T^TAA",0,"-",""];
+    wdeEnzy[238]=["TseI","G^CWGC",0,"-",""];
+    wdeEnzy[239]=["Tsp45I","^GTSAC",0,"-",""];
+    wdeEnzy[240]=["TspMI","C^CCGGG",0,"-",""];
+    wdeEnzy[241]=["TspRI","CASTGNN^",0,"-",""];
+    wdeEnzy[242]=["Tth111I","GACN^NNGTC",0,"-",""];
+    wdeEnzy[243]=["XbaI","T^CTAGA",0,"-",""];
+    wdeEnzy[244]=["XhoI","C^TCGAG",0,"-",""];
+    wdeEnzy[245]=["XmaI","C^CCGGG",0,"-",""];
+    wdeEnzy[246]=["XmnI","GAANN^NNTTC",0,"-",""];
+    wdeEnzy[247]=["ZraI","GAC^GTC",0,"-",""];
     wdeSetDamDcmMeth();
 }
 

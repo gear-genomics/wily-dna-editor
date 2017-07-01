@@ -58,7 +58,7 @@ foreach (@arr) {
 			if (($comm =~ /[MN]/) and (length $seqLength > 3) and ($doNotAdd == 0)) {
 				# Array structure:
                 # Enzyme name, Enzyme Sequence, Selected, Number of occurences in sequence, Positions
-				print OUTFILE "    wdeEnzy[$enzCount]=[\"$name\",\"$seq\",0,0,\"\"];\n";
+				print OUTFILE "    wdeEnzy[$enzCount]=[\"$name\",\"$seq\",0,\"-\",\"\"];\n";
 				$enzCount++;
 			}
 			
