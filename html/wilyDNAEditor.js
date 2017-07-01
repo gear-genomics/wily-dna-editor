@@ -43,18 +43,23 @@ var wdeUserVSeq = "";
 var wdeUserVPos = "";
 var wdeREdisp = 0;
 var wdeDamDcmSel = 1;
-var wdeEnzy=[];
-// [0] = name
-// [1] = sequence
-// [2] = Selected
-// [3] = Number of occurences in sequence
-// [4] = Positions
-// [5] = Dam/Dcm:
+var wdeEnzy = [];
+// [][0] = name
+// [][1] = sequence
+// [][2] = Selected
+// [][3] = Number of occurences in sequence
+// [][4] = Positions
+// [][5] = Dam/Dcm:
 //       N = no Dam/Dcm
 //       A = Dam
 //       C = Dcm
 //       D = Dam and Dcm
-var wdeSeqHigh=[];
+var wdeTranslate = [];
+// [][0] = name
+// [][1] = translation
+// [][2] = start
+
+var wdeSeqHigh = [];
 
 
 function wdeActivateIframe(){
@@ -67,6 +72,7 @@ function wdeActivateIframe(){
     document.getElementById("WDE_DAM_DCM").checked = true;
     document.getElementById("WDE_USER_SEL").checked = false;
     wdePopulateEnzmes();
+    wdePopulateTranslation();
     wdeDrawEnzymes();
 }
 
@@ -357,7 +363,7 @@ function wdeSequenceModified(){
     wdeUserVCount = 0;
     document.getElementById("WDE_USER_COUNT").innerHTML = "Hits: -";
     wdeUserVPos = "";
-    wdeSeqHigh=[];
+    wdeSeqHigh = [];
     wdeREdisp = 0;
     wdeDrawEnzymes();
 }
@@ -1014,6 +1020,101 @@ function wdeSetDamDcmMeth() {
     //       A = Dam
     //       C = Dcm
     //       D = Dam and Dcm    
+}
+
+// Populate the Translation array
+// This function is created by the perl script from NCBI data
+// See:
+// https://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=tgencodes
+// ftp://ftp.ncbi.nih.gov/entrez/misc/data/gc.prt
+//
+// Do not modify!!!!
+function wdePopulateTranslation() {
+    wdeTranslate[0]=[
+      "Standard only Met Start",
+      "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+      "-----------------------------------M----------------------------"];
+    wdeTranslate[1]=[
+      "Standard",
+      "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+      "---M---------------M---------------M----------------------------"];
+    wdeTranslate[2]=[
+      "Vertebrate Mitochondrial",
+      "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSS**VVVVAAAADDEEGGGG",
+      "--------------------------------MMMM---------------M------------"];
+    wdeTranslate[3]=[
+      "Yeast Mitochondrial",
+      "FFLLSSSSYY**CCWWTTTTPPPPHHQQRRRRIIMMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+      "----------------------------------MM----------------------------"];
+    wdeTranslate[4]=[
+      "Mold, Protozoan, Coelenterate Mitochondrial; Mycoplasma; Spiroplasma",
+      "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+      "--MM---------------M------------MMMM---------------M------------"];
+    wdeTranslate[5]=[
+      "Invertebrate Mitochondrial",
+      "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSSSVVVVAAAADDEEGGGG",
+      "---M----------------------------MMMM---------------M------------"];
+    wdeTranslate[6]=[
+      "Ciliate Nuclear; Dasycladacean Nuclear; Hexamita Nuclear",
+      "FFLLSSSSYYQQCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+      "-----------------------------------M----------------------------"];
+    wdeTranslate[7]=[
+      "Echinoderm Mitochondrial; Flatworm Mitochondrial",
+      "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG",
+      "-----------------------------------M---------------M------------"];
+    wdeTranslate[8]=[
+      "Euplotid Nuclear",
+      "FFLLSSSSYY**CCCWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+      "-----------------------------------M----------------------------"];
+    wdeTranslate[9]=[
+      "Bacterial, Archaeal and Plant Plastid",
+      "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+      "---M---------------M------------MMMM---------------M------------"];
+    wdeTranslate[10]=[
+      "Alternative Yeast Nuclear",
+      "FFLLSSSSYY**CC*WLLLSPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+      "-------------------M---------------M----------------------------"];
+    wdeTranslate[11]=[
+      "Ascidian Mitochondrial",
+      "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSGGVVVVAAAADDEEGGGG",
+      "---M------------------------------MM---------------M------------"];
+    wdeTranslate[12]=[
+      "Alternative Flatworm Mitochondrial",
+      "FFLLSSSSYYY*CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG",
+      "-----------------------------------M----------------------------"];
+    wdeTranslate[13]=[
+      "Blepharisma Macronuclear",
+      "FFLLSSSSYY*QCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+      "-----------------------------------M----------------------------"];
+    wdeTranslate[14]=[
+      "Chlorophycean Mitochondrial",
+      "FFLLSSSSYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+      "-----------------------------------M----------------------------"];
+    wdeTranslate[15]=[
+      "Trematode Mitochondrial",
+      "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG",
+      "-----------------------------------M---------------M------------"];
+    wdeTranslate[16]=[
+      "Scenedesmus obliquus Mitochondrial",
+      "FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+      "-----------------------------------M----------------------------"];
+    wdeTranslate[17]=[
+      "Thraustochytrium Mitochondrial",
+      "FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+      "--------------------------------M--M---------------M------------"];
+    wdeTranslate[18]=[
+      "Pterobranchia Mitochondrial",
+      "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSSKVVVVAAAADDEEGGGG",
+      "---M---------------M---------------M---------------M------------"];
+    wdeTranslate[19]=[
+      "Candidate Division SR1 and Gracilibacteria",
+      "FFLLSSSSYY**CCGWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+      "---M-------------------------------M---------------M------------"];
+    wdeTranslate[20]=[
+      "Pachysolen tannophilus Nuclear",
+      "FFLLSSSSYY**CC*WLLLAPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+      "-------------------M---------------M----------------------------"];
+    
 }
 
 // Populate the Enzymes array
