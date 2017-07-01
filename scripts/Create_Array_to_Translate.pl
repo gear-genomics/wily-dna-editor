@@ -23,7 +23,7 @@ my $start = "";
 my $i = 0;
 
 my $def = qq{    wdeTranslate[0]=[
-      "Standard only Met Start",
+      "Standard  -  only Met Start",
       "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
       "-----------------------------------M----------------------------"];
 };

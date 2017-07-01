@@ -58,6 +58,8 @@ var wdeTranslate = [];
 // [][0] = name
 // [][1] = translation
 // [][2] = start
+var wdeVTransCode = 0;
+var wdeVTransLetter = 1; // 0 = 1 Letter As, 1 = 3 Letter As
 
 var wdeSeqHigh = [];
 
@@ -73,6 +75,7 @@ function wdeActivateIframe(){
     document.getElementById("WDE_USER_SEL").checked = false;
     wdePopulateEnzmes();
     wdePopulateTranslation();
+    wdeDrawGeneticCode();
     wdeDrawEnzymes();
 }
 
@@ -125,6 +128,18 @@ function wdeViewZeroOne(){
         lButton.value = "1";
     }
     wdeRepaint();
+}
+
+function wdeTransTreeOne(){
+    var lButton = document.getElementById("wdeTransTreeOneButton");
+    if (wdeVTransLetter) {
+        wdeVTransLetter = 0;
+        lButton.value = "1 Letter Code";
+    } else {
+        wdeVTransLetter = 1;
+        lButton.value = "3 Letter Code";
+    }
+    wdeSelTransTable();
 }
 
 function wdeViewNumbers(){
@@ -727,10 +742,189 @@ function wdeDrawEnzymes() {
     enzyDoc.innerHTML = content;
 }
 
+function wdeDrawGeneticCode() {
+    // Populate the Code Selection
+    var select = document.getElementById('WDE_TRANS_CODE');
+    for (var k = 0; k < wdeTranslate.length; k++) {
+        var option = document.createElement( 'option' );
+        option.value = k;
+        option.text = wdeTranslate[k][0];
+        if (k == 0) {
+           option.setAttribute('selected', true);
+        }    
+        select.add(option);
+    }
+    // Draw the Table
+    wdeSelTransTable();
+}
+
+function wdeSelTransCode() {
+    wdeVTransCode = document.getElementById("WDE_TRANS_CODE").value;
+    wdeSelTransTable();
+}
+
+function wdeSelTransTable() {
+    var transDoc = document.getElementById("WDE_translate_spacer");
+    var content = '<table border="0" style="line-height: 1.0">';
+    content += "<tr>\n<td></td><td></td><td colspan='4' style='text-align: center'>2nd Letter</td><td></td><td></td>\n</tr>\n";
+    content += "<tr>\n<td></td><td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;U</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;C</td>";
+    content += "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G</td><td></td><td></td>\n</tr>\n";
+    for (var k = 0 ; k < 4 ; k++) {
+	    for (var j = 0 ; j < 4 ; j++) {
+	        content += "<tr>\n";
+	        if ((k == 0) && (j == 0)) {
+	            content += "<td rowspan='16'>1st\nLetter</td>";
+	        }
+	        if (((k == 0) || (k % 4)) && (j == 0)) {
+	            content += "<td rowspan='4'>&nbsp;" + wdeNumberToBase(k) + "&nbsp;&nbsp;&nbsp;</td>";
+	        }
+	        for (var i = 0 ; i < 4 ; i++) {
+	            var one = wdeNumberToBase(k);
+	            var two = wdeNumberToBase(i);
+	            var tre = wdeNumberToBase(j);
+	            var as = wdeTranslateTripToAs(one, two, tre, wdeVTransCode);
+	            var asStd = wdeTranslateTripToAs(one, two, tre, 0);
+	            var asOrange = 0;
+	            if (as != asStd) {
+	                asOrange = 1;
+	            }
+	            var start = wdeTranslateTripToStart(one, two, tre, wdeVTransCode);
+	            if (start == "M") {
+	                content += '<td>&nbsp;&nbsp;<span style="background-color:green">&nbsp;' + one + two + tre + "&nbsp;</span>";
+	            } else if (as == "*") {
+	                content += '<td>&nbsp;&nbsp;<span style="background-color:red">&nbsp;' + one + two + tre + "&nbsp;</span>";
+	            } else {
+	                content += "<td>&nbsp;&nbsp;&nbsp;" + one + two + tre + "&nbsp;";
+	            }
+	            if (wdeVTransLetter == 1) {
+	               as =  wdeProteinOneThree(as);
+	            }
+	            if ((as == "*") || (as == "*  ")) {
+	                as = "Stop";
+	            }
+	            if (asOrange) {
+	                content += '&nbsp;-&nbsp;<span style="background-color:orange">&nbsp;' + as + "&nbsp;</span>&nbsp;&nbsp;</td>";
+	            } else {
+	                content += "&nbsp;-&nbsp;&nbsp;" + as + "&nbsp;&nbsp;&nbsp;</td>";
+	            }
+		        if (i == 3) {
+		            content += "<td>&nbsp;&nbsp;&nbsp;" + wdeNumberToBase(j) + "&nbsp;</td>";
+		        }
+	        }    
+	        if ((k == 0) && (j == 0)) {
+	            content += "<td rowspan='16'>3rd\nLetter</td>";
+	        }
+	        content += "</tr>\n";
+        }
+    }
+
+    content += "</table>";
+    transDoc.innerHTML = content;
+}
 
 //////////////////////////////////////////////////////////////////////
 // Now only the reverse complementation and enzyme functions follow //
 //////////////////////////////////////////////////////////////////////
+
+// Functions for the code table and translation
+function wdeNumberToBase(seq){
+    var retSeq = "";
+    switch (seq) {
+        case 0: retSeq = "U";
+            break;
+        case 1: retSeq = "C";
+            break;
+        case 2: retSeq = "A";
+            break;
+        case 3: retSeq = "G";
+            break;
+    }
+    return retSeq;
+}
+
+function wdeBaseToNumber(seq){
+    var retSeq = 0;
+    switch (seq) {
+        case "U": retSeq = 0;
+            break;
+        case "C": retSeq = 1;
+            break;
+        case "A": retSeq = 2;
+            break;
+        case "G": retSeq = 3;
+            break;
+    }
+    return retSeq;
+}
+
+function wdeTranslateTripToAs(one, two, tre, bas){
+    var a = wdeBaseToNumber(one);
+    var b = wdeBaseToNumber(two);
+    var c = wdeBaseToNumber(tre);    
+    var pos = a * 16 + b *4 + c;
+    return wdeTranslate[bas][1].charAt(pos);
+}
+
+function wdeTranslateTripToStart(one, two, tre, bas){
+    var a = wdeBaseToNumber(one);
+    var b = wdeBaseToNumber(two);
+    var c = wdeBaseToNumber(tre);    
+    var pos = a * 16 + b *4 + c;
+    return wdeTranslate[bas][2].charAt(pos);
+}
+
+// Translates single letter code to tree letter code
+function wdeProteinOneThree(seqIn){
+    var seq = seqIn.toLowerCase();
+    var retSeq = "";
+    for (var i = 0; i < seq.length ; i++) {
+        switch (seq.charAt(i)) {
+            case "g": retSeq += "Gly";
+                break;
+            case "a": retSeq += "Ala";
+                break;
+            case "l": retSeq += "Leu";
+                break;
+            case "m": retSeq += "Met";
+                break;
+            case "f": retSeq += "Phe";
+                break;
+            case "w": retSeq += "Trp";
+                break;
+            case "k": retSeq += "Lys";
+                break;
+            case "q": retSeq += "Gln";
+                break;
+            case "e": retSeq += "Glu";
+                break;
+            case "s": retSeq += "Ser";
+                break;
+            case "p": retSeq += "Pro";
+                break;
+            case "v": retSeq += "Val";
+                break;
+            case "i": retSeq += "Ile";
+                break;
+            case "c": retSeq += "Cys";
+                break;
+            case "y": retSeq += "Tyr";
+                break;
+            case "h": retSeq += "His";
+                break;
+            case "r": retSeq += "Arg";
+                break;
+            case "n": retSeq += "Asn";
+                break;
+            case "d": retSeq += "Asp";
+                break;
+            case "t": retSeq += "Thr";
+                break;
+            case "*": retSeq += "*  ";
+                break;
+        }               
+    }
+    return retSeq;
+}
 
 // Sequences have to be of same length
 // Seq1 is expected to be ATGC
@@ -1031,7 +1225,7 @@ function wdeSetDamDcmMeth() {
 // Do not modify!!!!
 function wdePopulateTranslation() {
     wdeTranslate[0]=[
-      "Standard only Met Start",
+      "Standard  -  only Met Start",
       "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
       "-----------------------------------M----------------------------"];
     wdeTranslate[1]=[

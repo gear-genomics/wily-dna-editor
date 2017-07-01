@@ -1,6 +1,6 @@
 function wdePopulateTranslation() {
     wdeTranslate[0]=[
-      "Standard only Met Start",
+      "Standard  -  only Met Start",
       "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
       "-----------------------------------M----------------------------"];
     wdeTranslate[1]=[
