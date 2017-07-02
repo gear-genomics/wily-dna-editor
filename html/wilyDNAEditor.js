@@ -33,6 +33,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+// Display Variables
+var prevTabPage = "WDE_main_tab";
+var prevTab = "tab1";
+var testInstr = 0;
+
 // Global Variables
 var wdeZeroOne = 1;
 var wdeNumbers = 1;
@@ -59,13 +64,68 @@ var wdeTranslate = [];
 // [][1] = translation
 // [][2] = start
 var wdeVTransCode = 0;
+var wdeVTransFrameNr = 6; // Valid: 1, 3, 6
 var wdeVTransLetter = 1; // 0 = 1 Letter As, 1 = 3 Letter As
+var wdeVTransRevComp = 1;
 
 var wdeSeqHigh = [];
 
+// Display Functions
+function showTab(tab,id) {
+        if (id == "" || !document.getElementById(id)) {
+                return;
+        }
+        if (prevTabPage != "" && document.getElementById(prevTabPage)) {
+                document.getElementById(prevTabPage).style.display="none";
+                document.getElementById(prevTab).style.background="white";
+                document.getElementById(prevTab).style.top="0px";
+                document.getElementById(prevTab).style.zIndex="0";
+        }
+        if (tab != "" && document.getElementById(tab)) {
+                document.getElementById(tab).style.background="rgb(255, 255, 230)";
+                document.getElementById(tab).style.position="relative";
+                document.getElementById(tab).style.top="2px";
+                document.getElementById(tab).style.zIndex="1";
+                prevTab = tab;
+        }
+        document.getElementById(id).style.display="inline";
+        prevTabPage = id;
+}
 
+function hideTabs() {
+        document.getElementById('WDE_restriction_sites').style.display="none";
+        document.getElementById('WDE_digest').style.display="none";
+        document.getElementById('WDE_translate').style.display="none";
+        document.getElementById('WDE_settings').style.display="none";
+}
+
+function countUp() {
+    var client = new XMLHttpRequest();
+    client.open('GET', 'https://wily-dna-editor.com/cgi-bin/wdeStatisticsCountOne.cgi');
+    client.send();
+}
+
+function loadTestSeq() {
+    loadTestScripts();
+	setTimeout(function () {
+        wdeTestLoadLargeSeq();
+    }, 200);
+}
+
+function loadTestScripts() {
+    if (testInstr == 0) {
+	    var scriptBlock = document.createElement('script');
+        scriptBlock.setAttribute("type","text/javascript");
+        scriptBlock.setAttribute("src", "wilyDNAEditorTestSuite.js");
+        document.getElementsByTagName("head")[0].appendChild(scriptBlock);
+		testInstr = 1;
+	}
+}
+
+// Wily Functions
 function wdeActivateIframe(){
     window.frames['WDE_RTF'].document.designMode = 'On';
+    window.frames['WDE_TRANS'].document.designMode = 'On';
     var fileLoad = document.getElementById("WDE_Load_File");
     fileLoad.addEventListener("change", wdeLoadFile, false);
     window.frames['WDE_RTF'].document.addEventListener('cut', wdeCutEvent);
@@ -142,6 +202,32 @@ function wdeTransTreeOne(){
     wdeSelTransTable();
 }
 
+function wdeTransFrameNr(){
+    var lButton = document.getElementById("wdeTransFrameNrButton");
+    if (wdeVTransFrameNr == 6) {
+        wdeVTransFrameNr = 3;
+        lButton.value = "3 Frame";
+    } else if (wdeVTransFrameNr == 3) {
+        wdeVTransFrameNr = 1;
+        lButton.value = "1 Frame";
+    } else {
+        wdeVTransFrameNr = 6;
+        lButton.value = "6 Frame";
+    }
+}
+
+function wdeTransRevComp(){
+    var lButton = document.getElementById("wdeTransRevCompButton");
+    if (wdeVTransRevComp) {
+        wdeVTransRevComp = 0;
+        lButton.value = "No";
+    } else {
+        wdeVTransRevComp = 1;
+        lButton.value = "Yes";
+    }
+    wdeSelTransTable();
+}
+
 function wdeViewNumbers(){
     if (wdeNumbers) {
         wdeNumbers = 0;
@@ -194,7 +280,9 @@ function wdeHighlight(){
         }
         if (sel > 0) {
             wdeREdisp = 1;
+            showTab('tab1','WDE_main_tab');
         } else {
+            showTab('tab2','WDE_restriction_sites');
             alert("No restriction enzymes selected!\n\nSelect at least one restriction enzyme.");
         }
     }
@@ -773,7 +861,7 @@ function wdeSelTransTable() {
 	    for (var j = 0 ; j < 4 ; j++) {
 	        content += "<tr>\n";
 	        if ((k == 0) && (j == 0)) {
-	            content += "<td rowspan='16'>1st\nLetter</td>";
+	            content += "<td rowspan='16'>1st\nLetter&nbsp;&nbsp;&nbsp;</td>";
 	        }
 	        if (((k == 0) || (k % 4)) && (j == 0)) {
 	            content += "<td rowspan='4'>&nbsp;" + wdeNumberToBase(k) + "&nbsp;&nbsp;&nbsp;</td>";
@@ -812,7 +900,7 @@ function wdeSelTransTable() {
 		        }
 	        }    
 	        if ((k == 0) && (j == 0)) {
-	            content += "<td rowspan='16'>3rd\nLetter</td>";
+	            content += "<td rowspan='16'>&nbsp;&nbsp;&nbsp;3rd\nLetter</td>";
 	        }
 	        content += "</tr>\n";
         }

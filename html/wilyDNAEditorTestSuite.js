@@ -1383,6 +1383,7 @@ function wdeTestLoadLargeSeq() {
     "AACTTAATAACACATTGCGGACGTTTTTAATGTACTGAATTC";
 
     mainForm.elements["SEQUENCE_ID"].value = "JN874483.1 Cloning vector pHUGE-LjMtNFS, complete sequence";
-    window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(seq, wdeZeroOne, wdeNumbers); 
+    window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(seq, wdeZeroOne, wdeNumbers);
+    showTab('tab1','WDE_main_tab');
 }
 
