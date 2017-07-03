@@ -1106,10 +1106,10 @@ function wdeTransDrawFrame() {
             retVal += "\n\n";
         } else {
             if (wdeVTransFrameNr != 1) {
-                retVal += spacer + "    " + frames[2].substring(start) + "\n";
-                retVal += spacer + "   " + frames[1].substring(start) + "\n";
+                retVal += spacer + "    " + wdeTransHmlPart(frames[2].substring(start), frames[8].substring(start)) + "\n";
+                retVal += spacer + "   " + wdeTransHmlPart(frames[1].substring(start), frames[7].substring(start)) + "\n";
             }
-            retVal += spacer + "  " + frames[0].substring(start) + "\n";
+            retVal += spacer + "  " + wdeTransHmlPart(frames[0].substring(start), frames[6].substring(start)) + "\n";
         
             retVal += spacer + "  " + seq.substring(start) + "\n";
             retVal += number + ticks.substring(0, (length - start + 2)) + "\n";
@@ -1117,9 +1117,9 @@ function wdeTransDrawFrame() {
                 retVal += spacer + "  " + rSeq.substring(start) + "\n";
             }
             if (wdeVTransFrameNr == 6) {
-                retVal += spacer + "    " + frames[5].substring(start) + "\n";
-                retVal += spacer + "   " + frames[4].substring(start) + "\n";
-                retVal += spacer + "  " + frames[3].substring(start) + "\n";
+                retVal += spacer + "    " + wdeTransHmlPart(frames[5].substring(start), frames[11].substring(start)) + "\n";
+                retVal += spacer + "   " + wdeTransHmlPart(frames[4].substring(start), frames[10].substring(start)) + "\n";
+                retVal += spacer + "  " + wdeTransHmlPart(frames[3].substring(start), frames[9].substring(start)) + "\n";
             }
             retVal += "\n\n";
         }
