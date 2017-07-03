@@ -199,6 +199,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 &nbsp;<input type="button" onClick="wdeRComp()" value="Reverse Complement All">
 <br />
 &nbsp;<input type="button" onClick="wdeHighlight()" value="Highlight Selected Restriction Sites">
+&nbsp;<input type="button" onClick="wdeTransInSel()" value="Translate Selection">
+&nbsp;<input type="button" onClick="wdeTransInAll()" value="Translate All">
 <br />
 <!-- Hide the textarea and replace it with an iFrame -->
 <textarea name="SEQUENCE_TEMPLATE" rows="12" cols="90" style="display:none;"></textarea>
@@ -270,6 +272,9 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 &nbsp;<input type="button" id="wdeTransFrameNrButton" onClick="wdeTransFrameNr()" value="6 Frame">
 &nbsp;&nbsp;&nbsp;&nbsp;<a>Show Reverse Complement:</a>
 &nbsp;<input type="button" id="wdeTransRevCompButton" onClick="wdeTransRevComp()" value="On">
+<br>
+&nbsp;<input type="button" onClick="wdeTransInSel()" value="Translate Selection">
+&nbsp;<input type="button" onClick="wdeTransInAll()" value="Translate All">
 
 <div id="WDE_translate_spacer">
 &nbsp;<a>Code Field...</a>

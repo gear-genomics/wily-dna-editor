@@ -67,8 +67,11 @@ var wdeVTransCode = 0;
 var wdeVTransFrameNr = 6; // Valid: 1, 3, 6
 var wdeVTransLetter = 1; // 0 = 1 Letter As, 1 = 3 Letter As
 var wdeVTransRevComp = 1;
+var wdeVTransDNA = "";
 
 var wdeSeqHigh = [];
+
+
 
 // Display Functions
 function showTab(tab,id) {
@@ -214,6 +217,7 @@ function wdeTransFrameNr(){
         wdeVTransFrameNr = 6;
         lButton.value = "6 Frame";
     }
+    wdeSelTransTable();
 }
 
 function wdeTransRevComp(){
@@ -830,6 +834,23 @@ function wdeDrawEnzymes() {
     enzyDoc.innerHTML = content;
 }
 
+function wdeTransInSel() {
+    var sel, range;
+    if (window.frames['WDE_RTF'].getSelection) {
+        sel = window.frames['WDE_RTF'].getSelection();
+        var theSelection = sel.toString();
+        wdeVTransDNA =  wdeCleanSeq(theSelection);
+        wdeSelTransTable();
+        showTab('tab4','WDE_translate');
+    } 
+}
+
+function wdeTransInAll() {
+    wdeVTransDNA = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
+    wdeSelTransTable();
+    showTab('tab4','WDE_translate');
+}
+
 function wdeDrawGeneticCode() {
     // Populate the Code Selection
     var select = document.getElementById('WDE_TRANS_CODE');
@@ -908,7 +929,138 @@ function wdeSelTransTable() {
 
     content += "</table>";
     transDoc.innerHTML = content;
+    wdeTransDrawFrame();
 }
+
+function wdeTransDrawFrame() {
+    var seq = wdeVTransDNA;
+    var rSeq = "";
+    var frames = [];
+    var retVal = "";
+    var rOne;
+    var rTwo;
+    var rTre;
+    if (seq.length < 1) {
+        window.frames['WDE_TRANS'].document.body.innerHTML = "";
+        return;
+    }
+    // translate all six frames
+    frames[0] = "";
+    frames[1] = "";
+    frames[2] = "";
+    frames[3] = "";
+    frames[4] = "";
+    frames[5] = "";
+    var end = seq.length - 3;
+    for (var i = 0 ; i <= end ; i++) {
+        var one = seq.charAt(i);
+        var two = seq.charAt(i + 1);
+        var tre = seq.charAt(i + 2);
+        rOne = wdeReverseComplement(tre);
+        rTwo = wdeReverseComplement(two);
+        rTre = wdeReverseComplement(one);
+        rSeq += rTre;
+        var as;
+        var rAs;
+        var regEx = /[atgcATGC]/;
+        if ((regEx.exec(one)) && (regEx.exec(two)) && (regEx.exec(tre))) {
+            as = wdeTranslateTripToAs(one, two, tre, wdeVTransCode);
+            rAs = wdeTranslateTripToAs(rOne, rTwo, rTre, wdeVTransCode);
+            if (wdeVTransLetter == 1) {
+               as = wdeProteinOneThree(as);
+               rAs = wdeProteinOneThree(rAs);
+            } else {
+               as = as + "  ";
+               rAs = rAs + "  ";
+            }
+        } else {
+            if (wdeVTransLetter == 1) {
+               as = "---";
+               rAs = "---";
+            } else {
+               as = "-  ";
+               rAs = "-  ";
+            }
+        }
+        frames[(i % 3)] += as;
+        frames[((i % 3) + 3)] += rAs;
+        
+        
+        
+    
+    }
+    rSeq += rTwo;
+    rSeq += rOne;
+    
+    // Now draw the output
+    var digits = 0;
+    var length = seq.length;
+        for (var i = length; i > 1 ; i = i / 10) {
+        digits++;
+    }
+    digits++;
+    var segments = Math.ceil(seq.length / 60);
+    for (var i = 0; i < segments ; i++) {
+        var start = 60 * i;
+        var end = 60 * (i + 1);
+        if (end > length) {
+            end = -1;
+        }
+        var pNum = start + 1;
+        var num = pNum.toString();
+        var number = "";
+        for (var j = digits; j > num.length ; j--) {
+            number += " ";
+        }
+        number += num;
+        var spacer = "";
+        for (var j = 0; j < number.length ; j++) {
+            spacer += " ";
+        }
+        var ticks = " |         |         |         |         |         |         |";
+        if (end > -1) {
+            if (wdeVTransFrameNr != 1) {
+                retVal += spacer + "    " + frames[2].substring(start,end) + "\n";
+                retVal += spacer + "   " + frames[1].substring(start,end) + "\n";
+            }
+            retVal += spacer + "  " + frames[0].substring(start,end) + "\n";
+        
+            retVal += spacer + "  " + seq.substring(start,end) + "\n";
+            retVal += number + ticks + "\n";
+            
+            if (wdeVTransRevComp) {
+                retVal += spacer + "  " + rSeq.substring(start,end) + "\n";
+            }
+            if (wdeVTransFrameNr == 6) {
+                retVal += spacer + "    " + frames[5].substring(start,end) + "\n";
+                retVal += spacer + "   " + frames[4].substring(start,end) + "\n";
+                retVal += spacer + "  " + frames[3].substring(start,end) + "\n";
+            }
+        
+            retVal += "\n\n";
+        } else {
+            if (wdeVTransFrameNr != 1) {
+                retVal += spacer + "    " + frames[2].substring(start) + "\n";
+                retVal += spacer + "   " + frames[1].substring(start) + "\n";
+            }
+            retVal += spacer + "  " + frames[0].substring(start) + "\n";
+        
+            retVal += spacer + "  " + seq.substring(start) + "\n";
+            retVal += number + ticks.substring(0, (length - start + 2)) + "\n";
+            if (wdeVTransRevComp) {
+                retVal += spacer + "  " + rSeq.substring(start) + "\n";
+            }
+            if (wdeVTransFrameNr == 6) {
+                retVal += spacer + "    " + frames[5].substring(start) + "\n";
+                retVal += spacer + "   " + frames[4].substring(start) + "\n";
+                retVal += spacer + "  " + frames[3].substring(start) + "\n";
+            }
+            retVal += "\n\n";
+        }
+    }   
+    window.frames['WDE_TRANS'].document.body.innerHTML = "<pre>" + retVal + "</pre>";
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // Now only the reverse complementation and enzyme functions follow //
@@ -940,6 +1092,14 @@ function wdeBaseToNumber(seq){
         case "A": retSeq = 2;
             break;
         case "G": retSeq = 3;
+            break;
+        case "u": retSeq = 0;
+            break;
+        case "c": retSeq = 1;
+            break;
+        case "a": retSeq = 2;
+            break;
+        case "g": retSeq = 3;
             break;
     }
     return retSeq;
