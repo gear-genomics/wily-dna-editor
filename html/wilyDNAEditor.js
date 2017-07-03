@@ -374,15 +374,20 @@ function wdeSaveFasta() {
         }
     content += "\n";
     var fileName = mainForm.elements["SEQUENCE_ID"].value + ".fa";
-    wdeSaveFile(fileName, content);
+    wdeSaveFile(fileName, content, "text");
 };
 
-function wdeSaveFile(fileName,content) {
+function wdeSaveFile(fileName,content,type) {
     var MIME_TYPE = "text/plain";
     var a = document.createElement("a");
     document.body.appendChild(a);
     a.style = "display: none";
-    var blob = new Blob([content], {type: "text/plain"});
+    var blob;
+    if (type == "html") {
+        blob = new Blob([content], {type: "text/html"});
+    } else {
+        blob = new Blob([content], {type: "text/plain"});
+    }
     var url = window.URL.createObjectURL(blob);
     a.href = url;
     a.download = fileName;
@@ -951,6 +956,12 @@ function wdeTransDrawFrame() {
     frames[3] = "";
     frames[4] = "";
     frames[5] = "";
+    frames[6] = "";
+    frames[7] = "";
+    frames[8] = "";
+    frames[9] = "";
+    frames[10] = "";
+    frames[11] = "";
     var end = seq.length - 3;
     for (var i = 0 ; i <= end ; i++) {
         var one = seq.charAt(i);
@@ -962,10 +973,28 @@ function wdeTransDrawFrame() {
         rSeq += rTre;
         var as;
         var rAs;
+        var start;
+        var rStart;
         var regEx = /[atgcATGC]/;
         if ((regEx.exec(one)) && (regEx.exec(two)) && (regEx.exec(tre))) {
             as = wdeTranslateTripToAs(one, two, tre, wdeVTransCode);
+            start = wdeTranslateTripToStart(one, two, tre, wdeVTransCode);
             rAs = wdeTranslateTripToAs(rOne, rTwo, rTre, wdeVTransCode);
+            rStart = wdeTranslateTripToStart(rOne, rTwo, rTre, wdeVTransCode);
+            if (start == "M") {
+               start = "MMM";
+            } else if (as == "*") {
+               start = "***";
+            } else {
+               start = "---";
+            }
+            if (rStart == "M") {
+               rStart = "MMM";
+            } else if (rAs == "*") {
+               rStart = "***";
+            } else {
+               rStart = "---";
+            }
             if (wdeVTransLetter == 1) {
                as = wdeProteinOneThree(as);
                rAs = wdeProteinOneThree(rAs);
@@ -981,17 +1010,55 @@ function wdeTransDrawFrame() {
                as = "-  ";
                rAs = "-  ";
             }
+            start = "---";
+            rStart = "---";
         }
         frames[(i % 3)] += as;
         frames[((i % 3) + 3)] += rAs;
-        
-        
-        
-    
+        frames[((i % 3) + 6)] += start;
+        frames[((i % 3) + 9)] += rStart;
     }
     rSeq += rTwo;
     rSeq += rOne;
-    
+    // Now fill the gaps in the frames
+    for (var k = 6 ; k < 9 ; k++) {
+        var lastMark = "---";
+        var retMark = "";
+        for (var i = 0 ; i <= frames[k].length ; i = i + 3) {
+            var word = frames[k].substring(i,(i+3));
+            if (word == "MMM") {
+                retMark += "MMM";
+                lastMark = "MMM";
+            } else if (word == "***") {
+                retMark += "***";
+                lastMark = "---";
+            } else if (lastMark == "MMM") {
+                retMark += "nnn";
+            } else {
+                retMark += "---";
+            }
+        }
+        frames[k] = retMark;
+    }
+    for (var k = 9 ; k < 12 ; k++) {
+        var lastMark = "---";
+        var retMark = "";
+        for (var i = frames[k].length - 3 ; i >= 0 ; i = i - 3) {
+            var word = frames[k].substring(i,(i+3));
+            if (word == "MMM") {
+                retMark = "MMM" + retMark;
+                lastMark = "MMM";
+            } else if (word == "***") {
+                retMark = "***" + retMark;
+                lastMark = "---";
+            } else if (lastMark == "MMM") {
+                retMark = "nnn" + retMark;
+            } else {
+                retMark = "---" + retMark;
+            }
+        }
+        frames[k] = retMark;
+    }
     // Now draw the output
     var digits = 0;
     var length = seq.length;
@@ -1020,10 +1087,10 @@ function wdeTransDrawFrame() {
         var ticks = " |         |         |         |         |         |         |";
         if (end > -1) {
             if (wdeVTransFrameNr != 1) {
-                retVal += spacer + "    " + frames[2].substring(start,end) + "\n";
-                retVal += spacer + "   " + frames[1].substring(start,end) + "\n";
+                retVal += spacer + "    " + wdeTransHmlPart(frames[2].substring(start,end), frames[8].substring(start,end)) + "\n";
+                retVal += spacer + "   " + wdeTransHmlPart(frames[1].substring(start,end), frames[7].substring(start,end)) + "\n";
             }
-            retVal += spacer + "  " + frames[0].substring(start,end) + "\n";
+             retVal += spacer + "  " + wdeTransHmlPart(frames[0].substring(start,end), frames[6].substring(start,end)) + "\n";
         
             retVal += spacer + "  " + seq.substring(start,end) + "\n";
             retVal += number + ticks + "\n";
@@ -1032,11 +1099,10 @@ function wdeTransDrawFrame() {
                 retVal += spacer + "  " + rSeq.substring(start,end) + "\n";
             }
             if (wdeVTransFrameNr == 6) {
-                retVal += spacer + "    " + frames[5].substring(start,end) + "\n";
-                retVal += spacer + "   " + frames[4].substring(start,end) + "\n";
-                retVal += spacer + "  " + frames[3].substring(start,end) + "\n";
+                retVal += spacer + "    " + wdeTransHmlPart(frames[5].substring(start,end), frames[11].substring(start,end)) + "\n";
+                retVal += spacer + "   " + wdeTransHmlPart(frames[4].substring(start,end), frames[10].substring(start,end)) + "\n";
+                retVal += spacer + "  " + wdeTransHmlPart(frames[3].substring(start,end), frames[9].substring(start,end)) + "\n";
             }
-        
             retVal += "\n\n";
         } else {
             if (wdeVTransFrameNr != 1) {
@@ -1060,6 +1126,45 @@ function wdeTransDrawFrame() {
     }   
     window.frames['WDE_TRANS'].document.body.innerHTML = "<pre>" + retVal + "</pre>";
 }
+
+function wdeTransHmlPart(seq, mark) {
+    var retVal = "";
+    var lastChar = "-";
+    for (var i = 0; i < seq.length ; i++) {
+        if (mark.charAt(i) != lastChar) {
+            // must be colored, so end it
+            if (lastChar != "-") {
+                retVal += '</span>';
+            }
+            if (mark.charAt(i) == "M") {
+                retVal += '<span style="background-color:green">';
+                lastChar = "M";
+            }
+            if (mark.charAt(i) == "n") {
+                retVal += '<span style="background-color:lime">';
+                lastChar = "n";
+            }
+            if (mark.charAt(i) == "*") {
+                retVal += '<span style="background-color:red">';
+                lastChar = "*";
+            }
+            
+        }
+        retVal += seq.charAt(i)
+    }
+    if (lastChar != "-") {
+        retVal += '</span>';
+    }
+    
+    return retVal;
+}
+
+function wdeSaveTrans() {
+    var content = window.frames['WDE_TRANS'].document.body.innerHTML;
+    content = "<html>\n<body>\n" + content + "\n</body>\n</html>\n";
+    var fileName = mainForm.elements["SEQUENCE_ID"].value + "_translation.html";
+    wdeSaveFile(fileName, content, "html");
+};
 
 
 //////////////////////////////////////////////////////////////////////
@@ -1167,7 +1272,7 @@ function wdeProteinOneThree(seqIn){
                 break;
             case "t": retSeq += "Thr";
                 break;
-            case "*": retSeq += "*  ";
+            case "*": retSeq += "***";
                 break;
         }               
     }
