@@ -68,6 +68,8 @@ var wdeVTransFrameNr = 6; // Valid: 1, 3, 6
 var wdeVTransLetter = 1; // 0 = 1 Letter As, 1 = 3 Letter As
 var wdeVTransRevComp = 1;
 var wdeVTransDNA = "";
+var wdeVTransOrfView = 0;
+var wdeVTransOrfSortSize = 1;
 
 var wdeSeqHigh = [];
 
@@ -219,6 +221,35 @@ function wdeTransFrameNr(){
     }
     wdeSelTransTable();
 }
+
+function wdeOrfView(){
+    var lButton = document.getElementById("wdeTransOrfViewButton");
+    if (wdeVTransOrfView) {
+        wdeVTransOrfView = 0;
+        lButton.value = "View ORF List";
+    } else {
+        wdeVTransOrfView = 1;
+        lButton.value = "View Frame Translation";
+    }
+    wdeSelTransTable();
+}
+
+function wdeOrfSort(){
+    var lButton = document.getElementById("wdeTransOrfSortButton");
+    if (wdeVTransOrfSortSize) {
+        wdeVTransOrfSortSize = 0;
+        lButton.value = "Sort ORFs by Size";
+    } else {
+        wdeVTransOrfSortSize = 1;
+        lButton.value = "Sort ORFs by Position";
+    }
+    wdeSelTransTable();
+}
+
+var wdeVTransOrfView = 0;
+var wdeVTransOrfSortSize = 1;
+
+
 
 function wdeTransRevComp(){
     var lButton = document.getElementById("wdeTransRevCompButton");
@@ -949,6 +980,13 @@ function wdeTransDrawFrame() {
         window.frames['WDE_TRANS'].document.body.innerHTML = "";
         return;
     }
+    var orfs = [];
+    // [][0] Name
+    // [][1] Start
+    // [][2] For 0 Rev 1
+    // [][3] Length
+    // [][4] Protein Sequence
+    
     // translate all six frames
     frames[0] = "";
     frames[1] = "";
@@ -1060,70 +1098,111 @@ function wdeTransDrawFrame() {
         frames[k] = retMark;
     }
     // Now draw the output
-    var digits = 0;
-    var length = seq.length;
-        for (var i = length; i > 1 ; i = i / 10) {
-        digits++;
-    }
-    digits++;
-    var segments = Math.ceil(seq.length / 60);
-    for (var i = 0; i < segments ; i++) {
-        var start = 60 * i;
-        var end = 60 * (i + 1);
-        if (end > length) {
-            end = -1;
-        }
-        var pNum = start + 1;
-        var num = pNum.toString();
-        var number = "";
-        for (var j = digits; j > num.length ; j--) {
-            number += " ";
-        }
-        number += num;
-        var spacer = "";
-        for (var j = 0; j < number.length ; j++) {
-            spacer += " ";
-        }
-        var ticks = " |         |         |         |         |         |         |";
-        if (end > -1) {
-            if (wdeVTransFrameNr != 1) {
-                retVal += spacer + "    " + wdeTransHmlPart(frames[2].substring(start,end), frames[8].substring(start,end)) + "\n";
-                retVal += spacer + "   " + wdeTransHmlPart(frames[1].substring(start,end), frames[7].substring(start,end)) + "\n";
-            }
-             retVal += spacer + "  " + wdeTransHmlPart(frames[0].substring(start,end), frames[6].substring(start,end)) + "\n";
+    if (wdeVTransOrfView) {
+        // Find the ORFs
+        var orfCount = 0;
+        var seqName = "test";
+	    for (var k = 6 ; k < 9 ; k++) {
+            var inOrf = 0;
+            var orf = "";
+            var leng = 0;
+            var pos;
+	        for (var i = 0 ; i <= frames[k].length ; i = i + 3) {
+	            var word = frames[k].substring(i,(i+3));
+	            if (word == "MMM") {
+	                orf += frames[(k - 6)].substring(i,(i+3));
+	                leng++;
+	                if (inOrf == 0) {
+	                    pos = i + wdeZeroOne;
+	                    inOrf = 1;
+	                }
+	            } else if (word == "nnn") {
+	                orf += frames[(k - 6)].substring(i,(i+3));
+	                leng++;
+	            } else if (word == "***") {
+	                orf += frames[(k - 6)].substring(i,(i+3));
+	                if (inOrf) {
+	                    retVal += ">" + seqName + "_" + pos + "_" + leng + "\n" + orf + "\n\n";
+	                }
+	                leng = 0;
+	                orf = "";
+	                inOrf = 0;
+	            } else {
+	                
+	            }
+	        }
+	        frames[k] = retMark;
+	    }
         
-            retVal += spacer + "  " + seq.substring(start,end) + "\n";
-            retVal += number + ticks + "\n";
-            
-            if (wdeVTransRevComp) {
-                retVal += spacer + "  " + rSeq.substring(start,end) + "\n";
-            }
-            if (wdeVTransFrameNr == 6) {
-                retVal += spacer + "    " + wdeTransHmlPart(frames[5].substring(start,end), frames[11].substring(start,end)) + "\n";
-                retVal += spacer + "   " + wdeTransHmlPart(frames[4].substring(start,end), frames[10].substring(start,end)) + "\n";
-                retVal += spacer + "  " + wdeTransHmlPart(frames[3].substring(start,end), frames[9].substring(start,end)) + "\n";
-            }
-            retVal += "\n\n";
-        } else {
-            if (wdeVTransFrameNr != 1) {
-                retVal += spacer + "    " + wdeTransHmlPart(frames[2].substring(start), frames[8].substring(start)) + "\n";
-                retVal += spacer + "   " + wdeTransHmlPart(frames[1].substring(start), frames[7].substring(start)) + "\n";
-            }
-            retVal += spacer + "  " + wdeTransHmlPart(frames[0].substring(start), frames[6].substring(start)) + "\n";
-        
-            retVal += spacer + "  " + seq.substring(start) + "\n";
-            retVal += number + ticks.substring(0, (length - start + 2)) + "\n";
-            if (wdeVTransRevComp) {
-                retVal += spacer + "  " + rSeq.substring(start) + "\n";
-            }
-            if (wdeVTransFrameNr == 6) {
-                retVal += spacer + "    " + wdeTransHmlPart(frames[5].substring(start), frames[11].substring(start)) + "\n";
-                retVal += spacer + "   " + wdeTransHmlPart(frames[4].substring(start), frames[10].substring(start)) + "\n";
-                retVal += spacer + "  " + wdeTransHmlPart(frames[3].substring(start), frames[9].substring(start)) + "\n";
-            }
-            retVal += "\n\n";
-        }
-    }   
+    
+    
+        retVal += "Hallo";
+    } else {
+	    var digits = 0;
+	    var length = seq.length;
+	        for (var i = length; i > 1 ; i = i / 10) {
+	        digits++;
+	    }
+	    digits++;
+	    var segments = Math.ceil(seq.length / 60);
+	    for (var i = 0; i < segments ; i++) {
+	        var start = 60 * i;
+	        var end = 60 * (i + 1);
+	        if (end > length) {
+	            end = -1;
+	        }
+	        var pNum = start + 1;
+	        var num = pNum.toString();
+	        var number = "";
+	        for (var j = digits; j > num.length ; j--) {
+	            number += " ";
+	        }
+	        number += num;
+	        var spacer = "";
+	        for (var j = 0; j < number.length ; j++) {
+	            spacer += " ";
+	        }
+	        var ticks = " |         |         |         |         |         |         |";
+	        if (end > -1) {
+	            if (wdeVTransFrameNr != 1) {
+	                retVal += spacer + "    " + wdeTransHmlPart(frames[2].substring(start,end), frames[8].substring(start,end)) + "\n";
+	                retVal += spacer + "   " + wdeTransHmlPart(frames[1].substring(start,end), frames[7].substring(start,end)) + "\n";
+	            }
+	             retVal += spacer + "  " + wdeTransHmlPart(frames[0].substring(start,end), frames[6].substring(start,end)) + "\n";
+	        
+	            retVal += spacer + "  " + seq.substring(start,end) + "\n";
+	            retVal += number + ticks + "\n";
+	            
+	            if (wdeVTransRevComp) {
+	                retVal += spacer + "  " + rSeq.substring(start,end) + "\n";
+	            }
+	            if (wdeVTransFrameNr == 6) {
+	                retVal += spacer + "    " + wdeTransHmlPart(frames[5].substring(start,end), frames[11].substring(start,end)) + "\n";
+	                retVal += spacer + "   " + wdeTransHmlPart(frames[4].substring(start,end), frames[10].substring(start,end)) + "\n";
+	                retVal += spacer + "  " + wdeTransHmlPart(frames[3].substring(start,end), frames[9].substring(start,end)) + "\n";
+	            }
+	            retVal += "\n\n";
+	        } else {
+	            if (wdeVTransFrameNr != 1) {
+	                retVal += spacer + "    " + wdeTransHmlPart(frames[2].substring(start), frames[8].substring(start)) + "\n";
+	                retVal += spacer + "   " + wdeTransHmlPart(frames[1].substring(start), frames[7].substring(start)) + "\n";
+	            }
+	            retVal += spacer + "  " + wdeTransHmlPart(frames[0].substring(start), frames[6].substring(start)) + "\n";
+	        
+	            retVal += spacer + "  " + seq.substring(start) + "\n";
+	            retVal += number + ticks.substring(0, (length - start + 2)) + "\n";
+	            if (wdeVTransRevComp) {
+	                retVal += spacer + "  " + rSeq.substring(start) + "\n";
+	            }
+	            if (wdeVTransFrameNr == 6) {
+	                retVal += spacer + "    " + wdeTransHmlPart(frames[5].substring(start), frames[11].substring(start)) + "\n";
+	                retVal += spacer + "   " + wdeTransHmlPart(frames[4].substring(start), frames[10].substring(start)) + "\n";
+	                retVal += spacer + "  " + wdeTransHmlPart(frames[3].substring(start), frames[9].substring(start)) + "\n";
+	            }
+	            retVal += "\n\n";
+	        }
+	    }
+	}
     window.frames['WDE_TRANS'].document.body.innerHTML = "<pre>" + retVal + "</pre>";
 }
 
@@ -1161,9 +1240,20 @@ function wdeTransHmlPart(seq, mark) {
 
 function wdeSaveTrans() {
     var content = window.frames['WDE_TRANS'].document.body.innerHTML;
-    content = "<html>\n<body>\n" + content + "\n</body>\n</html>\n";
-    var fileName = mainForm.elements["SEQUENCE_ID"].value + "_translation.html";
-    wdeSaveFile(fileName, content, "html");
+    if (wdeVTransOrfView) {
+        var regEx1 = /<pre>/g;
+	    content = content.replace(regEx1, "");
+	    var regEx2 = /<\/pre>/g;
+	    content = content.replace(regEx2, "");
+	    var regEx3 = /&gt;/g;
+	    content = content.replace(regEx3, ">");
+	    var fileName = mainForm.elements["SEQUENCE_ID"].value + "_translation.fa";
+        wdeSaveFile(fileName, content, "text");
+    } else {
+	    content = "<html>\n<body>\n" + content + "\n</body>\n</html>\n";
+	    var fileName = mainForm.elements["SEQUENCE_ID"].value + "_translation.html";
+	    wdeSaveFile(fileName, content, "html");
+    }
 };
 
 

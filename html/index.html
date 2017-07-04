@@ -265,7 +265,9 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 <div id="WDE_space">
 
 &nbsp;<a>Genetic Code:</a>
-&nbsp;<select id="WDE_TRANS_CODE" onChange="wdeSelTransCode()" ></select><br>
+&nbsp;<select id="WDE_TRANS_CODE" onChange="wdeSelTransCode()" ></select>
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;<input type="button" onClick="wdeSaveTrans()" value="Save Translation"><br>
 &nbsp;<a>Amino Acids:</a>
 &nbsp;<input type="button" id="wdeTransTreeOneButton" onClick="wdeTransTreeOne()" value="3 Letter Code">
 &nbsp;&nbsp;&nbsp;&nbsp;<a>Translate:</a>
@@ -276,7 +278,12 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 &nbsp;<input type="button" onClick="wdeTransInSel()" value="Translate Selection">
 &nbsp;<input type="button" onClick="wdeTransInAll()" value="Translate All">
 &nbsp;&nbsp;&nbsp;&nbsp;
-&nbsp;<input type="button" onClick="wdeSaveTrans()" value="Save Translation">
+&nbsp;<input type="button" id="wdeTransOrfViewButton" onClick="wdeOrfView()" value="View ORF List">
+&nbsp;<input type="button" id="wdeTransOrfSortButton" onClick="wdeOrfSort()" value="Sort ORFs by Position">
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;<a>Min ORF Length:</a>
+&nbsp;<input name="ORF_AS_NR" value="10" type="text" style="text-align:right;" size="2">
+&nbsp;<a>As</a>
 
 <div id="WDE_translate_spacer">
 &nbsp;<a>Code Field...</a>
