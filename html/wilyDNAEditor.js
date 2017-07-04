@@ -1122,21 +1122,67 @@ function wdeTransDrawFrame() {
 	            } else if (word == "***") {
 	                orf += frames[(k - 6)].substring(i,(i+3));
 	                if (inOrf) {
-	                    retVal += ">" + seqName + "_" + pos + "_" + leng + "\n" + orf + "\n\n";
+	                    orfs[orfCount] = [seqName + "_" + pos + "_" + leng + "_F", pos, 0, leng, orf];
+	                    orfCount++;
 	                }
 	                leng = 0;
 	                orf = "";
 	                inOrf = 0;
-	            } else {
-	                
 	            }
 	        }
-	        frames[k] = retMark;
+	    }
+        for (var k = 9 ; k < 12 ; k++) {
+            var inOrf = 0;
+            var orf = "";
+            var leng = 0;
+            var pos;
+	        for (var i = frames[k].length - 3 ; i >= 0 ; i = i - 3) {
+	            var word = frames[k].substring(i,(i+3));
+	            if (word == "MMM") {
+	                orf += frames[(k - 6)].substring(i,(i+3));
+	                leng++;
+	                if (inOrf == 0) {
+	                    pos = i + wdeZeroOne + 2;
+	                    inOrf = 1;
+	                }
+	            } else if (word == "nnn") {
+	                orf += frames[(k - 6)].substring(i,(i+3));
+	                leng++;
+	            } else if (word == "***") {
+	                orf += frames[(k - 6)].substring(i,(i+3));
+	                if (inOrf) {
+	                    orfs[orfCount] = [seqName + "_" + pos + "_" + leng + "_R", pos, 1, leng, orf];
+	                    orfCount++;
+	                }
+	                leng = 0;
+	                orf = "";
+	                inOrf = 0;
+	            }
+	        }
 	    }
         
-    
-    
-        retVal += "Hallo";
+        // Sort ORFs
+        orfs.sort(wdeTransSortOrf);
+        
+        // Print ORFs
+        for (var i = 0 ; i < orfCount ; i++) {
+            var minSize = mainForm.elements["ORF_AS_NR"].value;
+            if (minSize <= orfs[i][3]) {
+	            retVal += ">" + orfs[i][0] + "\n";
+	            var orfSeq = orfs[i][4];
+	            var regEx1 = / /g;
+		        orfSeq = orfSeq.replace(regEx1, "");
+			    for (var j = 0; j < orfSeq.length ; j++) {
+			        if (j % 60 == 0) {
+			            if (j != 0) {
+			                retVal += "\n";
+			            }
+			        }
+			        retVal += orfSeq.charAt(j);    
+			    }
+                retVal += "\n\n"; 
+		    }
+        }
     } else {
 	    var digits = 0;
 	    var length = seq.length;
@@ -1204,6 +1250,21 @@ function wdeTransDrawFrame() {
 	    }
 	}
     window.frames['WDE_TRANS'].document.body.innerHTML = "<pre>" + retVal + "</pre>";
+}
+
+function wdeTransSortOrf(a, b) {
+    if (wdeVTransOrfSortSize) {
+        return b[3] - a[3];
+    } else {
+	    if (a[2] != b[2]) {
+	        if (a[2] == "F") {
+	            return 1;
+	        } else {
+	            return -1;
+	        }
+	    }
+	    return a[1] - b[1];
+    }    
 }
 
 function wdeTransHmlPart(seq, mark) {
