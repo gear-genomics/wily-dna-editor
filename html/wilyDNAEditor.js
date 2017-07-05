@@ -75,7 +75,10 @@ var wdeVTransOrfSortSize = 1;
 
 var wdeSeqHigh = [];
 
-
+function wdeVersion(){
+    var version = "Wily DNA Editor - Version: 0.4.0 ";
+    document.getElementById("WDE_VERSION").innerHTML = version;
+}
 
 // Display Functions
 function showTab(tab,id) {
