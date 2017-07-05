@@ -504,10 +504,12 @@ function wdeSequenceModified(){
     for (var k = 0; k < wdeEnzy.length; k++) {
         wdeEnzy[k][3] = "-";
         wdeEnzy[k][4] = "";
+        wdeEnzy[k][6] = "";
     }
     wdeUserVCount = 0;
     document.getElementById("WDE_USER_COUNT").innerHTML = "Hits: -";
     wdeUserVPos = "";
+    wdeUserVCuts = "";
     wdeSeqHigh = [];
     wdeREdisp = 0;
     wdeDrawEnzymes();
@@ -959,6 +961,106 @@ function wdeDrawEnzymes() {
     }
     content += "</table>";
     enzyDoc.innerHTML = content;
+}
+
+function wdeDigList() {
+    var digArr = wdeDigCleanDigList();
+    var retVal = "";
+    var lastCut = 0;
+    retVal += '<table border="0">';
+    retVal += "<tr>";
+    retVal += "<th>Fragment Length&nbsp;&nbsp;</th>";
+    retVal += "<th>Enzyme 1&nbsp;&nbsp;</th>";
+    retVal += "<th>Cut Site 1&nbsp;&nbsp;</th>";
+    retVal += "<th>Enzyme 2&nbsp;&nbsp;</th>";
+    retVal += "<th>Cut Site 2&nbsp;&nbsp;</th>";
+    retVal += "<th>Band Weight&nbsp;&nbsp;</th>";
+    retVal += "</tr>\n";
+    
+    for (var i = 0; i < digArr.length; i++) {
+        retVal += "<tr><td style='text-align:right'>" + digArr[i][0];
+        retVal += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;";
+        retVal += digArr[i][3] + "</td><td style='text-align:right'>" + digArr[i][4] + "&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;";
+        retVal += digArr[i][1] + "</td><td style='text-align:right'>" + digArr[i][2];
+        retVal += "&nbsp;&nbsp;&nbsp;</td><td style='text-align:right'>" + digArr[i][5] + " ng&nbsp;&nbsp;&nbsp;</td></tr>\n";
+    }
+    retVal += "</table>";
+    window.frames['WDE_DIGEST'].document.body.innerHTML = retVal;
+    showTab('tab3','WDE_digest');
+}
+
+function wdeDigCleanDigList() {
+    var allPos = "";
+    var sel = 0;
+    // Place user defined Sequence
+    if (wdeUserVSelect && (wdeUserVCuts != "")) {
+        sel++;
+        var listArr = wdeUserVCuts.split(";");
+        for (var k = 1; k < listArr.length; k++) {
+            allPos += ";UserSeq," + listArr[k];
+            
+        }
+    }
+    // Place the Enzymes
+    for (var k = 0; k < wdeEnzy.length; k++) {
+        if (wdeEnzy[k][2]){
+            sel++;
+	        var listArr = wdeEnzy[k][6].split(";");
+	        for (var i = 1; i < listArr.length; i++) {
+	            allPos += ";" + wdeEnzy[k][0] + "," + listArr[i];
+	        }
+        }
+    }
+    if (sel == 0) {
+        alert("Find & Select Restriction Enzymes first!");
+    } else {
+	    var listArr = allPos.split(";");
+	    var toSort = [];
+	    var lastPos = 1;
+	    var lastEnz = "Start";
+	    var amount = mainForm.elements["WDE_DIGEST_AMOUNT"].value;
+	    var seqLength = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML).length;
+	    var baseWeight = amount / seqLength;
+	    var weight;
+        for (var i = 1; i < listArr.length; i++) {
+            var line = listArr[i].split(",");
+            toSort[(i - 1)] = [0,line[0],line[1]];
+        }
+        toSort.sort(wdeDigSortPos);
+        for (var i = 0; i < toSort.length; i++) {
+            var curPos = parseInt(toSort[i][2]);
+            var size = curPos - lastPos;
+            toSort[i][0] = size;
+	        toSort[i][3] = lastEnz;
+            toSort[i][4] = lastPos;
+            weight = size * baseWeight;
+            toSort[i][5] = weight.toFixed(2);
+	        lastEnz = toSort[i][1];
+            lastPos = curPos;
+        }
+        var rest = seqLength - lastPos;
+        if (wdeCircular) {
+            toSort[0][0] = toSort[0][0] + rest + 1;
+	        toSort[0][3] = lastEnz;
+            toSort[0][4] = lastPos;
+            weight = toSort[0][0] * baseWeight;
+            toSort[0][5] = weight.toFixed(2);
+        } else {
+             weight = rest * baseWeight;
+            toSort[toSort.length] = [rest,"End",seqLength,lastEnz,lastPos,weight.toFixed(2)];
+        }
+        toSort.sort(wdeDigSortFrag);
+    
+    }
+    return toSort;
+}
+
+function wdeDigSortPos(a, b) {
+    return a[2] - b[2];
+}
+
+function wdeDigSortFrag(a, b) {
+    return b[0] - a[0];
 }
 
 function wdeTransInSel() {

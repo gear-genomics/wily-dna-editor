@@ -226,6 +226,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp;<input type="checkbox" id="WDE_DAM_DCM" onclick="wdeDamDcm()" checked="">
 &nbsp;<input type="button" onClick="wdeDamDcm()" value="Dam/Dcm">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;<input type="button" onClick="wdeDigList()" value="Digest as List">
 <br />
 &nbsp;<a>Select:</a>
 &nbsp;<input type="button" onClick="wdeSelREsel('E', 0)" value="Absent">
@@ -258,7 +260,16 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 
 
 <div id="WDE_digest" class="WDE_tab_page">
-&nbsp;<a>3 Some Text to fill the emptyness...</a>
+<div id="WDE_space">
+&nbsp;<a>DNA Load per Lane:</a>
+&nbsp;<input name="WDE_DIGEST_AMOUNT" value="500" type="text" style="text-align:right;" size="2">
+&nbsp;<a>ng</a>
+<br>
+&nbsp;<input type="button" onClick="wdeDigList()" value="Digest as List">
+
+
+<iframe name="WDE_DIGEST" id="WDE_DIGEST" style="border:#000000 1px solid; background-color: white; width:800px; height:500px;"></iframe>
+</div>
 </div>
 
 <div id="WDE_translate" class="WDE_tab_page">
