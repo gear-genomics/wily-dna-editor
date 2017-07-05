@@ -46,6 +46,7 @@ var wdeUserVSelect = 0;
 var wdeUserVCount = 0;
 var wdeUserVSeq = "";
 var wdeUserVPos = "";
+var wdeUserVCuts = "";
 var wdeREdisp = 0;
 var wdeDamDcmSel = 1;
 var wdeEnzy = [];
@@ -59,6 +60,7 @@ var wdeEnzy = [];
 //       A = Dam
 //       C = Dcm
 //       D = Dam and Dcm
+// [][6] = Cut positions in forward
 var wdeTranslate = [];
 // [][0] = name
 // [][1] = translation
@@ -581,12 +583,13 @@ function wdeFindUserSeq() {
     // All sequence has to be lowecase to save the convesion later
     var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML).toLowerCase();
     wdeUserVSeq = mainForm.elements["WDE_USER_SEQ"].value;
+    var cutDiff = wdeDigCutPosFor(wdeUserVSeq);        
+    var cutDiffRev;        
     var restSeq = wdeCleanSeq(wdeUserVSeq).toLowerCase();
     if (restSeq.length < 3) {
         alert("At least 3 bp are required!");
         return;
     }   
-    var checkRevCompll = 0;
     var isATCGonly = true;
     var reg = /[^ATGCatgc]/
     if (reg.exec(restSeq)) {
@@ -596,10 +599,11 @@ function wdeFindUserSeq() {
     var revCompRestSeq = wdeReverseComplement(restSeq);
     if (restSeq !=  revCompRestSeq) {
         checkRevComp = true;
-        checkRevCompll++;
+        cutDiffRev = wdeDigCutPosRev(wdeUserVSeq); 
     }
     var restLength = restSeq.length;
     var restPos = "";
+    var cutPos = "";
     var restCount = 0;
     // Get the end right
     var end = seq.length - restLength;
@@ -614,12 +618,14 @@ function wdeFindUserSeq() {
             restCount++;
             var pos = i + wdeZeroOne;
             restPos += ";" + pos + "," + restLength;
+            cutPos += wdeGetCutPos(i,cutDiff);
         }
         if ((checkRevComp && isATCGonly && (word == revCompRestSeq)) ||
             (checkRevComp && !isATCGonly && wdeIsSameSeq(word,revCompRestSeq))){
             restCount++;
             var pos = i + wdeZeroOne;
             restPos += ";" + pos + "," + restLength;
+            cutPos += wdeGetCutPos(i,cutDiffRev);
         }
     }
     // Test the circular overlap
@@ -631,16 +637,19 @@ function wdeFindUserSeq() {
                 restCount++;
                 var pos = end + i + wdeZeroOne;
                 restPos += ";" + pos + "," + restLength;
+                cutPos += wdeGetCutPos(i,cutDiff);
             }
             if ((checkRevComp && isATCGonly && (word == revCompRestSeq)) ||
                 (checkRevComp && !isATCGonly && wdeIsSameSeq(word,revCompRestSeq))){
                 restCount++;
                 var pos = end + i + wdeZeroOne;
                 restPos += ";" + pos + "," + restLength;
+                cutPos += wdeGetCutPos(i,cutDiffRev);
             }
         }
     }
     wdeUserVPos = restPos;
+    wdeUserVCuts = cutPos;
     wdeUserVCount = restCount;
     document.getElementById("WDE_USER_COUNT").innerHTML = "Hits: " + wdeUserVCount;
     wdeREdisp = 0;
@@ -665,7 +674,6 @@ function wdeFindRE() {
     var damDcm = dcm;
     damDcm = damDcm.replace(regEx1, "gxxc");
     
-    var checkRevCompll = 0;
     for (var k = 0; k < wdeEnzy.length; k++) {
         if (wdeDamDcmSel) {
             if (wdeEnzy[k][5] == "N") {
@@ -681,8 +689,9 @@ function wdeFindRE() {
                 seq = damDcm;
             }
         }
-        
-        var restSequence = wdeCleanSeq(wdeEnzy[k][1]); //"AAGCTT";
+        var cutDiff = wdeDigCutPosFor(wdeEnzy[k][1]);        
+        var cutDiffRev;        
+        var restSequence = wdeCleanSeq(wdeEnzy[k][1]);
         var restSeq = restSequence.toLowerCase();
         var isATCGonly = true;
         var reg = /[^ATGCatgc]/
@@ -693,10 +702,11 @@ function wdeFindRE() {
         var revCompRestSeq = wdeReverseComplement(restSeq);
         if (restSeq !=  revCompRestSeq) {
             checkRevComp = true;
-            checkRevCompll++;
+            cutDiffRev = wdeDigCutPosRev(wdeEnzy[k][1]); 
         }
         var restLength = restSeq.length;
         var restPos = "";
+        var cutPos = "";
         var restCount = 0;
         // Get the end right
         var end = seq.length - restLength;
@@ -711,12 +721,14 @@ function wdeFindRE() {
                 restCount++;
                 var pos = i + wdeZeroOne;
                 restPos += ";" + pos + "," + restLength;
+                cutPos += wdeGetCutPos(i,cutDiff);
             }
             if ((checkRevComp && isATCGonly && (word == revCompRestSeq)) ||
                 (checkRevComp && !isATCGonly && wdeIsSameSeq(word,revCompRestSeq))){
                 restCount++;
                 var pos = i + wdeZeroOne;
                 restPos += ";" + pos + "," + restLength;
+                cutPos += wdeGetCutPos(i,cutDiffRev);
             }
         }
         // Test the circular overlap
@@ -728,21 +740,100 @@ function wdeFindRE() {
                     restCount++;
                     var pos = end + i + wdeZeroOne;
                     restPos += ";" + pos + "," + restLength;
+                    cutPos += wdeGetCutPos(i,cutDiff);
                 }
                 if ((checkRevComp && isATCGonly && (word == revCompRestSeq)) ||
                     (checkRevComp && !isATCGonly && wdeIsSameSeq(word,revCompRestSeq))){
                     restCount++;
                     var pos = end + i + wdeZeroOne;
                     restPos += ";" + pos + "," + restLength;
+                    cutPos += wdeGetCutPos(i,cutDiffRev);
                 }
             }
         }
         wdeEnzy[k][3] = restCount;
         wdeEnzy[k][4] = restPos;
+        wdeEnzy[k][6] = cutPos;    
     }
     wdeDrawEnzymes();
     wdeREdisp = 0;
     wdeRepaint();     
+}
+
+function wdeDigCutPosFor(enz) {
+    var pureEnz = wdeCleanSeq(enz);
+    var reg = enz.split("/");
+    var retVal = "";
+    var regEx = /[a-zA-Z]/;
+    var pos;
+    // Get the bracket positions
+    for (var k = 0; k < reg.length; k++) {
+        var line = reg[k].split("(");
+        if (line.length == 2) {
+            pos = parseInt(line[1]);
+            if (line[0].match(regEx)) {
+                pos = pureEnz.length + pos;
+            } else {
+                pos = pos * -1;
+            }
+            retVal += ";" + pos;
+        }
+    }
+    // Get the ^ positions
+    pos = 0;
+    for (var k = 0; k < enz.length; k++) {
+        if (enz.charAt(k) == "^") {
+            retVal += ";" + pos;
+            k = enz.length;
+        }
+        if  (enz.charAt(k).match(regEx)) {
+            pos++;
+        }
+    }
+    return retVal;
+}
+
+function wdeDigCutPosRev(enz) {
+    var pureEnz = wdeCleanSeq(enz);
+    var reg = enz.split("/");
+    var retVal = "";
+    var regEx = /[a-zA-Z]/;
+    var pos;
+    // Get the bracket positions
+    for (var k = 0; k < reg.length; k++) {
+        var line = reg[k].split(")");
+        if (line.length == 2) {
+            pos = parseInt(line[0]);
+            if (line[1].match(regEx)) {
+                pos = pureEnz.length + pos;
+            } else {
+                pos = pos * -1;
+            }
+            retVal += ";" + pos;
+        }
+    }
+    // Get the ^ positions
+    pos = 0;
+    for (var k = enz.length - 1; k <= 0 ; k--) {
+        if (enz.charAt(k) == "^") {
+            retVal += ";" + pos;
+            k = enz.length;
+        }
+        if  (enz.charAt(k).match(regEx)) {
+            pos++;
+        }
+    }
+    return retVal;
+}
+
+function wdeGetCutPos(pos,cutDiff) {
+    var list = cutDiff.split(";");
+    var retVal = "";
+    for (var k = 1; k < list.length; k++) {
+        var i = pos + parseInt(list[k]);
+        retVal += ";" + i;
+    }
+    return retVal;
 }
 
 function wdeSelEnzymes(checkBox, enzId) {
@@ -1711,7 +1802,9 @@ function wdeSetDamDcmMeth() {
         }
         if(isDam && isDcm) {
             wdeEnzy[k][5] = "D";
-        }   
+        }
+        // Add for Cut Positions
+        wdeEnzy[k][6] = "";
     }
     // [5] = Dam/Dcm:
     //       N = no Dam/Dcm
