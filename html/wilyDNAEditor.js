@@ -33,6 +33,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+// Set here the Version
+var wdeVVersion = "0.5.0";
+
 // Display Variables
 var prevTabPage = "WDE_main_tab";
 var prevTab = "tab1";
@@ -77,7 +80,7 @@ var wdeVTransOrfSortSize = 1;
 var wdeSeqHigh = [];
 
 function wdeVersion(){
-    var version = "Wily DNA Editor - Version: 0.4.0 ";
+    var version = "Wily DNA Editor - Version: " + wdeVVersion;
     document.getElementById("WDE_VERSION").innerHTML = version;
 }
 
