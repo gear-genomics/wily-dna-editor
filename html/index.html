@@ -228,6 +228,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 &nbsp;<input type="button" onClick="wdeDamDcm()" value="Dam/Dcm">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp;<input type="button" onClick="wdeDigList()" value="Digest as List">
+&nbsp;<input type="button" onClick="wdeDigAsGelPic()" value="Digest as Gel Picture">
 <br />
 &nbsp;<a>Select:</a>
 &nbsp;<input type="button" onClick="wdeSelREsel('E', 0)" value="Absent">
@@ -264,11 +265,16 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 &nbsp;<a>DNA Load per Lane:</a>
 &nbsp;<input name="WDE_DIGEST_AMOUNT" value="500" type="text" style="text-align:right;" size="2">
 &nbsp;<a>ng</a>
+&nbsp;&nbsp;
+&nbsp;<input type="button" id="WDE_DIG_BAND_BLACK" onClick="wdeDigGelBandBlack()" value="Draw Bands Black">
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;<input type="button" onClick="wdeSaveGelTable()" value="Save Gel Table">
+&nbsp;<input type="button" onClick="wdeSaveGelPic()" value="Save Gel Picure">
 <br>
 &nbsp;<input type="button" onClick="wdeDigList()" value="Digest as List">
-&nbsp;<input type="button" onClick="wdeBLASVG()" value="Show SVG">
+&nbsp;<input type="button" onClick="wdeDigAsGelPic()" value="Digest as Gel Picture">
 <br>
-&nbsp;<a>Marker:</a>
+&nbsp;<a>Marker (bp,ng):</a>
 &nbsp;<input name="WDE_DIGEST_MARKER" value="10000,50;8000,50;6000,50;5000,50;4000,50;3000,150;2000,50;1500,50;1200,50;1000,150;900,50;800,50;700,50;600,50;500,150;400,50;300,50;200,50;100,50" type="text" size="100">
 
 

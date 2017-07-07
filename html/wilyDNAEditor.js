@@ -61,6 +61,7 @@ var wdeEnzy = [];
 //       C = Dcm
 //       D = Dam and Dcm
 // [][6] = Cut positions in forward
+var wdeDigVBandBlack = 0;
 var wdeTranslate = [];
 // [][0] = name
 // [][1] = translation
@@ -202,6 +203,18 @@ function wdeViewZeroOne(){
         lButton.value = "1";
     }
     wdeRepaint();
+}
+
+function wdeDigGelBandBlack(){
+    var lButton = document.getElementById("WDE_DIG_BAND_BLACK");
+    if (wdeDigVBandBlack) {
+        wdeDigVBandBlack = 0;
+        lButton.value = "Draw Bands Black";
+    } else {
+        wdeDigVBandBlack = 1;
+        lButton.value = "Simulate Bands Density";
+    }
+    wdeDigAsGelPic();
 }
 
 function wdeTransTreeOne(){
@@ -418,13 +431,14 @@ function wdeSaveFasta() {
 };
 
 function wdeSaveFile(fileName,content,type) {
-    var MIME_TYPE = "text/plain";
     var a = document.createElement("a");
     document.body.appendChild(a);
     a.style = "display: none";
     var blob;
     if (type == "html") {
         blob = new Blob([content], {type: "text/html"});
+    } else if (type == "svg") {
+        blob = new Blob([content], {type: "image/svg+xml"});
     } else {
         blob = new Blob([content], {type: "text/plain"});
     }
@@ -1023,6 +1037,13 @@ function wdeDigCleanDigList() {
     } else {
 	    var listArr = allPos.split(";");
 	    var toSort = [];
+	    // [0]  Fragment Length
+	    // [1]  Enzym End
+	    // [2]  Position End
+	    // [3]  Enzyme Start
+	    // [4]  Position Start
+	    // [5]  Weight in ng
+	    
 	    var lastPos = 1;
 	    var lastEnz = "Start";
 	    var amount = mainForm.elements["WDE_DIGEST_AMOUNT"].value;
@@ -1070,11 +1091,92 @@ function wdeDigSortFrag(a, b) {
     return b[0] - a[0];
 }
 
-function wdeBLASVG() {
-    var retVal = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 45' height='45' width='100'><path d='m 0,10 100,0' style='stroke:#efefef;stroke-width:20px' /></svg>";
+function wdeDigAsGelPic() {
+    var retVal = wdeDigCreateSVG();
     wdeDigShowSVG(retVal);
 }
 
+function wdeDigCreateSVG() {
+    var digArr = wdeDigCleanDigList();
+    var markString = mainForm.elements["WDE_DIGEST_MARKER"].value;
+    var rawMarker = markString.split(";");
+    var markArr = [];
+    for (var i = 0; i < rawMarker.length; i++) {
+        var line = rawMarker[i].split(",");
+        markArr[i] = [line[0],"","","","",line[1]];
+    }
+    markArr.sort(wdeDigSortFrag);
+    digArr.sort(wdeDigSortFrag);
+    var drawMark = wdeDigCleanBands(markArr);
+    var drawDig = wdeDigCleanBands(digArr);
+    var maxBandWeight = 0;
+    for (var i = 0; i < drawMark.length; i++) {
+        if (parseInt(drawMark[i][1]) > maxBandWeight) {
+            maxBandWeight = parseInt(drawMark[i][1]);
+        }
+    }
+    for (var i = 0; i < drawDig.length; i++) {
+        if (parseInt(drawDig[i][1]) > maxBandWeight) {
+            maxBandWeight = parseInt(drawDig[i][1]);
+        }
+    }
+    var retVal = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-800 -100 2080 1200'>";
+    retVal += "<text x='12' y='-50' font-family='Arial' font-size='40' fill='black'>Digest</text>";
+    retVal += "<text x='212' y='-50' font-family='Arial' font-size='40' fill='black'>Marker</text>";
+    retVal += "<rect x='0' y='-15' width='150' height='30' style='fill:white;stroke:black;stroke-width:5' />";
+    retVal += "<rect x='200' y='-15' width='150' height='30' style='fill:white;stroke:black;stroke-width:5' />";
+    // Draw Marker
+    var color = 0;
+    for (var i = 0; i < drawMark.length; i++) {
+        if (!wdeDigVBandBlack) {
+            color = Math.floor(255 - 255 * parseInt(drawMark[i][1]) / maxBandWeight);
+        }
+        retVal += wdeDigSVGBand(210,drawMark[i][0],color);
+    }
+    // Draw Digest
+    for (var i = 0; i < drawDig.length; i++) {
+        if (!wdeDigVBandBlack) {
+            var color = Math.floor(255 - 255 * parseInt(drawDig[i][1]) / maxBandWeight);
+        }
+        retVal += wdeDigSVGBand(10,drawDig[i][0],color);
+    }
+    retVal += "</svg>";
+    return retVal;
+}
+
+function wdeDigCleanBands(arr) {
+    var retArr = [];
+    var lastBandPos = -1;
+    var weight = 0;
+    var count = 0;
+    for (var i = 0; i < arr.length; i++) {
+        var frag = parseInt(arr[i][0]);
+        if (frag > 99) {
+            if (frag == lastBandPos) {
+                weight += parseInt(arr[i][5]);
+                count--;
+            } else {
+                weight = parseInt(arr[i][5]);
+            }
+            // Strange Function to get the Position somehow correct
+            var pos = Math.floor( -450 * ( Math.log(frag) / Math.LN10) + 1900);
+            if (pos < 50) {
+                pos = 50;
+            }
+            retArr[count] = [pos,weight];
+            lastBandPos = frag;
+            count++;
+        }
+    }
+    return retArr;
+}
+
+function wdeDigSVGBand(xPos,yPos,color) {
+    var retVal = "<line x1='" + xPos + "' y1='" + yPos;
+    retVal += "' x2='" + (xPos + 130) + "' y2='" + yPos;
+    retVal += "' style='stroke:rgb(" + color + "," + color + "," + color + ");stroke-width:8' />";
+    return retVal; 
+}
 
 function wdeDigShowSVG(svg) {
     var retVal = svg;
@@ -1089,6 +1191,20 @@ function wdeDigShowSVG(svg) {
     showTab('tab3','WDE_digest');
 }
 
+function wdeSaveGelTable() {
+    wdeDigList();
+    var content = window.frames['WDE_DIGEST'].document.body.innerHTML;
+    content = "<html>\n<body>\n" + content + "\n</body>\n</html>\n";
+	var fileName = mainForm.elements["SEQUENCE_ID"].value + "_digest.html";
+	wdeSaveFile(fileName, content, "html");
+}
+
+function wdeSaveGelPic() {
+    wdeDigAsGelPic();
+    var content = wdeDigCreateSVG();
+	var fileName = mainForm.elements["SEQUENCE_ID"].value + "_gel.svg";
+	wdeSaveFile(fileName, content, "svg");
+}
 
 function wdeTransInSel() {
     var sel, range;
