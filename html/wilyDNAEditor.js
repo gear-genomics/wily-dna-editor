@@ -115,10 +115,14 @@ function countUp() {
     client.send();
 }
 
-function loadTestSeq() {
+function loadTestSeq(size) {
     loadTestScripts();
 	setTimeout(function () {
-        wdeTestLoadLargeSeq();
+	    if (size == "S") {
+            wdeTestLoadSmallSeq();
+        } else {
+            wdeTestLoadLargeSeq();
+        }
     }, 200);
 }
 
@@ -1065,6 +1069,26 @@ function wdeDigSortPos(a, b) {
 function wdeDigSortFrag(a, b) {
     return b[0] - a[0];
 }
+
+function wdeBLASVG() {
+    var retVal = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 45' height='45' width='100'><path d='m 0,10 100,0' style='stroke:#efefef;stroke-width:20px' /></svg>";
+    wdeDigShowSVG(retVal);
+}
+
+
+function wdeDigShowSVG(svg) {
+    var retVal = svg;
+    var regEx1 = /</g;
+    retVal = retVal.replace(regEx1, "%3C");
+    var regEx2 = />/g;
+    retVal = retVal.replace(regEx2, "%3E");
+    var regEx3 = /#/g;
+    retVal = retVal.replace(regEx3, "%23");
+    retVal = '<img src="data:image/svg+xml,' + retVal + '" alt="Digest-SVG" width="750" height="450">';
+    window.frames['WDE_DIGEST'].document.body.innerHTML = retVal;
+    showTab('tab3','WDE_digest');
+}
+
 
 function wdeTransInSel() {
     var sel, range;
