@@ -987,6 +987,16 @@ function wdeDrawEnzymes() {
     enzyDoc.innerHTML = content;
 }
 
+function wdePrintEnzy() {
+    var enzyDoc = document.getElementById("WDE_enzymes_spacer");
+    var printWindow = window.open('', '', 'left=0,top=0,width=800,height=600,toolbar=0,scrollbars=0,status=0');
+    printWindow.document.write(enzyDoc.innerHTML);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+}
+
 function wdeDigList() {
     var digArr = wdeDigCleanDigList();
     var retVal = "";
@@ -1207,6 +1217,15 @@ function wdeSaveGelPic() {
     var content = wdeDigCreateSVG();
 	var fileName = mainForm.elements["SEQUENCE_ID"].value + "_gel.svg";
 	wdeSaveFile(fileName, content, "svg");
+}
+
+function wdePrintGel() {
+    var printWindow = window.open('', '', 'left=0,top=0,width=800,height=600,toolbar=0,scrollbars=0,status=0');
+    printWindow.document.write(window.frames['WDE_DIGEST'].document.body.innerHTML);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
 }
 
 function wdeTransInSel() {
@@ -1656,6 +1675,14 @@ function wdeSaveTrans() {
     }
 };
 
+function wdePrintTrans() {
+    var printWindow = window.open('', '', 'left=0,top=0,width=800,height=600,toolbar=0,scrollbars=0,status=0');
+    printWindow.document.write(window.frames['WDE_TRANS'].document.body.innerHTML);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+}
 
 //////////////////////////////////////////////////////////////////////
 // Now only the reverse complementation and enzyme functions follow //

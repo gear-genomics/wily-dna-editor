@@ -229,6 +229,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp;<input type="button" onClick="wdeDigList()" value="Digest as List">
 &nbsp;<input type="button" onClick="wdeDigAsGelPic()" value="Digest as Gel Picture">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;<input type="button" onClick="wdePrintEnzy()" value="Print">
 <br />
 &nbsp;<a>Select:</a>
 &nbsp;<input type="button" onClick="wdeSelREsel('E', 0)" value="Absent">
@@ -270,6 +272,7 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 &nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp;<input type="button" onClick="wdeSaveGelTable()" value="Save Gel Table">
 &nbsp;<input type="button" onClick="wdeSaveGelPic()" value="Save Gel Picure">
+&nbsp;<input type="button" onClick="wdePrintGel()" value="Print Digest">
 <br>
 &nbsp;<input type="button" onClick="wdeDigList()" value="Digest as List">
 &nbsp;<input type="button" onClick="wdeDigAsGelPic()" value="Digest as Gel Picture">
@@ -288,7 +291,9 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 &nbsp;<a>Genetic Code:</a>
 &nbsp;<select id="WDE_TRANS_CODE" onChange="wdeSelTransCode()" ></select>
 &nbsp;&nbsp;&nbsp;&nbsp;
-&nbsp;<input type="button" onClick="wdeSaveTrans()" value="Save Translation"><br>
+&nbsp;<input type="button" onClick="wdeSaveTrans()" value="Save Translation">
+&nbsp;<input type="button" onClick="wdePrintTrans()" value="Print">
+<br>
 &nbsp;<a>Amino Acids:</a>
 &nbsp;<input type="button" id="wdeTransTreeOneButton" onClick="wdeTransTreeOne()" value="3 Letter Code">
 &nbsp;&nbsp;&nbsp;&nbsp;<a>Translate:</a>
