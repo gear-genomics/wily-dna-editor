@@ -1363,12 +1363,7 @@ function wdeTransDrawFrame() {
     frames[11] = "";
     var mismatch = seq.length % 3;
     if (wdeVTransDNACirc) {
-        if (mismatch == 2) {
-            seq = seq + seq.charAt(0) + seq.charAt(1);
-        }
-        if (mismatch == 1) {
-            seq = seq + seq.charAt(0);
-        }
+        seq = seq + seq.charAt(0) + seq.charAt(1);
     }
     var end = seq.length - 2;
     for (var i = 0 ; i < end ; i++) {
@@ -1438,9 +1433,9 @@ function wdeTransDrawFrame() {
 	            frames[0] += "  1 ->  3";
 	            frames[1] += "  2 ->  1";
 	            frames[2] += "  3 ->  2";
-	            frames[3] += "  3 <-  1";
-	            frames[4] += "  1 <-  2";
-	            frames[5] += "  2 <-  3";
+	            frames[3] += "  1 <-  3";
+	            frames[4] += "  2 <-  1";
+	            frames[5] += "  3 <-  2";
             }
         }        
     }
@@ -1448,14 +1443,8 @@ function wdeTransDrawFrame() {
     rSeq += rOne;
     // Chop the extra bases
     if (wdeVTransDNACirc) {
-        if (mismatch == 2) {
-            seq = seq.substring(0,seq.length - 2);
-            rSeq = rSeq.substring(0,rSeq.length - 2);
-        }
-        if (mismatch == 1) {
-            seq = seq.substring(0,seq.length - 1);
-            rSeq = rSeq.substring(0,rSeq.length - 1);
-        }
+        seq = seq.substring(0,seq.length - 2);
+        rSeq = rSeq.substring(0,rSeq.length - 2);
     }
     // Now fill the gaps in the frames
     var circStart = [];
