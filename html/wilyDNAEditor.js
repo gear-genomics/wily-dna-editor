@@ -74,6 +74,7 @@ var wdeVTransFrameNr = 6; // Valid: 1, 3, 6
 var wdeVTransLetter = 1; // 0 = 1 Letter As, 1 = 3 Letter As
 var wdeVTransRevComp = 1;
 var wdeVTransDNA = "";
+var wdeVTransDNACirc;
 var wdeVTransOrfView = 0;
 var wdeVTransOrfSortSize = 1;
 
@@ -1234,6 +1235,7 @@ function wdeTransInSel() {
         sel = window.frames['WDE_RTF'].getSelection();
         var theSelection = sel.toString();
         wdeVTransDNA =  wdeCleanSeq(theSelection);
+        wdeVTransDNACirc = 0;
         wdeSelTransTable();
         showTab('tab4','WDE_translate');
     } 
@@ -1241,6 +1243,7 @@ function wdeTransInSel() {
 
 function wdeTransInAll() {
     wdeVTransDNA = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
+    wdeVTransDNACirc = wdeCircular;
     wdeSelTransTable();
     showTab('tab4','WDE_translate');
 }
@@ -1268,7 +1271,7 @@ function wdeSelTransCode() {
 
 function wdeSelTransTable() {
     var transDoc = document.getElementById("WDE_translate_spacer");
-    var content = '<table border="0" style="line-height: 1.0">';
+    var content = '<table border="0" style="line-height: 1.0; font-size: 80%;">';
     content += "<tr>\n<td></td><td></td><td colspan='4' style='text-align: center'>2nd Letter</td><td></td><td></td>\n</tr>\n";
     content += "<tr>\n<td></td><td></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;U</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;C</td>";
     content += "<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;G</td><td></td><td></td>\n</tr>\n";
@@ -1358,8 +1361,17 @@ function wdeTransDrawFrame() {
     frames[9] = "";
     frames[10] = "";
     frames[11] = "";
-    var end = seq.length - 3;
-    for (var i = 0 ; i <= end ; i++) {
+    var mismatch = seq.length % 3;
+    if (wdeVTransDNACirc) {
+        if (mismatch == 2) {
+            seq = seq + seq.charAt(0) + seq.charAt(1);
+        }
+        if (mismatch == 1) {
+            seq = seq + seq.charAt(0);
+        }
+    }
+    var end = seq.length - 2;
+    for (var i = 0 ; i < end ; i++) {
         var one = seq.charAt(i);
         var two = seq.charAt(i + 1);
         var tre = seq.charAt(i + 2);
@@ -1413,12 +1425,89 @@ function wdeTransDrawFrame() {
         frames[((i % 3) + 3)] += rAs;
         frames[((i % 3) + 6)] += start;
         frames[((i % 3) + 9)] += rStart;
+        if (wdeVTransDNACirc && ( i == end - 1)) {
+            if (mismatch == 2) {
+	            frames[0] += "  1 ->  2";
+	            frames[1] += "  2 ->  3";
+	            frames[2] += "  3 ->  1";
+	            frames[3] += "  1 <-  2";
+	            frames[4] += "  2 <-  3";
+	            frames[5] += "  3 <-  1";
+	         }        
+	         if (mismatch == 1) {
+	            frames[0] += "  1 ->  3";
+	            frames[1] += "  2 ->  1";
+	            frames[2] += "  3 ->  2";
+	            frames[3] += "  3 <-  1";
+	            frames[4] += "  1 <-  2";
+	            frames[5] += "  2 <-  3";
+            }
+        }        
     }
     rSeq += rTwo;
     rSeq += rOne;
+    // Chop the extra bases
+    if (wdeVTransDNACirc) {
+        if (mismatch == 2) {
+            seq = seq.substring(0,seq.length - 2);
+            rSeq = rSeq.substring(0,rSeq.length - 2);
+        }
+        if (mismatch == 1) {
+            seq = seq.substring(0,seq.length - 1);
+            rSeq = rSeq.substring(0,rSeq.length - 1);
+        }
+    }
     // Now fill the gaps in the frames
+    var circStart = [];
+    for (var k = 0; k < 6 ; k++) {
+        circStart[k] = ["---","---"]; 
+    }
+    if (wdeVTransDNACirc) {
+        // Find out if the ORF spans the end-start
+        for (var k = 6 ; k < 9 ; k++) {
+	        var lastMark = "---";
+	        for (var i = 0 ; i <= frames[k].length ; i = i + 3) {
+	            var word = frames[k].substring(i,(i+3));
+	            if (word == "MMM") {
+	                lastMark = "MMM";
+	            } else if (word == "***") {
+	                lastMark = "---";
+	            }
+	        }
+	        circStart[(k-6)][1] = lastMark;
+	    }
+	    for (var k = 9 ; k < 12 ; k++) {
+	        var lastMark = "---";
+	        for (var i = frames[k].length - 3 ; i >= 0 ; i = i - 3) {
+	            var word = frames[k].substring(i,(i+3));
+	            if (word == "MMM") {
+	                lastMark = "MMM";
+	            } else if (word == "***") {
+	                lastMark = "---";
+	            }
+	        }
+	        circStart[(k-6)][1] = lastMark;
+	    }
+	    // Match the offset
+        if (mismatch == 2) {
+            circStart[0][0] = circStart[2][1];
+            circStart[1][0] = circStart[0][1];
+            circStart[2][0] = circStart[1][1];
+            circStart[3][0] = circStart[4][1];
+            circStart[4][0] = circStart[5][1];
+            circStart[5][0] = circStart[3][1];
+         }        
+         if (mismatch == 1) {
+            circStart[0][0] = circStart[1][1];
+            circStart[1][0] = circStart[2][1];
+            circStart[2][0] = circStart[0][1];
+            circStart[3][0] = circStart[5][1];
+            circStart[4][0] = circStart[3][1];
+            circStart[5][0] = circStart[4][1];
+        }
+    }
     for (var k = 6 ; k < 9 ; k++) {
-        var lastMark = "---";
+        var lastMark = circStart[(k-6)][0];
         var retMark = "";
         for (var i = 0 ; i <= frames[k].length ; i = i + 3) {
             var word = frames[k].substring(i,(i+3));
@@ -1437,7 +1526,7 @@ function wdeTransDrawFrame() {
         frames[k] = retMark;
     }
     for (var k = 9 ; k < 12 ; k++) {
-        var lastMark = "---";
+        var lastMark = circStart[(k-6)][0];
         var retMark = "";
         for (var i = frames[k].length - 3 ; i >= 0 ; i = i - 3) {
             var word = frames[k].substring(i,(i+3));
@@ -1636,17 +1725,14 @@ function wdeTransHmlPart(seq, mark) {
             }
             if (mark.charAt(i) == "M") {
                 retVal += '<span style="background-color:green">';
-                lastChar = "M";
             }
             if (mark.charAt(i) == "n") {
                 retVal += '<span style="background-color:lime">';
-                lastChar = "n";
             }
             if (mark.charAt(i) == "*") {
                 retVal += '<span style="background-color:red">';
-                lastChar = "*";
             }
-            
+            lastChar = mark.charAt(i);
         }
         retVal += seq.charAt(i)
     }
