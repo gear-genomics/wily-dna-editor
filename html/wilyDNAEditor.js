@@ -45,11 +45,6 @@ var testInstr = 0;
 var wdeZeroOne = 1;
 var wdeNumbers = 1;
 var wdeCircular = 1;
-var wdeUserVSelect = 0;
-var wdeUserVCount = 0;
-var wdeUserVSeq = "";
-var wdeUserVPos = "";
-var wdeUserVCuts = "";
 var wdeREdisp = 0;
 var wdeDamDcmSel = 1;
 var wdeEnzy = [];
@@ -64,6 +59,8 @@ var wdeEnzy = [];
 //       C = Dcm
 //       D = Dam and Dcm
 // [][6] = Cut positions in forward
+var wdeUser = [];
+// same as wdeEnzy[] with the user seq
 var wdeDigVBandBlack = 0;
 var wdeTranslate = [];
 // [][0] = name
@@ -153,6 +150,7 @@ function wdeActivateIframe(){
     document.getElementById("WDE_DAM_DCM").checked = true;
     document.getElementById("WDE_USER_SEL").checked = false;
     wdePopulateEnzmes();
+    wdeUser = ["User_Seq", "AGC^MGCT", 0 , "-", "", "N", ""];
     wdePopulateTranslation();
     wdeDrawGeneticCode();
     wdeDrawEnzymes();
@@ -310,9 +308,9 @@ function wdeHighlight(){
     } else {
         var sel = 0;
         // Place user defined Sequence
-        if (wdeUserVSelect && (wdeUserVCount > 0)) {
+        if (wdeUser[2] && !(wdeUser[3] == "-") && (wdeUser[3] > 0)) {
             sel++;
-            var listArr = wdeUserVPos.split(";");
+            var listArr = wdeUser[4].split(";");
             for (var i = 1; i < listArr.length; i++) {
                 var posAr = listArr[i].split(",");
                 for (var p = 0; p < parseInt(posAr[1]); p++) {
@@ -325,7 +323,7 @@ function wdeHighlight(){
         }
         // Place the Masking
         for (var k = 0; k < wdeEnzy.length; k++) {
-            if (wdeEnzy[k][2]){
+            if (wdeEnzy[k][2] && !(wdeEnzy[k][3] == "-") && (wdeEnzy[k][3] > 0)){
                 sel++;
                 var listArr = wdeEnzy[k][4].split(";");
                 for (var i = 1; i < listArr.length; i++) {
@@ -375,11 +373,11 @@ function wdeDamDcm() {
 
 function wdeUserSel() {
     var box = document.getElementById("WDE_USER_SEL");
-    if (wdeUserVSelect) {
-        wdeUserVSelect = 0;
+    if (wdeUser[2]) {
+        wdeUser[2] = 0;
         box.checked=false;
     } else {
-        wdeUserVSelect = 1;
+        wdeUser[2] = 1;
         box.checked=true;
     }
 }
@@ -531,10 +529,10 @@ function wdeSequenceModified(){
         wdeEnzy[k][4] = "";
         wdeEnzy[k][6] = "";
     }
-    wdeUserVCount = 0;
+    wdeUser[3] = "-";
     document.getElementById("WDE_USER_COUNT").innerHTML = "Hits: -";
-    wdeUserVPos = "";
-    wdeUserVCuts = "";
+    wdeUser[4] = "";
+    wdeUser[6] = "";
     wdeSeqHigh = [];
     wdeREdisp = 0;
     wdeDrawEnzymes();
@@ -609,10 +607,11 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
 function wdeFindUserSeq() {
     // All sequence has to be lowecase to save the convesion later
     var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML).toLowerCase();
-    wdeUserVSeq = mainForm.elements["WDE_USER_SEQ"].value;
-    var cutDiff = wdeDigCutPosFor(wdeUserVSeq);        
+    wdeUser[1] = mainForm.elements["WDE_USER_SEQ"].value;
+    wdeUser[0] = mainForm.elements["WDE_USER_NAME"].value;
+    var cutDiff = wdeDigCutPosFor(wdeUser[1]);        
     var cutDiffRev;        
-    var restSeq = wdeCleanSeq(wdeUserVSeq).toLowerCase();
+    var restSeq = wdeCleanSeq(wdeUser[1]).toLowerCase();
     if (restSeq.length < 3) {
         alert("At least 3 bp are required!");
         return;
@@ -626,7 +625,7 @@ function wdeFindUserSeq() {
     var revCompRestSeq = wdeReverseComplement(restSeq);
     if (restSeq !=  revCompRestSeq) {
         checkRevComp = true;
-        cutDiffRev = wdeDigCutPosRev(wdeUserVSeq); 
+        cutDiffRev = wdeDigCutPosRev(wdeUser[1]); 
     }
     var restLength = restSeq.length;
     var restPos = "";
@@ -675,10 +674,10 @@ function wdeFindUserSeq() {
             }
         }
     }
-    wdeUserVPos = restPos;
-    wdeUserVCuts = cutPos;
-    wdeUserVCount = restCount;
-    document.getElementById("WDE_USER_COUNT").innerHTML = "Hits: " + wdeUserVCount;
+    wdeUser[4] = restPos;
+    wdeUser[6] = cutPos;
+    wdeUser[3] = restCount;
+    document.getElementById("WDE_USER_COUNT").innerHTML = "Hits: " + wdeUser[3];
     wdeREdisp = 0;
     wdeRepaint();
 }
@@ -1028,12 +1027,11 @@ function wdeDigCleanDigList() {
     var allPos = "";
     var sel = 0;
     // Place user defined Sequence
-    if (wdeUserVSelect && (wdeUserVCuts != "")) {
+    if (wdeUser[2] && (wdeUser[6] != "")) {
         sel++;
-        var listArr = wdeUserVCuts.split(";");
+        var listArr = wdeUser[6].split(";");
         for (var k = 1; k < listArr.length; k++) {
-            allPos += ";UserSeq," + listArr[k];
-            
+            allPos += ";" + wdeUser[0] + "," + listArr[k];
         }
     }
     // Place the Enzymes

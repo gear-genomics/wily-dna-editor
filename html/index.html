@@ -216,11 +216,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 &nbsp;<input type="checkbox" id="WDE_USER_SEL" onclick="wdeUserSel()">
 &nbsp;<a id="WDE_USER_COUNT">Hits: -</a>
 &nbsp;&nbsp;&nbsp;
+&nbsp;<a>Name:</a>
+&nbsp;<input name="WDE_USER_NAME" value="User_Seq" type="text" size="10">
 &nbsp;<a>Sequence:</a>
 &nbsp;<input name="WDE_USER_SEQ" value="AGC^MGCT" type="text" size="30">
 &nbsp;<input type="button" onClick="wdeFindUserSeq()" value="Find User Sequence">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-&nbsp;<input type="button" onClick="wdeHighlight()" value="Highlight Selected in Sequence">
 <br />
 &nbsp;<input type="button" onClick="wdeFindRE()" value="Find All Restriction Sites">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -247,6 +247,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 &nbsp;<input name="RESTRICTION_LIST" value="KpnI, BstBI, HindIII, BamHI" type="text" size="30">
 &nbsp;<input type="button" onClick="wdeSelREListDS('S')" value="Select">
 &nbsp;<input type="button" onClick="wdeSelREListDS('D')" value="Deselect">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;<input type="button" onClick="wdeHighlight()" value="Highlight Selected in Sequence">
 
 
 <br />
