@@ -1543,7 +1543,7 @@ function wdeTransDrawFrame() {
             var orf = "";
             var leng = 0;
             var pos;
-	        for (var i = 0 ; i <= frames[k].length ; i = i + 3) {
+	        for (var i = 0 ; i < frames[k].length - 3; i = i + 3) {
 	            var word = frames[k].substring(i,(i+3));
 	            if (word == "MMM") {
 	                orf += frames[(k - 6)].substring(i,(i+3));
@@ -1565,6 +1565,46 @@ function wdeTransDrawFrame() {
 	                orf = "";
 	                inOrf = 0;
 	            }
+	        }
+	        if (inOrf && wdeVTransDNACirc) {
+	            // Find the End
+	            var endOrf = k;
+	            if (k == 6) {
+	                if (mismatch == 2) {
+	                    endOrf = 7;
+	                }
+	                if (mismatch == 1) {
+	                    endOrf = 8;
+	                }
+	            } else if (k == 7) {
+	                if (mismatch == 2) {
+	                    endOrf = 8;
+	                }
+	                if (mismatch == 1) {
+	                    endOrf = 6;
+	                }	            
+	            } else { // == 8
+	                if (mismatch == 2) {
+	                    endOrf = 6;
+	                }
+	                if (mismatch == 1) {
+	                    endOrf = 7;
+	                }
+	            }
+		        for (var i = 0 ; i < frames[endOrf].length - 3 ; i = i + 3) {
+		            var word = frames[endOrf].substring(i,(i+3));
+		            if (word == "***") {
+		                orf += frames[(endOrf - 6)].substring(i,(i+3));
+		                if (inOrf) {
+		                    orfs[orfCount] = [seqName + "_" + pos + "_" + leng + "_F", pos, 0, leng, orf];
+		                    orfCount++;
+		                }
+		                i = frames[endOrf].length + 5;
+		            } else {
+		                orf += frames[(endOrf - 6)].substring(i,(i+3));
+		                leng++;
+		            }
+		        }
 	        }
 	    }
         for (var k = 9 ; k < 12 ; k++) {
@@ -1595,8 +1635,47 @@ function wdeTransDrawFrame() {
 	                inOrf = 0;
 	            }
 	        }
+	        if (inOrf && wdeVTransDNACirc) {
+	            // Find the End
+	            var endOrf = k;
+	            if (k == 9) {
+	                if (mismatch == 2) {
+	                    endOrf = 11;
+	                }
+	                if (mismatch == 1) {
+	                    endOrf = 10;
+	                }
+	            } else if (k == 10) {
+	                if (mismatch == 2) {
+	                    endOrf = 9;
+	                }
+	                if (mismatch == 1) {
+	                    endOrf = 11;
+	                }	            
+	            } else { // == 11
+	                if (mismatch == 2) {
+	                    endOrf = 10;
+	                }
+	                if (mismatch == 1) {
+	                    endOrf = 9;
+	                }
+	            }
+	            for (var i = frames[endOrf].length - 3 ; i >= 0 ; i = i - 3) {
+		            var word = frames[endOrf].substring(i,(i+3));
+		            if (word == "***") {
+		                orf += frames[(endOrf - 6)].substring(i,(i+3));
+		                if (inOrf) {
+	                        orfs[orfCount] = [seqName + "_" + pos + "_" + leng + "_R", pos, 1, leng, orf];
+		                    orfCount++;
+		                }
+		                i = -5;
+		            } else {
+		                orf += frames[(endOrf - 6)].substring(i,(i+3));
+		                leng++;
+		            }
+		        }
+	        }
 	    }
-        
         // Sort ORFs
         orfs.sort(wdeTransSortOrf);
         
