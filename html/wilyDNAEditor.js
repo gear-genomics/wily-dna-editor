@@ -1230,12 +1230,13 @@ function wdePrintGel() {
 
 function wdeDigMapDis(unique) {
     var retVal = wdeMapSVG(unique);
-    wdeDigShowSVG(retVal, 750, 750);
+    wdeDigShowSVG(retVal[0], 750, retVal[1]);
 }
 
 function wdeMapSVG(unique) {
     // A letter is 25 long , if text 0, space below +20 top - 40, line dist 60
-
+    // Use 50 for hight
+    var retVal = "";
     var seqId = mainForm.elements["SEQUENCE_ID"].value;
     var seqLength = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML).length;
     
@@ -1276,90 +1277,119 @@ function wdeMapSVG(unique) {
  //   digArr.sort(wdeDigSortFrag);
   //  var drawDig = wdeDigCleanBands(digArr);
 
-    var retVal = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-1000 -1000 2000 2000'>";
-    retVal += "<circle cx='0' cy='0' r='450' stroke='black' stroke-width='6' fill='white' />";
-    var name = seqId;
-    retVal += "<text x='0' y='-70' font-family='Courier' font-size='40' fill='black' text-anchor='middle'>" +  name + "</text>";
-    var base = "" + seqLength + " bp";
-    retVal += "<text x='0' y='70' font-family='Courier' font-size='40' fill='black' text-anchor='middle'>" +  base + "</text>";
-    for (var k = 0 ; k < toSort.length ; k++) {
-        var rad = 2 * Math.PI * toSort[k][2] / seqLength;
-        toSort[k][6] = Math.floor(4 * toSort[k][2] / seqLength);
-        toSort[k][7] = Math.round(450 * Math.sin(rad)); // x1
-        toSort[k][8] = Math.round(-450 * Math.cos(rad)); // y1
-        toSort[k][9] = Math.round(475 * Math.sin(rad)); // x2
-        toSort[k][10] = Math.round(-475 * Math.cos(rad)); // y2
-        toSort[k][11] = Math.round(500 * Math.sin(rad)); // x3
-        toSort[k][12] = Math.round(-500 * Math.cos(rad)); // y4
+    var maxY = [0,0];
+    
+    if (0) {
+        // Enzyme Array:
+    	// [0]  Fragment Length
+	    // [1]  Enzym End
+	    // [2]  Position End
+	    // [3]  Enzyme Start
+	    // [4]  Position Start
+	    // [5]  Weight in ng
+	    // Function Adds:
+	    // [6]  quar
+	    // [7]  x1
+	    // [8]  y1
+	    // [9]  x2
+	    // [10]  y2
+	    // [11]  x3
+	    // [12]  y3
+	    retVal += "<circle cx='0' cy='0' r='450' stroke='black' stroke-width='6' fill='white' />";
+	    retVal += "<text x='0' y='-70' font-family='Courier' font-size='40' fill='black' text-anchor='middle'>" +  seqId + "</text>";
+	    var base = "" + seqLength + " bp";
+	    retVal += "<text x='0' y='70' font-family='Courier' font-size='40' fill='black' text-anchor='middle'>" +  base + "</text>";
+	    for (var k = 0 ; k < toSort.length ; k++) {
+	        var rad = 2 * Math.PI * toSort[k][2] / seqLength;
+	        toSort[k][6] = Math.floor(4 * toSort[k][2] / seqLength);
+	        toSort[k][7] = Math.round(450 * Math.sin(rad)); // x1
+	        toSort[k][8] = Math.round(-450 * Math.cos(rad)); // y1
+	        toSort[k][9] = Math.round(475 * Math.sin(rad)); // x2
+	        toSort[k][10] = Math.round(-475 * Math.cos(rad)); // y2
+	        toSort[k][11] = Math.round(500 * Math.sin(rad)); // x3
+	        toSort[k][12] = Math.round(-500 * Math.cos(rad)); // y4
+	    }
+	    toSort.sort(wdeDigMapSort);
+	    var yPos = [[60,-10,-10,60],[-1,1,1,-1]];
+	    for (var k = 0 ; k < toSort.length ; k++) {
+	        var quar = toSort[k][6];
+	        var x1 = toSort[k][7];
+	        var y1 = toSort[k][8];
+	        var x2 = toSort[k][9];
+	        var y2 = toSort[k][10];
+	        var x3 = toSort[k][11];
+	        var y3 = toSort[k][12];
+	        if ((y3 * yPos[1][quar]) < (yPos[0][quar] * yPos[1][quar] + 50)) {
+	            y3 = yPos[0][quar] + 50 * yPos[1][quar];
+	        }
+	        yPos[0][quar] = y3;
+	        // For Page Size
+	        if ((quar == 0) || (quar == 3)) {
+	            if (maxY[0] > y3) {
+	                maxY[0] = y3;
+	            }
+	        } else {
+	            if (maxY[1] < y3) {
+	                maxY[1] = y3;
+	            }
+	        }
+	        var x4 = x3;
+	        if (quar < 2) {
+	            x4 = x3 + 20;
+	        } else {
+	            x4 = x3 - 20;
+	        }
+	        var y4 = y3;
+	        var x5 = x4;
+	        var orient;
+	        if (quar < 2) {
+	            x5 = x4 + 10;
+	            orient = "begin";
+	        } else {
+	            x5 = x4 - 10;
+	            orient = "end";
+	        }
+	        var y5 = y4 + 10;
+	        retVal += "<polyline points='" + x1 + "," + y1;
+	        retVal += " " + x2 + "," + y2 + " " + x3 + "," + y3;
+	        retVal += " " + x4 + "," + y4;
+	        retVal += "' style='stroke:black;stroke-width:5;fill:none' />";
+	        retVal += "<text x='" + x5 + "' y='" + y5;
+	        retVal += "' font-family='Courier' font-size='40' fill='black' text-anchor='";
+	        retVal += orient + "'>" + toSort[k][2] + " " + toSort[k][1] + "</text>";
+	    
+	    }
+    } else {
+        toSort.sort(wdeDigSortPos);
+        maxY[0] = -700;
+        maxY[1] = 300;
+        var lastX = [-750];
+        retVal += "<line x1='-750' y1='200' x2='500' y2='200' style='stroke:rgb(0,0,0);stroke-width:8' />";
+        var descr = seqId + " (x" + ".." + "y)";
+	    retVal += "<text x='-125' y='270' font-family='Courier' font-size='40' fill='black' text-anchor='middle'>" +  descr + "</text>";
+	    for (var k = 0 ; k < toSort.length ; k++) {
+	        var xPos = 1250 * toSort[k][2] / seqLength - 750;
+	        var xLin = xPos;
+	        var yLin = 165;
+	        var xText = xPos;
+	        var yText = 150;
+	        var outText = toSort[k][2] + " " + toSort[k][1];
+	        var xPixText = 25 * outText.length;
+	        
+	        
+	        retVal += "<line x1='" + xLin + "' y1='200' x2='" + xLin + "' y2='";
+	        retVal += yLin + "' style='stroke:rgb(0,0,0);stroke-width:5' />";
+	        retVal += "<text x='" + xText + "' y='" + yText;
+	        retVal += "' font-family='Courier' font-size='40' fill='black' text-anchor='begin'>";
+	        retVal += outText + "</text>";
+	    }
     }
-    toSort.sort(wdeDigMapSort);
-    var yPos = [[60,-20,-20,60],[-1,1,1,-1]];
-    for (var k = 0 ; k < toSort.length ; k++) {
-        var quar = toSort[k][6];
-        var x1 = toSort[k][7];
-        var y1 = toSort[k][8];
-        var x2 = toSort[k][9];
-        var y2 = toSort[k][10];
-        var x3 = toSort[k][11];
-        var y3 = toSort[k][12];
- //       alert("y3 " + y3 + "*" + yPos[1][quar] + " > " + yPos[0][quar] + "*"  + yPos[1][quar] );
-        if ((y3 * yPos[1][quar]) > (yPos[0][quar] * yPos[1][quar] + 60)) {
-    //        alert("Set y3 from " + yPos[0][quar] + " to " + y3);
-            yPos[0][quar] = y3;
-        } else {
-   //         alert("Collision y3 was " + yPos[0][quar] + " now " + (yPos[0][quar] - 160 * yPos[1][quar]));
-            y3 = yPos[0][quar] + 60 * yPos[1][quar];
-            yPos[0][quar] = y3;
-        }
-        var x4 = x3;
-        if (quar < 2) {
-            x4 = x3 + 20;
-        } else {
-            x4 = x3 - 20;
-        }
-        var y4 = y3;
-        var x5 = x4;
-        var orient;
-        if (quar < 2) {
-            x5 = x4 + 10;
-            orient = "begin";
-        } else {
-            x5 = x4 - 10;
-            orient = "end";
-        }
-        var y5 = y4 + 10;
-   
-        var col;
-        if (quar == 0) {
-            col = "255,0,0";
-        } else if (quar == 1) {
-            col = "0,255,0";
-        } else if (quar == 2) {
-            col = "0,0,255";
-        } else {
-            col = "255,255,0";
-        } 
-        col = "0,0,0";
-        retVal += "<polyline points='" + x1 + "," + y1;
-        retVal += " " + x2 + "," + y2 + " " + x3 + "," + y3;
-        retVal += " " + x4 + "," + y4;
-        retVal += "' style='stroke:black;stroke-width:7;fill:none' />";
-        retVal += "<text x='" + x5 + "' y='" + y5 + "' font-family='Courier' font-size='40' fill='black' text-anchor='" + orient + "'>" + toSort[k][1] + " - " + quar + "</text>";
-    
-    }
-     
-    
-    
-    
-    retVal += "<line x1='-100' y1='-50' x2='250' y2='-50' style='stroke:rgb(0,0,0);stroke-width:3' />";
-    retVal += "<line x1='-100' y1='-110' x2='250' y2='-110' style='stroke:rgb(0,0,0);stroke-width:3' />";
-    // Letter = 25 long , text 0, space below +20 top - 40 jump 60
-
-  //  retVal += "<text x='0' y='0' font-family='Courier' font-size='40' fill='black' text-anchor='begin'>MMMMMMMMMM</text>";
-   //  retVal += "<text x='0' y='60' font-family='Courier' font-size='40' fill='black' text-anchor='end'>nnnnnnnnnn</text>";
-
     retVal += "</svg>";
-    return retVal;
+    var finYStart = Math.floor((maxY[0] - 100)/10)*10;
+    var finYSum = Math.ceil((maxY[0]*-1 + maxY[1] + 200)/10)*10;
+    var calcHight = Math.ceil(finYSum * 750 / 2000);
+    retVal = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-1000 " + finYStart + " 2000 " + finYSum + "'>" + retVal;
+    return [retVal,calcHight];
 }
 
 function wdeDigMapSort(a, b) {
