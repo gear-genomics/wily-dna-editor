@@ -197,11 +197,6 @@ function wdeSendP3P(){
     mainForm.submit();
 }
 
-
-function test() {
-    alert("hallo");
-}
-
 function wdeViewZeroOne(){
     var lButton = document.getElementById("cmdZeroOneButton");
     if (wdeZeroOne) {
@@ -869,6 +864,12 @@ function wdeGetCutPos(pos,cutDiff) {
     return retVal;
 }
 
+function wdeEnzyFoundCheck() {
+    if (wdeEnzy[0][3] == "-") {
+        wdeFindRE();
+    }
+}
+
 function wdeSelEnzymes(checkBox, enzId) {
     if (checkBox.checked) {
         wdeEnzy[enzId][2] = 1;
@@ -892,6 +893,7 @@ function wdeSelREselMLE(sel) {
 }
 
 function wdeSelREsel(sel, rsNr) {
+    wdeEnzyFoundCheck();
     for (var k = 0; k < wdeEnzy.length; k++) {
         if (((sel == "L") && (wdeEnzy[k][3] < rsNr)) ||
             ((sel == "E") && (wdeEnzy[k][3] == rsNr)) ||
@@ -1254,6 +1256,10 @@ function wdeDigMapDis(unique) {
 function wdeMapSVG(unique) {
     // A letter is 25 long , if text 0, space below +20 top - 40, line dist 60
     // Use 50 for hight
+    wdeEnzyFoundCheck();
+    if (unique == "U") {
+        wdeSelREsel('E', 1);
+    }
     var retVal = "";
     var circ = wdeCircular
     var seqId = mainForm.elements["SEQUENCE_ID"].value;
@@ -1362,18 +1368,14 @@ function wdeMapSVG(unique) {
 	        var searchOn = 1;
 	        var line = 0;
 	        while (searchOn) {
-//	            alert ("it " + k + " lin " + line + " old " + lastX[line] + " new " + (xText + xPixText));
 				if(typeof lastX[line] === 'undefined') {
 				    lastX[line] = xText + xPixText;
 				    searchOn = 0;
 				}
 				else {
 				    if (lastX[line] < xText) {
-//	                    alert ("set to " + (xText + xPixText));
 				        lastX[line] = xText + xPixText;
 				        searchOn = 0;
-				    } else {
-				        
 				    }
 				}
 				yText -= 50;
@@ -1401,10 +1403,10 @@ function wdeDigMapSort(a, b) {
     if (a[6] != b[6]) {
         return a[6] - b[6];
     } else {
-        if ((a[6] == 0) || (a[6] == 3)) {
-            return b[12] - a[12];
+        if ((a[6] == 0) || (a[6] == 2)) {
+            return b[2] - a[2];
         } else {
-            return a[12] - b[12];
+            return a[2] - b[2];
         }
     }
 }
