@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.5.0";
+var wdeVVersion = "0.7.0";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -61,6 +61,7 @@ var wdeEnzy = [];
 // [][6] = Cut positions in forward
 var wdeUser = [];
 // same as wdeEnzy[] with the user seq
+var wdeVDigDNACirc;
 var wdeDigVBandBlack = 0;
 var wdeTranslate = [];
 // [][0] = name
@@ -998,7 +999,7 @@ function wdePrintEnzy() {
 }
 
 function wdeDigList() {
-    var digArr = wdeDigCleanDigList();
+    var digArr = wdeDigCleanDigList(wdeCircular);
     var retVal = "";
     var lastCut = 0;
     retVal += '<table border="0">';
@@ -1023,7 +1024,7 @@ function wdeDigList() {
     showTab('tab3','WDE_digest');
 }
 
-function wdeDigCleanDigList() {
+function wdeDigCleanDigList(circ) {
     var allPos = "";
     var sel = 0;
     // Place user defined Sequence
@@ -1031,7 +1032,7 @@ function wdeDigCleanDigList() {
         sel++;
         var listArr = wdeUser[6].split(";");
         for (var k = 1; k < listArr.length; k++) {
-            allPos += ";" + wdeUser[0] + "," + listArr[k];
+            allPos += ";" + wdeUser[0] + "(" + wdeUser[3] + ")," + listArr[k];
         }
     }
     // Place the Enzymes
@@ -1040,7 +1041,7 @@ function wdeDigCleanDigList() {
             sel++;
 	        var listArr = wdeEnzy[k][6].split(";");
 	        for (var i = 1; i < listArr.length; i++) {
-	            allPos += ";" + wdeEnzy[k][0] + "," + listArr[i];
+	            allPos += ";" + wdeEnzy[k][0] + "(" + wdeEnzy[k][3] + ")," + listArr[i];
 	        }
         }
     }
@@ -1079,7 +1080,7 @@ function wdeDigCleanDigList() {
             lastPos = curPos;
         }
         var rest = seqLength - lastPos;
-        if (wdeCircular) {
+        if (circ) {
             toSort[0][0] = toSort[0][0] + rest + 1;
 	        toSort[0][3] = lastEnz;
             toSort[0][4] = lastPos;
@@ -1109,7 +1110,7 @@ function wdeDigAsGelPic() {
 }
 
 function wdeDigCreateSVG() {
-    var digArr = wdeDigCleanDigList();
+    var digArr = wdeDigCleanDigList(wdeCircular);
     var markString = mainForm.elements["WDE_DIGEST_MARKER"].value;
     var rawMarker = markString.split(";");
     var markArr = [];
@@ -1237,49 +1238,13 @@ function wdeMapSVG(unique) {
     // A letter is 25 long , if text 0, space below +20 top - 40, line dist 60
     // Use 50 for hight
     var retVal = "";
+    var circ = wdeCircular
     var seqId = mainForm.elements["SEQUENCE_ID"].value;
     var seqLength = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML).length;
-    
-    seqLength = 1000;
-    
-    var toSort = [];
-	    // [0]  Fragment Length
-	    // [1]  Enzym End
-	    // [2]  Position End
-	    // [3]  Enzyme Start
-	    // [4]  Position Start
-	    // [5]  Weight in ng
-	    // [6]  quar
-	    // [7]  x1
-	    // [8]  y1
-	    // [9]  x2
-	    // [10]  y2
-	    // [11]  x3
-	    // [12]  y3
-    toSort[0] = [10,"Bla0", 0, "",0,0];
-    toSort[1] = [10,"Bla2", 300, "",0,0];
-    toSort[2] = [10,"Bla3", 310, "",0,0];
-    toSort[3] = [10,"Bla4", 320, "",0,0];
-    toSort[4] = [10,"Bla5", 340, "",0,0];
-    toSort[5] = [10,"Bla6", 500, "",0,0];
-    toSort[6] = [10,"Bla7", 550, "",0,0];
-    toSort[7] = [10,"Bla8", 700, "",0,0];
-    toSort[8] = [10,"Bla9", 750, "",0,0];
-    toSort[9] = [10,"Bla10", 850, "",0,0];
-    toSort[10] = [10,"Bla11", 950, "",0,0];
-    toSort[11] = [10,"Bla1", 150, "",0,0];
-    toSort[12] = [10,"Bla12", 240, "",0,0];
-    toSort[13] = [10,"Bla12", 315, "",0,0];
-    toSort[14] = [10,"Bla12", 317, "",0,0];
-    toSort[15] = [10,"Bla12", 319, "",0,0];
-
-  //  var digArr = wdeDigCleanDigList();
- //   digArr.sort(wdeDigSortFrag);
-  //  var drawDig = wdeDigCleanBands(digArr);
-
+    var digArr = wdeDigCleanDigList(circ);
     var maxY = [0,0];
     
-    if (0) {
+    if (circ) {
         // Enzyme Array:
     	// [0]  Fragment Length
 	    // [1]  Enzym End
@@ -1299,26 +1264,26 @@ function wdeMapSVG(unique) {
 	    retVal += "<text x='0' y='-70' font-family='Courier' font-size='40' fill='black' text-anchor='middle'>" +  seqId + "</text>";
 	    var base = "" + seqLength + " bp";
 	    retVal += "<text x='0' y='70' font-family='Courier' font-size='40' fill='black' text-anchor='middle'>" +  base + "</text>";
-	    for (var k = 0 ; k < toSort.length ; k++) {
-	        var rad = 2 * Math.PI * toSort[k][2] / seqLength;
-	        toSort[k][6] = Math.floor(4 * toSort[k][2] / seqLength);
-	        toSort[k][7] = Math.round(450 * Math.sin(rad)); // x1
-	        toSort[k][8] = Math.round(-450 * Math.cos(rad)); // y1
-	        toSort[k][9] = Math.round(475 * Math.sin(rad)); // x2
-	        toSort[k][10] = Math.round(-475 * Math.cos(rad)); // y2
-	        toSort[k][11] = Math.round(500 * Math.sin(rad)); // x3
-	        toSort[k][12] = Math.round(-500 * Math.cos(rad)); // y4
+	    for (var k = 0 ; k < digArr.length ; k++) {
+	        var rad = 2 * Math.PI * digArr[k][2] / seqLength;
+	        digArr[k][6] = Math.floor(4 * digArr[k][2] / seqLength);
+	        digArr[k][7] = Math.round(450 * Math.sin(rad)); // x1
+	        digArr[k][8] = Math.round(-450 * Math.cos(rad)); // y1
+	        digArr[k][9] = Math.round(475 * Math.sin(rad)); // x2
+	        digArr[k][10] = Math.round(-475 * Math.cos(rad)); // y2
+	        digArr[k][11] = Math.round(500 * Math.sin(rad)); // x3
+	        digArr[k][12] = Math.round(-500 * Math.cos(rad)); // y4
 	    }
-	    toSort.sort(wdeDigMapSort);
+	    digArr.sort(wdeDigMapSort);
 	    var yPos = [[60,-10,-10,60],[-1,1,1,-1]];
-	    for (var k = 0 ; k < toSort.length ; k++) {
-	        var quar = toSort[k][6];
-	        var x1 = toSort[k][7];
-	        var y1 = toSort[k][8];
-	        var x2 = toSort[k][9];
-	        var y2 = toSort[k][10];
-	        var x3 = toSort[k][11];
-	        var y3 = toSort[k][12];
+	    for (var k = 0 ; k < digArr.length ; k++) {
+	        var quar = digArr[k][6];
+	        var x1 = digArr[k][7];
+	        var y1 = digArr[k][8];
+	        var x2 = digArr[k][9];
+	        var y2 = digArr[k][10];
+	        var x3 = digArr[k][11];
+	        var y3 = digArr[k][12];
 	        if ((y3 * yPos[1][quar]) < (yPos[0][quar] * yPos[1][quar] + 50)) {
 	            y3 = yPos[0][quar] + 50 * yPos[1][quar];
 	        }
@@ -1356,27 +1321,50 @@ function wdeMapSVG(unique) {
 	        retVal += "' style='stroke:black;stroke-width:5;fill:none' />";
 	        retVal += "<text x='" + x5 + "' y='" + y5;
 	        retVal += "' font-family='Courier' font-size='40' fill='black' text-anchor='";
-	        retVal += orient + "'>" + toSort[k][2] + " " + toSort[k][1] + "</text>";
+	        retVal += orient + "'>" + digArr[k][2] + " " + digArr[k][1] + "</text>";
 	    
 	    }
     } else {
-        toSort.sort(wdeDigSortPos);
+        digArr.sort(wdeDigSortPos);
         maxY[0] = -700;
         maxY[1] = 300;
-        var lastX = [-750];
+        var lastX = [-1500];
         retVal += "<line x1='-750' y1='200' x2='500' y2='200' style='stroke:rgb(0,0,0);stroke-width:8' />";
-        var descr = seqId + " (x" + ".." + "y)";
+        var fragStart = 0;
+        var fragEnd = seqLength;
+        var descr = seqId + " (" + fragStart + ".." + fragEnd + ")";
 	    retVal += "<text x='-125' y='270' font-family='Courier' font-size='40' fill='black' text-anchor='middle'>" +  descr + "</text>";
-	    for (var k = 0 ; k < toSort.length ; k++) {
-	        var xPos = 1250 * toSort[k][2] / seqLength - 750;
+	    for (var k = 0 ; k < digArr.length ; k++) {
+	        var xPos = 1250 * digArr[k][2] / seqLength - 750;
 	        var xLin = xPos;
 	        var yLin = 165;
-	        var xText = xPos;
-	        var yText = 150;
-	        var outText = toSort[k][2] + " " + toSort[k][1];
-	        var xPixText = 25 * outText.length;
-	        
-	        
+	        var xText = xPos - 10;
+	        var yText = 200;
+	        var outText = digArr[k][2] + " " + digArr[k][1];
+	        var xPixText = Math.round(1.4 * 25 * outText.length);
+	        var searchOn = 1;
+	        var line = 0;
+	        while (searchOn) {
+//	            alert ("it " + k + " lin " + line + " old " + lastX[line] + " new " + (xText + xPixText));
+				if(typeof lastX[line] === 'undefined') {
+				    lastX[line] = xText + xPixText;
+				    searchOn = 0;
+				}
+				else {
+				    if (lastX[line] < xText) {
+//	                    alert ("set to " + (xText + xPixText));
+				        lastX[line] = xText + xPixText;
+				        searchOn = 0;
+				    } else {
+				        
+				    }
+				}
+				yText -= 50;
+				if (maxY[0] > yText) {
+				    maxY[0] = yText;
+				}
+                line++;
+            }
 	        retVal += "<line x1='" + xLin + "' y1='200' x2='" + xLin + "' y2='";
 	        retVal += yLin + "' style='stroke:rgb(0,0,0);stroke-width:5' />";
 	        retVal += "<text x='" + xText + "' y='" + yText;
