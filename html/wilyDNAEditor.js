@@ -163,6 +163,27 @@ function wdeActivateIframe(){
     wdeDrawEnzymes();
 }
 
+function wdeSaveCookie(txt){
+    var date = new Date(new Date().setFullYear(new Date().getFullYear() + 3));
+    var dateString = date.toUTCString();
+    document.cookie = "str=" + txt + "; expires=" + dateString + "; path=/"; 
+}
+
+function wdeLoadCookie(){
+    var txt = document.cookie;
+    if (txt == "") {
+        alert("No Cookie with Settings Found in Your Browser!");
+    } else {
+        alert(txt);
+    }
+}
+
+function wdeDelCookie(){
+    var date = new Date(new Date().setFullYear(new Date().getFullYear() - 1));
+    var dateString = date.toUTCString();
+    document.cookie = "str=del; expires=" + dateString + "; path=/"; 
+}
+
 function wdeRepaint(){
     window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML), wdeZeroOne, wdeNumbers);
 }
