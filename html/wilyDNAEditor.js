@@ -63,6 +63,12 @@ var wdeUser = [];
 // same as wdeEnzy[] with the user seq
 var wdeVDigDNACirc;
 var wdeDigVBandBlack = 0;
+var wdeDigUserChoice = "X";
+//  L - Digest as List
+//  G - Digest as Gel Pic
+//  M - Map
+//  U - Map + Unique
+//  X - Nothing Selected
 var wdeTranslate = [];
 // [][0] = name
 // [][1] = translation
@@ -999,6 +1005,7 @@ function wdePrintEnzy() {
 }
 
 function wdeDigList() {
+    wdeDigUserChoice = "L";
     var digArr = wdeDigCleanDigList(wdeCircular);
     var retVal = "";
     var lastCut = 0;
@@ -1105,6 +1112,7 @@ function wdeDigSortFrag(a, b) {
 }
 
 function wdeDigAsGelPic() {
+    wdeDigUserChoice = "G";
     var retVal = wdeDigCreateSVG();
     wdeDigShowSVG(retVal, 750, 450);
 }
@@ -1205,19 +1213,23 @@ function wdeDigShowSVG(svg, x, y) {
     showTab('tab3','WDE_digest');
 }
 
-function wdeSaveGelTable() {
-    wdeDigList();
-    var content = window.frames['WDE_DIGEST'].document.body.innerHTML;
-    content = "<html>\n<body>\n" + content + "\n</body>\n</html>\n";
-	var fileName = mainForm.elements["SEQUENCE_ID"].value + "_digest.html";
-	wdeSaveFile(fileName, content, "html");
-}
-
-function wdeSaveGelPic() {
-    wdeDigAsGelPic();
-    var content = wdeDigCreateSVG();
-	var fileName = mainForm.elements["SEQUENCE_ID"].value + "_gel.svg";
-	wdeSaveFile(fileName, content, "svg");
+function wdeSaveGel() {
+    if (wdeDigUserChoice == "L") {
+	    var content = window.frames['WDE_DIGEST'].document.body.innerHTML;
+	    content = "<html>\n<body>\n" + content + "\n</body>\n</html>\n";
+		var fileName = mainForm.elements["SEQUENCE_ID"].value + "_digest.html";
+		wdeSaveFile(fileName, content, "html");
+	}
+    if (wdeDigUserChoice == "G") {
+	    var content = wdeDigCreateSVG();
+		var fileName = mainForm.elements["SEQUENCE_ID"].value + "_gel.svg";
+		wdeSaveFile(fileName, content, "svg");
+	}
+    if ((wdeDigUserChoice == "U") || (wdeDigUserChoice == "M")) {
+	    var content = wdeMapSVG(wdeDigUserChoice);
+		var fileName = mainForm.elements["SEQUENCE_ID"].value + "_map.svg";
+		wdeSaveFile(fileName, content[0], "svg");
+    } 
 }
 
 function wdePrintGel() {
@@ -1230,6 +1242,11 @@ function wdePrintGel() {
 }
 
 function wdeDigMapDis(unique) {
+    if (unique == "U") {
+        wdeDigUserChoice = "U";
+    } else {
+        wdeDigUserChoice = "M";
+    }
     var retVal = wdeMapSVG(unique);
     wdeDigShowSVG(retVal[0], 750, retVal[1]);
 }
