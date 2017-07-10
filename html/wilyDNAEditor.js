@@ -1007,6 +1007,7 @@ function wdePrintEnzy() {
 }
 
 function wdeDigList() {
+    document.getElementById("WDE_DIGEST").style.height = "500px";
     wdeDigUserChoice = "L";
     var digArr = wdeDigCleanDigList(wdeCircular);
     var retVal = "";
@@ -1114,6 +1115,7 @@ function wdeDigSortFrag(a, b) {
 }
 
 function wdeDigAsGelPic() {
+    document.getElementById("WDE_DIGEST").style.height = "500px";
     wdeDigUserChoice = "G";
     var retVal = wdeDigCreateSVG();
     wdeDigShowSVG(retVal, 750, 450);
@@ -1251,6 +1253,9 @@ function wdeDigMapDis(unique) {
     }
     var retVal = wdeMapSVG(unique);
     wdeDigShowSVG(retVal[0], 750, retVal[1]);
+    if (retVal[1] > 500) {
+         document.getElementById("WDE_DIGEST").style.height = (retVal[1] + 100) + "px";
+    }
 }
 
 function wdeMapSVG(unique) {
@@ -1353,8 +1358,8 @@ function wdeMapSVG(unique) {
         maxY[1] = 300;
         var lastX = [-1500];
         retVal += "<line x1='-750' y1='200' x2='500' y2='200' style='stroke:rgb(0,0,0);stroke-width:8' />";
-        var fragStart = 0;
-        var fragEnd = seqLength;
+        var fragStart = wdeZeroOne;
+        var fragEnd = seqLength - 1 + wdeZeroOne;
         var descr = seqId + " (" + fragStart + ".." + fragEnd + ")";
 	    retVal += "<text x='-125' y='270' font-family='Courier' font-size='40' fill='black' text-anchor='middle'>" +  descr + "</text>";
 	    for (var k = 0 ; k < digArr.length ; k++) {
