@@ -1265,7 +1265,7 @@ function wdeMapSVG(unique) {
     var seqId = mainForm.elements["SEQUENCE_ID"].value;
     var seqLength = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML).length;
     var digArr = wdeDigCleanDigList(circ);
-    var maxY = [0,0];
+    var maxY = [-500,500];
     
     if (circ) {
         // Enzyme Array:
