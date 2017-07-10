@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.7.0";
+var wdeVVersion = "0.7.1";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -166,15 +166,23 @@ function wdeActivateIframe(){
 function wdeSaveCookie(txt){
     var date = new Date(new Date().setFullYear(new Date().getFullYear() + 3));
     var dateString = date.toUTCString();
-    document.cookie = "str=" + txt + "; expires=" + dateString + "; path=/"; 
+    // Code the forbidden Characters
+    txt = encodeURIComponent(txt);
+    document.cookie = 'str="' + txt + '"; expires=' + dateString + "; path=/"; 
 }
 
 function wdeLoadCookie(){
     var txt = document.cookie;
     if (txt == "") {
         alert("No Cookie with Settings Found in Your Browser!");
+        return "";
     } else {
-        alert(txt);
+        var regEx1 = /^str="/g;
+        txt = txt.replace(regEx1, "");
+        var regEx2 = /"/g;
+        txt = txt.replace(regEx2, "");
+        txt = decodeURIComponent(txt);
+        return txt;
     }
 }
 
