@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.7.1";
+var wdeVVersion = "0.7.3";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -151,6 +151,8 @@ function wdeActivateIframe(){
     window.frames['WDE_TRANS'].document.designMode = 'On';
     var fileLoad = document.getElementById("WDE_Load_File");
     fileLoad.addEventListener("change", wdeLoadFile, false);
+    var fileLoad2 = document.getElementById("WDE_Load_Settings");
+    fileLoad2.addEventListener("change", wdeLoadSetFile, false);
     window.frames['WDE_RTF'].document.addEventListener('cut', wdeCutEvent);
     window.frames['WDE_RTF'].document.addEventListener('copy', wdeCopyEvent);
     window.frames['WDE_RTF'].document.addEventListener('paste', wdePasteEvent);
@@ -161,9 +163,11 @@ function wdeActivateIframe(){
     wdePopulateTranslation();
     wdeDrawGeneticCode();
     wdeDrawEnzymes();
+    wdeLoadCookie('S');
 }
 
-function wdeSaveCookie(txt){
+function wdeSaveCookie(){
+    var txt = wdeSettingsToString();
     var date = new Date(new Date().setFullYear(new Date().getFullYear() + 3));
     var dateString = date.toUTCString();
     // Code the forbidden Characters
@@ -171,18 +175,122 @@ function wdeSaveCookie(txt){
     document.cookie = 'str="' + txt + '"; expires=' + dateString + "; path=/"; 
 }
 
-function wdeLoadCookie(){
+function wdeSaveSetFile() {
+    var content = wdeSettingsToString();
+    var fileName = "Wily_DNA_Editor_Settings.txt";
+    wdeSaveFile(fileName, content, "text");
+}
+
+function wdeLoadCookie(par){
     var txt = document.cookie;
     if (txt == "") {
-        alert("No Cookie with Settings Found in Your Browser!");
-        return "";
+        if(par == "U") {
+            alert("No Settings Cookie Found on Your Browser!");
+        }
     } else {
         var regEx1 = /^str="/g;
         txt = txt.replace(regEx1, "");
         var regEx2 = /"/g;
         txt = txt.replace(regEx2, "");
         txt = decodeURIComponent(txt);
-        return txt;
+        wdeStringToSettings(txt);
+    }
+}
+
+function wdeLoadSetFile(f){
+    var file = f.target.files[0];
+    if (file) { // && file.type.match("text/*")) {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            wdeStringToSettings(event.target.result);
+        }
+        reader.readAsText(file);
+    } else {
+        alert("Error opening file");
+    }
+}
+
+function wdeSettingsToString(){
+    var txt = "";
+    txt += "Index=" + wdeZeroOne + "\n";
+    txt += "DamDcm=" + wdeDamDcmSel + "\n";
+    var rsNr = mainForm.elements["RESTRICTION_NR"].value;
+    txt += "RESel=" + rsNr + "\n";
+    var rawList = mainForm.elements["RESTRICTION_LIST"].value;
+    txt += "REList=" + rawList + "\n";
+    var uName = mainForm.elements["WDE_USER_NAME"].value;
+    txt += "USName=" + uName + "\n";
+    var uSeq = mainForm.elements["WDE_USER_SEQ"].value;
+    txt += "USSeq=" + uSeq + "\n";
+    var markString = mainForm.elements["WDE_DIGEST_MARKER"].value;
+    txt += "Marker=" + markString + "\n";
+	var amount = mainForm.elements["WDE_DIGEST_AMOUNT"].value;
+    txt += "Load=" + amount + "\n";
+    txt += "BandBlack=" + wdeDigVBandBlack + "\n";
+    var minSize = mainForm.elements["ORF_AS_NR"].value;
+    txt += "minORF=" + minSize + "\n";
+    return txt;
+}
+
+function wdeStringToSettings(txt){
+    var regEx1 = /\r\n/g;
+    txt = txt.replace(regEx1, "\n");
+    var all = txt.split("\n");
+    for (var i = 0; i < all.length; i++) {
+        var line = all[i].split("=");
+        if (line.length == 2) {
+            if (line[0] == "Index") {
+			    var lButton = document.getElementById("cmdZeroOneButton");
+			    if (line[1] == "0") {
+			        wdeZeroOne = 0;
+			        lButton.value = "0";
+			    } else {
+			        wdeZeroOne = 1;
+			        lButton.value = "1";
+			    }
+            }
+            if (line[0] == "DamDcm") {
+			    var box = document.getElementById("WDE_DAM_DCM");
+			    if (line[1] == "0") {
+			        wdeDamDcmSel = 0;
+			        box.checked=false;
+			    } else {
+			        wdeDamDcmSel = 1;
+			        box.checked=true;
+			    }
+            }
+            if (line[0] == "RESel") {
+			    mainForm.elements["RESTRICTION_NR"].value = line[1];
+            }
+            if (line[0] == "REList") {
+			    mainForm.elements["RESTRICTION_LIST"].value = line[1];
+            }
+            if (line[0] == "USName") {
+			    mainForm.elements["WDE_USER_NAME"].value = line[1];
+            }
+            if (line[0] == "USSeq") {
+			    mainForm.elements["WDE_USER_SEQ"].value = line[1];
+            }
+            if (line[0] == "Marker") {
+			    mainForm.elements["WDE_DIGEST_MARKER"].value = line[1];
+            }
+            if (line[0] == "Load") {
+			    mainForm.elements["WDE_DIGEST_AMOUNT"].value = line[1];
+            }
+            if (line[0] == "BandBlack") {
+			    var lButton2 = document.getElementById("WDE_DIG_BAND_BLACK");
+			    if (line[1] == "0") {
+			        wdeDigVBandBlack = 0;
+			        lButton2.value = "Draw Bands Black";
+			    } else {
+			        wdeDigVBandBlack = 1;
+			        lButton2.value = "Simulate Bands Density";
+			    }
+            }
+            if (line[0] == "minORF") {
+			    mainForm.elements["ORF_AS_NR"].value = line[1];
+            }
+        }
     }
 }
 
