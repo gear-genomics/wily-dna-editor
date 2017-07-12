@@ -114,7 +114,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <script src="wilyDNAEditor.js"></script>
 </head>
 
-<body onLoad="wdeActivateIframe();">
+<body onLoad="wdeActivateStartup();">
 
 <div id="page">
 <div id="WDE_complete">
@@ -162,11 +162,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div id="menuBar">
         <ul>
-        <li id="tab1"><a onclick="showTab('tab1','WDE_main_tab')">Main</a></li>
-        <li id="tab2"><a onclick="showTab('tab2','WDE_restriction_sites')">Restriction Sites</a></li>
-        <li id="tab3"><a onclick="showTab('tab3','WDE_digest')">Digest</a></li>
-        <li id="tab4"><a onclick="showTab('tab4','WDE_translate')">Translate</a></li>
-        <li id="tab5"><a onclick="showTab('tab5','WDE_settings')">Settings</a></li>
+        <li id="tab1"><a onclick="wdeShowTab('tab1','WDE_main_tab')">Main</a></li>
+        <li id="tab2"><a onclick="wdeShowTab('tab2','WDE_restriction_sites')">Restriction Sites</a></li>
+        <li id="tab3"><a onclick="wdeShowTab('tab3','WDE_digest')">Digest</a></li>
+        <li id="tab4"><a onclick="wdeShowTab('tab4','WDE_translate')">Translate</a></li>
+        <li id="tab5"><a onclick="wdeShowTab('tab5','WDE_settings')">Settings</a></li>
         </ul>
 </div>
 
@@ -189,7 +189,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 &nbsp;<a>Length:</a>
 &nbsp;<input name="SEQUENCE_LENGTH" value="" type="text" style="text-align:right;" size="10">&nbsp;bp
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-&nbsp;<input type="button" id="cmdCircularButton" onClick="cmdCircularLinear()" value="Circular">
+&nbsp;<input type="button" id="wdeCircularButton" onClick="wdeCircularLinear()" value="Circular">
 <br />
 &nbsp;<input type="button" onClick="wdeUpToLow()" value="UPPER -> lower">
 &nbsp;<input type="button" onClick="wdeUpexLow()" value="UPPER <-> lower">
@@ -340,8 +340,8 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 <br />
 <br />
 &nbsp;<a>Functions for Testing:</a><br>
-&nbsp;<input type="button" onClick="loadTestSeq('S')" value="Load Small Test Sequence">
-&nbsp;<input type="button" onClick="loadTestSeq('L')" value="Load Large Test Sequence">
+&nbsp;<input type="button" onClick="wdeLoadTestSeq('S')" value="Load Small Test Sequence">
+&nbsp;<input type="button" onClick="wdeLoadTestSeq('L')" value="Load Large Test Sequence">
 
 </div>
 </div>
@@ -350,14 +350,10 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 
 </div>
 
-<!-- Remove "countUp();" if you do not want to add to the usage counter -->
+<!-- Remove "wdeCountUp();" if you do not want to add to the usage counter -->
 <script type="text/javascript">
-function initPage() {
-    hideTabs();
-    showTab('tab1','WDE_main_tab');
-}
-initPage();
-countUp();
+wdeInitPage();
+wdeCountUp();
 </script>
 
 </body>

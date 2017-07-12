@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.7.3";
+var wdeVVersion = "0.7.4";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -90,7 +90,12 @@ function wdeVersion(){
 }
 
 // Display Functions
-function showTab(tab,id) {
+function wdeInitPage() {
+    wdeHideTabs();
+    wdeShowTab('tab1','WDE_main_tab');
+}
+
+function wdeShowTab(tab,id) {
         if (id == "" || !document.getElementById(id)) {
                 return;
         }
@@ -111,21 +116,21 @@ function showTab(tab,id) {
         prevTabPage = id;
 }
 
-function hideTabs() {
+function wdeHideTabs() {
         document.getElementById('WDE_restriction_sites').style.display="none";
         document.getElementById('WDE_digest').style.display="none";
         document.getElementById('WDE_translate').style.display="none";
         document.getElementById('WDE_settings').style.display="none";
 }
 
-function countUp() {
+function wdeCountUp() {
     var client = new XMLHttpRequest();
     client.open('GET', 'https://wily-dna-editor.com/cgi-bin/wdeStatisticsCountOne.cgi');
     client.send();
 }
 
-function loadTestSeq(size) {
-    loadTestScripts();
+function wdeLoadTestSeq(size) {
+    wdeLoadTestScripts();
 	setTimeout(function () {
 	    if (size == "S") {
             wdeTestLoadSmallSeq();
@@ -135,7 +140,7 @@ function loadTestSeq(size) {
     }, 200);
 }
 
-function loadTestScripts() {
+function wdeLoadTestScripts() {
     if (testInstr == 0) {
 	    var scriptBlock = document.createElement('script');
         scriptBlock.setAttribute("type","text/javascript");
@@ -146,7 +151,7 @@ function loadTestScripts() {
 }
 
 // Wily Functions
-function wdeActivateIframe(){
+function wdeActivateStartup(){
     window.frames['WDE_RTF'].document.designMode = 'On';
     window.frames['WDE_TRANS'].document.designMode = 'On';
     var fileLoad = document.getElementById("WDE_Load_File");
@@ -478,17 +483,17 @@ function wdeHighlight(){
         }
         if (sel > 0) {
             wdeREdisp = 1;
-            showTab('tab1','WDE_main_tab');
+            wdeShowTab('tab1','WDE_main_tab');
         } else {
-            showTab('tab2','WDE_restriction_sites');
+            wdeShowTab('tab2','WDE_restriction_sites');
             alert("No restriction enzymes selected!\n\nSelect at least one restriction enzyme.");
         }
     }
     wdeRepaint();
 }
 
-function cmdCircularLinear(){
-    var lButton = document.getElementById("cmdCircularButton");
+function wdeCircularLinear(){
+    var lButton = document.getElementById("wdeCircularButton");
 
     if (wdeCircular) {
         wdeCircular = 0;
@@ -1168,7 +1173,7 @@ function wdeDigList() {
     }
     retVal += "</table>";
     window.frames['WDE_DIGEST'].document.body.innerHTML = retVal;
-    showTab('tab3','WDE_digest');
+    wdeShowTab('tab3','WDE_digest');
 }
 
 function wdeDigCleanDigList(circ) {
@@ -1351,7 +1356,7 @@ function wdeDigShowSVG(svg, x, y) {
     retVal = '<img src="data:image/svg+xml,' + retVal;
     retVal += '" alt="Digest-SVG" width="' + x + '" height="' + y +'">';
     window.frames['WDE_DIGEST'].document.body.innerHTML = retVal;
-    showTab('tab3','WDE_digest');
+    wdeShowTab('tab3','WDE_digest');
 }
 
 function wdeSaveGel() {
@@ -1561,7 +1566,7 @@ function wdeTransInSel() {
         wdeVTransDNA =  wdeCleanSeq(theSelection);
         wdeVTransDNACirc = 0;
         wdeSelTransTable();
-        showTab('tab4','WDE_translate');
+        wdeShowTab('tab4','WDE_translate');
     } 
 }
 
@@ -1569,7 +1574,7 @@ function wdeTransInAll() {
     wdeVTransDNA = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
     wdeVTransDNACirc = wdeCircular;
     wdeSelTransTable();
-    showTab('tab4','WDE_translate');
+    wdeShowTab('tab4','WDE_translate');
 }
 
 function wdeDrawGeneticCode() {

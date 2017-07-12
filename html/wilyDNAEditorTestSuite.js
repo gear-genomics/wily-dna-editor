@@ -95,7 +95,7 @@ function wdeTestLoadSmallSeq() {
     "GC";
     mainForm.elements["SEQUENCE_ID"].value = "HBV Sequence";
     window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(seq, wdeZeroOne, wdeNumbers);
-    showTab('tab1','WDE_main_tab');
+    wdeShowTab('tab1','WDE_main_tab');
     wdeSequenceModified();
 }
 
@@ -1445,7 +1445,7 @@ function wdeTestLoadLargeSeq() {
 
     mainForm.elements["SEQUENCE_ID"].value = "JN874483.1 Cloning vector pHUGE-LjMtNFS, complete sequence";
     window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(seq, wdeZeroOne, wdeNumbers);
-    showTab('tab1','WDE_main_tab');
+    wdeShowTab('tab1','WDE_main_tab');
     wdeSequenceModified();
 }
 
