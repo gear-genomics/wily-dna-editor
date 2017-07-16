@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.7.5";
+var wdeVVersion = "0.8.0";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -81,6 +81,24 @@ var wdeVTransDNA = "";
 var wdeVTransDNACirc;
 var wdeVTransOrfView = 0;
 var wdeVTransOrfSortSize = 1;
+var wdeVGBAcc = "";
+var wdeVGBDBDate = "";
+var wdeVGBHeader = "";
+var wdeFeatures = [];
+// http://www.insdc.org/documents/feature-table
+// [][0] = key
+// [][1] = location string as in genebank file
+// [][2] = tag for display
+// [][3] = tag source
+//           U = user supplied
+//           E = extracted from feature
+// [][4] = forward color (D for default)
+// [][5] = reverse color (D for default)
+// [][6] = draw shape (D for default)
+//           A = arrow
+//           B = box
+// [][7] = Note with wde tags stripped 
+// [][8] = all other qualifiers
 
 var wdeSeqHigh = [];
 
@@ -207,7 +225,10 @@ function wdeLoadSetFile(f){
     if (file) { // && file.type.match("text/*")) {
         var reader = new FileReader();
         reader.onload = function(event) {
-            wdeStringToSettings(event.target.result);
+            var txt = event.target.result;
+            var regEx1 = /\r\n/g;
+            txt = txt.replace(regEx1, "\n");
+            wdeStringToSettings(txt);
         }
         reader.readAsText(file);
     } else {
@@ -494,7 +515,6 @@ function wdeHighlight(){
 
 function wdeCircularLinear(){
     var lButton = document.getElementById("wdeCircularButton");
-
     if (wdeCircular) {
         wdeCircular = 0;
         lButton.value = "Linear";
@@ -536,7 +556,10 @@ function wdeLoadFile(f){
     if (file) { // && file.type.match("text/*")) {
         var reader = new FileReader();
         reader.onload = function(event) {
-            window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(wdeCleanSeq(wdeReadFile(event.target.result)), wdeZeroOne, wdeNumbers);
+            var txt = event.target.result;
+            var regEx1 = /\r\n/g;
+            txt = txt.replace(regEx1, "\n");
+            window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(wdeCleanSeq(wdeReadFile(txt, file.name)), wdeZeroOne, wdeNumbers);
         }
         reader.readAsText(file);
     } else {
@@ -545,17 +568,238 @@ function wdeLoadFile(f){
     
 }
 
-function wdeReadFile(seq) {
-    var reg = /^>/
-    if (reg.exec(seq)) {
+function wdeReadFile(seq, file) {
+    // FASTA file format
+    if (/^>/.test(seq)) {
         var eoTitel = seq.indexOf("\n");
         var titel = seq.substring(1,eoTitel);
         mainForm.elements["SEQUENCE_ID"].value = titel;
         eoTitel++;
         return seq.substring(eoTitel, seq.length);
-        alert(titel);
     }
-    return seq; 
+    // Genebank file format
+    if (/^LOCUS/.test(seq)) {
+	    var gbLin = seq.split("\n");
+        var lButton = document.getElementById("wdeCircularButton");
+	    if (/circular/.test(gbLin[0])) {
+            wdeCircular = 1;
+            lButton.value = "Circular";
+	    } else {
+            wdeCircular = 0;
+            lButton.value = "Linear";
+	    }
+	    if (/^LOCUS\s+(.+?)\d+ bp/.test(gbLin[0])) {
+	    	 wdeVGBAcc = RegExp.$1;
+	    }
+	    if (/circular\s+(.+$)/.test(gbLin[0])) {
+	    	 wdeVGBDBDate = RegExp.$1;
+	    } else if (/linear\s+(.+$)/.test(gbLin[0])) {
+	    	 wdeVGBDBDate = RegExp.$1;
+	    } else {
+	         /d+ bp\s+(.+$)/.test(gbLin[0]);
+	    	 wdeVGBDBDate = RegExp.$1;
+	    }
+	    var curHead = "";
+	    var curFeat = -1;
+	    var curSeq = -1;
+	    var curFeatCount = -1;
+	    for (var k = 2; k < gbLin.length; k++) {
+	        if (/^FEATURES/.test(gbLin[k])) {
+	            wdeVGBHeader += curHead;
+	            curHead = -1;
+	            curFeat = "";
+	            continue;
+	        }
+	        if (/^ORIGIN/.test(gbLin[k])) {
+	            curHead = -1;
+	            curFeat = -1;
+	            curSeq = "";
+	            continue;
+	        }
+	        if (/^\/\//.test(gbLin[k])) {
+	            wdeProcessGenebank();
+	            return curSeq;
+	        }
+	        if (/^DEFINITION  /.test(gbLin[k])) {
+	            var id = gbLin[k];
+	            id = id.replace(/^DEFINITION  /, "");
+	            if (id.length > 1) {
+	                mainForm.elements["SEQUENCE_ID"].value = id;
+	            } else {
+	                mainForm.elements["SEQUENCE_ID"].value = file;
+	            }
+	        }
+	        if (curHead != -1) {
+	            curHead += gbLin[k] + "\n";
+	        }
+	        if (curFeat != -1) {
+	            var featKey = gbLin[k].substring(5,21);
+	            var featVal = gbLin[k].substring(21);
+                if (/[A-Za-z]/g.test(featKey)) {
+	                curFeatCount++;
+	                featKey = featKey.replace(/\s+/g, "");
+	                wdeFeatures[curFeatCount] = [featKey,featVal,"","E","D","D","D","",""];
+	            } else {
+	                wdeFeatures[curFeatCount][8] += featVal + "\n";
+	            }
+	        }
+	        if (curSeq != -1) {
+	            curSeq += gbLin[k];
+	        }
+	    }
+    }
+    // If nothing works
+    mainForm.elements["SEQUENCE_ID"].value = file;
+    return seq;
+}
+
+function wdeProcessGenebank() {
+    for (var k = 0; k < wdeFeatures.length; k++) {
+        // Extract the note qualifier
+        // Regular Expression . does not match newline use [\s\S] instead
+        if (/(\/note="[\s\S]+?[^"]")[^"]\s*/g.test(wdeFeatures[k][8])) {
+            var qNote = RegExp.$1;
+            wdeFeatures[k][8] = wdeFeatures[k][8].replace(/\/note="[\s\S]+?[^"]"[^"]\s*/g, "\/note=\"\"\n");
+	        if (/forCol\(([^\)]+)\)\s*/g.test(qNote)) {
+	            wdeFeatures[k][4] = RegExp.$1;
+	            qNote = qNote.replace(/forCol\(([^\)]+)\)\s*/g, "");
+	        }
+	        if (/revCol\(([^\)]+)\)\s*/g.test(qNote)) {
+	            wdeFeatures[k][5] = RegExp.$1;
+	            qNote = qNote.replace(/revCol\(([^\)]+)\)\s*/g, "");
+	        }
+	        if (/drawShape\(([^\)]+)\)\s*/g.test(qNote)) {
+	            wdeFeatures[k][6] = RegExp.$1;
+	            qNote = qNote.replace(/drawShape\(([^\)]+)\)\s*/g, "");
+	        }
+	        if (/tag\(([^\)]+)\)\s*/g.test(qNote)) {
+	            wdeFeatures[k][2] = RegExp.$1;
+	            wdeFeatures[k][3] = "U";
+	            qNote = qNote.replace(/tag\([^\)]+\)\s*/g, "");
+	        }
+	        wdeFeatures[k][7] = qNote;
+	        if (wdeFeatures[k][3] != "U") {
+	            /\/note="([^"]+)"\s*/g.test(qNote);
+	            wdeFeatures[k][2] = RegExp.$1;
+	        }
+        }
+        if (wdeFeatures[k][3] != "U") {
+	        if (/\/allele="([^"]+?)"\s*/g.test(wdeFeatures[k][8])) {
+	              wdeFeatures[k][2] = RegExp.$1;
+	        }
+	        if (/\/standard_name="([^"]+?)"\s*/g.test(wdeFeatures[k][8])) {
+	              wdeFeatures[k][2] = RegExp.$1;
+	        }
+	        if (/\/gene="([^"]+?)"\s*/g.test(wdeFeatures[k][8])) {
+	              wdeFeatures[k][2] = RegExp.$1;
+	        }
+        }
+    }
+}
+
+function wdeSaveGenBank() {
+    var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
+    var title = mainForm.elements["SEQUENCE_ID"].value;
+    var content = "LOCUS       ";
+    content += wdeVGBAcc;
+    content += "" + seq.length + " bp    DNA     ";
+    if (wdeCircular) {
+        content += "circular ";
+    } else {
+        content += "linear ";
+    }
+    if (wdeVGBDBDate != "") {
+        content += wdeVGBDBDate;
+    } else {
+        var months = [ "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+                       "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" ];
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth();
+        var yy = today.getFullYear();
+        content += "      " + dd + "-" + months[mm] + "-" + yy;        
+    }
+    content += "\n";
+    content += "DEFINITION  " + title + "\n";
+    content += wdeVGBHeader;
+    content += "FEATURES             Location/Qualifiers\n";
+    for (var k = 0; k < wdeFeatures.length; k++) {
+        var myKey = "     " + wdeFeatures[k][0];
+        for (var i = myKey.length ; i < 21 ; i++) {
+            myKey += " ";
+        }
+        content += "" + myKey + wdeFeatures[k][1] + "\n";
+        var finNote = '/note="';
+        var myPara = 0;
+        if (wdeFeatures[k][4] != "D") {
+            finNote +="forCol(" + wdeFeatures[k][4] + ") ";
+            myPara = 1;
+        }
+        if (wdeFeatures[k][5] != "D") {
+            finNote +="revCol(" + wdeFeatures[k][5] + ") ";
+            myPara = 1;
+        }
+        if (wdeFeatures[k][6] != "D") {
+            finNote +="drawShape(" + wdeFeatures[k][6] + ") ";
+            myPara = 1;
+        }
+        if (wdeFeatures[k][3] == "U") {
+            finNote = finNote.replace(/ $/g, "");
+            finNote +="\ntag(" + wdeFeatures[k][2] + ")";
+            myPara = 1;
+        }
+        if (wdeFeatures[k][7] != "") {
+	        if (myPara == 1) {
+	            finNote += "\n";
+	        }
+            finNote += wdeFeatures[k][7].replace(/\/note=\"/g, "");
+        } else {
+            finNote += '"';
+        }
+        if (/note=""\n/g.test(wdeFeatures[k][8])) {
+            if (finNote != '/note=""') {
+                wdeFeatures[k][8] = wdeFeatures[k][8].replace(/\/note=""/g, finNote);
+            } else {
+                wdeFeatures[k][8] = wdeFeatures[k][8].replace(/\/note=""\s*/g, "");
+            }
+ //       } else if (/gene=""\n/g.test(wdeFeatures[k][8])) {
+ //           wdeFeatures[k][8] = wdeFeatures[k][8].replace(/\/note=""/g, finNote);
+        } else {
+            if (finNote != '/note=""') {
+                wdeFeatures[k][8] = finNote + "\n" + wdeFeatures[k][8];
+            }
+        }
+        var qualArr = wdeFeatures[k][8].split("\n");
+        for (var i = 0 ; i < qualArr.length - 1 ; i++) {
+            content += "                     " + qualArr[i] + "\n";
+        }
+    }
+    content += "ORIGIN      \n";
+
+    for (var i = 0; i < seq.length ; i++) {
+        if (i % 60 == 0) {
+            if (i != 0) {
+                content += "\n";
+            }
+            var pIco = i + 1;
+            var iStr = pIco.toString();
+            for (var j = iStr.length; j < 9 ; j++) {
+                content += " ";
+            }
+            content += iStr + " ";
+        } else {
+            if (i % 10 == 0) {
+                content += " ";
+            }
+        }
+        content += seq.charAt(i);
+    }
+
+
+
+    content += "\n//\n\n";
+    var fileName = title + ".gb";
+    wdeSaveFile(fileName, content, "text");
 }
 
 function wdeSaveFasta() {
@@ -743,7 +987,7 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
             }
             lastBaseMark = wdeSeqHigh[i];
         }
-        outSeq += seq.charAt(i);    
+        outSeq += seq.charAt(i);
     }
     return "<pre> " + outSeq + " </pre>";
 }
