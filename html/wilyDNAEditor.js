@@ -83,7 +83,7 @@ var wdeVTransOrfView = 0;
 var wdeVTransOrfSortSize = 1;
 var wdeVGBAcc = "";
 var wdeVGBDBDate = "";
-var wdeVGBHeader = "";
+var wdeVGBHeader = "ACCESSION   \nVERSION     \nSOURCE      .\n  ORGANISM  .\n";
 var wdeFeatures = [];
 // http://www.insdc.org/documents/feature-table
 // [][0] = key
@@ -101,11 +101,6 @@ var wdeFeatures = [];
 // [][8] = all other qualifiers
 
 var wdeSeqHigh = [];
-
-function wdeVersion(){
-    var version = "Wily DNA Editor - Version: " + wdeVVersion;
-    document.getElementById("WDE_VERSION").innerHTML = version;
-}
 
 // Display Functions
 function wdeInitPage() {
@@ -169,6 +164,11 @@ function wdeLoadTestScripts() {
 }
 
 // Wily Functions
+function wdeVersion(){
+    var version = "Wily DNA Editor - Version: " + wdeVVersion;
+    document.getElementById("WDE_VERSION").innerHTML = version;
+}
+
 function wdeActivateStartup(){
     window.frames['WDE_RTF'].document.designMode = 'On';
     window.frames['WDE_TRANS'].document.designMode = 'On';
@@ -435,11 +435,6 @@ function wdeOrfSort(){
     wdeSelTransTable();
 }
 
-var wdeVTransOrfView = 0;
-var wdeVTransOrfSortSize = 1;
-
-
-
 function wdeTransRevComp(){
     var lButton = document.getElementById("wdeTransRevCompButton");
     if (wdeVTransRevComp) {
@@ -457,58 +452,6 @@ function wdeViewNumbers(){
         wdeNumbers = 0;
     } else {
         wdeNumbers = 1;
-    }
-    wdeRepaint();
-}
-
-function wdeHighlight(){
-    // Set Highlights to nothing
-    var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
-    var end = seq.length;
-    for (var j = 0; j < end ; j++) {
-        wdeSeqHigh[j] = ".";
-    }
-    if (wdeREdisp) {
-        wdeREdisp = 0;
-    } else {
-        var sel = 0;
-        // Place user defined Sequence
-        if (wdeUser[2] && !(wdeUser[3] == "-") && (wdeUser[3] > 0)) {
-            sel++;
-            var listArr = wdeUser[4].split(";");
-            for (var i = 1; i < listArr.length; i++) {
-                var posAr = listArr[i].split(",");
-                for (var p = 0; p < parseInt(posAr[1]); p++) {
-                    var curr = parseInt(posAr[0]) - wdeZeroOne + p;
-                    if (curr < end) {
-                        wdeSeqHigh[curr] = "R";
-                    }
-                }
-            }
-        }
-        // Place the Masking
-        for (var k = 0; k < wdeEnzy.length; k++) {
-            if (wdeEnzy[k][2] && !(wdeEnzy[k][3] == "-") && (wdeEnzy[k][3] > 0)){
-                sel++;
-                var listArr = wdeEnzy[k][4].split(";");
-                for (var i = 1; i < listArr.length; i++) {
-                    var posAr = listArr[i].split(",");
-                    for (var p = 0; p < parseInt(posAr[1]); p++) {
-                        var curr = parseInt(posAr[0]) - wdeZeroOne + p;
-                        if (curr < end) {
-                            wdeSeqHigh[curr] = "R";
-                        }
-                    }
-                }
-            }
-        }
-        if (sel > 0) {
-            wdeREdisp = 1;
-            wdeShowTab('tab1','WDE_main_tab');
-        } else {
-            wdeShowTab('tab2','WDE_restriction_sites');
-            alert("No restriction enzymes selected!\n\nSelect at least one restriction enzyme.");
-        }
     }
     wdeRepaint();
 }
@@ -762,8 +705,8 @@ function wdeSaveGenBank() {
             } else {
                 wdeFeatures[k][8] = wdeFeatures[k][8].replace(/\/note=""\s*/g, "");
             }
- //       } else if (/gene=""\n/g.test(wdeFeatures[k][8])) {
- //           wdeFeatures[k][8] = wdeFeatures[k][8].replace(/\/note=""/g, finNote);
+ //     } else if (/gene=""\n/g.test(wdeFeatures[k][8])) {
+ //         wdeFeatures[k][8] = wdeFeatures[k][8].replace(/\/note=""/g, finNote);
         } else {
             if (finNote != '/note=""') {
                 wdeFeatures[k][8] = finNote + "\n" + wdeFeatures[k][8];
@@ -775,7 +718,6 @@ function wdeSaveGenBank() {
         }
     }
     content += "ORIGIN      \n";
-
     for (var i = 0; i < seq.length ; i++) {
         if (i % 60 == 0) {
             if (i != 0) {
@@ -794,9 +736,6 @@ function wdeSaveGenBank() {
         }
         content += seq.charAt(i);
     }
-
-
-
     content += "\n//\n\n";
     var fileName = title + ".gb";
     wdeSaveFile(fileName, content, "text");
@@ -926,20 +865,56 @@ function wdeSequenceModified(){
     wdeDrawEnzymes();
 }
 
-function wdeCleanSeq(seq){
-    var retSeq = "";
-    // Remove all HTML tags
-    var regEx1 = /<span style="background-color:red">/g;
-    seq = seq.replace(regEx1, " ");
-    var regEx2 = /<\/span>/g;
-    seq = seq.replace(regEx2, " ");
-    var regEx3 = /<pre>/g;
-    seq = seq.replace(regEx3, " ");
-    var regEx4 = /<\/pre>/g;
-    seq = seq.replace(regEx4, " ");
-
-    retSeq = wdeRetAmbiqutyOnly(seq);
-    return retSeq;
+function wdeHighlight(){
+    // Set Highlights to nothing
+    var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
+    var end = seq.length;
+    for (var j = 0; j < end ; j++) {
+        wdeSeqHigh[j] = ".";
+    }
+    if (wdeREdisp) {
+        wdeREdisp = 0;
+    } else {
+        var sel = 0;
+        // Place user defined Sequence
+        if (wdeUser[2] && !(wdeUser[3] == "-") && (wdeUser[3] > 0)) {
+            sel++;
+            var listArr = wdeUser[4].split(";");
+            for (var i = 1; i < listArr.length; i++) {
+                var posAr = listArr[i].split(",");
+                for (var p = 0; p < parseInt(posAr[1]); p++) {
+                    var curr = parseInt(posAr[0]) - wdeZeroOne + p;
+                    if (curr < end) {
+                        wdeSeqHigh[curr] = "R";
+                    }
+                }
+            }
+        }
+        // Place the Masking
+        for (var k = 0; k < wdeEnzy.length; k++) {
+            if (wdeEnzy[k][2] && !(wdeEnzy[k][3] == "-") && (wdeEnzy[k][3] > 0)){
+                sel++;
+                var listArr = wdeEnzy[k][4].split(";");
+                for (var i = 1; i < listArr.length; i++) {
+                    var posAr = listArr[i].split(",");
+                    for (var p = 0; p < parseInt(posAr[1]); p++) {
+                        var curr = parseInt(posAr[0]) - wdeZeroOne + p;
+                        if (curr < end) {
+                            wdeSeqHigh[curr] = "R";
+                        }
+                    }
+                }
+            }
+        }
+        if (sel > 0) {
+            wdeREdisp = 1;
+            wdeShowTab('tab1','WDE_main_tab');
+        } else {
+            wdeShowTab('tab2','WDE_restriction_sites');
+            alert("No restriction enzymes selected!\n\nSelect at least one restriction enzyme.");
+        }
+    }
+    wdeRepaint();
 }
 
 function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
@@ -990,6 +965,22 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
         outSeq += seq.charAt(i);
     }
     return "<pre> " + outSeq + " </pre>";
+}
+
+function wdeCleanSeq(seq){
+    var retSeq = "";
+    // Remove all HTML tags
+    var regEx1 = /<span style="background-color:[#A-Za-z0-9]+">/g;
+    seq = seq.replace(regEx1, " ");
+    var regEx2 = /<\/span>/g;
+    seq = seq.replace(regEx2, " ");
+    var regEx3 = /<pre>/g;
+    seq = seq.replace(regEx3, " ");
+    var regEx4 = /<\/pre>/g;
+    seq = seq.replace(regEx4, " ");
+
+    retSeq = wdeRetAmbiqutyOnly(seq);
+    return retSeq;
 }
 
 function wdeFindUserSeq() {
