@@ -46,6 +46,7 @@ var wdeZeroOne = 1;
 var wdeNumbers = 1;
 var wdeCircular = 1;
 var wdeREdisp = 0;
+var wdeFEdisp = 0;
 var wdeDamDcmSel = 1;
 var wdeEnzy = [];
 // [][0] = name
@@ -101,6 +102,7 @@ var wdeFeatures = [];
 // [][8] = all other qualifiers
 
 var wdeSeqHigh = [];
+var wdeSeqFeat = [];
 
 // Display Functions
 function wdeInitPage() {
@@ -531,6 +533,7 @@ function wdeReadFile(seq, file) {
             wdeCircular = 0;
             lButton.value = "Linear";
 	    }
+	    wdeVGBHeader = "";
 	    if (/^LOCUS\s+(.+?)\d+ bp/.test(gbLin[0])) {
 	    	 wdeVGBAcc = RegExp.$1;
 	    }
@@ -546,7 +549,8 @@ function wdeReadFile(seq, file) {
 	    var curFeat = -1;
 	    var curSeq = -1;
 	    var curFeatCount = -1;
-	    for (var k = 2; k < gbLin.length; k++) {
+	    var stillPos = 1;
+	    for (var k = 1; k < gbLin.length; k++) {
 	        if (/^FEATURES/.test(gbLin[k])) {
 	            wdeVGBHeader += curHead;
 	            curHead = -1;
@@ -572,7 +576,7 @@ function wdeReadFile(seq, file) {
 	                mainForm.elements["SEQUENCE_ID"].value = file;
 	            }
 	        }
-	        if (curHead != -1) {
+	        if ((curHead != -1) && !(/^DEFINITION  /.test(gbLin[k]))) {
 	            curHead += gbLin[k] + "\n";
 	        }
 	        if (curFeat != -1) {
@@ -582,8 +586,16 @@ function wdeReadFile(seq, file) {
 	                curFeatCount++;
 	                featKey = featKey.replace(/\s+/g, "");
 	                wdeFeatures[curFeatCount] = [featKey,featVal,"","E","D","D","D","",""];
+	                stillPos = 1;
 	            } else {
-	                wdeFeatures[curFeatCount][8] += featVal + "\n";
+	                if (/^\//g.test(featVal)) {
+	                    stillPos = 0;
+	                }
+	                if (stillPos == 1) {
+	                    wdeFeatures[curFeatCount][1] += featVal;
+	                } else {
+	                    wdeFeatures[curFeatCount][8] += featVal + "\n";
+	                }
 	            }
 	        }
 	        if (curSeq != -1) {
@@ -671,7 +683,23 @@ function wdeSaveGenBank() {
         for (var i = myKey.length ; i < 21 ; i++) {
             myKey += " ";
         }
-        content += "" + myKey + wdeFeatures[k][1] + "\n";
+        content += myKey;
+        var myPos = wdeFeatures[k][1].split(",");
+        myKey = "";
+        for (var i = 0 ; i < myPos.length ; i++) {
+            if (myKey.length + myPos[i].length + 1 > 58) {
+                content += myKey + "\n                     ";
+                myKey = "";
+            }
+            if (i < myPos.length - 1) {
+                myKey += myPos[i] + ",";
+            } else {
+                if (myKey != "") {
+                    content += myKey;
+                }
+                content += myPos[i] + "\n";
+            }
+        }
         var finNote = '/note="';
         var myPara = 0;
         if (wdeFeatures[k][4] != "D") {
@@ -862,6 +890,10 @@ function wdeSequenceModified(){
     wdeUser[6] = "";
     wdeSeqHigh = [];
     wdeREdisp = 0;
+    wdeSeqFeat = [];
+    wdeFEdisp = 0;
+    var lButton = document.getElementById("wdeFeatButton");
+    lButton.value = "Show Features";
     wdeDrawEnzymes();
 }
 
@@ -924,6 +956,8 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
     var lastBaseMark = ".";
     var openMark = "";
     var closeMark = "";
+    var openFeat = "";
+    var closeFeat = "";
     for (var i = length; i > 1 ; i = i / 10) {
         digits++;
     }
@@ -946,6 +980,21 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
         } else {
             if ((i % 10 == 0) && (wdeNumbers != 0)) {
                 outSeq += " ";
+            }
+        }
+        // Place the features
+        if (wdeFEdisp && (length == wdeSeqFeat.length - 2) && (wdeSeqFeat[i] == "R")) {
+            var featColor = wdeFeatureColor(i);
+            alert (i + ": " + featColor);
+            if (featColor != "D") {
+                outSeq += closeFeat;
+                openFeat = '<span style="background-color:' + featColor + '">';
+                closeFeat = "</span>";
+                outSeq += openFeat;
+            } else {
+                outSeq += closeFeat;
+                openFeat = "";
+                closeFeat = "";
             }
         }
         // Place the enzyme selection
@@ -981,6 +1030,100 @@ function wdeCleanSeq(seq){
 
     retSeq = wdeRetAmbiqutyOnly(seq);
     return retSeq;
+}
+
+function wdeShowFeatures(){
+    // Set Marks to nothing
+    var lButton = document.getElementById("wdeFeatButton");
+    var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
+    var end = seq.length + 2;
+    for (var j = 0; j < end ; j++) {
+        wdeSeqFeat[j] = ".";
+    }
+    
+    if (wdeFEdisp) {
+        wdeFEdisp = 0;
+        lButton.value = "Show Features";
+    } else {
+        var sel = 0;
+        // Place the Marks
+        for (var k = 0; k < wdeFeatures.length; k++) {
+            var posList = wdeFECleanPos(wdeFeatures[k][1]).split(",");;
+            alert(k + "\n" + wdeFeatures[k][1] + "\n" + posList[0]);
+            for (var i = 0; i < posList.length; i++) {
+                var singPos = posList[i].split(".");
+                if (parseInt(singPos[0]) > 1) {
+                    wdeSeqFeat[(parseInt(singPos[0]) - 1)] = "R";
+                    sel++;
+                }
+                if (singPos.length == 2) {
+	                if (parseInt(singPos[1]) > 1) {
+	                    wdeSeqFeat[parseInt(singPos[1])] = "R";
+	                }
+	                if (parseInt(singPos[1]) == 1) {
+	                    wdeSeqFeat[(parseInt(singPos[0]) + 1)] = "R";
+	                }
+                }
+            }
+        }
+        if (sel > 0) {
+            wdeFEdisp = 1;
+            lButton.value = "Hide Features";
+            wdeShowTab('tab1','WDE_main_tab');
+        } else {
+  //        wdeShowTab('tab2','WDE_restriction_sites');
+            alert("No features to display!\n\nCreate at least one feature.");
+        }
+    }
+    wdeRepaint();
+}
+
+function wdeFECleanPos(loc) {
+    var posList = loc.replace(/[^, ]+:\d+\.+\d+/g, "");
+    posList = posList.replace(/\^/g, ".");
+    posList = posList.replace(/\.+/g, ".");
+    posList = posList.replace(/[^0-9,.]/g, "");
+    return posList;
+}
+
+function wdeFeatureColor(pos){
+    var selFeat = [];
+    // [][0]  number of feature hit
+    // [][1]  length of feature
+    var selCount = 0;
+    var inFeat = 0;
+    var start = 0;
+    var end = 0;
+    for (var k = 0; k < wdeFeatures.length; k++) {
+        var posList = wdeFECleanPos(wdeFeatures[k][1]).split(",");;
+        for (var i = 0; i < posList.length; i++) {
+            var singPos = posList[i].split(".");
+            if (parseInt(singPos[0]) > 1) {
+                start = parseInt(singPos[0]) - 1;
+            }
+            if (singPos.length == 2) {
+                if (parseInt(singPos[1]) > 1) {
+                    end = parseInt(singPos[1]) - 1;
+                }
+                if (parseInt(singPos[1]) == 1) {
+                    end = parseInt(singPos[0]);
+                }
+            }
+            // Do not color full length features
+            if ((start <= pos) && (pos <= end) &&
+                 !(start == 0) &&  !(end == wdeSeqFeat.length - 3)) {
+                var cLen = end - start;
+                selFeat[selCount] = [k,cLen];
+                inFeat = 1;
+                selCount++;
+            }
+        }
+    }
+    if (inFeat == 1) {
+        return "#FF0000";
+    } else {
+        return "D";
+    }
 }
 
 function wdeFindUserSeq() {
