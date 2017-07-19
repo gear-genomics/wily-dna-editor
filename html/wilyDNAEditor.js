@@ -105,6 +105,7 @@ var wdeFeatColor = [];
 // [][1] = forward color
 // [][2] = reverse color
 // [][3] = shape
+var wdeFeatRegColor = [];
 var wdeFeatInfo = [];
 
 var wdeSeqHigh = [];
@@ -1152,31 +1153,45 @@ function wdeFeatSortSize(a, b) {
 }
 
 function wdeFinFeatureColor(feat){
-    var featName = wdeFeatures[feat][0] + ": " + wdeFeatures[feat][2];
+    var featName = ": " + wdeFeatures[feat][2];
     if (/complement/.test(wdeFeatures[feat][1])) {
         // Reverse Section
         if (wdeFeatures[feat][5] == "D") {
-            for (var k = 0; k < wdeFeatColor.length; k++) {
-                if (wdeFeatColor[k][0] == wdeFeatures[feat][0]) {
-                    return [wdeFeatColor[k][2], featName];
-                }
-        	}
+            var retVal = wdeFinFeatColSeg(feat);
+            return [retVal[2], retVal[0] + featName + " (Rev)", feat];
         } else {
-            return ["#" + wdeFeatures[feat][5], featName];
+            return ["#" + wdeFeatures[feat][5], wdeFeatures[feat][0] + featName + " (Rev)", feat];
         }
     } else {
         // Forward Section
         if (wdeFeatures[feat][4] == "D") {
-            for (var k = 0; k < wdeFeatColor.length; k++) {
-                if (wdeFeatColor[k][0] == wdeFeatures[feat][0]) {
-                    return [wdeFeatColor[k][1], featName];
-                }
-            }
+            var retVal = wdeFinFeatColSeg(feat);
+            return [retVal[1], retVal[0] + featName + " (For)", feat];
         } else {
-            return ["#" + wdeFeatures[feat][4], featName];
+            return ["#" + wdeFeatures[feat][4], wdeFeatures[feat][0] + featName + " (For)", feat];
         }
     }
-    return ["#FF0000","No matching feature type found!"];
+    return ["#FF0000","No matching feature type found!", -1];
+}
+
+function wdeFinFeatColSeg(feat){
+    if (wdeFeatures[feat][0] == "regulatory") {
+        if (/\/regulatory_class="([^"]+)"/g.test(wdeFeatures[feat][8])) {
+	        var regClass = RegExp.$1;
+		    for (var k = 0; k < wdeFeatRegColor.length; k++) {
+	//	    alert(wdeFeatRegColor[k][0] + " == " + wdeFeatures[feat][0]);
+		        if (wdeFeatRegColor[k][0] == regClass) {
+		            return [wdeFeatRegColor[k][0], wdeFeatRegColor[k][1], wdeFeatRegColor[k][2]];
+		        }
+			}
+        }
+    }
+    for (var k = 0; k < wdeFeatColor.length; k++) {
+        if (wdeFeatColor[k][0] == wdeFeatures[feat][0]) {
+            return [wdeFeatColor[k][0], wdeFeatColor[k][1], wdeFeatColor[k][2]];
+        }
+	}
+    return ["No matching feature type found!", "#FF0000", "#FF0000"];
 }
 
 function wdeFeatInfoUpdate(infoCount) {
@@ -3066,6 +3081,33 @@ function wdePopulateFeatureColors() {
     wdeFeatColor[49]=["V_region","#ff5bad","#ff5bad","arrow"];
     wdeFeatColor[50]=["V_segment","#ff8cc6","#ff8cc6","arrow"];
     wdeFeatColor[51]=["variation","#e6e6e6","#e6e6e6","box"];
+    wdePopulateFeatRegColors();
+}
+
+function wdePopulateFeatRegColors() {
+    wdeFeatRegColor[0]=["minus_10_signal","#e6ac00","#e6ac00","box"];
+    wdeFeatRegColor[1]=["TATA_box","#e6ac00","#e6ac00","box"];
+    wdeFeatRegColor[2]=["GC_signal","#e6ac00","#e6ac00","box"];
+    wdeFeatRegColor[3]=["CAAT_signal","#e6ac00","#e6ac00","box"];
+    wdeFeatRegColor[4]=["promoter","#ffd24d","#ffd24d","arrow"];
+    wdeFeatRegColor[5]=["ribosome_binding_site","#e6ac00","#e6ac00","box"];
+    wdeFeatRegColor[6]=["riboswitch","#e6ac00","#e6ac00","box"];
+    wdeFeatRegColor[7]=["attenuator","#e6e600","#e6e600","box"];
+    wdeFeatRegColor[8]=["terminator","#ffff33","#ffff33","arrow"];
+    wdeFeatRegColor[9]=["polyA_signal_sequence","#e6e600","#e6e600","box"];
+    wdeFeatRegColor[10]=["DNase_I_hypersensitive_site","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[11]=["enhancer","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[12]=["enhancer_blocking_element","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[13]=["imprinting_control_region","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[14]=["insulator","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[15]=["locus_control_region","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[16]=["matrix_attachment_region","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[17]=["recoding_stimulatory_region","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[18]=["replication_regulatory_region","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[19]=["response_element","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[20]=["silencer","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[21]=["transcriptional_cis_regulatory_region","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[22]=["other","#ffb84d","#ffb84d","box"];
 }
 
 // Populate the Translation array
