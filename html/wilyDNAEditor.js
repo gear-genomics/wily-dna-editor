@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.0";
+var wdeVVersion = "0.8.2";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -105,6 +105,7 @@ var wdeFeatColor = [];
 // [][1] = forward color
 // [][2] = reverse color
 // [][3] = shape
+var wdeFeatInfo = [];
 
 var wdeSeqHigh = [];
 var wdeSeqFeat = [];
@@ -655,6 +656,9 @@ function wdeProcessGenebank() {
 	        if (/\/standard_name="([^"]+?)"\s*/g.test(wdeFeatures[k][8])) {
 	              wdeFeatures[k][2] = RegExp.$1;
 	        }
+	        if (/\/product="([^"]+?)"\s*/g.test(wdeFeatures[k][8])) {
+	              wdeFeatures[k][2] = RegExp.$1;
+	        }
 	        if (/\/gene="([^"]+?)"\s*/g.test(wdeFeatures[k][8])) {
 	              wdeFeatures[k][2] = RegExp.$1;
 	        }
@@ -995,10 +999,12 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
         // Place the features
         if (wdeFEdisp && (length == wdeSeqFeat.length - 2) && (wdeSeqFeat[i] == "R")) {
             var featColor = wdeFeatureColor(i);
-            if (featColor != "D") {
+            if (featColor[0] != "D") {
+                var infoCount = wdeFeatInfo.length;
+                wdeFeatInfo[infoCount] = featColor[1];
                 outSeq += closeFeat;
-                openFeat = '<span style="background-color:' + featColor + '">';
-                closeFeat = "</span>";
+                openFeat = '<a onclick="parent.wdeFeatInfoUpdate(' + infoCount + ')" style="background-color:' + featColor[0] + '">';
+                closeFeat = "</a>";
                 outSeq += openFeat;
             } else {
                 outSeq += closeFeat;
@@ -1036,6 +1042,10 @@ function wdeCleanSeq(seq){
     seq = seq.replace(regEx3, " ");
     var regEx4 = /<\/pre>/g;
     seq = seq.replace(regEx4, " ");
+    var regEx5 = /<a [^>]+>/ig;
+    seq = seq.replace(regEx5, " ");
+    var regEx6 = /<\/a>/g;
+    seq = seq.replace(regEx6, " ");
 
     retSeq = wdeRetAmbiqutyOnly(seq);
     return retSeq;
@@ -1052,6 +1062,7 @@ function wdeShowFeatures(){
     
     if (wdeFEdisp) {
         wdeFEdisp = 0;
+        wdeFeatInfo = [];
         lButton.value = "Show Features";
     } else {
         var sel = 0;
@@ -1129,13 +1140,10 @@ function wdeFeatureColor(pos){
     }
     if (inFeat == 1) {
         selFeat.sort(wdeFeatSortSize);
-        
         var calCol = wdeFinFeatureColor(selFeat[0][0]);
-        
-    
         return calCol;
     } else {
-        return "D";
+        return ["D",""];
     }
 }
 
@@ -1144,56 +1152,39 @@ function wdeFeatSortSize(a, b) {
 }
 
 function wdeFinFeatureColor(feat){
+    var featName = wdeFeatures[feat][0] + ": " + wdeFeatures[feat][2];
     if (/complement/.test(wdeFeatures[feat][1])) {
         // Reverse Section
         if (wdeFeatures[feat][5] == "D") {
             for (var k = 0; k < wdeFeatColor.length; k++) {
                 if (wdeFeatColor[k][0] == wdeFeatures[feat][0]) {
-                    return wdeFeatColor[k][2];
+                    return [wdeFeatColor[k][2], featName];
                 }
         	}
         } else {
-            return "#" + wdeFeatures[feat][5];
+            return ["#" + wdeFeatures[feat][5], featName];
         }
     } else {
         // Forward Section
         if (wdeFeatures[feat][4] == "D") {
             for (var k = 0; k < wdeFeatColor.length; k++) {
                 if (wdeFeatColor[k][0] == wdeFeatures[feat][0]) {
-                    return wdeFeatColor[k][1];
+                    return [wdeFeatColor[k][1], featName];
                 }
             }
         } else {
-            return "#" + wdeFeatures[feat][4];
+            return ["#" + wdeFeatures[feat][4], featName];
         }
     }
-    
-//    /d+ bp\s+(.+$)/.test(gbLin[0]);
-//	    	 wdeVGBDBDate = RegExp.$1;
+    return ["#FF0000","No matching feature type found!"];
+}
 
-//var wdeFeatures = [];
-// http://www.insdc.org/documents/feature-table
-// [][0] = key
-// [][1] = location string as in genebank file
-// [][2] = tag for display
-// [][3] = tag source
-//           U = user supplied
-//           E = extracted from feature
-// [][4] = forward color (D for default)
-// [][5] = reverse color (D for default)
-// [][6] = draw shape (D for default)
-//           A = arrow
-//           B = box
-// [][7] = Note with wde tags stripped 
-// [][8] = all other qualifiers
-//var wdeFeatColor = [];
-// [][0] = key
-// [][1] = forward color
-// [][2] = reverse color
-// [][3] = shape
-    
-    alert("No match for: " + wdeFeatures[feat][0]);
-    return "#FF0000";
+function wdeFeatInfoUpdate(infoCount) {
+        if (infoCount < 0) {
+            mainForm.elements["wdeInfoField"].value = "";
+        } else {
+            mainForm.elements["wdeInfoField"].value = wdeFeatInfo[infoCount];
+        }
 }
 
 function wdeFindUserSeq() {

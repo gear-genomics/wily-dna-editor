@@ -113,7 +113,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     textarea#sequenceTextarea { font-family:Courier,monospace; width:95%; }
   </style>
   <script src="wilyDNAEditor.js"></script>
-  <link rel=canonical href="https://wily-dna-editor.com/index.html" />
+  <link rel=canonical href="https://wily-dna-editor.com" />
 </head>
 
 <body onLoad="wdeActivateStartup();">
@@ -206,9 +206,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 &nbsp;<input type="button" onClick="wdeRComp()" value="Reverse Complement All">
 <br />
 &nbsp;<input type="button" onClick="wdeHighlight()" value="Highlight Selected Restriction Sites">
-&nbsp;<input type="button" id="wdeFeatButton" onClick="wdeShowFeatures()" value="Show Features">
 &nbsp;<input type="button" onClick="wdeTransInSel()" value="Translate Selection">
 &nbsp;<input type="button" onClick="wdeTransInAll()" value="Translate All">
+<br />
+&nbsp;<input type="button" id="wdeFeatButton" onClick="wdeShowFeatures()" value="Show Features">
+&nbsp;<input type="button" id="wdeFeatTransparent" onClick="wdeShowFeatures()" value="Transparent Features">
+&nbsp;&nbsp;&nbsp;
+&nbsp;<a>Info:</a>
+&nbsp;<input name="wdeInfoField" value="" type="text" size="60">
 <br />
 <!-- Hide the textarea and replace it with an iFrame -->
 <textarea name="SEQUENCE_TEMPLATE" rows="12" cols="90" style="display:none;"></textarea>
