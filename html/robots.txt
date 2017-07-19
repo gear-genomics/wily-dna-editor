@@ -1,4 +1,4 @@
 User-agent: *
 Disallow:
 
-sitemap:wily-dna-editor.com/sitemap.xml
+sitemap: https://wily-dna-editor.com/sitemap.xml

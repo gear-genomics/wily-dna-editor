@@ -100,6 +100,11 @@ var wdeFeatures = [];
 //           B = box
 // [][7] = Note with wde tags stripped 
 // [][8] = all other qualifiers
+var wdeFeatColor = [];
+// [][0] = key
+// [][1] = forward color
+// [][2] = reverse color
+// [][3] = shape
 
 var wdeSeqHigh = [];
 var wdeSeqFeat = [];
@@ -171,6 +176,10 @@ function wdeVersion(){
     document.getElementById("WDE_VERSION").innerHTML = version;
 }
 
+function wdeTestAlert(){
+    alert("WDE-Alert");
+}
+
 function wdeActivateStartup(){
     window.frames['WDE_RTF'].document.designMode = 'On';
     window.frames['WDE_TRANS'].document.designMode = 'On';
@@ -186,6 +195,7 @@ function wdeActivateStartup(){
     wdePopulateEnzmes();
     wdeUser = ["User_Seq", "AGC^MGCT", 0 , "-", "", "N", ""];
     wdePopulateTranslation();
+    wdePopulateFeatureColors();
     wdeDrawGeneticCode();
     wdeDrawEnzymes();
     wdeLoadCookie('S');
@@ -985,7 +995,6 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
         // Place the features
         if (wdeFEdisp && (length == wdeSeqFeat.length - 2) && (wdeSeqFeat[i] == "R")) {
             var featColor = wdeFeatureColor(i);
-            alert (i + ": " + featColor);
             if (featColor != "D") {
                 outSeq += closeFeat;
                 openFeat = '<span style="background-color:' + featColor + '">';
@@ -1019,7 +1028,7 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
 function wdeCleanSeq(seq){
     var retSeq = "";
     // Remove all HTML tags
-    var regEx1 = /<span style="background-color:[#A-Za-z0-9]+">/g;
+    var regEx1 = /<span style="background-color: *[^" ]+">/ig;
     seq = seq.replace(regEx1, " ");
     var regEx2 = /<\/span>/g;
     seq = seq.replace(regEx2, " ");
@@ -1049,7 +1058,6 @@ function wdeShowFeatures(){
         // Place the Marks
         for (var k = 0; k < wdeFeatures.length; k++) {
             var posList = wdeFECleanPos(wdeFeatures[k][1]).split(",");;
-            alert(k + "\n" + wdeFeatures[k][1] + "\n" + posList[0]);
             for (var i = 0; i < posList.length; i++) {
                 var singPos = posList[i].split(".");
                 if (parseInt(singPos[0]) > 1) {
@@ -1120,10 +1128,72 @@ function wdeFeatureColor(pos){
         }
     }
     if (inFeat == 1) {
-        return "#FF0000";
+        selFeat.sort(wdeFeatSortSize);
+        
+        var calCol = wdeFinFeatureColor(selFeat[0][0]);
+        
+    
+        return calCol;
     } else {
         return "D";
     }
+}
+
+function wdeFeatSortSize(a, b) {
+    return a[1] - b[1];
+}
+
+function wdeFinFeatureColor(feat){
+    if (/complement/.test(wdeFeatures[feat][1])) {
+        // Reverse Section
+        if (wdeFeatures[feat][5] == "D") {
+            for (var k = 0; k < wdeFeatColor.length; k++) {
+                if (wdeFeatColor[k][0] == wdeFeatures[feat][0]) {
+                    return wdeFeatColor[k][2];
+                }
+        	}
+        } else {
+            return "#" + wdeFeatures[feat][5];
+        }
+    } else {
+        // Forward Section
+        if (wdeFeatures[feat][4] == "D") {
+            for (var k = 0; k < wdeFeatColor.length; k++) {
+                if (wdeFeatColor[k][0] == wdeFeatures[feat][0]) {
+                    return wdeFeatColor[k][1];
+                }
+            }
+        } else {
+            return "#" + wdeFeatures[feat][4];
+        }
+    }
+    
+//    /d+ bp\s+(.+$)/.test(gbLin[0]);
+//	    	 wdeVGBDBDate = RegExp.$1;
+
+//var wdeFeatures = [];
+// http://www.insdc.org/documents/feature-table
+// [][0] = key
+// [][1] = location string as in genebank file
+// [][2] = tag for display
+// [][3] = tag source
+//           U = user supplied
+//           E = extracted from feature
+// [][4] = forward color (D for default)
+// [][5] = reverse color (D for default)
+// [][6] = draw shape (D for default)
+//           A = arrow
+//           B = box
+// [][7] = Note with wde tags stripped 
+// [][8] = all other qualifiers
+//var wdeFeatColor = [];
+// [][0] = key
+// [][1] = forward color
+// [][2] = reverse color
+// [][3] = shape
+    
+    alert("No match for: " + wdeFeatures[feat][0]);
+    return "#FF0000";
 }
 
 function wdeFindUserSeq() {
@@ -2949,8 +3019,66 @@ function wdeSetDamDcmMeth() {
     //       D = Dam and Dcm    
 }
 
+
+// This functions are created by the perl script
+// Do not modify!!!!
+function wdePopulateFeatureColors() {
+    wdeFeatColor[0]=["gene","#ff3333","#ff3333","arrow"];
+    wdeFeatColor[1]=["CDS","#2db300","#2db300","arrow"];
+    wdeFeatColor[2]=["regulatory","#ffff99","#ffff99","arrow"];
+    wdeFeatColor[3]=["misc_feature"," #b3b3b3"," #b3b3b3","arrow"];
+    wdeFeatColor[4]=["misc_recomb"," #b3b3b3"," #b3b3b3","arrow"];
+    wdeFeatColor[5]=["misc_difference"," #b3b3b3"," #b3b3b3","arrow"];
+    wdeFeatColor[6]=["mRNA","#ffe6e6","#ffe6e6","arrow"];
+    wdeFeatColor[7]=["polyA_site","#ffd699","#ffd699","arrow"];
+    wdeFeatColor[8]=["prim_transcript","#ffe6e6","#ffe6e6","arrow"];
+    wdeFeatColor[9]=["exon","#ff9999","#ff9999","arrow"];
+    wdeFeatColor[10]=["intron","#ffe6e6","#ffe6e6","arrow"];
+    wdeFeatColor[11]=["operon","#ffcccc","#ffcccc","arrow"];
+    wdeFeatColor[12]=["misc_RNA","#ffb3b3","#ffb3b3","arrow"];
+    wdeFeatColor[13]=["5'UTR","#ffffcc","#ffffcc","arrow"];
+    wdeFeatColor[14]=["3'UTR","#ffebcc","#ffebcc","arrow"];
+    wdeFeatColor[15]=["assembly_gap","#e6e6e6","#e6e6e6","box"];
+    wdeFeatColor[16]=["C_region","#ff99cc","#ff99cc","arrow"];
+    wdeFeatColor[17]=["centromere","#c8c8c8","#c8c8c8","box"];
+    wdeFeatColor[18]=["D-loop","#ff99cc","#ff99cc","arrow"];
+    wdeFeatColor[19]=["D_segment","#ff99cc","#ff99cc","arrow"];
+    wdeFeatColor[20]=["gap","#e6e6e6","#e6e6e6","box"];
+    wdeFeatColor[21]=["iDNA","#cc99ff","#cc99ff","arrow"];
+    wdeFeatColor[22]=["J_segment","#ff55aa","#ff55aa","arrow"];
+    wdeFeatColor[23]=["mat_peptide","#39e600","#39e600","arrow"];
+    wdeFeatColor[24]=["misc_binding","#b3ff99","#b3ff99","arrow"];
+    wdeFeatColor[25]=["misc_structure","#ff9999","#ff9999","arrow"];
+    wdeFeatColor[26]=["mobile_element","#d9d9d9","#d9d9d9","arrow"];
+    wdeFeatColor[27]=["modified_base","#e6e6e6","#e6e6e6","box"];
+    wdeFeatColor[28]=["ncRNA","#cc99ff","#cc99ff","arrow"];
+    wdeFeatColor[29]=["N_region","#ff55aa","#ff55aa","arrow"];
+    wdeFeatColor[30]=["old_sequence","#dcdcff","#dcdcff","box"];
+    wdeFeatColor[31]=["oriT","#cccccc","#cccccc","arrow"];
+    wdeFeatColor[32]=["precursor_RNA","#ffe6e6","#ffe6e6","arrow"];
+    wdeFeatColor[33]=["primer_bind","#ccccff","#faf04b","arrow"];
+    wdeFeatColor[34]=["propeptide","#39e600","#39e600","arrow"];
+    wdeFeatColor[35]=["protein_bind","#b3ff99","#b3ff99","arrow"];
+    wdeFeatColor[36]=["repeat_region","#a6a6a6","#a6a6a6","arrow"];
+    wdeFeatColor[37]=["rep_origin","#a6a6a6","#a6a6a6","arrow"];
+    wdeFeatColor[38]=["rRNA","#ffe6e6","#ffe6e6","arrow"];
+    wdeFeatColor[39]=["S_region","#ff8cc6","#ff8cc6","arrow"];
+    wdeFeatColor[40]=["sig_peptide","#39e600","#39e600","arrow"];
+    wdeFeatColor[41]=["source","#ffffff","#ffffff","box"];
+    wdeFeatColor[42]=["stem_loop","#ff9999","#ff9999","arrow"];
+    wdeFeatColor[43]=["STS","#a6a6a6","#a6a6a6","box"];
+    wdeFeatColor[44]=["telomere","#c8c8c8","#c8c8c8","box"];
+    wdeFeatColor[45]=["tmRNA","#cc99ff","#cc99ff","arrow"];
+    wdeFeatColor[46]=["transit_peptide","#39e600","#39e600","arrow"];
+    wdeFeatColor[47]=["tRNA","#ffe6e6","#ffe6e6","arrow"];
+    wdeFeatColor[48]=["unsure","#e6e6e6","#e6e6e6","box"];
+    wdeFeatColor[49]=["V_region","#ff5bad","#ff5bad","arrow"];
+    wdeFeatColor[50]=["V_segment","#ff8cc6","#ff8cc6","arrow"];
+    wdeFeatColor[51]=["variation","#e6e6e6","#e6e6e6","box"];
+}
+
 // Populate the Translation array
-// This function is created by the perl script from NCBI data
+// This functions are created by the perl script from NCBI data
 // See:
 // https://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=tgencodes
 // ftp://ftp.ncbi.nih.gov/entrez/misc/data/gc.prt
