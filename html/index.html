@@ -349,7 +349,7 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 <br />
 &nbsp;<a>Selected Feature:</a>
 &nbsp;<a>Tag:</a>
-&nbsp;<input name="WDE_FEAT_TAG" value="" type="text" size="40">
+&nbsp;<input name="WDE_FEAT_TAG" onChange="wdeSelFFeatMTag()" value="" type="text" size="40">
 &nbsp;<input type="button" onClick="wdeSetFFeatTagDef()" value="Set Default">
 &nbsp;<a>Type:</a>
 &nbsp;<select id="WDE_FEAT_TYPE" onChange="wdeSelFFeatType()"></select>
@@ -358,29 +358,29 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 &nbsp;<select id="WDE_FEAT_REG_TYPE" onChange="wdeSelFFeatRegType()"><option>Only available with regulatory features</option></select>
 <br />
 &nbsp;<input type="button" onClick="wdeSetFFeatNew()" value="New Feature">
-&nbsp;<input type="button" onClick="wdeSetFFeatDel()" value="Delete Feature">
 &nbsp;<input type="button" onClick="wdeSetFFeatSave()" value="Save Changes">
+&nbsp;<input type="button" onClick="wdeSetFFeatDel()" value="Delete Feature">
 <br />
 &nbsp;<a>Location:</a>
-&nbsp;<input name="WDE_FEAT_LOC" value="" type="text" size="110">
+&nbsp;<input name="WDE_FEAT_LOC" onChange="wdeSelFFeatLoc()" value="" type="text" size="110">
 <br />
 &nbsp;<a>Forward Color:</a>
-&nbsp;<input id="WDE_FEAT_FCOL" name="WDE_FEAT_FCOL" value="#00ff40" onchange="javascript:alert(document.getElementById('WDE_FEAT_FCOL').value);" type="color">
+&nbsp;<input id="WDE_FEAT_FCOL" name="WDE_FEAT_FCOL" value="#00ff40" onchange="wdeSetFFeatForVar()" type="color">
 &nbsp;<input type="button" onClick="wdeSetFFeatForDef()" value="Set Default">
 &nbsp;<a>Reverse Color:</a>
-&nbsp;<input id="WDE_FEAT_RCOL" name="WDE_FEAT_RCOL" value="#ff0000" onchange="javascript:alert(document.getElementById('WDE_FEAT_RCOL').value);" type="color">
+&nbsp;<input id="WDE_FEAT_RCOL" name="WDE_FEAT_RCOL" value="#ff0000" onchange="wdeSetFFeatRevVar()" type="color">
 &nbsp;<input type="button" onClick="wdeSetFFeatRevDef()" value="Set Default">
 &nbsp;<a>Shape:</a>
-&nbsp;<input name="WDE_FEAT_SHAPE" value="" type="text" size="20">
+&nbsp;<select id="WDE_FEAT_SHAPE" onChange="wdeSelFFeatRegShape()"></select>
 <br />
 &nbsp;<a>Note:</a>
 <br />
-&nbsp;<textarea name="WDE_FEAT_NOTE" rows="4" cols="90"></textarea>
+&nbsp;<textarea name="WDE_FEAT_NOTE" onChange="wdeSelFFeatNote()" rows="4" cols="90"></textarea>
 <br />
 &nbsp;<a>Qualifiers:</a>
 &nbsp;<a href="http://www.insdc.org/documents/feature-table#2.3">See Features / Qualifiers Documentation</a>
 <br />
-&nbsp;&nbsp;<textarea name="WDE_FEAT_QUALIF" rows="4" cols="90"></textarea>
+&nbsp;&nbsp;<textarea name="WDE_FEAT_QUALIF"  onChange="wdeSelFFeatQualif()" rows="4" cols="90"></textarea>
 <br />
 
 </div>

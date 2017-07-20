@@ -107,7 +107,7 @@ var wdeFeatColor = [];
 // [][3] = shape
 var wdeFeatRegColor = [];
 var wdeFeatInfo = [];
-var wdeFeatSelFeat = ["gene","","My Feature","U","D","D","arrow","",""];
+var wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","",""];
 var wdeFeatSelNum = -1;
 
 var wdeSeqHigh = [];
@@ -1208,10 +1208,10 @@ function wdeFeatInfoUpdate(infoCount) {
 
 function wdeFeatFocUpdate(feat) {
     if ((feat > -1) && (feat < wdeFeatures.length)) {
-        wdeFeatSelFeat = wdeFeatures[feat];
+        wdeFeatSelFeat = wdeFeatures[feat].slice(0);
         wdeFeatSelNum = feat;
     } else {
-        wdeFeatSelFeat = ["gene","","My Feature","U","D","D","arrow","",""];
+        wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","",""];
         wdeFeatSelNum = -1;
     }
     wdeFeatFocRepaint();
@@ -1290,7 +1290,73 @@ function wdeFeatFocRepaint() {
     }
     mainForm.elements["WDE_FEAT_TAG"].value = wdeFeatSelFeat[2];
     mainForm.elements["WDE_FEAT_LOC"].value = wdeFeatSelFeat[1];
-    mainForm.elements["WDE_FEAT_SHAPE"].value = wdeFeatSelFeat[6];
+    if (wdeFeatSelFeat[4] == "D") {
+        var col = "#000000";
+	    if ((wdeFeatSelFeat[0] == "regulatory") && (/\/regulatory_class="([^"]+)"/g.test(wdeFeatSelFeat[8]))) {
+	        var regClass = RegExp.$1;
+		    for (var k = 0; k < wdeFeatRegColor.length; k++) {
+		        if (wdeFeatRegColor[k][0] == regClass) {
+		            col = wdeFeatRegColor[k][1];
+		        }
+			}
+	    } else {
+		    for (var k = 0; k < wdeFeatColor.length; k++) {
+		        if (wdeFeatColor[k][0] == wdeFeatSelFeat[0]) {
+		            col = wdeFeatColor[k][1];
+		        }
+			}
+		}
+        document.getElementById('WDE_FEAT_FCOL').value = col;
+    } else {
+        document.getElementById('WDE_FEAT_FCOL').value = "#" + wdeFeatSelFeat[4];
+    }
+    if (wdeFeatSelFeat[5] == "D") {
+        var col = "#000000";
+	    if ((wdeFeatSelFeat[0] == "regulatory") && (/\/regulatory_class="([^"]+)"/g.test(wdeFeatSelFeat[8]))) {
+	        var regClass = RegExp.$1;
+		    for (var k = 0; k < wdeFeatRegColor.length; k++) {
+		        if (wdeFeatRegColor[k][0] == regClass) {
+		            col = wdeFeatRegColor[k][2];
+		        }
+			}
+	    } else {
+		    for (var k = 0; k < wdeFeatColor.length; k++) {
+		        if (wdeFeatColor[k][0] == wdeFeatSelFeat[0]) {
+		            col = wdeFeatColor[k][2];
+		        }
+			}
+		}
+        document.getElementById('WDE_FEAT_RCOL').value = col;
+    } else {
+        document.getElementById('WDE_FEAT_RCOL').value = "#" + wdeFeatSelFeat[5];
+    }
+    select = document.getElementById('WDE_FEAT_SHAPE');
+    for(var i = select.options.length - 1 ; i >= 0 ; i--) {
+        select.remove(i);
+    }
+    for (var k = 0; k < 3; k++) {
+        var option = document.createElement( 'option' );
+        option.value = k;
+        if (k == 0) {
+	        option.text = "Default";
+	        if (wdeFeatSelFeat[6] == "D") {
+	           option.setAttribute('selected', true);
+	        }
+        }
+        if (k == 1) {
+	        option.text = "Box";
+	        if (wdeFeatSelFeat[6] == "box") {
+	           option.setAttribute('selected', true);
+	        }
+        }
+        if (k == 2) {
+	        option.text = "Arrow";
+	        if (wdeFeatSelFeat[6] == "arrow") {
+	           option.setAttribute('selected', true);
+	        }
+        }
+        select.add(option);
+	}
     if (/\/note="([\s\S]+)"\s*$/g.test(wdeFeatSelFeat[7])) {
         mainForm.elements["WDE_FEAT_NOTE"].value = RegExp.$1;
     } else {
@@ -1298,6 +1364,104 @@ function wdeFeatFocRepaint() {
     }
     mainForm.elements["WDE_FEAT_QUALIF"].value = wdeFeatSelFeat[8];
 }
+
+function wdeSelFFeatMTag() {
+    wdeFeatSelFeat[2] = mainForm.elements["WDE_FEAT_TAG"].value;
+    wdeFeatSelFeat[3] = "U";
+}
+
+function wdeSetFFeatTagDef() {
+    wdeFeatSelFeat[3] = "D";
+}
+
+function wdeSelFFeatType() {
+    wdeFeatSelFeat[0] = wdeFeatColor[mainForm.elements["WDE_FEAT_TYPE"].value][0];
+    wdeFeatFocRepaint();
+}
+
+function wdeSelFFeatRegType() {
+    var regType = wdeFeatRegColor[mainForm.elements["WDE_FEAT_REG_TYPE"].value][0];
+	if (/\/regulatory_class="[^"]+"/g.test(wdeFeatSelFeat[8])) {
+		wdeFeatSelFeat[8] = wdeFeatSelFeat[8].replace(/\/regulatory_class="[^"]+"/g, "/regulatory_class=\"" + regType + "\"");
+    } else {
+        wdeFeatSelFeat[8] = "/regulatory_class=\"" + regType + "\"\n" + wdeFeatSelFeat[8];
+    }
+    wdeFeatFocRepaint();
+}
+
+function wdeSelFFeatLoc() {
+    wdeFeatSelFeat[1] =  mainForm.elements["WDE_FEAT_LOC"].value;
+}
+
+function wdeSetFFeatForVar() {
+    var col = document.getElementById('WDE_FEAT_FCOL').value;
+    wdeFeatSelFeat[4] = col.replace(/#+/g, "");
+    wdeFeatFocRepaint();
+}
+
+function wdeSetFFeatForDef() {
+    wdeFeatSelFeat[4] = "D";
+    wdeFeatFocRepaint();
+}
+
+function wdeSetFFeatRevVar() {
+    var col = document.getElementById('WDE_FEAT_RCOL').value;
+    wdeFeatSelFeat[5] = col.replace(/#+/g, "");
+    wdeFeatFocRepaint();
+}
+
+function wdeSetFFeatRevDef() {
+    wdeFeatSelFeat[5] = "D";
+    wdeFeatFocRepaint();
+}
+
+function wdeSelFFeatRegShape() {
+    var res = mainForm.elements["WDE_FEAT_SHAPE"].value;
+    if (res == 1) {
+        wdeFeatSelFeat[6] = "box";
+    } else if (res == 2) {
+        wdeFeatSelFeat[6] = "arrow";
+    } else {
+        wdeFeatSelFeat[6] = "D";
+    }
+}
+
+function wdeSelFFeatNote() {
+    wdeFeatSelFeat[7] = "/note=\"" + mainForm.elements["WDE_FEAT_NOTE"].value +  "\"";
+}
+
+function wdeSelFFeatQualif() {
+    wdeFeatSelFeat[8] =  mainForm.elements["WDE_FEAT_QUALIF"].value;
+}
+
+function wdeSetFFeatNew() {
+    wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","",""];
+    wdeFeatSelNum = -1;
+    wdeFeatFocRepaint();
+}
+
+function wdeSetFFeatSave() {
+    if ((wdeFeatSelNum > -1) && (wdeFeatSelNum < wdeFeatures.length)) {
+    	wdeFeatures[wdeFeatSelNum] = wdeFeatSelFeat.slice(0);
+    }
+    if (wdeFeatSelNum == -1) {
+        wdeFeatSelNum = wdeFeatures.length;
+        wdeFeatures[wdeFeatSelNum] = wdeFeatSelFeat.slice(0);
+    }
+    wdeFeatFocRepaint();
+}
+
+function wdeSetFFeatDel() {
+    if ((wdeFeatSelNum > -1) && (wdeFeatSelNum < wdeFeatures.length)) {
+    	wdeFeatures.splice(wdeFeatSelNum, 1); 
+    }
+    wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","",""];
+    wdeFeatSelNum = -1;
+    wdeFeatFocRepaint();
+}
+
+
+
 
 function wdeFindUserSeq() {
     // All sequence has to be lowecase to save the convesion later
@@ -3129,9 +3293,9 @@ function wdePopulateFeatureColors() {
     wdeFeatColor[0]=["gene","#ff3333","#ff3333","arrow"];
     wdeFeatColor[1]=["CDS","#2db300","#2db300","arrow"];
     wdeFeatColor[2]=["regulatory","#ffff99","#ffff99","arrow"];
-    wdeFeatColor[3]=["misc_feature"," #b3b3b3"," #b3b3b3","arrow"];
-    wdeFeatColor[4]=["misc_recomb"," #b3b3b3"," #b3b3b3","arrow"];
-    wdeFeatColor[5]=["misc_difference"," #b3b3b3"," #b3b3b3","arrow"];
+    wdeFeatColor[3]=["misc_feature","#b3b3b3","#b3b3b3","arrow"];
+    wdeFeatColor[4]=["misc_recomb","#b3b3b3","#b3b3b3","arrow"];
+    wdeFeatColor[5]=["misc_difference","#b3b3b3","#b3b3b3","arrow"];
     wdeFeatColor[6]=["mRNA","#ffe6e6","#ffe6e6","arrow"];
     wdeFeatColor[7]=["polyA_site","#ffd699","#ffd699","arrow"];
     wdeFeatColor[8]=["prim_transcript","#ffe6e6","#ffe6e6","arrow"];

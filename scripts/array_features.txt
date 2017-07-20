@@ -2,9 +2,9 @@ function wdePopulateFeatureColors() {
     wdeFeatColor[0]=["gene","#ff3333","#ff3333","arrow"];
     wdeFeatColor[1]=["CDS","#2db300","#2db300","arrow"];
     wdeFeatColor[2]=["regulatory","#ffff99","#ffff99","arrow"];
-    wdeFeatColor[3]=["misc_feature"," #b3b3b3"," #b3b3b3","arrow"];
-    wdeFeatColor[4]=["misc_recomb"," #b3b3b3"," #b3b3b3","arrow"];
-    wdeFeatColor[5]=["misc_difference"," #b3b3b3"," #b3b3b3","arrow"];
+    wdeFeatColor[3]=["misc_feature","#b3b3b3","#b3b3b3","arrow"];
+    wdeFeatColor[4]=["misc_recomb","#b3b3b3","#b3b3b3","arrow"];
+    wdeFeatColor[5]=["misc_difference","#b3b3b3","#b3b3b3","arrow"];
     wdeFeatColor[6]=["mRNA","#ffe6e6","#ffe6e6","arrow"];
     wdeFeatColor[7]=["polyA_site","#ffd699","#ffd699","arrow"];
     wdeFeatColor[8]=["prim_transcript","#ffe6e6","#ffe6e6","arrow"];
