@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.2";
+var wdeVVersion = "0.8.4";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -107,6 +107,8 @@ var wdeFeatColor = [];
 // [][3] = shape
 var wdeFeatRegColor = [];
 var wdeFeatInfo = [];
+var wdeFeatSelFeat = ["gene","","My Feature","U","D","D","arrow","",""];
+var wdeFeatSelNum = -1;
 
 var wdeSeqHigh = [];
 var wdeSeqFeat = [];
@@ -142,6 +144,7 @@ function wdeHideTabs() {
         document.getElementById('WDE_restriction_sites').style.display="none";
         document.getElementById('WDE_digest').style.display="none";
         document.getElementById('WDE_translate').style.display="none";
+        document.getElementById('WDE_features').style.display="none";
         document.getElementById('WDE_settings').style.display="none";
 }
 
@@ -184,7 +187,6 @@ function wdeTestAlert(){
 
 function wdeActivateStartup(){
     window.frames['WDE_RTF'].document.designMode = 'On';
-    window.frames['WDE_TRANS'].document.designMode = 'On';
     var fileLoad = document.getElementById("WDE_Load_File");
     fileLoad.addEventListener("change", wdeLoadFile, false);
     var fileLoad2 = document.getElementById("WDE_Load_Settings");
@@ -198,6 +200,7 @@ function wdeActivateStartup(){
     wdeUser = ["User_Seq", "AGC^MGCT", 0 , "-", "", "N", ""];
     wdePopulateTranslation();
     wdePopulateFeatureColors();
+    wdeFeatFocUpdate(-1);
     wdeDrawGeneticCode();
     wdeDrawEnzymes();
     wdeLoadCookie('S');
@@ -577,6 +580,7 @@ function wdeReadFile(seq, file) {
 	        }
 	        if (/^\/\//.test(gbLin[k])) {
 	            wdeProcessGenebank();
+	            wdeFeatFocUpdate(-1);
 	            return curSeq;
 	        }
 	        if (/^DEFINITION  /.test(gbLin[k])) {
@@ -1002,7 +1006,7 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
             var featColor = wdeFeatureColor(i);
             if (featColor[0] != "D") {
                 var infoCount = wdeFeatInfo.length;
-                wdeFeatInfo[infoCount] = featColor[1];
+                wdeFeatInfo[infoCount] = [featColor[1],featColor[2]] ;
                 outSeq += closeFeat;
                 openFeat = '<a onclick="parent.wdeFeatInfoUpdate(' + infoCount + ')" style="background-color:' + featColor[0] + '">';
                 closeFeat = "</a>";
@@ -1158,17 +1162,17 @@ function wdeFinFeatureColor(feat){
         // Reverse Section
         if (wdeFeatures[feat][5] == "D") {
             var retVal = wdeFinFeatColSeg(feat);
-            return [retVal[2], retVal[0] + featName + " (Rev)", feat];
+            return [retVal[2], retVal[0] + featName + " (Reverse)", feat];
         } else {
-            return ["#" + wdeFeatures[feat][5], wdeFeatures[feat][0] + featName + " (Rev)", feat];
+            return ["#" + wdeFeatures[feat][5], wdeFeatures[feat][0] + featName + " (Reverse)", feat];
         }
     } else {
         // Forward Section
         if (wdeFeatures[feat][4] == "D") {
             var retVal = wdeFinFeatColSeg(feat);
-            return [retVal[1], retVal[0] + featName + " (For)", feat];
+            return [retVal[1], retVal[0] + featName + " (Forward)", feat];
         } else {
-            return ["#" + wdeFeatures[feat][4], wdeFeatures[feat][0] + featName + " (For)", feat];
+            return ["#" + wdeFeatures[feat][4], wdeFeatures[feat][0] + featName + " (Forward)", feat];
         }
     }
     return ["#FF0000","No matching feature type found!", -1];
@@ -1179,7 +1183,6 @@ function wdeFinFeatColSeg(feat){
         if (/\/regulatory_class="([^"]+)"/g.test(wdeFeatures[feat][8])) {
 	        var regClass = RegExp.$1;
 		    for (var k = 0; k < wdeFeatRegColor.length; k++) {
-	//	    alert(wdeFeatRegColor[k][0] + " == " + wdeFeatures[feat][0]);
 		        if (wdeFeatRegColor[k][0] == regClass) {
 		            return [wdeFeatRegColor[k][0], wdeFeatRegColor[k][1], wdeFeatRegColor[k][2]];
 		        }
@@ -1198,8 +1201,102 @@ function wdeFeatInfoUpdate(infoCount) {
         if (infoCount < 0) {
             mainForm.elements["wdeInfoField"].value = "";
         } else {
-            mainForm.elements["wdeInfoField"].value = wdeFeatInfo[infoCount];
+            mainForm.elements["wdeInfoField"].value = wdeFeatInfo[infoCount][0];
+            wdeFeatFocUpdate(wdeFeatInfo[infoCount][1]);
         }
+}
+
+function wdeFeatFocUpdate(feat) {
+    if ((feat > -1) && (feat < wdeFeatures.length)) {
+        wdeFeatSelFeat = wdeFeatures[feat];
+        wdeFeatSelNum = feat;
+    } else {
+        wdeFeatSelFeat = ["gene","","My Feature","U","D","D","arrow","",""];
+        wdeFeatSelNum = -1;
+    }
+    wdeFeatFocRepaint();
+}
+
+function wdeFeatFocRepaint() {
+    var content = '<table border="0">';
+    content += "<tr>";
+    content += '<th style="text-align: left">Type';
+    content += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>';
+    content += '<th style="text-align: left">Tag';
+    content += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+    content += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>';
+    content += '<th style="text-align: left">Orientation&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>';
+	content += '<th style="text-align: left">Location</th>';
+    content += "</tr>\n";
+    for (var k = 0; k < wdeFeatures.length; k++) {
+	    content += '<tr onclick="parent.wdeFeatFocUpdate(' + k + ')">';
+	    var colAr = wdeFinFeatColSeg(k);
+	    var colFin = wdeFinFeatureColor(k);
+	    if (/complement/.test(wdeFeatures[k][1])) {
+	        content += '<td style="background-color:' + colAr[2]  + '">' + wdeFeatures[k][0] + "</td>";
+	        content += '<td style="background-color:' + colFin[0] + '">' + wdeFeatures[k][2] + "</td>";
+	        content += '<td style="background-color:' + colFin[0] + '">Reverse</td>';
+    	    content += '<td style="background-color:' + colFin[0] + '">' + wdeFeatures[k][1] + "</td>";
+	    } else {
+	        content += '<td style="background-color:' + colAr[1]  + '">' + wdeFeatures[k][0] + "</td>";
+	        content += '<td style="background-color:' + colFin[0] + '">' + wdeFeatures[k][2] + "</td>";
+	        content += '<td style="background-color:' + colFin[0] + '">Forward</td>';
+	        content += '<td style="background-color:' + colFin[0] + '">' + wdeFeatures[k][1] + "</td>";
+	    }
+	    content += "</tr>\n";
+    }
+    content += '</table>';
+    window.frames['WDE_FEAT_L'].document.body.innerHTML = content;
+
+    var select = document.getElementById('WDE_FEAT_TYPE');
+    for(var i = select.options.length - 1 ; i >= 0 ; i--) {
+        select.remove(i);
+    }
+    for (var k = 0; k < wdeFeatColor.length; k++) {
+        var option = document.createElement( 'option' );
+        option.value = k;
+        option.text = wdeFeatColor[k][0];
+        if (wdeFeatColor[k][0] == wdeFeatSelFeat[0]) {
+           option.setAttribute('selected', true);
+        }    
+        select.add(option);
+    }
+	select = document.getElementById('WDE_FEAT_REG_TYPE');
+    if (wdeFeatSelFeat[0] == "regulatory") {
+        var regClass = "promoter";
+        if (/\/regulatory_class="([^"]+)"/g.test(wdeFeatSelFeat[8])) {
+	        regClass = RegExp.$1;
+	    }
+	    for(var i = select.options.length - 1 ; i >= 0 ; i--) {
+	        select.remove(i);
+	    }
+	    for (var k = 0; k < wdeFeatRegColor.length; k++) {
+	        var option = document.createElement( 'option' );
+	        option.value = k;
+	        option.text = wdeFeatRegColor[k][0];
+	        if (wdeFeatRegColor[k][0] == regClass) {
+	           option.setAttribute('selected', true);
+	        }    
+	        select.add(option);
+		}
+    } else {
+	    for(var i = select.options.length - 1 ; i >= 0 ; i--) {
+	        select.remove(i);
+	    }
+        var option = document.createElement( 'option' );
+        option.value = 0;
+        option.text = "Only available with regulatory features";
+        select.add(option);
+    }
+    mainForm.elements["WDE_FEAT_TAG"].value = wdeFeatSelFeat[2];
+    mainForm.elements["WDE_FEAT_LOC"].value = wdeFeatSelFeat[1];
+    mainForm.elements["WDE_FEAT_SHAPE"].value = wdeFeatSelFeat[6];
+    if (/\/note="([\s\S]+)"\s*$/g.test(wdeFeatSelFeat[7])) {
+        mainForm.elements["WDE_FEAT_NOTE"].value = RegExp.$1;
+    } else {
+        mainForm.elements["WDE_FEAT_NOTE"].value = wdeFeatSelFeat[7];
+    }
+    mainForm.elements["WDE_FEAT_QUALIF"].value = wdeFeatSelFeat[8];
 }
 
 function wdeFindUserSeq() {
