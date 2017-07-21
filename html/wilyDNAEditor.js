@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.4";
+var wdeVVersion = "0.8.5";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -109,6 +109,7 @@ var wdeFeatRegColor = [];
 var wdeFeatInfo = [];
 var wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","",""];
 var wdeFeatSelNum = -1;
+var wdeVFeatTransp = 0;
 
 var wdeSeqHigh = [];
 var wdeSeqFeat = [];
@@ -505,6 +506,24 @@ function wdeUserSel() {
         box.checked=true;
     }
 }
+
+function wdeFeaturesTransp(sel){
+    if ((sel == -1) && (wdeVFeatTransp == 1)) {
+        sel = 0;
+    } else {
+        sel = 1;
+    }
+    var lButton = document.getElementById("wdeFeatTransparent");
+    if (sel) {
+        wdeVFeatTransp = 1;
+        lButton.value = "Solid Features";
+    } else {
+        wdeVFeatTransp = 0;
+        lButton.value = "Transparent Features";
+    }
+    wdeRepaint();
+}
+
 
 function wdeNewWindow(){
     var win = window.open("index.html", '_blank');
@@ -1039,18 +1058,13 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
 function wdeCleanSeq(seq){
     var retSeq = "";
     // Remove all HTML tags
-    var regEx1 = /<span style="background-color: *[^" ]+">/ig;
-    seq = seq.replace(regEx1, " ");
-    var regEx2 = /<\/span>/g;
-    seq = seq.replace(regEx2, " ");
-    var regEx3 = /<pre>/g;
-    seq = seq.replace(regEx3, " ");
-    var regEx4 = /<\/pre>/g;
-    seq = seq.replace(regEx4, " ");
-    var regEx5 = /<a [^>]+>/ig;
-    seq = seq.replace(regEx5, " ");
-    var regEx6 = /<\/a>/g;
-    seq = seq.replace(regEx6, " ");
+    seq = seq.replace(/<span style="background-color: *[^" ]+">/ig, " ");
+    seq = seq.replace(/<\/span>/g, " ");
+    seq = seq.replace(/<pre>/g, " ");
+    seq = seq.replace(/<\/pre>/g, " ");
+    seq = seq.replace(/<a [^>]+>/ig, " ");
+    seq = seq.replace(/<\/a>/g, " ");
+    seq = seq.replace(/<br[ \/]*>/g, " ");
 
     retSeq = wdeRetAmbiqutyOnly(seq);
     return retSeq;
@@ -1146,10 +1160,54 @@ function wdeFeatureColor(pos){
     if (inFeat == 1) {
         selFeat.sort(wdeFeatSortSize);
         var calCol = wdeFinFeatureColor(selFeat[0][0]);
+        if (wdeVFeatTransp) {
+            var rgbSum = [255,255,255];
+            var toAdd = wdeColorHexToRgb(calCol[0]);
+            rgbSum = wdeColorAddColor(rgbSum, toAdd, 0);
+            var end = selFeat.length;
+            if (end > 4) {
+                end = 4;
+            }
+            for (var i = 1; i < end; i++) {
+                toAdd = wdeColorHexToRgb(calCol[i]);
+                rgbSum = wdeColorAddColor(rgbSum, toAdd, i);
+            }
+            calCol[0] = wdeColorRgbToHex(rgbSum[0],rgbSum[1],rgbSum[2]);
+        }
         return calCol;
     } else {
         return ["D",""];
     }
+}
+
+function wdeColorAddColor(base, add, step) {
+    var div = step + 1;
+    var r = Math.floor(base[0] * (3 * div - 1) / (3 * div) + add[0] * 1 / (3 * div));
+    var g = Math.floor(base[1] * (3 * div - 1) / (3 * div) + add[1] * 1 / (3 * div));
+    var b = Math.floor(base[2] * (3 * div - 1) / (3 * div) + add[2] * 1 / (3 * div));
+    return [r,g,b];
+}
+
+function wdeColorHexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    var ret = [];
+    if (result) {
+        ret[0] = parseInt(result[1], 16);
+        ret[1] = parseInt(result[2], 16);
+        ret[2] = parseInt(result[3], 16);
+        return ret;
+    } else {
+        return [0,0,0];
+    }
+}
+
+function wdeColorRgbToHex(r, g, b) {
+    return "#" + wdeColorSingRgbToHex(r) + wdeColorSingRgbToHex(g) + wdeColorSingRgbToHex(b);
+}
+
+function wdeColorSingRgbToHex(c) {
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
 }
 
 function wdeFeatSortSize(a, b) {
