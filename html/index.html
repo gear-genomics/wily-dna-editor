@@ -212,9 +212,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <br />
 &nbsp;<input type="button" id="wdeFeatButton" onClick="wdeShowFeatures()" value="Show Features">
 &nbsp;<input type="button" id="wdeFeatTransparent" onClick="wdeTGFeaturesTransp(-1,1)" value="Transparent Features">
+&nbsp;<input type="button" onClick="wdeNewFeaturesFromSel()" value="New Feature from Selection">
 &nbsp;&nbsp;&nbsp;
 &nbsp;<a>Info:</a>
-&nbsp;<input name="wdeInfoField" value="" type="text" size="60">
+&nbsp;<input name="wdeInfoField" value="" type="text" size="40">
 <br />
 <!-- Hide the textarea and replace it with an iFrame -->
 <textarea name="SEQUENCE_TEMPLATE" rows="12" cols="90" style="display:none;"></textarea>
@@ -357,12 +358,13 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 &nbsp;<a>Regulatory Type:</a>
 &nbsp;<select id="WDE_FEAT_REG_TYPE" onChange="wdeSelFFeatRegType()"><option>Only available with regulatory features</option></select>
 <br />
-&nbsp;<input type="button" onClick="wdeSetFFeatNew()" value="New Feature">
+&nbsp;<input type="button" onClick="wdeSetFFeatNew('')" value="New Feature">
 &nbsp;<input type="button" onClick="wdeSetFFeatSave()" value="Save Changes">
 &nbsp;<input type="button" onClick="wdeSetFFeatDel()" value="Delete Feature">
 <br />
 &nbsp;<a>Location:</a>
-&nbsp;<input name="WDE_FEAT_LOC" onChange="wdeSelFFeatLoc()" value="" type="text" size="110">
+&nbsp;<input name="WDE_FEAT_LOC" onChange="wdeSelFFeatLoc()" value="" type="text" size="80">
+&nbsp;<input type="button" id="WDE_FEAT_REVCOMP" onClick="wdeSetFFeatSetRev(-1)" value="Set Reverse">
 <br />
 &nbsp;<a>Forward Color:</a>
 &nbsp;<input id="WDE_FEAT_FCOL" name="WDE_FEAT_FCOL" value="#00ff40" onchange="wdeSetFFeatForVar()" type="color">

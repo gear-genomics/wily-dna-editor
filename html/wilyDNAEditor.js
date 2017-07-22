@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.7";
+var wdeVVersion = "0.8.8";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -905,6 +905,12 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
 }
 
 function wdeCleanSeq(seq){
+    var retSeq = wdeCleanSeqWithMarks(seq);
+    retSeq = retSeq.replace(/x/ig, "");
+    return retSeq;
+}
+
+function wdeCleanSeqWithMarks(seq){
     var retSeq = "";
     // Remove all HTML tags
     seq = seq.replace(/<span style="background-color: *[^" ]+">/ig, " ");
@@ -1212,6 +1218,11 @@ function wdeFeatFocRepaint() {
     }
     mainForm.elements["WDE_FEAT_TAG"].value = wdeFeatSelFeat[2];
     mainForm.elements["WDE_FEAT_LOC"].value = wdeFeatSelFeat[1];
+    if(/complement\(.*\)\s*$/.test(wdeFeatSelFeat[1])) {
+        wdeSetFFeatSetRev(0);
+    } else {
+        wdeSetFFeatSetRev(1);
+    }
     if (wdeFeatSelFeat[4] == "D") {
         var col = "#000000";
 	    if ((wdeFeatSelFeat[0] == "regulatory") && (/\/regulatory_class="([^"]+)"/g.test(wdeFeatSelFeat[8]))) {
@@ -1315,6 +1326,36 @@ function wdeSelFFeatLoc() {
     wdeFeatSelFeat[1] =  mainForm.elements["WDE_FEAT_LOC"].value;
 }
 
+function wdeSetFFeatSetRev(sel) {
+    var loc = wdeFeatSelFeat[1];
+    if (loc.length < 1) {
+        return;
+    }
+    if (sel == -1) {
+        if(/complement\((.*)\)\s*$/.test(loc)) {
+            loc = RegExp.$1;
+            sel = 1;
+        } else {
+            loc = "complement(" + loc + ")";
+            sel = 0;
+        }
+        mainForm.elements["WDE_FEAT_LOC"].value = loc;
+        wdeFeatSelFeat[1] = loc;
+    }
+    if (sel) {
+
+    } else {
+    
+    }
+    var lButton = document.getElementById("WDE_FEAT_REVCOMP");
+    if (sel) {
+        lButton.value = "Set Reverse";
+    } else {
+        lButton.value = "Set Forward";
+    }
+    
+}
+
 function wdeSetFFeatForVar() {
     var col = document.getElementById('WDE_FEAT_FCOL').value;
     wdeFeatSelFeat[4] = col.replace(/#+/g, "");
@@ -1356,10 +1397,46 @@ function wdeSelFFeatQualif() {
     wdeFeatSelFeat[8] =  mainForm.elements["WDE_FEAT_QUALIF"].value;
 }
 
-function wdeSetFFeatNew() {
-    wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","",""];
+function wdeSetFFeatNew(loc) {
+    wdeFeatSelFeat = ["gene",loc,"Enter Feature Name","U","D","D","arrow","",""];
     wdeFeatSelNum = -1;
     wdeFeatFocRepaint();
+}
+
+function wdeNewFeaturesFromSel() {
+    var sel;
+    var range;
+    var loc = "";
+    if (window.frames['WDE_RTF'].getSelection) {
+        sel = window.frames['WDE_RTF'].getSelection();
+        var numb = sel.rangeCount;
+        for (var i = sel.rangeCount - 1; i >= 0 ; i--) {
+            range = sel.getRangeAt(i);
+            var theSelection = "X" + range.toString() + "x";
+            range.deleteContents();
+            range.insertNode(window.frames['WDE_RTF'].document.createTextNode(theSelection));
+        }
+        var seqWSel = wdeCleanSeqWithMarks(window.frames['WDE_RTF'].document.body.innerHTML);
+        var locCount = 1;
+        for (var i = 0; i < seqWSel.length ; i++) {
+            if (seqWSel.charAt(i) == "X") {
+                loc += locCount;
+            } else if (seqWSel.charAt(i) == "x") {
+                loc += ".." + (locCount - 1) + ",";
+            } else  {
+                locCount++;
+            } 
+        }
+        loc = loc.replace(/,$/, "");
+        if (numb > 1) {
+            loc = "join(" + loc + ")";
+        }
+        seqWSel = seqWSel.replace(/x/ig, "");
+        window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(seqWSel, wdeZeroOne, wdeNumbers);
+    }
+    wdeSetFFeatNew(loc);
+    wdeRepaint();
+    wdeShowTab('tab5','WDE_features');
 }
 
 function wdeSetFFeatSave() {
@@ -2918,6 +2995,7 @@ function wdeProteinOneThree(seqIn){
 
 // Sequences have to be of same length
 // Seq1 is expected to be ATGC
+// x masks methylation sites and returns allways false
 function wdeIsSameSeq(seq1, seq2){
     if (seq1.length != seq2.length) {
         return false;
@@ -3017,6 +3095,7 @@ function wdeIsSameSeq(seq1, seq2){
 }
 
 // All non ambiguty codes are lost and u->t
+// X and x are kept as selection marks
 function wdeRetAmbiqutyOnly(seq){
     var retSeq = "";
     for (var i = 0; i < seq.length ; i++) {
@@ -3040,6 +3119,10 @@ function wdeRetAmbiqutyOnly(seq){
             case "n": retSeq += "n";
                 break;
             case "N": retSeq += "N";
+                break;
+            case "x": retSeq += "x";
+                break;
+            case "X": retSeq += "X";
                 break;
             case "u": retSeq += "t";
                 break;
@@ -3473,6 +3556,9 @@ function wdeUpdateButtonsToDef() {
 //////////////////////////////////////////////////////////////////////
 // The following functions are created using the perl scripts       //
 // So do not modify here, modify the scripts in the extra folder!!! //
+//                                                                  //
+// Attention: The Order is used to sort the features for            //
+// display, in the feature list and while writing genebank files    // 
 //////////////////////////////////////////////////////////////////////
 function wdePopulateFeatureColors() {
     wdeFeatColor[0]=["CDS","#2db300","#2db300","arrow"];
