@@ -492,6 +492,19 @@ function wdeReadFile(seq, file) {
 
 function wdeProcessGenebank() {
     for (var k = 0; k < wdeFeatures.length; k++) {
+        // Flip join(complement(),complement())
+        if(/^join\((complement\(.+)\)\s*$/g.test(wdeFeatures[k][1])) {
+            var locFlip = RegExp.$1;
+            locFlip = locFlip.replace(/complement\(/g, "");
+            locFlip = locFlip.replace(/\)/g, "");
+            var locOrder = locFlip.split(",");
+            wdeFeatures[k][1] = "complement(join(";
+            for (var i = locOrder.length - 1 ; i >= 0 ; i--) {
+                wdeFeatures[k][1] += locOrder[i] + ",";
+            }
+            wdeFeatures[k][1] = wdeFeatures[k][1].replace(/,$/, "))");
+        }
+    
         // Extract the note qualifier
         // Regular Expression . does not match newline use [\s\S] instead
         if (/(\/note="[\s\S]+?[^"]")[^"]\s*/g.test(wdeFeatures[k][8])) {
