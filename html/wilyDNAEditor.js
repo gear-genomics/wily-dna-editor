@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.8";
+var wdeVVersion = "0.8.9";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -398,6 +398,7 @@ function wdeLoadFile(f){
 }
 
 function wdeReadFile(seq, file) {
+    wdeFeatures = [];
     // FASTA file format
     if (/^>/.test(seq)) {
         var eoTitel = seq.indexOf("\n");
@@ -1084,17 +1085,17 @@ function wdeFeatSortSize(a, b) {
     } else {
         var aa = wdeFeatTypeToInt(a[2]);
         var bb = wdeFeatTypeToInt(b[2]);
-        return bb - aa;
+        return aa - bb;
     }
 }
 
 function wdeFeatTypeToInt(featType) {
-    for (var k = 0; k < wdeFeatures.length; k++) {
-        if (wdeFeatures[k][0] == featType) {
+    for (var k = 0; k < wdeFeatColor.length; k++) {
+        if (wdeFeatColor[k][0] == featType) {
             return k;
         }
     }
-    return wdeFeatures.length;
+    return wdeFeatColor.length;
 }
 
 function wdeFinFeatureColor(feat){
@@ -1453,14 +1454,42 @@ function wdeNewFeaturesFromSel() {
 }
 
 function wdeSetFFeatSave() {
+    var myArr = wdeFeatSelFeat;
     if ((wdeFeatSelNum > -1) && (wdeFeatSelNum < wdeFeatures.length)) {
-    	wdeFeatures[wdeFeatSelNum] = wdeFeatSelFeat.slice(0);
+    	wdeFeatures[wdeFeatSelNum] = myArr;
     }
     if (wdeFeatSelNum == -1) {
         wdeFeatSelNum = wdeFeatures.length;
-        wdeFeatures[wdeFeatSelNum] = wdeFeatSelFeat.slice(0);
+        wdeFeatures[wdeFeatSelNum] = myArr;
+    }
+    wdeFeatures.sort(wdeFeatListSort);
+    // Now we have to cut the strings
+    for (var i = 0; i < wdeFeatures.length ; i++) {
+        if (wdeFeatures[i] === myArr) {
+            wdeFeatures[i] = myArr.slice(0);
+            wdeFeatSelNum = i;
+        }
     }
     wdeFeatFocRepaint();
+}
+
+function wdeFeatListSort(a, b) {
+    /^(\d+).+?(\d+)$\s*/.test(wdeFECleanPos(a[1]));
+    var firstA = RegExp.$1;
+    var lastA = RegExp.$2;
+     /^(\d+).+?(\d+)$\s*/.test(wdeFECleanPos(b[1]));
+    var firstB = RegExp.$1;
+    var lastB = RegExp.$2;
+    if (firstA != firstB) {
+        return firstA - firstB;
+    }
+    if (lastA != lastB) {
+        return lastB - lastA;
+    }
+    // Now the features have exactly the same size
+    var typeA = wdeFeatTypeToInt(a[0]);
+    var typeB = wdeFeatTypeToInt(b[0]);
+    return typeB - typeA;
 }
 
 function wdeSetFFeatDel() {
@@ -1471,9 +1500,6 @@ function wdeSetFFeatDel() {
     wdeFeatSelNum = -1;
     wdeFeatFocRepaint();
 }
-
-
-
 
 function wdeFindUserSeq() {
     // All sequence has to be lowecase to save the convesion later
