@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.5";
+var wdeVVersion = "0.8.6";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -158,10 +158,17 @@ function wdeCountUp() {
 function wdeLoadTestSeq(size) {
     wdeLoadTestScripts();
 	setTimeout(function () {
-	    if (size == "S") {
+	    if (size == "SF") {
             wdeTestLoadSmallSeq();
-        } else {
+        } 
+        if (size == "LF")  {
             wdeTestLoadLargeSeq();
+        }
+        if (size == "SG")  {
+            wdeTestLoadSmallGeneBank();
+        }
+        if (size == "LG")  {
+            wdeTestLoadLargeGeneBank();
         }
     }, 200);
 }
@@ -188,6 +195,8 @@ function wdeTestAlert(){
 
 function wdeActivateStartup(){
     window.frames['WDE_RTF'].document.designMode = 'On';
+    wdeUser = ["User_Seq", "AGC^MGCT", 0 , "-", "", "N", ""];
+    wdeUpdateButtonsToDef();
     var fileLoad = document.getElementById("WDE_Load_File");
     fileLoad.addEventListener("change", wdeLoadFile, false);
     var fileLoad2 = document.getElementById("WDE_Load_Settings");
@@ -195,10 +204,7 @@ function wdeActivateStartup(){
     window.frames['WDE_RTF'].document.addEventListener('cut', wdeCutEvent);
     window.frames['WDE_RTF'].document.addEventListener('copy', wdeCopyEvent);
     window.frames['WDE_RTF'].document.addEventListener('paste', wdePasteEvent);
-    document.getElementById("WDE_DAM_DCM").checked = true;
-    document.getElementById("WDE_USER_SEL").checked = false;
     wdePopulateEnzmes();
-    wdeUser = ["User_Seq", "AGC^MGCT", 0 , "-", "", "N", ""];
     wdePopulateTranslation();
     wdePopulateFeatureColors();
     wdeFeatFocUpdate(-1);
@@ -284,23 +290,17 @@ function wdeStringToSettings(txt){
         var line = all[i].split("=");
         if (line.length == 2) {
             if (line[0] == "Index") {
-			    var lButton = document.getElementById("cmdZeroOneButton");
 			    if (line[1] == "0") {
-			        wdeZeroOne = 0;
-			        lButton.value = "0";
+			        wdeTGViewZeroOne(0,0);
 			    } else {
-			        wdeZeroOne = 1;
-			        lButton.value = "1";
+			        wdeTGViewZeroOne(1,0);
 			    }
             }
             if (line[0] == "DamDcm") {
-			    var box = document.getElementById("WDE_DAM_DCM");
 			    if (line[1] == "0") {
-			        wdeDamDcmSel = 0;
-			        box.checked=false;
+			        wdeTGDamDcm(0);
 			    } else {
-			        wdeDamDcmSel = 1;
-			        box.checked=true;
+			        wdeTGDamDcm(1);
 			    }
             }
             if (line[0] == "RESel") {
@@ -322,13 +322,10 @@ function wdeStringToSettings(txt){
 			    mainForm.elements["WDE_DIGEST_AMOUNT"].value = line[1];
             }
             if (line[0] == "BandBlack") {
-			    var lButton2 = document.getElementById("WDE_DIG_BAND_BLACK");
 			    if (line[1] == "0") {
-			        wdeDigVBandBlack = 0;
-			        lButton2.value = "Draw Bands Black";
+			        wdeTGDigGelBandBlack(0,0);
 			    } else {
-			        wdeDigVBandBlack = 1;
-			        lButton2.value = "Simulate Bands Density";
+			        wdeTGDigGelBandBlack(1,0);
 			    }
             }
             if (line[0] == "minORF") {
@@ -378,153 +375,6 @@ function wdeSendP3P(){
     mainForm.submit();
 }
 
-function wdeViewZeroOne(){
-    var lButton = document.getElementById("cmdZeroOneButton");
-    if (wdeZeroOne) {
-        wdeZeroOne = 0;
-        lButton.value = "0";
-    } else {
-        wdeZeroOne = 1;
-        lButton.value = "1";
-    }
-    wdeRepaint();
-}
-
-function wdeDigGelBandBlack(){
-    var lButton = document.getElementById("WDE_DIG_BAND_BLACK");
-    if (wdeDigVBandBlack) {
-        wdeDigVBandBlack = 0;
-        lButton.value = "Draw Bands Black";
-    } else {
-        wdeDigVBandBlack = 1;
-        lButton.value = "Simulate Bands Density";
-    }
-    wdeDigAsGelPic();
-}
-
-function wdeTransTreeOne(){
-    var lButton = document.getElementById("wdeTransTreeOneButton");
-    if (wdeVTransLetter) {
-        wdeVTransLetter = 0;
-        lButton.value = "1 Letter Code";
-    } else {
-        wdeVTransLetter = 1;
-        lButton.value = "3 Letter Code";
-    }
-    wdeSelTransTable();
-}
-
-function wdeTransFrameNr(){
-    var lButton = document.getElementById("wdeTransFrameNrButton");
-    if (wdeVTransFrameNr == 6) {
-        wdeVTransFrameNr = 3;
-        lButton.value = "3 Frame";
-    } else if (wdeVTransFrameNr == 3) {
-        wdeVTransFrameNr = 1;
-        lButton.value = "1 Frame";
-    } else {
-        wdeVTransFrameNr = 6;
-        lButton.value = "6 Frame";
-    }
-    wdeSelTransTable();
-}
-
-function wdeOrfView(){
-    var lButton = document.getElementById("wdeTransOrfViewButton");
-    if (wdeVTransOrfView) {
-        wdeVTransOrfView = 0;
-        lButton.value = "View ORF List";
-    } else {
-        wdeVTransOrfView = 1;
-        lButton.value = "View Frame Translation";
-    }
-    wdeSelTransTable();
-}
-
-function wdeOrfSort(){
-    var lButton = document.getElementById("wdeTransOrfSortButton");
-    if (wdeVTransOrfSortSize) {
-        wdeVTransOrfSortSize = 0;
-        lButton.value = "Sort ORFs by Size";
-    } else {
-        wdeVTransOrfSortSize = 1;
-        lButton.value = "Sort ORFs by Position";
-    }
-    wdeSelTransTable();
-}
-
-function wdeTransRevComp(){
-    var lButton = document.getElementById("wdeTransRevCompButton");
-    if (wdeVTransRevComp) {
-        wdeVTransRevComp = 0;
-        lButton.value = "No";
-    } else {
-        wdeVTransRevComp = 1;
-        lButton.value = "Yes";
-    }
-    wdeSelTransTable();
-}
-
-function wdeViewNumbers(){
-    if (wdeNumbers) {
-        wdeNumbers = 0;
-    } else {
-        wdeNumbers = 1;
-    }
-    wdeRepaint();
-}
-
-function wdeCircularLinear(){
-    var lButton = document.getElementById("wdeCircularButton");
-    if (wdeCircular) {
-        wdeCircular = 0;
-        lButton.value = "Linear";
-    } else {
-        wdeCircular = 1;
-        lButton.value = "Circular";
-    }
-}
-
-function wdeDamDcm() {
-    var box = document.getElementById("WDE_DAM_DCM");
-    if (wdeDamDcmSel) {
-        wdeDamDcmSel = 0;
-        box.checked=false;
-    } else {
-        wdeDamDcmSel = 1;
-        box.checked=true;
-    }
-}
-
-function wdeUserSel() {
-    var box = document.getElementById("WDE_USER_SEL");
-    if (wdeUser[2]) {
-        wdeUser[2] = 0;
-        box.checked=false;
-    } else {
-        wdeUser[2] = 1;
-        box.checked=true;
-    }
-}
-
-function wdeFeaturesTransp(sel){
-    if ((sel == -1) && (wdeVFeatTransp == 1)) {
-        sel = 0;
-    } else {
-        sel = 1;
-    }
-    var lButton = document.getElementById("wdeFeatTransparent");
-    if (sel) {
-        wdeVFeatTransp = 1;
-        lButton.value = "Solid Features";
-    } else {
-        wdeVFeatTransp = 0;
-        lButton.value = "Transparent Features";
-    }
-    wdeRepaint();
-}
-
-
 function wdeNewWindow(){
     var win = window.open("index.html", '_blank');
     win.focus();
@@ -559,13 +409,10 @@ function wdeReadFile(seq, file) {
     // Genebank file format
     if (/^LOCUS/.test(seq)) {
 	    var gbLin = seq.split("\n");
-        var lButton = document.getElementById("wdeCircularButton");
 	    if (/circular/.test(gbLin[0])) {
-            wdeCircular = 1;
-            lButton.value = "Circular";
+            wdeTGCircularLinear(1);
 	    } else {
-            wdeCircular = 0;
-            lButton.value = "Linear";
+            wdeTGCircularLinear(0);
 	    }
 	    wdeVGBHeader = "";
 	    if (/^LOCUS\s+(.+?)\d+ bp/.test(gbLin[0])) {
@@ -1039,6 +886,7 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
         // Place the enzyme selection
         if (wdeREdisp && (length == wdeSeqHigh.length) && (wdeSeqHigh[i] != lastBaseMark)) {
             if (wdeSeqHigh[i] == "R") {
+                outSeq += closeFeat;
                 openMark = '<span style="background-color:red">';
                 closeMark = "</span>";
                 outSeq += openMark;
@@ -1047,6 +895,7 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
                 outSeq += closeMark;
                 openMark = "";
                 closeMark = "";
+                outSeq += openFeat;
             }
             lastBaseMark = wdeSeqHigh[i];
         }
@@ -3323,30 +3172,293 @@ function wdeSetDamDcmMeth() {
             }
         }
         if(!isDam && !isDcm) {
-            wdeEnzy[k][5] = "N";
+            wdeEnzy[k][5] = "N";    //N = no Dam/Dcm
         }
         if(isDam && !isDcm) {
-            wdeEnzy[k][5] = "A";
+            wdeEnzy[k][5] = "A";    //A = Dam
         }
         if(!isDam && isDcm) {
-            wdeEnzy[k][5] = "C";
-        }
+            wdeEnzy[k][5] = "C";    //C = Dcm
+         }
         if(isDam && isDcm) {
-            wdeEnzy[k][5] = "D";
+            wdeEnzy[k][5] = "D";    //D = Dam and Dcm    
         }
         // Add for Cut Positions
         wdeEnzy[k][6] = "";
     }
-    // [5] = Dam/Dcm:
-    //       N = no Dam/Dcm
-    //       A = Dam
-    //       C = Dcm
-    //       D = Dam and Dcm    
 }
 
 
-// This functions are created by the perl script
-// Do not modify!!!!
+//////////////////////////////////////////////////////////////////////
+// The following functions modify the global values triggered       //
+// usually by interface buttons. Possible Values:                   //
+//    == -1   -> toggles between the variables                      //
+//    >=  0   -> sets variable to provided value                    //
+//////////////////////////////////////////////////////////////////////
+function wdeTGCircularLinear(sel){
+    if (sel == -1) {
+	    if (wdeCircular == 1) {
+	        sel = 0;
+	    } else {
+	        sel = 1;
+	    }
+    }
+    var lButton = document.getElementById("wdeCircularButton");
+    if (sel) {
+        wdeCircular = 1;
+        lButton.value = "Circular";
+    } else {
+        wdeCircular = 0;
+        lButton.value = "Linear";
+    }
+}
+
+function wdeTGDamDcm(sel) {
+    if (sel == -1) {
+	    if (wdeDamDcmSel == 1) {
+	        sel = 0;
+	    } else {
+	        sel = 1;
+	    }
+    }
+    var box = document.getElementById("WDE_DAM_DCM");
+    if (sel) {
+        wdeDamDcmSel = 1;
+        box.checked=true;
+    } else {
+        wdeDamDcmSel = 0;
+        box.checked=false;
+    }
+}
+
+function wdeTGDigGelBandBlack(sel,rPaint){
+    if (sel == -1) {
+	    if (wdeDigVBandBlack == 1) {
+	        sel = 0;
+	    } else {
+	        sel = 1;
+	    }
+    }
+    var lButton = document.getElementById("WDE_DIG_BAND_BLACK");
+    if (sel) {
+        wdeDigVBandBlack = 1;
+        lButton.value = "Simulate Bands Density";
+    } else {
+        wdeDigVBandBlack = 0;
+        lButton.value = "Draw Bands Black";
+    }
+    if (rPaint) {
+        wdeDigAsGelPic();
+    }
+}
+
+function wdeTGFeaturesTransp(sel,rPaint){
+    if (sel == -1) {
+	    if (wdeVFeatTransp == 1) {
+	        sel = 0;
+	    } else {
+	        sel = 1;
+	    }
+    }
+    var lButton = document.getElementById("wdeFeatTransparent");
+    if (sel) {
+        wdeVFeatTransp = 1;
+        lButton.value = "Solid Features";
+    } else {
+        wdeVFeatTransp = 0;
+        lButton.value = "Transparent Features";
+    }
+    if (rPaint) {
+        wdeRepaint();
+    }
+}
+
+function wdeTGOrfSort(sel,rPaint){
+    if (sel == -1) {
+	    if (wdeVTransOrfSortSize == 1) {
+	        sel = 0;
+	    } else {
+	        sel = 1;
+	    }
+    }
+    var lButton = document.getElementById("wdeTransOrfSortButton");
+    if (sel) {
+        wdeVTransOrfSortSize = 1;
+        lButton.value = "Sort ORFs by Position";
+    } else {
+        wdeVTransOrfSortSize = 0;
+        lButton.value = "Sort ORFs by Size";
+    }
+    if (rPaint) {
+        wdeSelTransTable();
+    }
+}
+
+function wdeTGOrfView(sel,rPaint){
+    if (sel == -1) {
+	    if (wdeVTransOrfView == 1) {
+	        sel = 0;
+	    } else {
+	        sel = 1;
+	    }
+    }
+    var lButton = document.getElementById("wdeTransOrfViewButton");
+    if (sel) {
+        wdeVTransOrfView = 1;
+        lButton.value = "View Frame Translation";
+    } else {
+        wdeVTransOrfView = 0;
+        lButton.value = "View ORF List";
+    }
+    if (rPaint) {
+        wdeSelTransTable();
+    }
+}
+
+function wdeTGTransFrameNr(sel,rPaint){
+    if (sel == -1) {
+	    if (wdeVTransFrameNr == 6) {
+	        sel = 3;
+	    } else if (wdeVTransFrameNr == 3) {
+	        sel = 1;
+	    } else {
+	        sel = 6;
+	    }
+    }
+    var lButton = document.getElementById("wdeTransFrameNrButton");
+    if (sel == 3) {
+        wdeVTransFrameNr = 3;
+        lButton.value = "3 Frame";
+    } else if (sel == 1) {
+        wdeVTransFrameNr = 1;
+        lButton.value = "1 Frame";
+    } else {
+        wdeVTransFrameNr = 6;
+        lButton.value = "6 Frame";
+    }
+    if (rPaint) {
+        wdeSelTransTable();
+    }
+}
+
+function wdeTGTransRevComp(sel,rPaint){
+    if (sel == -1) {
+	    if (wdeVTransRevComp == 1) {
+	        sel = 0;
+	    } else {
+	        sel = 1;
+	    }
+    }
+    var lButton = document.getElementById("wdeTransRevCompButton");
+    if (sel) {
+        wdeVTransRevComp = 1;
+        lButton.value = "Yes";
+    } else {
+        wdeVTransRevComp = 0;
+        lButton.value = "No";
+    }
+    if (rPaint) {
+        wdeSelTransTable();
+    }
+}
+
+function wdeTGTransTreeOne(sel,rPaint){
+    if (sel == -1) {
+	    if (wdeVTransLetter == 1) {
+	        sel = 0;
+	    } else {
+	        sel = 1;
+	    }
+    }
+    var lButton = document.getElementById("wdeTransTreeOneButton");
+    if (sel) {
+        wdeVTransLetter = 1;
+        lButton.value = "3 Letter Code";
+    } else {
+        wdeVTransLetter = 0;
+        lButton.value = "1 Letter Code";
+    }
+    if (rPaint) {
+        wdeSelTransTable();
+    }
+}
+
+function wdeTGUserSel(sel) {
+    if (sel == -1) {
+	    if (wdeUser[2] == 1) {
+	        sel = 0;
+	    } else {
+	        sel = 1;
+	    }
+    }
+    var box = document.getElementById("WDE_USER_SEL");
+    if (sel) {
+        wdeUser[2] = 1;
+        box.checked=true;
+    } else {
+        wdeUser[2] = 0;
+        box.checked=false;
+    }
+}
+
+function wdeTGViewNumbers(sel,rPaint){
+    if (sel == -1) {
+	    if (wdeNumbers == 1) {
+	        sel = 0;
+	    } else {
+	        sel = 1;
+	    }
+    }
+    if (sel) {
+        wdeNumbers = 1;
+    } else {
+        wdeNumbers = 0;
+    }
+    if (rPaint) {
+        wdeRepaint();
+    }
+}
+
+function wdeTGViewZeroOne(sel,rPaint){
+    if (sel == -1) {
+	    if (wdeZeroOne == 1) {
+	        sel = 0;
+	    } else {
+	        sel = 1;
+	    }
+    }
+    var lButton = document.getElementById("cmdZeroOneButton");
+    if (sel) {
+        wdeZeroOne = 1;
+        lButton.value = "1";
+    } else {
+        wdeZeroOne = 0;
+        lButton.value = "0";
+    }
+    if (rPaint) {
+        wdeRepaint();
+    }
+}
+
+function wdeUpdateButtonsToDef() {
+    wdeTGCircularLinear(wdeCircular);
+    wdeTGDamDcm(wdeDamDcmSel);
+    wdeTGDigGelBandBlack(wdeDigVBandBlack,0);
+    wdeTGFeaturesTransp(wdeVFeatTransp, 0);
+    wdeTGOrfSort(wdeVTransOrfSortSize,0);
+    wdeTGOrfView(wdeVTransOrfView,0);
+    wdeTGTransFrameNr(wdeVTransFrameNr,0);
+    wdeTGTransRevComp(wdeVTransRevComp,0);
+    wdeTGTransTreeOne(wdeVTransLetter,0);
+    wdeTGUserSel(wdeUser[2]);
+    wdeTGViewZeroOne(wdeZeroOne,0);
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// The following functions are created using the perl scripts       //
+// So do not modify here, modify the scripts in the extra folder!!! //
+//////////////////////////////////////////////////////////////////////
 function wdePopulateFeatureColors() {
     wdeFeatColor[0]=["gene","#ff3333","#ff3333","arrow"];
     wdeFeatColor[1]=["CDS","#2db300","#2db300","arrow"];

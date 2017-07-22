@@ -187,8 +187,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <!-- This function actually triggers the form -->
 &nbsp;<input type="button" onClick="wdeSendP3P()" value="Send to Primer3Plus"/>
 &nbsp;&nbsp;&nbsp;
-&nbsp;<input type="button" id="cmdZeroOneButton" onClick="wdeViewZeroOne()" value="1">
-&nbsp;<input type="button" onClick="wdeViewNumbers()" value="Numbers">
+&nbsp;<input type="button" id="cmdZeroOneButton" onClick="wdeTGViewZeroOne(-1,1)" value="1">
+&nbsp;<input type="button" onClick="wdeTGViewNumbers(-1,1)" value="Numbers">
 &nbsp;<input type="button" onClick="wdeNewWindow()" value="+">
 <br />
 &nbsp;<a>Sequence Id:</a>
@@ -197,7 +197,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 &nbsp;<a>Length:</a>
 &nbsp;<input name="SEQUENCE_LENGTH" value="" type="text" style="text-align:right;" size="10">&nbsp;bp
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-&nbsp;<input type="button" id="wdeCircularButton" onClick="wdeCircularLinear()" value="Circular">
+&nbsp;<input type="button" id="wdeCircularButton" onClick="wdeTGCircularLinear(-1)" value="Circular">
 <br />
 &nbsp;<input type="button" onClick="wdeUpToLow()" value="UPPER -> lower">
 &nbsp;<input type="button" onClick="wdeUpexLow()" value="UPPER <-> lower">
@@ -211,7 +211,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 &nbsp;<input type="button" onClick="wdeTransInAll()" value="Translate All">
 <br />
 &nbsp;<input type="button" id="wdeFeatButton" onClick="wdeShowFeatures()" value="Show Features">
-&nbsp;<input type="button" id="wdeFeatTransparent" onClick="wdeFeaturesTransp(-1)" value="Transparent Features">
+&nbsp;<input type="button" id="wdeFeatTransparent" onClick="wdeTGFeaturesTransp(-1,1)" value="Transparent Features">
 &nbsp;&nbsp;&nbsp;
 &nbsp;<a>Info:</a>
 &nbsp;<input name="wdeInfoField" value="" type="text" size="60">
@@ -227,7 +227,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div id="WDE_restriction_sites" class="WDE_tab_page">
 <div id="WDE_space">
-&nbsp;<input type="checkbox" id="WDE_USER_SEL" onclick="wdeUserSel()">
+&nbsp;<input type="checkbox" id="WDE_USER_SEL" onclick="wdeTGUserSel(-1)">
 &nbsp;<a id="WDE_USER_COUNT">Hits: -</a>
 &nbsp;&nbsp;&nbsp;
 &nbsp;<a>Name:</a>
@@ -239,8 +239,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 &nbsp;<input type="button" onClick="wdeFindRE()" value="Find All Restriction Sites">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp;<a>Methylation:</a>
-&nbsp;<input type="checkbox" id="WDE_DAM_DCM" onclick="wdeDamDcm()" checked="">
-&nbsp;<input type="button" onClick="wdeDamDcm()" value="Dam/Dcm">
+&nbsp;<input type="checkbox" id="WDE_DAM_DCM" onclick="wdeTGDamDcm(-1)" checked="">
+&nbsp;<input type="button" onClick="wdeTGDamDcm(-1)" value="Dam/Dcm">
 <br />
 &nbsp;<a>Select:</a>
 &nbsp;<input type="button" onClick="wdeSelREsel('E', 0)" value="Absent">
@@ -289,7 +289,7 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 &nbsp;<input name="WDE_DIGEST_AMOUNT" value="500" type="text" style="text-align:right;" size="2">
 &nbsp;<a>ng</a>
 &nbsp;&nbsp;
-&nbsp;<input type="button" id="WDE_DIG_BAND_BLACK" onClick="wdeDigGelBandBlack()" value="Draw Bands Black">
+&nbsp;<input type="button" id="WDE_DIG_BAND_BLACK" onClick="wdeTGDigGelBandBlack(-1,1)" value="Draw Bands Black">
 &nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp;<input type="button" onClick="wdeSaveGel()" value="Save">
 &nbsp;<input type="button" onClick="wdePrintGel()" value="Print">
@@ -318,17 +318,17 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 &nbsp;<input type="button" onClick="wdePrintTrans()" value="Print">
 <br>
 &nbsp;<a>Amino Acids:</a>
-&nbsp;<input type="button" id="wdeTransTreeOneButton" onClick="wdeTransTreeOne()" value="3 Letter Code">
+&nbsp;<input type="button" id="wdeTransTreeOneButton" onClick="wdeTGTransTreeOne(-1,1)" value="3 Letter Code">
 &nbsp;&nbsp;&nbsp;&nbsp;<a>Translate:</a>
-&nbsp;<input type="button" id="wdeTransFrameNrButton" onClick="wdeTransFrameNr()" value="6 Frame">
+&nbsp;<input type="button" id="wdeTransFrameNrButton" onClick="wdeTGTransFrameNr(-1,1)" value="6 Frame">
 &nbsp;&nbsp;&nbsp;&nbsp;<a>Show Reverse Complement:</a>
-&nbsp;<input type="button" id="wdeTransRevCompButton" onClick="wdeTransRevComp()" value="On">
+&nbsp;<input type="button" id="wdeTransRevCompButton" onClick="wdeTGTransRevComp(-1,1)" value="On">
 <br>
 &nbsp;<input type="button" onClick="wdeTransInSel()" value="Translate Selection">
 &nbsp;<input type="button" onClick="wdeTransInAll()" value="Translate All">
 &nbsp;&nbsp;&nbsp;&nbsp;
-&nbsp;<input type="button" id="wdeTransOrfViewButton" onClick="wdeOrfView()" value="View ORF List">
-&nbsp;<input type="button" id="wdeTransOrfSortButton" onClick="wdeOrfSort()" value="Sort ORFs by Position">
+&nbsp;<input type="button" id="wdeTransOrfViewButton" onClick="wdeTGOrfView(-1,1)" value="View ORF List">
+&nbsp;<input type="button" id="wdeTransOrfSortButton" onClick="wdeTGOrfSort(-1,1)" value="Sort ORFs by Position">
 &nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp;<a>Min ORF Length:</a>
 &nbsp;<input name="ORF_AS_NR" value="10" onChange="wdeTransDrawFrame()" type="text" style="text-align:right;" size="2">
@@ -399,10 +399,11 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 <br />
 <br />
 &nbsp;<a>Functions for Testing:</a><br>
-&nbsp;<input type="button" onClick="wdeLoadTestSeq('S')" value="Load Small Test Sequence">
-&nbsp;<input type="button" onClick="wdeLoadTestSeq('L')" value="Load Large Test Sequence">
-&nbsp;<input type="button" onClick="wdeLoadTestSeq('S')" value="Load Small Genebank Sequence">
-&nbsp;<input type="button" onClick="wdeLoadTestSeq('L')" value="Load Large Genebank Sequence">
+&nbsp;<input type="button" onClick="wdeLoadTestSeq('SF')" value="Load Small Fasta Sequence">
+&nbsp;<input type="button" onClick="wdeLoadTestSeq('LF')" value="Load Large Fasta Sequence">
+<br />
+&nbsp;<input type="button" onClick="wdeLoadTestSeq('SG')" value="Load Small Genebank Sequence">
+&nbsp;<input type="button" onClick="wdeLoadTestSeq('LG')" value="Load Large Genebank Sequence">
 </div>
 </div>
 </form>
