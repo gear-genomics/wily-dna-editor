@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.6";
+var wdeVVersion = "0.8.7";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -936,10 +936,10 @@ function wdeShowFeatures(){
         var sel = 0;
         // Place the Marks
         for (var k = 0; k < wdeFeatures.length; k++) {
-            var posList = wdeFECleanPos(wdeFeatures[k][1]).split(",");;
+            var posList = wdeFECleanPos(wdeFeatures[k][1]).split(",");
             for (var i = 0; i < posList.length; i++) {
                 var singPos = posList[i].split(".");
-                if (parseInt(singPos[0]) > 1) {
+                if (parseInt(singPos[0]) > 0) {
                     wdeSeqFeat[(parseInt(singPos[0]) - 1)] = "R";
                     sel++;
                 }
@@ -985,11 +985,11 @@ function wdeFeatureColor(pos){
         var posList = wdeFECleanPos(wdeFeatures[k][1]).split(",");;
         for (var i = 0; i < posList.length; i++) {
             var singPos = posList[i].split(".");
-            if (parseInt(singPos[0]) > 1) {
+            if (parseInt(singPos[0]) > 0) {
                 start = parseInt(singPos[0]) - 1;
             }
             if (singPos.length == 2) {
-                if (parseInt(singPos[1]) > 1) {
+                if (parseInt(singPos[1]) > 0) {
                     end = parseInt(singPos[1]) - 1;
                 }
                 if (parseInt(singPos[1]) == 1) {
@@ -998,9 +998,9 @@ function wdeFeatureColor(pos){
             }
             // Do not color full length features
             if ((start <= pos) && (pos <= end) &&
-                 !(start == 0) &&  !(end == wdeSeqFeat.length - 3)) {
+                 !((start == 0) && (end == wdeSeqFeat.length - 3))) {
                 var cLen = end - start;
-                selFeat[selCount] = [k,cLen];
+                selFeat[selCount] = [k,cLen,wdeFeatures[k][0]];
                 inFeat = 1;
                 selCount++;
             }
@@ -1060,7 +1060,22 @@ function wdeColorSingRgbToHex(c) {
 }
 
 function wdeFeatSortSize(a, b) {
-    return a[1] - b[1];
+    if (a[1] != b[1]) {
+        return a[1] - b[1];
+    } else {
+        var aa = wdeFeatTypeToInt(a[2]);
+        var bb = wdeFeatTypeToInt(b[2]);
+        return bb - aa;
+    }
+}
+
+function wdeFeatTypeToInt(featType) {
+    for (var k = 0; k < wdeFeatures.length; k++) {
+        if (wdeFeatures[k][0] == featType) {
+            return k;
+        }
+    }
+    return wdeFeatures.length;
 }
 
 function wdeFinFeatureColor(feat){
@@ -3460,21 +3475,21 @@ function wdeUpdateButtonsToDef() {
 // So do not modify here, modify the scripts in the extra folder!!! //
 //////////////////////////////////////////////////////////////////////
 function wdePopulateFeatureColors() {
-    wdeFeatColor[0]=["gene","#ff3333","#ff3333","arrow"];
-    wdeFeatColor[1]=["CDS","#2db300","#2db300","arrow"];
+    wdeFeatColor[0]=["CDS","#2db300","#2db300","arrow"];
+    wdeFeatColor[1]=["gene","#ff3333","#ff3333","arrow"];
     wdeFeatColor[2]=["regulatory","#ffff99","#ffff99","arrow"];
     wdeFeatColor[3]=["misc_feature","#b3b3b3","#b3b3b3","arrow"];
     wdeFeatColor[4]=["misc_recomb","#b3b3b3","#b3b3b3","arrow"];
     wdeFeatColor[5]=["misc_difference","#b3b3b3","#b3b3b3","arrow"];
-    wdeFeatColor[6]=["mRNA","#ffe6e6","#ffe6e6","arrow"];
-    wdeFeatColor[7]=["polyA_site","#ffd699","#ffd699","arrow"];
-    wdeFeatColor[8]=["prim_transcript","#ffe6e6","#ffe6e6","arrow"];
-    wdeFeatColor[9]=["exon","#ff9999","#ff9999","arrow"];
-    wdeFeatColor[10]=["intron","#ffe6e6","#ffe6e6","arrow"];
-    wdeFeatColor[11]=["operon","#ffcccc","#ffcccc","arrow"];
-    wdeFeatColor[12]=["misc_RNA","#ffb3b3","#ffb3b3","arrow"];
-    wdeFeatColor[13]=["5'UTR","#ffffcc","#ffffcc","arrow"];
-    wdeFeatColor[14]=["3'UTR","#ffebcc","#ffebcc","arrow"];
+    wdeFeatColor[6]=["exon","#ff9999","#ff9999","arrow"];
+    wdeFeatColor[7]=["operon","#ffcccc","#ffcccc","arrow"];
+    wdeFeatColor[8]=["intron","#ffe6e6","#ffe6e6","arrow"];
+    wdeFeatColor[9]=["polyA_site","#ffd699","#ffd699","arrow"];
+    wdeFeatColor[10]=["5'UTR","#ffffcc","#ffffcc","arrow"];
+    wdeFeatColor[11]=["3'UTR","#ffebcc","#ffebcc","arrow"];
+    wdeFeatColor[12]=["prim_transcript","#ffe6e6","#ffe6e6","arrow"];
+    wdeFeatColor[13]=["mRNA","#ffe6e6","#ffe6e6","arrow"];
+    wdeFeatColor[14]=["misc_RNA","#ffb3b3","#ffb3b3","arrow"];
     wdeFeatColor[15]=["assembly_gap","#e6e6e6","#e6e6e6","box"];
     wdeFeatColor[16]=["C_region","#ff99cc","#ff99cc","arrow"];
     wdeFeatColor[17]=["centromere","#c8c8c8","#c8c8c8","box"];
@@ -3501,17 +3516,17 @@ function wdePopulateFeatureColors() {
     wdeFeatColor[38]=["rRNA","#ffe6e6","#ffe6e6","arrow"];
     wdeFeatColor[39]=["S_region","#ff8cc6","#ff8cc6","arrow"];
     wdeFeatColor[40]=["sig_peptide","#39e600","#39e600","arrow"];
-    wdeFeatColor[41]=["source","#ffffff","#ffffff","box"];
-    wdeFeatColor[42]=["stem_loop","#ff9999","#ff9999","arrow"];
-    wdeFeatColor[43]=["STS","#a6a6a6","#a6a6a6","box"];
-    wdeFeatColor[44]=["telomere","#c8c8c8","#c8c8c8","box"];
-    wdeFeatColor[45]=["tmRNA","#cc99ff","#cc99ff","arrow"];
-    wdeFeatColor[46]=["transit_peptide","#39e600","#39e600","arrow"];
-    wdeFeatColor[47]=["tRNA","#ffe6e6","#ffe6e6","arrow"];
-    wdeFeatColor[48]=["unsure","#e6e6e6","#e6e6e6","box"];
-    wdeFeatColor[49]=["V_region","#ff5bad","#ff5bad","arrow"];
-    wdeFeatColor[50]=["V_segment","#ff8cc6","#ff8cc6","arrow"];
-    wdeFeatColor[51]=["variation","#e6e6e6","#e6e6e6","box"];
+    wdeFeatColor[41]=["stem_loop","#ff9999","#ff9999","arrow"];
+    wdeFeatColor[42]=["STS","#a6a6a6","#a6a6a6","box"];
+    wdeFeatColor[43]=["telomere","#c8c8c8","#c8c8c8","box"];
+    wdeFeatColor[44]=["tmRNA","#cc99ff","#cc99ff","arrow"];
+    wdeFeatColor[45]=["transit_peptide","#39e600","#39e600","arrow"];
+    wdeFeatColor[46]=["tRNA","#ffe6e6","#ffe6e6","arrow"];
+    wdeFeatColor[47]=["unsure","#e6e6e6","#e6e6e6","box"];
+    wdeFeatColor[48]=["V_region","#ff5bad","#ff5bad","arrow"];
+    wdeFeatColor[49]=["V_segment","#ff8cc6","#ff8cc6","arrow"];
+    wdeFeatColor[50]=["variation","#e6e6e6","#e6e6e6","box"];
+    wdeFeatColor[51]=["source","#ffffff","#ffffff","box"];
     wdePopulateFeatRegColors();
 }
 
