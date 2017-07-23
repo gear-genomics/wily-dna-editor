@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.9";
+var wdeVVersion = "0.8.10";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -100,6 +100,7 @@ var wdeFeatures = [];
 //           B = box
 // [][7] = Note with wde tags stripped 
 // [][8] = all other qualifiers
+// [][9] = 1 show feature / 0 hide feature
 var wdeFeatColor = [];
 // [][0] = key
 // [][1] = forward color
@@ -107,7 +108,7 @@ var wdeFeatColor = [];
 // [][3] = shape
 var wdeFeatRegColor = [];
 var wdeFeatInfo = [];
-var wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","",""];
+var wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","","",1];
 var wdeFeatSelNum = -1;
 var wdeVFeatTransp = 0;
 
@@ -468,7 +469,7 @@ function wdeReadFile(seq, file) {
                 if (/[A-Za-z]/g.test(featKey)) {
 	                curFeatCount++;
 	                featKey = featKey.replace(/\s+/g, "");
-	                wdeFeatures[curFeatCount] = [featKey,featVal,"","E","D","D","D","",""];
+	                wdeFeatures[curFeatCount] = [featKey,featVal,"","E","D","D","D","","",1];
 	                stillPos = 1;
 	            } else {
 	                if (/^\//g.test(featVal)) {
@@ -939,6 +940,26 @@ function wdeCleanSeqWithMarks(seq){
     return retSeq;
 }
 
+function wdeSelFeatSelMod (sel) {
+    for (var k = 0; k < wdeFeatures.length; k++) {
+        if (sel == -1) {
+	        if (wdeFeatures[k][9] == 1) {
+	            wdeFeatures[k][9] = 0;
+	        } else {
+	            wdeFeatures[k][9] = 1;
+	        }
+        } else {
+	        if (sel == 0) {
+	            wdeFeatures[k][9] = 0;
+	        }
+	        if (sel == 1) {
+	            wdeFeatures[k][9] = 1;
+	        }
+        }
+    }
+    wdeFeatFocRepaint();
+}
+
 function wdeShowFeatures(){
     // Set Marks to nothing
     var lButton = document.getElementById("wdeFeatButton");
@@ -956,21 +977,23 @@ function wdeShowFeatures(){
         var sel = 0;
         // Place the Marks
         for (var k = 0; k < wdeFeatures.length; k++) {
-            var posList = wdeFECleanPos(wdeFeatures[k][1]).split(",");
-            for (var i = 0; i < posList.length; i++) {
-                var singPos = posList[i].split(".");
-                if (parseInt(singPos[0]) > 0) {
-                    wdeSeqFeat[(parseInt(singPos[0]) - 1)] = "R";
-                    sel++;
-                }
-                if (singPos.length == 2) {
-	                if (parseInt(singPos[1]) > 1) {
-	                    wdeSeqFeat[parseInt(singPos[1])] = "R";
+            if(wdeFeatures[k][9] == 1) {
+	            var posList = wdeFECleanPos(wdeFeatures[k][1]).split(",");
+	            for (var i = 0; i < posList.length; i++) {
+	                var singPos = posList[i].split(".");
+	                if (parseInt(singPos[0]) > 0) {
+	                    wdeSeqFeat[(parseInt(singPos[0]) - 1)] = "R";
+	                    sel++;
 	                }
-	                if (parseInt(singPos[1]) == 1) {
-	                    wdeSeqFeat[(parseInt(singPos[0]) + 1)] = "R";
+	                if (singPos.length == 2) {
+		                if (parseInt(singPos[1]) > 1) {
+		                    wdeSeqFeat[parseInt(singPos[1])] = "R";
+		                }
+		                if (parseInt(singPos[1]) == 1) {
+		                    wdeSeqFeat[(parseInt(singPos[0]) + 1)] = "R";
+		                }
 	                }
-                }
+	            }
             }
         }
         if (sel > 0) {
@@ -1002,6 +1025,9 @@ function wdeFeatureColor(pos){
     var start = 0;
     var end = 0;
     for (var k = 0; k < wdeFeatures.length; k++) {
+        if (wdeFeatures[k][9] == 0) {
+            continue;
+        }
         var posList = wdeFECleanPos(wdeFeatures[k][1]).split(",");;
         for (var i = 0; i < posList.length; i++) {
             var singPos = posList[i].split(".");
@@ -1153,7 +1179,7 @@ function wdeFeatFocUpdate(feat) {
         wdeFeatSelFeat = wdeFeatures[feat].slice(0);
         wdeFeatSelNum = feat;
     } else {
-        wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","",""];
+        wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","","",1];
         wdeFeatSelNum = -1;
     }
     wdeFeatFocRepaint();
@@ -1162,6 +1188,7 @@ function wdeFeatFocUpdate(feat) {
 function wdeFeatFocRepaint() {
     var content = '<table border="0">';
     content += "<tr>";
+    content += '<th style="text-align: left">Show&nbsp;&nbsp;</th>';
     content += '<th style="text-align: left">Type';
     content += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>';
     content += '<th style="text-align: left">Tag';
@@ -1171,19 +1198,28 @@ function wdeFeatFocRepaint() {
 	content += '<th style="text-align: left">Location</th>';
     content += "</tr>\n";
     for (var k = 0; k < wdeFeatures.length; k++) {
-	    content += '<tr onclick="parent.wdeFeatFocUpdate(' + k + ')">';
+        var checkBoxStr = '<input type="checkbox" id="WDE_FEA_' + k;
+        checkBoxStr += '" onclick="parent.wdeSelFeatures(this, ' + k + ')"';
+        if (wdeFeatures[k][9] != 0) {
+            checkBoxStr += ' checked=""';
+        }
+        checkBoxStr += '>';
+        var funCl = ' onclick="parent.wdeFeatFocUpdate(' + k + ')"';
+	    content += '<tr>\n';
 	    var colAr = wdeFinFeatColSeg(k);
 	    var colFin = wdeFinFeatureColor(k);
 	    if (/complement/.test(wdeFeatures[k][1])) {
-	        content += '<td style="background-color:' + colAr[2]  + '">' + wdeFeatures[k][0] + "</td>";
-	        content += '<td style="background-color:' + colFin[0] + '">' + wdeFeatures[k][2] + "</td>";
-	        content += '<td style="background-color:' + colFin[0] + '">Reverse</td>';
-    	    content += '<td style="background-color:' + colFin[0] + '">' + wdeFeatures[k][1] + "</td>";
+	        content += '<td style="text-align: center; background-color:' + colAr[2]  + '"'  + '>' + checkBoxStr + "</td>";
+	        content += '<td style="background-color:' + colAr[2]  + '"' + funCl + '>' + wdeFeatures[k][0] + "</td>";
+	        content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + wdeFeatures[k][2] + "</td>";
+	        content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>Reverse</td>';
+    	    content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + wdeFeatures[k][1] + "</td>";
 	    } else {
-	        content += '<td style="background-color:' + colAr[1]  + '">' + wdeFeatures[k][0] + "</td>";
-	        content += '<td style="background-color:' + colFin[0] + '">' + wdeFeatures[k][2] + "</td>";
-	        content += '<td style="background-color:' + colFin[0] + '">Forward</td>';
-	        content += '<td style="background-color:' + colFin[0] + '">' + wdeFeatures[k][1] + "</td>";
+	        content += '<td style="text-align: center; background-color:' + colAr[1]  + '"'  + '>' + checkBoxStr + "</td>";
+	        content += '<td style="background-color:' + colAr[1]  + '"' + funCl + '>' + wdeFeatures[k][0] + "</td>";
+	        content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + wdeFeatures[k][2] + "</td>";
+	        content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>Forward</td>';
+	        content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + wdeFeatures[k][1] + "</td>";
 	    }
 	    content += "</tr>\n";
     }
@@ -1312,6 +1348,16 @@ function wdeFeatFocRepaint() {
     mainForm.elements["WDE_FEAT_QUALIF"].value = wdeFeatSelFeat[8];
 }
 
+function wdeSelFeatures(checkBox, enzId) {
+    if (checkBox.checked) {
+        wdeFeatures[enzId][9] = 1;
+        
+    } else {
+        wdeFeatures[enzId][9] = 0;
+    }
+    wdeFeatFocRepaint();
+}
+
 function wdeSelFFeatMTag() {
     wdeFeatSelFeat[2] = mainForm.elements["WDE_FEAT_TAG"].value;
     wdeFeatSelFeat[3] = "U";
@@ -1412,7 +1458,7 @@ function wdeSelFFeatQualif() {
 }
 
 function wdeSetFFeatNew(loc) {
-    wdeFeatSelFeat = ["gene",loc,"Enter Feature Name","U","D","D","arrow","",""];
+    wdeFeatSelFeat = ["gene",loc,"Enter Feature Name","U","D","D","arrow","","",1];
     wdeFeatSelNum = -1;
     wdeFeatFocRepaint();
 }
@@ -1496,7 +1542,7 @@ function wdeSetFFeatDel() {
     if ((wdeFeatSelNum > -1) && (wdeFeatSelNum < wdeFeatures.length)) {
     	wdeFeatures.splice(wdeFeatSelNum, 1); 
     }
-    wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","",""];
+    wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","","",1];
     wdeFeatSelNum = -1;
     wdeFeatFocRepaint();
 }
