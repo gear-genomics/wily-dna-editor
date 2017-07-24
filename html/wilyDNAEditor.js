@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.12";
+var wdeVVersion = "0.8.13";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -1148,7 +1148,7 @@ function wdeShowFeatures(){
                     sel++;
                 }
                 if (singPos.length == 1) {
-	                wdeSeqFeat[(parseInt(singPos[0]) + 1)] = "R";
+	                wdeSeqFeat[parseInt(singPos[0])] = "R";
                 }
                 if (singPos.length == 2) {
 	                if (parseInt(singPos[1]) > 1) {
@@ -1206,7 +1206,7 @@ function wdeFeatureColor(pos){
                 start = parseInt(singPos[0]) - 1;
             }
             if (singPos.length == 1) {
-                end = parseInt(singPos[0]);
+                end = parseInt(singPos[0]) - 1;
             }
             if (singPos.length == 2) {
                 if (parseInt(singPos[1]) > 0) {
