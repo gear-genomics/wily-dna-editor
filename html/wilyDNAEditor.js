@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.11";
+var wdeVVersion = "0.8.12";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -1133,23 +1133,31 @@ function wdeShowFeatures(){
         var sel = 0;
         // Place the Marks
         for (var k = 0; k < wdeFeatures.length; k++) {
-            if(wdeFeatures[k][9] == 1) {
-	            var posList = wdeFECleanPos(wdeFeatures[k][1]).split(",");
-	            for (var i = 0; i < posList.length; i++) {
-	                var singPos = posList[i].split(".");
-	                if (parseInt(singPos[0]) > 0) {
-	                    wdeSeqFeat[(parseInt(singPos[0]) - 1)] = "R";
-	                    sel++;
+	        if (wdeFeatures[k][9] == 0) {
+	            continue;
+	        }
+	        var posListString = wdeFECleanPos(wdeFeatures[k][1]);
+	        if (posListString.length <= 0) {
+	            continue;
+	        }
+	        var posList = posListString.split(",");
+            for (var i = 0; i < posList.length; i++) {
+                var singPos = posList[i].split(".");
+                if (parseInt(singPos[0]) > 0) {
+                    wdeSeqFeat[(parseInt(singPos[0]) - 1)] = "R";
+                    sel++;
+                }
+                if (singPos.length == 1) {
+	                wdeSeqFeat[(parseInt(singPos[0]) + 1)] = "R";
+                }
+                if (singPos.length == 2) {
+	                if (parseInt(singPos[1]) > 1) {
+	                    wdeSeqFeat[parseInt(singPos[1])] = "R";
 	                }
-	                if (singPos.length == 2) {
-		                if (parseInt(singPos[1]) > 1) {
-		                    wdeSeqFeat[parseInt(singPos[1])] = "R";
-		                }
-		                if (parseInt(singPos[1]) == 1) {
-		                    wdeSeqFeat[(parseInt(singPos[0]) + 1)] = "R";
-		                }
+	                if (parseInt(singPos[1]) == 1) {
+	                    wdeSeqFeat[(parseInt(singPos[0]) + 1)] = "R";
 	                }
-	            }
+                }
             }
         }
         if (sel > 0) {
@@ -1165,10 +1173,13 @@ function wdeShowFeatures(){
 }
 
 function wdeFECleanPos(loc) {
-    var posList = loc.replace(/[^, ]+:\d+\.+\d+/g, "");
+    var posList = loc.replace(/[^,:]+:[^,]+/g, "");
     posList = posList.replace(/\^/g, ".");
     posList = posList.replace(/\.+/g, ".");
     posList = posList.replace(/[^0-9,.]/g, "");
+    posList = posList.replace(/,+/g, ",");
+    posList = posList.replace(/^,/g, "");
+    posList = posList.replace(/,$/g, "");
     return posList;
 }
 
@@ -1184,11 +1195,18 @@ function wdeFeatureColor(pos){
         if (wdeFeatures[k][9] == 0) {
             continue;
         }
-        var posList = wdeFECleanPos(wdeFeatures[k][1]).split(",");;
+        var posListString = wdeFECleanPos(wdeFeatures[k][1]);
+        if (posListString.length <= 0) {
+            continue;
+        }
+        var posList = posListString.split(",");
         for (var i = 0; i < posList.length; i++) {
             var singPos = posList[i].split(".");
             if (parseInt(singPos[0]) > 0) {
                 start = parseInt(singPos[0]) - 1;
+            }
+            if (singPos.length == 1) {
+                end = parseInt(singPos[0]);
             }
             if (singPos.length == 2) {
                 if (parseInt(singPos[1]) > 0) {
@@ -1676,12 +1694,22 @@ function wdeSetFFeatSave() {
 }
 
 function wdeFeatListSort(a, b) {
-    /^(\d+).+?(\d+)$\s*/.test(wdeFECleanPos(a[1]));
-    var firstA = RegExp.$1;
-    var lastA = RegExp.$2;
-     /^(\d+).+?(\d+)$\s*/.test(wdeFECleanPos(b[1]));
-    var firstB = RegExp.$1;
-    var lastB = RegExp.$2;
+    if (/^(\d+).+?(\d+)$\s*/.test(wdeFECleanPos(a[1]))) {
+	    var firstA = RegExp.$1;
+	    var lastA = RegExp.$2;
+    } else {
+        /^(\d+)\s*/.test(wdeFECleanPos(a[1]))
+	    var firstA = RegExp.$1;
+	    var lastA = RegExp.$1 + 1;
+    }
+    if (/^(\d+).+?(\d+)$\s*/.test(wdeFECleanPos(b[1]))) {
+	    var firstB = RegExp.$1;
+ 	    var lastB = RegExp.$2;
+    } else {
+        /^(\d+)\s*/.test(wdeFECleanPos(a[1]))
+	    var firstB = RegExp.$1;
+	    var lastB = RegExp.$1 + 1;
+    }
     if (firstA != firstB) {
         return firstA - firstB;
     }
