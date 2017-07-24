@@ -768,7 +768,84 @@ function wdeCopyPaste() {
 
 function wdeRComp(){
     wdeSequenceModified();
-    window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(wdeReverseComplement(wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML)), wdeZeroOne, wdeNumbers);
+    var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
+    window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(wdeReverseComplement(seq), wdeZeroOne, wdeNumbers);
+    // Flip the Features
+    var lastPos = seq.length + 1;
+    for (var k = 0; k < wdeFeatures.length; k++) {
+        wdeFeatures[k][1] = wdeFeatRevCompLoc(wdeFeatures[k][1], lastPos);
+    }
+    wdeFeatures.sort(wdeFeatListSort);
+    wdeFeatFocRepaint();
+}
+
+function wdeFeatRevCompLoc(loc,lastPos){
+    var retVal = "";
+    var numA = "";
+    var numB = "";
+    var sep = "";
+    var sepFound = 0;
+    var isRev = 0;
+    for (var i = 0; i < loc.length ; i++) {
+        if (loc.charAt(i) == "<") {
+            retVal += ">";
+        } else if (loc.charAt(i) == ">") {
+            retVal += "<";
+        } else if ((/\d/.test(loc.charAt(i))) && (i == loc.length - 1)) {
+            if (sepFound) {
+                numB += loc.charAt(i);
+            } else {
+                numA += loc.charAt(i);
+            }
+            if (parseInt(numA) > 0) {
+                numA = lastPos - parseInt(numA);
+            }
+            if (parseInt(numB) > 0) {
+                numB = lastPos - parseInt(numB);
+            }
+            retVal += "" + numB + sep + numA;
+        } else if (/\d/.test(loc.charAt(i))) {
+            if (sepFound) {
+                numB += loc.charAt(i);
+            } else {
+                numA += loc.charAt(i);
+            }
+        } else if ((loc.charAt(i) == ".") || (loc.charAt(i) == "^")) {
+            sep += loc.charAt(i);
+            sepFound = 1;
+        } else if ((loc.charAt(i) == ",") || (loc.charAt(i) == ")")) {
+            if (parseInt(numA) > 0) {
+                numA = lastPos - parseInt(numA);
+            }
+            if (parseInt(numB) > 0) {
+                numB = lastPos - parseInt(numB);
+            }
+            retVal += "" + numB + sep + numA + loc.charAt(i);
+            numA = "";
+            numB = "";
+            sep = "";
+            sepFound = 0;
+        } else {
+            retVal += loc.charAt(i);
+        }
+    }
+    if (/complement\((.+)\)\s*$/g.test(retVal)) {
+        isRev = 1;
+        retVal = RegExp.$1;
+    }
+    if (/join\((.+)\)\s*$/g.test(retVal)) {
+        retVal = RegExp.$1;
+        var locOrder = retVal.split(",");
+        retVal = "join(";
+        for (var i = locOrder.length - 1 ; i >= 0 ; i--) {
+            retVal += locOrder[i] + ",";
+        }
+        retVal = retVal.replace(/,$/, ")");
+    }
+    if (isRev != 1) {
+        retVal = "complement(" + retVal + ")";
+    }    
+    return retVal;
 }
 
 function wdeRCompSel() {
