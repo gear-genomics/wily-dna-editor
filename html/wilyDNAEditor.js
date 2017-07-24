@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.10";
+var wdeVVersion = "0.8.11";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -509,9 +509,10 @@ function wdeProcessGenebank() {
     
         // Extract the note qualifier
         // Regular Expression . does not match newline use [\s\S] instead
-        if (/(\/note="[\s\S]+?[^"]")[^"]\s*/g.test(wdeFeatures[k][8])) {
-            var qNote = RegExp.$1;
-            wdeFeatures[k][8] = wdeFeatures[k][8].replace(/\/note="[\s\S]+?[^"]"[^"]\s*/g, "\/note=\"\"\n");
+        if (/\/note="[\s\S]+/g.test(wdeFeatures[k][8])) {
+            var noteArr = wdeGenebankExtractNote(wdeFeatures[k][8]);
+            var qNote = noteArr[0];
+            wdeFeatures[k][8] = noteArr[1];
 	        if (/forCol\(([^\)]+)\)\s*/g.test(qNote)) {
 	            wdeFeatures[k][4] = RegExp.$1;
 	            qNote = qNote.replace(/forCol\(([^\)]+)\)\s*/g, "");
@@ -531,7 +532,7 @@ function wdeProcessGenebank() {
 	        }
 	        wdeFeatures[k][7] = qNote;
 	        if (wdeFeatures[k][3] != "U") {
-	            /\/note="([^"]+)"\s*/g.test(qNote);
+	            /\/note="([\s\S]+?)"/g.test(qNote);
 	            wdeFeatures[k][2] = RegExp.$1;
 	        }
         }
@@ -550,6 +551,49 @@ function wdeProcessGenebank() {
 	        }
         }
     }
+}
+
+function wdeGenebankExtractNote(featStr) {
+    var retVal = "";
+    var noteVal = "";
+    var inNote = 0;
+    var firstNote = 1;
+    if (featStr.length < 9) {
+        alert ("TooShort:\n" + featStr);
+        return [noteVal,featStr];
+    }
+    for (var i = 0; i < featStr.length ; i++) {
+        // in nodes are double "" allowed...
+        if (inNote && (featStr.charAt(i) == "\"")) {
+            if (i == featStr.length - 1) {
+                noteVal += "\"";
+            } else {
+	            if (featStr.charAt(i + 1) == "\"") {
+                    noteVal += "\"";
+                    i++;
+	            } else {
+                    inNote = 0;
+	            }
+            }
+        } else {    
+	        if ((i < featStr.length - 7) && (featStr.substring(i,(i+7)) == "/note=\"")){
+	            i += 6;
+	            inNote = 1;
+	            if (firstNote) {
+	                retVal += "/note=\"Spacer for note information\"";
+	                firstNote = 0;
+	            }
+	        } else {
+	            if (inNote == 0) {
+	                retVal += featStr.charAt(i);
+	            } else {
+	                noteVal += featStr.charAt(i);
+	            }
+	        }
+        }
+    }
+    noteVal = "/note=\"" + noteVal + "\"";
+    return [noteVal,retVal];
 }
 
 function wdeSaveGenBank() {
@@ -623,24 +667,28 @@ function wdeSaveGenBank() {
 	        if (myPara == 1) {
 	            finNote += "\n";
 	        }
-            finNote += wdeFeatures[k][7].replace(/\/note=\"/g, "");
+	        var noteEdit = wdeFeatures[k][7].replace(/\/note=\"\s*/g, "");
+	        noteEdit = noteEdit.replace(/"$/, "");
+	        noteEdit = noteEdit.replace(/"/g, "\"\"");
+            finNote += noteEdit + "\"";
         } else {
             finNote += '"';
         }
-        if (/note=""\n/g.test(wdeFeatures[k][8])) {
+        var qualifiers = wdeFeatures[k][8];
+        if (/note="/g.test(qualifiers)) {            
             if (finNote != '/note=""') {
-                wdeFeatures[k][8] = wdeFeatures[k][8].replace(/\/note=""/g, finNote);
+                qualifiers = qualifiers.replace(/\/note="[^"]+"/g, finNote);
             } else {
-                wdeFeatures[k][8] = wdeFeatures[k][8].replace(/\/note=""\s*/g, "");
+                qualifiers = qualifiers.replace(/\/note="[^"]+"\s*/g, "");
             }
- //     } else if (/gene=""\n/g.test(wdeFeatures[k][8])) {
- //         wdeFeatures[k][8] = wdeFeatures[k][8].replace(/\/note=""/g, finNote);
+ //     } else if (/gene=""\n/g.test(qualifiers)) {
+ //         qualifiers = qualifiers.replace(/\/note=""/g, finNote);
         } else {
             if (finNote != '/note=""') {
-                wdeFeatures[k][8] = finNote + "\n" + wdeFeatures[k][8];
+                qualifiers = finNote + "\n" + qualifiers;
             }
         }
-        var qualArr = wdeFeatures[k][8].split("\n");
+        var qualArr = qualifiers.split("\n");
         for (var i = 0 ; i < qualArr.length - 1 ; i++) {
             content += "                     " + qualArr[i] + "\n";
         }
@@ -783,27 +831,54 @@ function wdeFeatRevCompLoc(loc,lastPos){
     var retVal = "";
     var numA = "";
     var numB = "";
+    var numAS = "";
+    var numBS = "";
+    var allEx = " ";
+    var exFound = 0;
     var sep = "";
     var sepFound = 0;
     var isRev = 0;
+    var isJoin = 0;
+    if (/complement\((.+)\)\s*$/g.test(loc)) {
+        isRev = 1;
+        loc = RegExp.$1;
+    }
+    if (/join\((.+)\)\s*$/g.test(loc)) {
+        isJoin = 1;
+        loc = RegExp.$1;
+    }
     for (var i = 0; i < loc.length ; i++) {
         if (loc.charAt(i) == "<") {
-            retVal += ">";
+            if (sepFound) {
+                numBS += ">";
+            } else {
+                numAS += ">";
+            }
         } else if (loc.charAt(i) == ">") {
-            retVal += "<";
+            if (sepFound) {
+                numBS += "<";
+            } else {
+                numAS += "<";
+            }
+        } else if (loc.charAt(i) == ":") {
+            exFound = 1;
         } else if ((/\d/.test(loc.charAt(i))) && (i == loc.length - 1)) {
             if (sepFound) {
                 numB += loc.charAt(i);
             } else {
                 numA += loc.charAt(i);
             }
-            if (parseInt(numA) > 0) {
-                numA = lastPos - parseInt(numA);
+            if (exFound == 1) {
+                retVal += "" + allEx.substring(1) + loc.charAt(i);;
+            } else {
+	            if (parseInt(numA) > 0) {
+	                numA = lastPos - parseInt(numA);
+	            }
+	            if (parseInt(numB) > 0) {
+	                numB = lastPos - parseInt(numB);
+	            }
+	            retVal += "" + numBS + numB + sep + numAS + numA;
             }
-            if (parseInt(numB) > 0) {
-                numB = lastPos - parseInt(numB);
-            }
-            retVal += "" + numB + sep + numA;
         } else if (/\d/.test(loc.charAt(i))) {
             if (sepFound) {
                 numB += loc.charAt(i);
@@ -814,27 +889,31 @@ function wdeFeatRevCompLoc(loc,lastPos){
             sep += loc.charAt(i);
             sepFound = 1;
         } else if ((loc.charAt(i) == ",") || (loc.charAt(i) == ")")) {
-            if (parseInt(numA) > 0) {
-                numA = lastPos - parseInt(numA);
+            if (exFound == 1) {
+                retVal += "" + allEx.substring(1) + loc.charAt(i);
+                exFound = 0;
+            } else {
+	            if (parseInt(numA) > 0) {
+	                numA = lastPos - parseInt(numA);
+	            }
+	            if (parseInt(numB) > 0) {
+	                numB = lastPos - parseInt(numB);
+	            }
+	            retVal += "" + numBS + numB + sep + numAS + numA + loc.charAt(i);
             }
-            if (parseInt(numB) > 0) {
-                numB = lastPos - parseInt(numB);
-            }
-            retVal += "" + numB + sep + numA + loc.charAt(i);
             numA = "";
             numB = "";
+            numAS = "";
+            numBS = "";
+            allEx = "";
             sep = "";
             sepFound = 0;
         } else {
-            retVal += loc.charAt(i);
+    //      retVal += loc.charAt(i);
         }
+        allEx += loc.charAt(i);
     }
-    if (/complement\((.+)\)\s*$/g.test(retVal)) {
-        isRev = 1;
-        retVal = RegExp.$1;
-    }
-    if (/join\((.+)\)\s*$/g.test(retVal)) {
-        retVal = RegExp.$1;
+    if (isJoin) {
         var locOrder = retVal.split(",");
         retVal = "join(";
         for (var i = locOrder.length - 1 ; i >= 0 ; i--) {
