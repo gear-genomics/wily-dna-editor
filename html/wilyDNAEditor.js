@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.13";
+var wdeVVersion = "0.8.14";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -212,6 +212,7 @@ function wdeActivateStartup(){
     wdeDrawGeneticCode();
     wdeDrawEnzymes();
     wdeLoadCookie('S');
+    wdeCleanInputFields();
 }
 
 function wdeSaveCookie(){
@@ -399,6 +400,7 @@ function wdeLoadFile(f){
 }
 
 function wdeReadFile(seq, file) {
+    wdeCleanInputFields();
     wdeFeatures = [];
     // FASTA file format
     if (/^>/.test(seq)) {
@@ -814,6 +816,11 @@ function wdeCopyPaste() {
           "On some keyboards Ctrl is labled Strg\n\n" );
 }
 
+function wdeRCompSel() {
+    wdeSequenceModified();
+    wdeModifySelection(wdeReverseComplement);
+}
+
 function wdeRComp(){
     wdeSequenceModified();
     var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
@@ -925,11 +932,6 @@ function wdeFeatRevCompLoc(loc,lastPos){
         retVal = "complement(" + retVal + ")";
     }    
     return retVal;
-}
-
-function wdeRCompSel() {
-    wdeSequenceModified();
-    wdeModifySelection(wdeReverseComplement);
 }
 
 function wdeSequenceModified(){
@@ -1121,6 +1123,7 @@ function wdeShowFeatures(){
     var lButton = document.getElementById("wdeFeatButton");
     var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
     var end = seq.length + 2;
+    wdeSeqFeat = [];
     for (var j = 0; j < end ; j++) {
         wdeSeqFeat[j] = ".";
     }
@@ -1169,6 +1172,15 @@ function wdeShowFeatures(){
             alert("No features to display!\n\nCreate at least one feature.");
         }
     }
+    wdeRepaint();
+}
+
+function wdeHideFeatures(){
+    // Set Marks to nothing
+    var lButton = document.getElementById("wdeFeatButton");
+    wdeFEdisp = 0;
+    wdeFeatInfo = [];
+    lButton.value = "Show Features";
     wdeRepaint();
 }
 
@@ -3819,6 +3831,13 @@ function wdeUpdateButtonsToDef() {
     wdeTGTransTreeOne(wdeVTransLetter,0);
     wdeTGUserSel(wdeUser[2]);
     wdeTGViewZeroOne(wdeZeroOne,0);
+}
+
+function wdeCleanInputFields() {
+    mainForm.elements["wdeInfoField"].value = "";
+    mainForm.elements["SEQUENCE_ID"].value = "";
+    mainForm.elements["SEQUENCE_LENGTH"].value = "";
+    wdeHideFeatures();
 }
 
 
