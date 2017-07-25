@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.14";
+var wdeVVersion = "0.8.15";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -817,8 +817,42 @@ function wdeCopyPaste() {
 }
 
 function wdeRCompSel() {
-    wdeSequenceModified();
-    wdeModifySelection(wdeReverseComplement);
+    var sel, range;
+    if (window.frames['WDE_RTF'].getSelection) {
+        sel = window.frames['WDE_RTF'].getSelection();
+        if (sel.rangeCount) {
+            wdeSequenceModified();
+            range = sel.getRangeAt(0);
+            var theSelection = "X" + wdeReverseComplement(wdeCleanSeq(range.toString())) + "X";
+            range.deleteContents();
+            range.insertNode(window.frames['WDE_RTF'].document.createTextNode(theSelection));
+	        var seqWSel = wdeCleanSeqWithMarks(window.frames['WDE_RTF'].document.body.innerHTML);
+	        var loc = [];
+	        var locCount = 0;
+	        for (var i = 0; i < seqWSel.length ; i++) {
+	            if (seqWSel.charAt(i) == "X") {
+	                loc[loc.length] = locCount;
+	            } else  {
+	                locCount++;
+	            } 
+	        }
+	        seqWSel = seqWSel.replace(/x/ig, "");
+	        window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(seqWSel, wdeZeroOne, wdeNumbers);
+            // We have the split positions, now split the features they span
+            
+            // Now reverse the features between the locations
+            
+            
+            // Sort the feature list
+
+
+	        
+	        alert(loc[0] + " - " + loc[1]);
+	        
+	        
+	        
+        }
+    }
 }
 
 function wdeRComp(){
@@ -1706,19 +1740,19 @@ function wdeSetFFeatSave() {
 }
 
 function wdeFeatListSort(a, b) {
-    if (/^(\d+).+?(\d+)$\s*/.test(wdeFECleanPos(a[1]))) {
+    if (/^(\d+)\..*?(\d+)$\s*/.test(wdeFECleanPos(a[1]))) {
 	    var firstA = RegExp.$1;
 	    var lastA = RegExp.$2;
     } else {
-        /^(\d+)\s*/.test(wdeFECleanPos(a[1]))
+        /^(\d+)\s*/.test(wdeFECleanPos(a[1]));
 	    var firstA = RegExp.$1;
 	    var lastA = RegExp.$1 + 1;
     }
-    if (/^(\d+).+?(\d+)$\s*/.test(wdeFECleanPos(b[1]))) {
+    if (/^(\d+)\..*?(\d+)$\s*/.test(wdeFECleanPos(b[1]))) {
 	    var firstB = RegExp.$1;
  	    var lastB = RegExp.$2;
     } else {
-        /^(\d+)\s*/.test(wdeFECleanPos(a[1]))
+        /^(\d+)\s*/.test(wdeFECleanPos(b[1]));
 	    var firstB = RegExp.$1;
 	    var lastB = RegExp.$1 + 1;
     }
