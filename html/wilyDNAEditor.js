@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.15";
+var wdeVVersion = "0.8.16";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -839,18 +839,13 @@ function wdeRCompSel() {
 	        seqWSel = seqWSel.replace(/x/ig, "");
 	        window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(seqWSel, wdeZeroOne, wdeNumbers);
             // We have the split positions, now split the features they span
-            
+	        wdeFeatSplitAtLoc(loc[0]);
+	        wdeFeatSplitAtLoc(loc[1]);
             // Now reverse the features between the locations
-            
-            
+            wdeFeatModifyBetween((loc[0] + 1),loc[1],"R");
             // Sort the feature list
-
-
-	        
-	        alert(loc[0] + " - " + loc[1]);
-	        
-	        
-	        
+            wdeFeatures.sort(wdeFeatListSort);
+	        wdeFeatFocRepaint();
         }
     }
 }
@@ -862,13 +857,120 @@ function wdeRComp(){
     // Flip the Features
     var lastPos = seq.length + 1;
     for (var k = 0; k < wdeFeatures.length; k++) {
-        wdeFeatures[k][1] = wdeFeatRevCompLoc(wdeFeatures[k][1], lastPos);
+        wdeFeatures[k][1] = wdeFeatRevCompLoc(wdeFeatures[k][1], lastPos, 0);
     }
     wdeFeatures.sort(wdeFeatListSort);
     wdeFeatFocRepaint();
 }
 
-function wdeFeatRevCompLoc(loc,lastPos){
+function wdeFeatModifyBetween(a,b,mod){
+    for (var k = 0; k < wdeFeatures.length; k++) {
+	    if (/^(\d+)\..*?(\d+)$\s*/.test(wdeFECleanPos(wdeFeatures[k][1]))) {
+		    var firstA = RegExp.$1;
+		    var lastA = RegExp.$2;
+	    } else {
+	        /^(\d+)\s*/.test(wdeFeatures[k][1]);
+		    var firstA = RegExp.$1;
+		    var lastA = RegExp.$1;
+	    }
+	    if ((firstA >= a) && (firstA <= b) && (lastA >= a) && (lastA <= b)) {
+	        if (mod == "R") {
+	            wdeFeatures[k][1] = wdeFeatRevCompLoc(wdeFeatures[k][1], (b + 1), (a - 1));
+	        }
+	    }
+	    
+        
+    }
+    
+}
+
+function wdeFeatSplitAtLoc(split){
+    var end = wdeFeatures.length;
+    for (var k = 0; k < end; k++) {
+        var retValL = "";
+        var retValR = "";
+	    var isRev = 0;
+        var loc = wdeFeatures[k][1];
+	    if (/complement\((.+)\)\s*$/g.test(loc)) {
+	        isRev = 1;
+	        loc = RegExp.$1;
+	    }
+	    if (/join\((.+)\)\s*$/g.test(loc)) {
+	        loc = RegExp.$1;
+	    }
+	    var singLoc = loc.split(",");
+	    for (var i = 0; i < singLoc.length; i++) {
+	        if (/:/g.test(singLoc[i])) {
+	            continue;
+	        }
+	        if (/^(\D*)(\d+)([\^\.]+)(\D*)(\d+)$/g.test(singLoc[i])) {
+	            var aSig = RegExp.$1;
+	            var aVal = parseInt(RegExp.$2);
+	            var sep  = RegExp.$3;
+	            var bSig = RegExp.$4;
+	            var bVal = parseInt(RegExp.$5);
+	            if (bVal == 1) {
+	                bVal = aVal + 1;
+	            }
+	            if ((aVal > split) && (bVal > split)) {
+	                retValR += singLoc[i] + ",";
+	            } else if ((aVal <= split) && (bVal <= split)) {
+	                retValL += singLoc[i] + ",";
+	            } else {
+	                if (aVal < bVal) {
+		                retValL += "" + aSig + aVal + sep + split + ",";
+		                retValR += "" + (split + 1) + sep + bSig + bVal + ",";
+	                } else {
+	                    alert("Should not happen - unexpected location found!\n" + bVal + "<=" + aVal);
+		                retValL += "" + bSig + bVal + sep + split + ",";
+		                retValR += "" + (split + 1) + sep + aSig + aVal + ",";
+	                }
+	            } 
+	        } else {
+	            /^(\D*)(\d+).*/g.test(singLoc[i]);
+	            var aSig = RegExp.$1;
+	            var aVal = parseInt(RegExp.$2);
+	            if (aVal > split) {
+	                retValR += singLoc[i] + ",";
+	            } else {
+	                retValL += singLoc[i] + ",";	            
+	            }
+	        }
+	    }  
+        // Only if split happened do this
+	    if ((retValL != "") && (retValR != "")) {
+	        retValL = retValL.replace(/,$/, "");
+	        retValR = retValR.replace(/,$/, "");
+	        if (/,/g.test(retValL)) {
+	            retValL = "join(" + retValL + ")";
+	        }
+	        if (/,/g.test(retValR)) {
+	            retValR = "join(" + retValR + ")";
+	        }
+	        if (isRev == 1) {
+	            retValL = "complement(" + retValL + ")";
+	            retValR = "complement(" + retValR + ")";		        
+	        }
+	        wdeFeatures[k][1] = retValL;
+	        var noteEdit = "";
+			if (/\/note="([\s\S]+)"\s*$/g.test(wdeFeatures[k][7])) {
+		        noteEdit = RegExp.$1;
+		    }
+	        noteEdit = noteEdit.replace(/partial\s*$/g, "");
+	        noteEdit = noteEdit.replace(/\s*\-\s*$/g, "");
+	        if (noteEdit != "") {
+	            noteEdit += " - ";
+	        }
+	        wdeFeatures[k][7] = "/note=\"" + noteEdit + "partial\"";
+	        var newArPos = wdeFeatures.length;
+	        wdeFeatures[newArPos] = wdeFeatures[k].slice(0);
+	        wdeFeatures[newArPos][1] = retValR;
+	    }
+    }
+    wdeFeatures.sort(wdeFeatListSort);
+}
+
+function wdeFeatRevCompLoc(loc,lastPos,offset){
     var retVal = "";
     var numA = "";
     var numB = "";
@@ -913,10 +1015,10 @@ function wdeFeatRevCompLoc(loc,lastPos){
                 retVal += "" + allEx.substring(1) + loc.charAt(i);;
             } else {
 	            if (parseInt(numA) > 0) {
-	                numA = lastPos - parseInt(numA);
+	                numA = lastPos - parseInt(numA) + offset;
 	            }
 	            if (parseInt(numB) > 0) {
-	                numB = lastPos - parseInt(numB);
+	                numB = lastPos - parseInt(numB) + offset;
 	            }
 	            retVal += "" + numBS + numB + sep + numAS + numA;
             }
@@ -935,10 +1037,10 @@ function wdeFeatRevCompLoc(loc,lastPos){
                 exFound = 0;
             } else {
 	            if (parseInt(numA) > 0) {
-	                numA = lastPos - parseInt(numA);
+	                numA = lastPos - parseInt(numA) + offset;
 	            }
 	            if (parseInt(numB) > 0) {
-	                numB = lastPos - parseInt(numB);
+	                numB = lastPos - parseInt(numB) + offset;
 	            }
 	            retVal += "" + numBS + numB + sep + numAS + numA + loc.charAt(i);
             }
@@ -1562,6 +1664,8 @@ function wdeFeatFocRepaint() {
 	}
     if (/\/note="([\s\S]+)"\s*$/g.test(wdeFeatSelFeat[7])) {
         mainForm.elements["WDE_FEAT_NOTE"].value = RegExp.$1;
+    } else if (/\/note="\s*"\s*$/g.test(wdeFeatSelFeat[7])) {
+        mainForm.elements["WDE_FEAT_NOTE"].value = "";
     } else {
         mainForm.elements["WDE_FEAT_NOTE"].value = wdeFeatSelFeat[7];
     }
