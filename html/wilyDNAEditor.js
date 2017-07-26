@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.18";
+var wdeVVersion = "0.8.19";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -205,6 +205,7 @@ function wdeActivateStartup(){
     window.frames['WDE_RTF'].document.addEventListener('cut', wdeCutEvent);
     window.frames['WDE_RTF'].document.addEventListener('copy', wdeCopyEvent);
     window.frames['WDE_RTF'].document.addEventListener('paste', wdePasteEvent);
+    window.frames['WDE_RTF'].document.addEventListener('keypress', wdeKeyPressEvent, false);
     wdePopulateEnzmes();
     wdePopulateTranslation();
     wdePopulateFeatureColors();
@@ -437,6 +438,78 @@ function wdePasteEvent (e) {
 	        wdeFeatFocRepaint();
 	        wdeRepaint();
         }
+    }
+}
+
+function wdeKeyPressEvent(e) {
+    var sel, range;
+    e = e || WDE_RTF.contentWindow.event;
+    var charCode = e.keyCode || e.which;
+    var charTyped = wdeRetAmbiqutyOnly(String.fromCharCode(charCode));
+    if (window.frames['WDE_RTF'].getSelection) {
+        sel = window.frames['WDE_RTF'].getSelection();
+        if (sel.rangeCount) {
+            range = sel.getRangeAt(0);
+            var delPart = 0;
+            var rangeBefore = document.createRange();
+            var referenceNode = window.frames['WDE_RTF'].document.getElementById("wdeStartNode");
+            rangeBefore.setStartBefore(referenceNode);
+            rangeBefore.setEnd(range.startContainer,range.startOffset);
+            var beforeStr = rangeBefore.toString();
+            var posMark = wdeCleanSeq(beforeStr).length;
+		    if (charCode == 8) {
+		        // Match backspace
+			    wdeFeatSplitAtLoc(posMark);
+	            if (!(range.collapsed)) {
+	                delPart = wdeCleanSeq(range.toString()).length;
+	                wdeFeatSplitAtLoc(posMark + delPart);
+	                wdeFeatModifyBetween((posMark + 1),(posMark + delPart),"D");
+	                wdeFeatShiftAfterLoc((posMark + delPart),( - delPart));
+	                range.deleteContents();
+	            } else {
+	                var lastLetter = wdeCleanSeq(beforeStr.charAt(beforeStr.length - 1));
+	                if (lastLetter != "") {
+				        wdeFeatSplitAtLoc(posMark - 1);
+		            	range.deleteContents();
+		                wdeFeatModifyBetween((posMark),(posMark + 1),"D");
+		                wdeFeatShiftAfterLoc((posMark - 1), -1);
+		            }
+	            }         
+		    } else if ((charCode >= 33) && (charCode <=40)) {
+		        // Match move commands
+		        // Nothing to do...    
+		    } else { 
+			    e.stopPropagation();
+			    e.preventDefault();
+			    if ((charTyped === "X") || (charTyped === "x")) {
+			        charTyped = "";
+			    }
+		        if (charTyped != "") {
+				    wdeFeatSplitAtLoc(posMark);
+		            if (!(range.collapsed)) {
+		                delPart = wdeCleanSeq(range.toString()).length;
+		                wdeFeatSplitAtLoc(posMark + delPart);
+		                wdeFeatModifyBetween((posMark + 1),(posMark + delPart),"D");
+		                wdeFeatShiftAfterLoc((posMark + delPart),( - delPart));
+		            }            
+		            range.deleteContents();
+		            wdeFeatShiftAfterLoc(posMark, 1);
+		            var textNode = document.createTextNode(charTyped);
+		            range.insertNode(textNode);
+		            // Move caret to the end of the newly inserted text node
+		            range.setStart(textNode, textNode.length);
+		            range.setEnd(textNode, textNode.length);
+		            sel.removeAllRanges();
+		            sel.addRange(range);
+			    }
+		    }
+            wdeSequenceModified();
+            wdeFeatures.sort(wdeFeatListSort);
+	        wdeFeatFocRepaint();
+        }
+    } else {
+	    e.stopPropagation();
+	    e.preventDefault();    
     }
 }
 
@@ -1329,7 +1402,7 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
         }
         outSeq += seq.charAt(i);
     }
-    return "<pre> " + outSeq + " </pre>";
+    return '<pre id="wdeStartNode"> ' + outSeq + " </pre>";
 }
 
 function wdeCleanSeq(seq){
@@ -1343,7 +1416,7 @@ function wdeCleanSeqWithMarks(seq){
     // Remove all HTML tags
     seq = seq.replace(/<span style="background-color: *[^" ]+">/ig, " ");
     seq = seq.replace(/<\/span>/g, " ");
-    seq = seq.replace(/<pre>/g, " ");
+    seq = seq.replace(/<pre[^>]*>/g, " ");
     seq = seq.replace(/<\/pre>/g, " ");
     seq = seq.replace(/<a [^>]+>/ig, " ");
     seq = seq.replace(/<\/a>/g, " ");
@@ -3395,7 +3468,7 @@ function wdeTransHmlPart(seq, mark) {
 function wdeSaveTrans() {
     var content = window.frames['WDE_TRANS'].document.body.innerHTML;
     if (wdeVTransOrfView) {
-        var regEx1 = /<pre>/g;
+        var regEx1 = /<pre[^>]*>/g;
 	    content = content.replace(regEx1, "");
 	    var regEx2 = /<\/pre>/g;
 	    content = content.replace(regEx2, "");
