@@ -446,7 +446,8 @@ function wdeKeyPressEvent(e) {
     e = e || WDE_RTF.contentWindow.event;
     var charCode = e.keyCode || e.which;
     var charTyped = wdeRetAmbiqutyOnly(String.fromCharCode(charCode));
-    if (window.frames['WDE_RTF'].getSelection) {
+    if ((window.frames['WDE_RTF'].getSelection) && !(e.ctrlKey)) {
+        alert(e.ctrlKey);
         sel = window.frames['WDE_RTF'].getSelection();
         if (sel.rangeCount) {
             range = sel.getRangeAt(0);
@@ -507,6 +508,8 @@ function wdeKeyPressEvent(e) {
             wdeFeatures.sort(wdeFeatListSort);
 	        wdeFeatFocRepaint();
         }
+    } else if (e.ctrlKey) {
+        // let the things happen
     } else {
 	    e.stopPropagation();
 	    e.preventDefault();    
