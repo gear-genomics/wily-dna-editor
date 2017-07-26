@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.16";
+var wdeVVersion = "0.8.17";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -365,11 +365,44 @@ function wdeCutEvent (e) {
     e.stopPropagation();
     e.preventDefault();
     wdeSequenceModified();
-    var sel = window.frames['WDE_RTF'].getSelection();
-    var selection = wdeCleanSeq(sel.toString());
-    e.clipboardData.setData('text/plain', selection);
-    sel.deleteFromDocument();
-    wdeRepaint();
+ //   alert("Cut Event!");
+    var sel, range;
+    if (window.frames['WDE_RTF'].getSelection) {
+        sel = window.frames['WDE_RTF'].getSelection();
+        if (sel.rangeCount) {
+            wdeSequenceModified();
+            range = sel.getRangeAt(0);
+            var pureSelection = wdeCleanSeq(range.toString());
+            e.clipboardData.setData('text/plain', pureSelection);
+            var theSelection = "X" + pureSelection + "X";
+            range.deleteContents();
+            range.insertNode(window.frames['WDE_RTF'].document.createTextNode(theSelection));
+	        var seqWSel = wdeCleanSeqWithMarks(window.frames['WDE_RTF'].document.body.innerHTML);
+	        var loc = [];
+	        var locCount = 0;
+	        for (var i = 0; i < seqWSel.length ; i++) {
+	            if (seqWSel.charAt(i) == "X") {
+	                loc[loc.length] = locCount;
+	            } else  {
+	                locCount++;
+	            } 
+	        }
+	        seqWSel = seqWSel.replace(/x.+x/ig, "");
+	        window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(seqWSel, wdeZeroOne, wdeNumbers);
+            // We have the split positions, now split the features they span
+	        wdeFeatSplitAtLoc(loc[0]);
+	        wdeFeatSplitAtLoc(loc[1]);
+            // Now delete the features between the locations
+            wdeFeatModifyBetween((loc[0] + 1),loc[1],"D");
+            // Do the shift
+            var shiftDiff = loc[0] - loc[1];
+            wdeFeatShiftAfterLoc(loc[1],shiftDiff);
+            // Sort the feature list
+            wdeFeatures.sort(wdeFeatListSort);
+	        wdeFeatFocRepaint();
+	        wdeRepaint();
+        }
+    }
 }
 
 function wdeSendP3P(){
@@ -877,16 +910,67 @@ function wdeFeatModifyBetween(a,b,mod){
 	        if (mod == "R") {
 	            wdeFeatures[k][1] = wdeFeatRevCompLoc(wdeFeatures[k][1], (b + 1), (a - 1));
 	        }
+	        if (mod == "D") {
+	            wdeFeatures[k][1] = "Delete";
+	        }
 	    }
-	    
-        
     }
-    
+    if (mod == "D") {
+        var i = 0;
+	    for (var k = 0; k < wdeFeatures.length; k++) {
+		    if (!(/Delete/.test(wdeFeatures[k][1]))) {
+		        wdeFeatures[i] = wdeFeatures[k].slice(0);
+		        i++;
+		    }
+	    }
+        wdeFeatures = wdeFeatures.slice(0, i);
+    }
+}
+
+function wdeFeatShiftAfterLoc(split,shiftDiff){
+    for (var k = 0; k < wdeFeatures.length; k++) {
+        var retVal = "";
+        var num = "";
+        var numFound = 0;
+        var changeLoc = 0;
+        var loc = wdeFeatures[k][1];
+	    for (var i = 0; i < loc.length ; i++) {
+	        if (/\d/.test(loc.charAt(i))) {
+	            num += loc.charAt(i);
+	            numFound = 1;
+	        } else {
+	            if (numFound) {
+	                 num = parseInt(num);
+	                 if (num > split) {
+	                     num = num + shiftDiff;
+	                     changeLoc = 1;
+	                 }
+	                 retVal += "" + num;
+	                 num = "";
+	                 numFound = 0;
+	            }
+	            retVal += loc.charAt(i);
+	        }
+	    }
+        if (numFound) {
+             num = parseInt(num);
+             if (num > split) {
+                 num = num + shiftDiff;
+                 changeLoc = 1;
+             }
+             retVal += "" + num;
+             num = "";
+             numFound = 0;
+        }
+        if (changeLoc) {
+            wdeFeatures[k][1] = retVal;
+        }
+    }
+    wdeFeatures.sort(wdeFeatListSort);
 }
 
 function wdeFeatSplitAtLoc(split){
-    var end = wdeFeatures.length;
-    for (var k = 0; k < end; k++) {
+    for (var k = 0; k < wdeFeatures.length; k++) {
         var retValL = "";
         var retValR = "";
 	    var isRev = 0;
