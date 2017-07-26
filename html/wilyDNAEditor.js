@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.17";
+var wdeVVersion = "0.8.18";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -347,13 +347,6 @@ function wdeRepaint(){
     window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML), wdeZeroOne, wdeNumbers);
 }
 
-function wdePasteEvent (e) {
-    wdeSequenceModified();
-    setTimeout(function (){
-        wdeRepaint();
-    }, 0);  
-}
-
 function wdeCopyEvent (e) {
     e.stopPropagation();
     e.preventDefault();
@@ -364,15 +357,15 @@ function wdeCopyEvent (e) {
 function wdeCutEvent (e) {
     e.stopPropagation();
     e.preventDefault();
-    wdeSequenceModified();
- //   alert("Cut Event!");
     var sel, range;
     if (window.frames['WDE_RTF'].getSelection) {
         sel = window.frames['WDE_RTF'].getSelection();
         if (sel.rangeCount) {
-            wdeSequenceModified();
             range = sel.getRangeAt(0);
             var pureSelection = wdeCleanSeq(range.toString());
+            if (pureSelection < 1) {
+                return;
+            }
             e.clipboardData.setData('text/plain', pureSelection);
             var theSelection = "X" + pureSelection + "X";
             range.deleteContents();
@@ -398,6 +391,48 @@ function wdeCutEvent (e) {
             var shiftDiff = loc[0] - loc[1];
             wdeFeatShiftAfterLoc(loc[1],shiftDiff);
             // Sort the feature list
+            wdeSequenceModified();
+            wdeFeatures.sort(wdeFeatListSort);
+	        wdeFeatFocRepaint();
+	        wdeRepaint();
+        }
+    }
+}
+
+function wdePasteEvent (e) {
+    e.stopPropagation();
+    e.preventDefault();
+    var toPaste = wdeCleanSeq(e.clipboardData.getData('text/plain'));
+    var sel, range;
+    if (window.frames['WDE_RTF'].getSelection) {
+        sel = window.frames['WDE_RTF'].getSelection();
+        if (sel.rangeCount) {
+            range = sel.getRangeAt(0);
+            var theSelection = "X" + range.toString() + "X";
+            range.deleteContents();
+            range.insertNode(window.frames['WDE_RTF'].document.createTextNode(theSelection));
+	        var seqWSel = wdeCleanSeqWithMarks(window.frames['WDE_RTF'].document.body.innerHTML);
+	        var loc = [];
+	        var locCount = 0;
+	        for (var i = 0; i < seqWSel.length ; i++) {
+	            if (seqWSel.charAt(i) == "X") {
+	                loc[loc.length] = locCount;
+	            } else  {
+	                locCount++;
+	            } 
+	        }
+	        seqWSel = seqWSel.replace(/x.*x/ig, toPaste);
+	        window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(seqWSel, wdeZeroOne, wdeNumbers);
+            // We have the split positions, now split the features they span
+	        wdeFeatSplitAtLoc(loc[0]);
+	        wdeFeatSplitAtLoc(loc[1]);
+            // Now delete the features between the locations
+            wdeFeatModifyBetween((loc[0] + 1),loc[1],"D");
+            // Do the shift
+            var shiftDiff = loc[0] - loc[1] + toPaste.length;
+            wdeFeatShiftAfterLoc(loc[1],shiftDiff);
+            // Sort the feature list
+            wdeSequenceModified();
             wdeFeatures.sort(wdeFeatListSort);
 	        wdeFeatFocRepaint();
 	        wdeRepaint();
