@@ -2791,7 +2791,10 @@ function wdeMapSVG(unique) {
 			        }
 		        }
 		    }
-		    svgFeat[svgFeat.length] = [infSum,wdeFeatures[k][1],wdeFeatures[k][2],infColor[0],wdeFeatures[k][6],infMin,infMax];
+		    if (!((infMin <= 1) && (infMax >= seqLength))) {
+		        // no full length features
+		        svgFeat[svgFeat.length] = [infSum,wdeFeatures[k][1],wdeFeatures[k][2],infColor[0],wdeFeatures[k][6],infMin,infMax];
+		    }
 		}
     }
     
@@ -2921,10 +2924,10 @@ function wdeMapSVG(unique) {
 	    if (wdeDigVShowFeatures) {
 	        lastX = [-1500];
 	        for (var k = 0; k < svgFeat.length; k++) {
-		        var yLin = 350;
+		        var yLin = 200;
                 var xText = 1250 * ((svgFeat[k][5] + svgFeat[k][6] ) / 2) / seqLength - 750;
                 var yText = yLin + 70;
-	            var outText = svgFeat[k][2];
+	            var outText = svgFeat[k][2] + "(" + (svgFeat[k][5] - wdeZeroOne) + ".." + (svgFeat[k][6] - wdeZeroOne) + ")";
                 var xPixText = Math.round(0.7 * 25 * outText.length);
 		        var searchOn = 1;
 		        var line = 0;
