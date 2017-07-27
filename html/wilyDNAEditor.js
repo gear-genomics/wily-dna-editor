@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.19";
+var wdeVVersion = "0.8.21";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -64,6 +64,7 @@ var wdeUser = [];
 // same as wdeEnzy[] with the user seq
 var wdeVDigDNACirc;
 var wdeDigVBandBlack = 0;
+var wdeDigVShowFeatures = 1;
 var wdeDigUserChoice = "X";
 //  L - Digest as List
 //  G - Digest as Gel Pic
@@ -280,6 +281,7 @@ function wdeSettingsToString(){
 	var amount = mainForm.elements["WDE_DIGEST_AMOUNT"].value;
     txt += "Load=" + amount + "\n";
     txt += "BandBlack=" + wdeDigVBandBlack + "\n";
+    txt += "FeaturesDigest=" + wdeDigVShowFeatures + "\n";
     var minSize = mainForm.elements["ORF_AS_NR"].value;
     txt += "minORF=" + minSize + "\n";
     return txt;
@@ -329,6 +331,13 @@ function wdeStringToSettings(txt){
 			        wdeTGDigGelBandBlack(0,0);
 			    } else {
 			        wdeTGDigGelBandBlack(1,0);
+			    }
+            }
+            if (line[0] == "FeaturesDigest") {
+			    if (line[1] == "0") {
+			        wdeTGDigShowFeatures(0,0);
+			    } else {
+			        wdeTGDigShowFeatures(1,0);
 			    }
             }
             if (line[0] == "minORF") {
@@ -2741,6 +2750,50 @@ function wdeMapSVG(unique) {
     var seqLength = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML).length;
     var digArr = wdeDigCleanDigList(circ);
     var maxY = [-500,500];
+    var svgFeat = [];
+    // svgFeat[][0] = Sum of all bp in Feature
+    // svgFeat[][1] = Position List
+    // svgFeat[][2] = Tag
+    // svgFeat[][3] = Color
+    // svgFeat[][4] = Shape
+    // svgFeat[][5] = First Pos
+    // svgFeat[][6] = Last Pos
+    
+    if (wdeDigVShowFeatures) {
+		for (var k = 0; k < wdeFeatures.length; k++) {
+		    var infSum = 0;
+		    var infMin = 999999999;
+		    var infMax = 0;
+		    var infColor = wdeFinFeatureColor(k);
+		    if (wdeFeatures[k][9] == 0) {
+		        continue;
+		    }
+		    var posListString = wdeFECleanPos(wdeFeatures[k][1]);
+		    if (posListString.length <= 0) {
+		        continue;
+		    }
+		    var posList = posListString.split(",");
+		    for (var i = 0; i < posList.length; i++) {
+		        var singPos = posList[i].split(".");
+		        if (parseInt(singPos[0]) < infMin) {
+		            infMin = parseInt(singPos[0]);
+		        }
+		        if (parseInt(singPos[0]) > infMax) {
+		            infMax = parseInt(singPos[0]);
+		        }
+		        if ((singPos.length == 2) && (parseInt(singPos[1]) > 1)) {
+		            infSum += parseInt(singPos[1]) - parseInt(singPos[0]) - 1;
+			        if (parseInt(singPos[1]) < infMin) {
+			            infMin = parseInt(singPos[1]);
+			        }
+			        if (parseInt(singPos[1]) > infMax) {
+			            infMax = parseInt(singPos[1]);
+			        }
+		        }
+		    }
+		    svgFeat[svgFeat.length] = [infSum,wdeFeatures[k][1],wdeFeatures[k][2],infColor[0],wdeFeatures[k][6],infMin,infMax];
+		}
+    }
     
     if (circ) {
         // Enzyme Array:
@@ -2864,6 +2917,103 @@ function wdeMapSVG(unique) {
 	        retVal += "<text x='" + xText + "' y='" + yText;
 	        retVal += "' font-family='Courier' font-size='40' fill='black' text-anchor='begin'>";
 	        retVal += outText + "</text>";
+	    }
+	    if (wdeDigVShowFeatures) {
+	        lastX = [-1500];
+	        for (var k = 0; k < svgFeat.length; k++) {
+		        var yLin = 350;
+                var xText = 1250 * ((svgFeat[k][5] + svgFeat[k][6] ) / 2) / seqLength - 750;
+                var yText = yLin + 70;
+	            var outText = svgFeat[k][2];
+                var xPixText = Math.round(0.7 * 25 * outText.length);
+		        var searchOn = 1;
+		        var line = 0;
+		        var maxFeatX = 1250 * svgFeat[k][6] / seqLength - 750
+		        if (maxFeatX < xText + xPixText) {
+		            maxFeatX = xText + xPixText;
+		        }
+		        var minFeatX = 1250 * svgFeat[k][5] / seqLength - 750
+		        if (minFeatX > xText - xPixText) {
+		            minFeatX = xText - xPixText;
+		        }
+		        while (searchOn) {
+					if(typeof lastX[line] === 'undefined') {
+					    lastX[line] = maxFeatX;
+					    searchOn = 0;
+					}
+					else {
+					    if (lastX[line] < minFeatX) {
+					        lastX[line] = maxFeatX;
+					        searchOn = 0;
+					    }
+					}
+					yText += 130;
+					yLin += 130;
+					if (maxY[1] < yText) {
+					    maxY[1] = yText;
+					}
+	                line++;
+	            }
+		        var posList = wdeFECleanPos(svgFeat[k][1]).split(",");
+	            for (var i = 0; i < posList.length; i++) {
+	                var featStart = 0;
+	                var featEnd = 0;
+	                var singPos = posList[i].split(".");
+	                var smallStart = 0;
+	                if (parseInt(singPos[0]) > 0) {
+	                    featStart = 1250 * (parseInt(singPos[0]) - 1) / seqLength - 750;
+	                    smallStart = featStart;
+	                }
+	                if (singPos.length == 1) {
+		                featEnd = 1250 * (parseInt(singPos[0])) / seqLength - 750;
+	                }
+	                if (singPos.length == 2) {
+		                if (parseInt(singPos[1]) > 1) {
+		                    featEnd = 1250 * (parseInt(singPos[1]) - 1) / seqLength - 750;
+		                    smallStart = 1250 * ((parseInt(singPos[1]) + parseInt(singPos[0])) / 2) / seqLength - 750;
+		                }
+		                if (parseInt(singPos[1]) == 1) {
+		                    featEnd = 1250 * (parseInt(singPos[0])) / seqLength - 750;
+		                }
+	                }
+	                if ( (featEnd - featStart) < 12) {
+	                    featStart = smallStart;
+	                    featEnd = featStart + 12;
+	                }  
+	                var fCol = svgFeat[k][3];
+	                var x1 = featStart;
+	                var y1 = yLin;
+	                if (svgFeat[k][4] == "box") {
+	                    var rWidth = featEnd - x1;
+	                    var rLength = 15 ;
+				        retVal += "<rect x='" + x1 + "' y='" + y1;
+				        retVal += "' width='" + rWidth + "' height='" + rLength;
+				        retVal += "' style='fill:" + fCol + ";stroke:" + fCol + ";stroke-width:5;' />"
+	                } else {
+	                    var x2 = featEnd - 12;
+	                    var y2 = yLin;
+	                    var x3 = featEnd - 12;
+	                    var y3 = yLin - 12;
+	                    var x4 = featEnd + 1;
+	                    var y4 = yLin + (15/2);
+	                    var x5 = featEnd - 12;
+	                    var y5 = yLin + 15 + 12;
+	                    var x6 = featEnd - 12;
+	                    var y6 = yLin + 15;
+	                    var x7 = featStart;
+	                    var y7 = yLin + 15;
+				        retVal += "<polyline points='" + x1 + "," + y1;
+				        retVal += " " + x2 + "," + y2 + " " + x3 + "," + y3;
+				        retVal += " " + x4 + "," + y4 + " " + x5 + "," + y5;
+				        retVal += " " + x6 + "," + y6 + " " + x7 + "," + y7;
+				        retVal += " " + x1 + "," + y1;
+				        retVal += "' style='stroke:" + fCol + ";stroke-width:5;fill:" + fCol + "' />";
+	                }
+	            }
+		        retVal += "<text x='" + xText + "' y='" + yText;
+		        retVal += "' font-family='Courier' font-size='40' fill='black' text-anchor='middle'>";
+		        retVal += outText + "</text>";
+	        }
 	    }
     }
     retVal += "</svg>";
@@ -3964,6 +4114,27 @@ function wdeTGDigGelBandBlack(sel,rPaint){
     }
 }
 
+function wdeTGDigShowFeatures(sel,rPaint){
+    if (sel == -1) {
+	    if (wdeDigVShowFeatures == 1) {
+	        sel = 0;
+	    } else {
+	        sel = 1;
+	    }
+    }
+    var lButton = document.getElementById("WDE_DIG_SHOW_FEATURES");
+    if (sel) {
+        wdeDigVShowFeatures = 1;
+        lButton.value = "Hide Features";
+    } else {
+        wdeDigVShowFeatures = 0;
+        lButton.value = "Show Features";
+    }
+    if (rPaint) {
+        wdeDigMapDis(wdeDigUserChoice);
+    }
+}
+
 function wdeTGFeaturesTransp(sel,rPaint){
     if (sel == -1) {
 	    if (wdeVFeatTransp == 1) {
@@ -4156,6 +4327,7 @@ function wdeUpdateButtonsToDef() {
     wdeTGCircularLinear(wdeCircular);
     wdeTGDamDcm(wdeDamDcmSel);
     wdeTGDigGelBandBlack(wdeDigVBandBlack,0);
+    wdeTGDigShowFeatures(wdeDigVShowFeatures,0)
     wdeTGFeaturesTransp(wdeVFeatTransp, 0);
     wdeTGOrfSort(wdeVTransOrfSortSize,0);
     wdeTGOrfView(wdeVTransOrfView,0);
