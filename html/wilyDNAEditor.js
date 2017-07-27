@@ -456,7 +456,6 @@ function wdeKeyPressEvent(e) {
     var charCode = e.keyCode || e.which;
     var charTyped = wdeRetAmbiqutyOnly(String.fromCharCode(charCode));
     if ((window.frames['WDE_RTF'].getSelection) && !(e.ctrlKey)) {
-        alert(e.ctrlKey);
         sel = window.frames['WDE_RTF'].getSelection();
         if (sel.rangeCount) {
             range = sel.getRangeAt(0);
