@@ -3335,7 +3335,7 @@ function wdeTestLoadLargeGeneBank() {
 }
 
 function wdeTestLoadSmallGeneBank() {
-    var seq = "LOCUS       HBV                     3182 bp    DNA     linear 22-JUL-2017\n" +
+    var seq = "LOCUS       HBV                     3182 bp    DNA     circular 22-JUL-2017\n" +
     "DEFINITION  Hepatitis B Virus, complete sequence.\n" +
     "ACCESSION   \n" +
     "VERSION     \n" +

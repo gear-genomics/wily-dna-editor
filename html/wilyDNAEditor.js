@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.21";
+var wdeVVersion = "0.8.22";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -2576,11 +2576,10 @@ function wdeDigCleanDigList(circ) {
             weight = toSort[0][0] * baseWeight;
             toSort[0][5] = weight.toFixed(2);
         } else {
-             weight = rest * baseWeight;
+            weight = rest * baseWeight;
             toSort[toSort.length] = [rest,"End",seqLength,lastEnz,lastPos,weight.toFixed(2)];
         }
         toSort.sort(wdeDigSortFrag);
-    
     }
     return toSort;
 }
@@ -2758,6 +2757,7 @@ function wdeMapSVG(unique) {
     // svgFeat[][4] = Shape
     // svgFeat[][5] = First Pos
     // svgFeat[][6] = Last Pos
+    // svgFeat[][7] = Reverse = 1, Forward = 0
     
     if (wdeDigVShowFeatures) {
 		for (var k = 0; k < wdeFeatures.length; k++) {
@@ -2765,6 +2765,7 @@ function wdeMapSVG(unique) {
 		    var infMin = 999999999;
 		    var infMax = 0;
 		    var infColor = wdeFinFeatureColor(k);
+		    var isReverse = 0;
 		    if (wdeFeatures[k][9] == 0) {
 		        continue;
 		    }
@@ -2772,6 +2773,9 @@ function wdeMapSVG(unique) {
 		    if (posListString.length <= 0) {
 		        continue;
 		    }
+		    if (/complement\(.+\)/g.test(wdeFeatures[k][1])) {
+	            isReverse = 1;
+	        }
 		    var posList = posListString.split(",");
 		    for (var i = 0; i < posList.length; i++) {
 		        var singPos = posList[i].split(".");
@@ -2793,7 +2797,7 @@ function wdeMapSVG(unique) {
 		    }
 		    if (!((infMin <= 1) && (infMax >= seqLength))) {
 		        // no full length features
-		        svgFeat[svgFeat.length] = [infSum,wdeFeatures[k][1],wdeFeatures[k][2],infColor[0],wdeFeatures[k][6],infMin,infMax];
+		        svgFeat[svgFeat.length] = [infSum,wdeFeatures[k][1],wdeFeatures[k][2],infColor[0],wdeFeatures[k][6],infMin,infMax,isReverse];
 		    }
 		}
     }
@@ -2814,10 +2818,135 @@ function wdeMapSVG(unique) {
 	    // [10]  y2
 	    // [11]  x3
 	    // [12]  y3
+	    // [13]  color
+	    // [14]  print name
 	    retVal += "<circle cx='0' cy='0' r='450' stroke='black' stroke-width='6' fill='white' />";
 	    retVal += "<text x='0' y='-70' font-family='Courier' font-size='40' fill='black' text-anchor='middle'>" +  seqId + "</text>";
 	    var base = "" + seqLength + " bp";
 	    retVal += "<text x='0' y='70' font-family='Courier' font-size='40' fill='black' text-anchor='middle'>" +  base + "</text>";
+
+	    if (wdeDigVShowFeatures) {
+	        svgFeat.sort(wdeDigSVGFEatSort);
+	        for (var k = 0; k < svgFeat.length; k++) {
+	            var outText = svgFeat[k][2] + "(" + (svgFeat[k][5] - wdeZeroOne) + ".." + (svgFeat[k][6] - wdeZeroOne) + ")";
+	            var featMPos = Math.floor((svgFeat[k][5] + svgFeat[k][6] ) / 2);
+		        var posList = wdeFECleanPos(svgFeat[k][1]).split(",");
+	            for (var i = 0; i < posList.length; i++) {
+	                var featStart = 0;
+	                var featEnd = 0;
+	                var singPos = posList[i].split(".");
+	                var smallStart = 0;
+	                if (parseInt(singPos[0]) > 0) {
+	                    featStart = (parseInt(singPos[0]) - 1) / seqLength;
+	                    smallStart = featStart;
+	                }
+	                if (singPos.length == 1) {
+		                featEnd = (parseInt(singPos[0])) / seqLength;
+	                }
+	                if (singPos.length == 2) {
+		                if (parseInt(singPos[1]) > 1) {
+		                    featEnd = (parseInt(singPos[1]) - 1) / seqLength;
+		                    smallStart = ((parseInt(singPos[1]) + parseInt(singPos[0])) / 2) / seqLength;
+		                }
+		                if (parseInt(singPos[1]) == 1) {
+		                    featEnd = (parseInt(singPos[0])) / seqLength;
+		                }
+	                }
+	                if ((featEnd - featStart) < 0.01) {
+	                    featStart = smallStart;
+	                    featEnd = featStart + 0.01;
+	                }  
+	                var fCol = svgFeat[k][3];
+                	var fiftyPlus;
+                	if ((featEnd - featStart) > 0.5) {
+                        fiftyPlus = 1;
+                    } else {
+                        fiftyPlus = 0;
+                    }
+	                var radStart = 2 * Math.PI * featStart;
+	                var radEnd = 2 * Math.PI * featEnd;
+	                var x1 = Math.round(430 * Math.sin(radStart));
+	                var y1 = Math.round(-430 * Math.cos(radStart));
+	                if (svgFeat[k][4] == "box") {
+	                    var x1 = Math.round(430 * Math.sin(radStart));
+	                    var y1 = Math.round(-430 * Math.cos(radStart));
+		                var x2 = Math.round(430 * Math.sin(radEnd));
+		                var y2 = Math.round(-430 * Math.cos(radEnd));
+		                var x3 = Math.round(410 * Math.sin(radEnd));
+		                var y3 = Math.round(-410 * Math.cos(radEnd));
+		                var x4 = Math.round(410 * Math.sin(radStart));
+		                var y4 = Math.round(-410 * Math.cos(radStart));
+				        retVal += "<path d='M " + x1 + " " + y1;
+	                    // A rx ry x-axis-rotation large-arc-flag sweep-flag x y
+				        retVal += " A 430 430 0 " + fiftyPlus + " 1 " + x2 + " " + y2;
+				        retVal += " L " + x3 + " " + y3;
+				        retVal += " A 410 410 0 " + fiftyPlus + " 0 " + x4 + " " + y4;
+				        retVal += " Z' style='fill:" + fCol + ";stroke:" + fCol + ";stroke-width:5;' />"
+	                } else {
+	                    if (svgFeat[k][7]) {
+		                    // Reverse
+		                    var x1 = Math.round(420 * Math.sin(radStart));
+		                    var y1 = Math.round(-420 * Math.cos(radStart));
+			                var x2 = Math.round(450 * Math.sin(radStart + 0.06));
+			                var y2 = Math.round(-450 * Math.cos(radStart + 0.06));
+			                var x3 = Math.round(430 * Math.sin(radStart + 0.06));
+			                var y3 = Math.round(-430 * Math.cos(radStart + 0.06));
+			                var x4 = Math.round(430 * Math.sin(radEnd));
+			                var y4 = Math.round(-430 * Math.cos(radEnd));
+			                var x5 = Math.round(410 * Math.sin(radEnd));
+			                var y5 = Math.round(-410 * Math.cos(radEnd));
+			                var x6 = Math.round(410 * Math.sin(radStart + 0.06));
+			                var y6 = Math.round(-410 * Math.cos(radStart + 0.06));
+			                var x7 = Math.round(390 * Math.sin(radStart + 0.06));
+			                var y7 = Math.round(-390 * Math.cos(radStart + 0.06));
+					        retVal += "<path d='M " + x1 + " " + y1;
+					        retVal += " L " + x2 + " " + y2;
+					        retVal += " L " + x3 + " " + y3;
+		                    // A rx ry x-axis-rotation large-arc-flag sweep-flag x y
+					        retVal += " A 430 430 0 " + fiftyPlus + " 1 " + x4 + " " + y4;
+					        retVal += " L " + x5 + " " + y5;
+					        retVal += " A 410 410 0 " + fiftyPlus + " 0 " + x6 + " " + y6;
+					        retVal += " L " + x7 + " " + y7;
+					        retVal += " Z' style='fill:" + fCol + ";stroke:" + fCol + ";stroke-width:5;' />"
+				        } else {
+		                    // Forward
+		                    var x1 = Math.round(430 * Math.sin(radStart));
+		                    var y1 = Math.round(-430 * Math.cos(radStart));
+			                var x2 = Math.round(430 * Math.sin(radEnd - 0.06));
+			                var y2 = Math.round(-430 * Math.cos(radEnd - 0.06));
+			                var x3 = Math.round(450 * Math.sin(radEnd - 0.06));
+			                var y3 = Math.round(-450 * Math.cos(radEnd - 0.06));
+			                var x4 = Math.round(420 * Math.sin(radEnd));
+			                var y4 = Math.round(-420 * Math.cos(radEnd));
+			                var x5 = Math.round(390 * Math.sin(radEnd - 0.06));
+			                var y5 = Math.round(-390 * Math.cos(radEnd - 0.06));
+			                var x6 = Math.round(410 * Math.sin(radEnd - 0.06));
+			                var y6 = Math.round(-410 * Math.cos(radEnd - 0.06));
+			                var x7 = Math.round(410 * Math.sin(radStart));
+			                var y7 = Math.round(-410 * Math.cos(radStart));
+					        retVal += "<path d='M " + x1 + " " + y1;
+		                    // A rx ry x-axis-rotation large-arc-flag sweep-flag x y
+					        retVal += " A 430 430 0 " + fiftyPlus + " 1 " + x2 + " " + y2;
+					        retVal += " L " + x3 + " " + y3;
+					        retVal += " L " + x4 + " " + y4;
+					        retVal += " L " + x5 + " " + y5;
+					        retVal += " L " + x6 + " " + y6;
+					        retVal += " A 410 410 0 " + fiftyPlus + " 0 " + x7 + " " + y7;
+					        retVal += " Z' style='fill:" + fCol + ";stroke:" + fCol + ";stroke-width:5;' />"
+				        }
+	                }
+	            }
+            	radStart = 2 * Math.PI * featMPos  / seqLength;
+                var x11 = Math.round(430 * Math.sin(radStart));
+                var y11 = Math.round(-430 * Math.cos(radStart));
+                var x12 = Math.round(455 * Math.sin(radStart));
+                var y12 = Math.round(-455 * Math.cos(radStart));
+		        retVal += "<polyline points='" + x11 + "," + y11;
+		        retVal += " " + x12 + "," + y12;
+		        retVal += "' style='stroke:" + fCol + ";stroke-width:5;fill:none' />";
+		        digArr[digArr.length] =[0,"Feat",featMPos,0,0,0,0,0,0,0,0,0,0,fCol,outText];		        
+	        }
+	    }
 	    for (var k = 0 ; k < digArr.length ; k++) {
 	        var rad = 2 * Math.PI * digArr[k][2] / seqLength;
 	        digArr[k][6] = Math.floor(4 * digArr[k][2] / seqLength);
@@ -2827,6 +2956,12 @@ function wdeMapSVG(unique) {
 	        digArr[k][10] = Math.round(-475 * Math.cos(rad)); // y2
 	        digArr[k][11] = Math.round(500 * Math.sin(rad)); // x3
 	        digArr[k][12] = Math.round(-500 * Math.cos(rad)); // y4
+	        if ((typeof digArr[k][13] === 'undefined') || (digArr[k][13].length < 1)) {
+	            digArr[k][13] = "#000000"; // color
+	        }
+	        if ((typeof digArr[k][14] === 'undefined') || (digArr[k][14].length < 1)) {
+	            digArr[k][14] = digArr[k][2] + " " + digArr[k][1]; // name
+	        }
 	    }
 	    digArr.sort(wdeDigMapSort);
 	    var yPos = [[60,-10,-10,60],[-1,1,1,-1]];
@@ -2872,11 +3007,10 @@ function wdeMapSVG(unique) {
 	        retVal += "<polyline points='" + x1 + "," + y1;
 	        retVal += " " + x2 + "," + y2 + " " + x3 + "," + y3;
 	        retVal += " " + x4 + "," + y4;
-	        retVal += "' style='stroke:black;stroke-width:5;fill:none' />";
+	        retVal += "' style='stroke:" + digArr[k][13] + ";stroke-width:5;fill:none' />";
 	        retVal += "<text x='" + x5 + "' y='" + y5;
-	        retVal += "' font-family='Courier' font-size='40' fill='black' text-anchor='";
-	        retVal += orient + "'>" + digArr[k][2] + " " + digArr[k][1] + "</text>";
-	    
+	        retVal += "' font-family='Courier' font-size='40' fill='" + digArr[k][13] + "' text-anchor='";
+	        retVal += orient + "'>" + digArr[k][14] + "</text>";
 	    }
     } else {
         digArr.sort(wdeDigSortPos);
@@ -2984,33 +3118,59 @@ function wdeMapSVG(unique) {
 	                    featEnd = featStart + 12;
 	                }  
 	                var fCol = svgFeat[k][3];
-	                var x1 = featStart;
-	                var y1 = yLin;
 	                if (svgFeat[k][4] == "box") {
+    	                var x1 = featStart;
+	                    var y1 = yLin;
 	                    var rWidth = featEnd - x1;
 	                    var rLength = 15 ;
 				        retVal += "<rect x='" + x1 + "' y='" + y1;
 				        retVal += "' width='" + rWidth + "' height='" + rLength;
 				        retVal += "' style='fill:" + fCol + ";stroke:" + fCol + ";stroke-width:5;' />"
 	                } else {
-	                    var x2 = featEnd - 12;
-	                    var y2 = yLin;
-	                    var x3 = featEnd - 12;
-	                    var y3 = yLin - 12;
-	                    var x4 = featEnd + 1;
-	                    var y4 = yLin + (15/2);
-	                    var x5 = featEnd - 12;
-	                    var y5 = yLin + 15 + 12;
-	                    var x6 = featEnd - 12;
-	                    var y6 = yLin + 15;
-	                    var x7 = featStart;
-	                    var y7 = yLin + 15;
-				        retVal += "<polyline points='" + x1 + "," + y1;
-				        retVal += " " + x2 + "," + y2 + " " + x3 + "," + y3;
-				        retVal += " " + x4 + "," + y4 + " " + x5 + "," + y5;
-				        retVal += " " + x6 + "," + y6 + " " + x7 + "," + y7;
-				        retVal += " " + x1 + "," + y1;
-				        retVal += "' style='stroke:" + fCol + ";stroke-width:5;fill:" + fCol + "' />";
+	                    if (svgFeat[k][7]) {
+		                    // Reverse
+		                    var x1 = featStart - 1;
+		                    var y1 = yLin+ (15/2);
+		                    var x2 = featStart + 12;
+		                    var y2 = yLin - 12;
+		                    var x3 = featStart + 12;
+		                    var y3 = yLin;
+		                    var x4 = featEnd;
+		                    var y4 = yLin;
+		                    var x5 = featEnd;
+		                    var y5 = yLin + 15;
+		                    var x6 = featStart + 12;
+		                    var y6 = yLin + 15;
+		                    var x7 = featStart + 12;
+		                    var y7 = yLin + 15 + 12;
+					        retVal += "<polyline points='" + x1 + "," + y1;
+					        retVal += " " + x2 + "," + y2 + " " + x3 + "," + y3;
+					        retVal += " " + x4 + "," + y4 + " " + x5 + "," + y5;
+					        retVal += " " + x6 + "," + y6 + " " + x7 + "," + y7;
+					        retVal += " " + x1 + "," + y1;
+					        retVal += "' style='stroke:" + fCol + ";stroke-width:5;fill:" + fCol + "' />";
+					    } else {
+		                    var x1 = featStart;
+		                    var y1 = yLin;
+		                    var x2 = featEnd - 12;
+		                    var y2 = yLin;
+		                    var x3 = featEnd - 12;
+		                    var y3 = yLin - 12;
+		                    var x4 = featEnd + 1;
+		                    var y4 = yLin + (15/2);
+		                    var x5 = featEnd - 12;
+		                    var y5 = yLin + 15 + 12;
+		                    var x6 = featEnd - 12;
+		                    var y6 = yLin + 15;
+		                    var x7 = featStart;
+		                    var y7 = yLin + 15;
+					        retVal += "<polyline points='" + x1 + "," + y1;
+					        retVal += " " + x2 + "," + y2 + " " + x3 + "," + y3;
+					        retVal += " " + x4 + "," + y4 + " " + x5 + "," + y5;
+					        retVal += " " + x6 + "," + y6 + " " + x7 + "," + y7;
+					        retVal += " " + x1 + "," + y1;
+					        retVal += "' style='stroke:" + fCol + ";stroke-width:5;fill:" + fCol + "' />";
+					    }
 	                }
 	            }
 		        retVal += "<text x='" + xText + "' y='" + yText;
@@ -3037,6 +3197,10 @@ function wdeDigMapSort(a, b) {
             return a[2] - b[2];
         }
     }
+}
+
+function wdeDigSVGFEatSort(a, b) {
+    return b[0] - a[0];
 }
 
 function wdeTransInSel() {
