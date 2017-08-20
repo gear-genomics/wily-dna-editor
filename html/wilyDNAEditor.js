@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.22";
+var wdeVVersion = "0.8.23";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -159,20 +159,27 @@ function wdeCountUp() {
 
 function wdeLoadTestSeq(size) {
     wdeLoadTestScripts();
-	setTimeout(function () {
-	    if (size == "SF") {
-            wdeTestLoadSmallSeq();
-        } 
-        if (size == "LF")  {
-            wdeTestLoadLargeSeq();
-        }
-        if (size == "SG")  {
-            wdeTestLoadSmallGeneBank();
-        }
-        if (size == "LG")  {
-            wdeTestLoadLargeGeneBank();
-        }
-    }, 200);
+    if (size == "SF") {
+        wdeKeepTryingFunction("wdeTestLoadSmallSeq", "");
+    } 
+    if (size == "LF")  {
+        wdeKeepTryingFunction("wdeTestLoadLargeSeq", "");
+    }
+    if (size == "SG")  {
+        wdeKeepTryingFunction("wdeTestLoadSmallGeneBank", "");
+    }
+    if (size == "LG")  {
+        wdeKeepTryingFunction("wdeTestLoadLargeGeneBank", "");
+    }
+}
+
+function wdeKeepTryingFunction(funct, cont) {
+    try {
+        eval(funct + "(" + cont + ");");
+    } 
+    catch (e) {
+        setTimeout(function() { wdeKeepTryingFunction(funct, cont); }, 50);
+    }
 }
 
 function wdeLoadTestScripts() {
