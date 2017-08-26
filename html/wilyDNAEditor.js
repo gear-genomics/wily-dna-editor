@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.23";
+var wdeVVersion = "0.8.24";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -87,6 +87,7 @@ var wdeVGBAcc = "";
 var wdeVGBDBDate = "";
 var wdeVGBHeader = "ACCESSION   \nVERSION     \nSOURCE      .\n  ORGANISM  .\n";
 var wdeFeatures = [];
+var wdeFeatureLib = [];
 // http://www.insdc.org/documents/feature-table
 // [][0] = key
 // [][1] = location string as in genebank file
@@ -102,6 +103,7 @@ var wdeFeatures = [];
 // [][7] = Note with wde tags stripped 
 // [][8] = all other qualifiers
 // [][9] = 1 show feature / 0 hide feature
+// [][10] = sequence if used in library function
 var wdeFeatColor = [];
 // [][0] = key
 // [][1] = forward color
@@ -109,8 +111,10 @@ var wdeFeatColor = [];
 // [][3] = shape
 var wdeFeatRegColor = [];
 var wdeFeatInfo = [];
-var wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","","",1];
+var wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","","",1,""];
 var wdeFeatSelNum = -1;
+var wdeLibSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","","",1,""];
+var wdeLibSelNum = -1;
 var wdeVFeatTransp = 0;
 
 var wdeSeqHigh = [];
@@ -148,6 +152,7 @@ function wdeHideTabs() {
         document.getElementById('WDE_digest').style.display="none";
         document.getElementById('WDE_translate').style.display="none";
         document.getElementById('WDE_features').style.display="none";
+        document.getElementById('WDE_feature_lib').style.display="none";
         document.getElementById('WDE_settings').style.display="none";
 }
 
@@ -170,6 +175,9 @@ function wdeLoadTestSeq(size) {
     }
     if (size == "LG")  {
         wdeKeepTryingFunction("wdeTestLoadLargeGeneBank", "");
+    }
+    if (size == "TA")  {
+        wdeKeepTryingFunction("wdeTestAll", "");
     }
 }
 
@@ -218,6 +226,7 @@ function wdeActivateStartup(){
     wdePopulateTranslation();
     wdePopulateFeatureColors();
     wdeFeatFocUpdate(-1);
+    wdeLibFocUpdate(-1);
     wdeDrawGeneticCode();
     wdeDrawEnzymes();
     wdeLoadCookie('S');
@@ -1586,7 +1595,7 @@ function wdeFeatureColor(pos){
     }
     if (inFeat == 1) {
         selFeat.sort(wdeFeatSortSize);
-        var calCol = wdeFinFeatureColor(selFeat[0][0]);
+        var calCol = wdeFinFeatureColor(wdeFeatures, selFeat[0][0]);
         if (wdeVFeatTransp) {
             var rgbSum = [255,255,255];
             var toAdd = wdeColorHexToRgb(calCol[0]);
@@ -1596,14 +1605,15 @@ function wdeFeatureColor(pos){
                 end = 4;
             }
             for (var i = 1; i < end; i++) {
-                toAdd = wdeColorHexToRgb(calCol[i]);
+                var addCol = wdeFinFeatureColor(wdeFeatures, selFeat[i][0]);
+                toAdd = wdeColorHexToRgb(addCol[0]);
                 rgbSum = wdeColorAddColor(rgbSum, toAdd, i);
             }
             calCol[0] = wdeColorRgbToHex(rgbSum[0],rgbSum[1],rgbSum[2]);
         }
         return calCol;
     } else {
-        return ["D",""];
+        return ["D","",-1];
     }
 }
 
@@ -1656,31 +1666,31 @@ function wdeFeatTypeToInt(featType) {
     return wdeFeatColor.length;
 }
 
-function wdeFinFeatureColor(feat){
-    var featName = ": " + wdeFeatures[feat][2];
-    if (/complement/.test(wdeFeatures[feat][1])) {
+function wdeFinFeatureColor(arr, feat){
+    var featName = ": " + arr[feat][2];
+    if (/complement/.test(arr[feat][1])) {
         // Reverse Section
-        if (wdeFeatures[feat][5] == "D") {
-            var retVal = wdeFinFeatColSeg(feat);
+        if (arr[feat][5] == "D") {
+            var retVal = wdeFinFeatColSeg(arr[feat]);
             return [retVal[2], retVal[0] + featName + " (Reverse)", feat];
         } else {
-            return ["#" + wdeFeatures[feat][5], wdeFeatures[feat][0] + featName + " (Reverse)", feat];
+            return ["#" + arr[feat][5], arr[feat][0] + featName + " (Reverse)", feat];
         }
     } else {
         // Forward Section
-        if (wdeFeatures[feat][4] == "D") {
-            var retVal = wdeFinFeatColSeg(feat);
+        if (arr[feat][4] == "D") {
+            var retVal = wdeFinFeatColSeg(arr[feat]);
             return [retVal[1], retVal[0] + featName + " (Forward)", feat];
         } else {
-            return ["#" + wdeFeatures[feat][4], wdeFeatures[feat][0] + featName + " (Forward)", feat];
+            return ["#" + arr[feat][4], arr[feat][0] + featName + " (Forward)", feat];
         }
     }
     return ["#FF0000","No matching feature type found!", -1];
 }
 
 function wdeFinFeatColSeg(feat){
-    if (wdeFeatures[feat][0] == "regulatory") {
-        if (/\/regulatory_class="([^"]+)"/g.test(wdeFeatures[feat][8])) {
+    if (feat[0] == "regulatory") {
+        if (/\/regulatory_class="([^"]+)"/g.test(feat[8])) {
 	        var regClass = RegExp.$1;
 		    for (var k = 0; k < wdeFeatRegColor.length; k++) {
 		        if (wdeFeatRegColor[k][0] == regClass) {
@@ -1690,7 +1700,7 @@ function wdeFinFeatColSeg(feat){
         }
     }
     for (var k = 0; k < wdeFeatColor.length; k++) {
-        if (wdeFeatColor[k][0] == wdeFeatures[feat][0]) {
+        if (wdeFeatColor[k][0] == feat[0]) {
             return [wdeFeatColor[k][0], wdeFeatColor[k][1], wdeFeatColor[k][2]];
         }
 	}
@@ -1711,10 +1721,21 @@ function wdeFeatFocUpdate(feat) {
         wdeFeatSelFeat = wdeFeatures[feat].slice(0);
         wdeFeatSelNum = feat;
     } else {
-        wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","","",1];
+        wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","","",1,""];
         wdeFeatSelNum = -1;
     }
     wdeFeatFocRepaint();
+}
+
+function wdeLibFocUpdate(feat) {
+    if ((feat > -1) && (feat < wdeFeatureLib.length)) {
+        wdeLibSelFeat = wdeFeatureLib[feat].slice(0);
+        wdeLibSelNum = feat;
+    } else {
+        wdeLibSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","","",1,""];
+        wdeLibSelNum = -1;
+    }
+    wdeLibFocRepaint();
 }
 
 function wdeFeatFocRepaint() {
@@ -1738,8 +1759,8 @@ function wdeFeatFocRepaint() {
         checkBoxStr += '>';
         var funCl = ' onclick="parent.wdeFeatFocUpdate(' + k + ')"';
 	    content += '<tr>\n';
-	    var colAr = wdeFinFeatColSeg(k);
-	    var colFin = wdeFinFeatureColor(k);
+	    var colAr = wdeFinFeatColSeg(wdeFeatures[k]);
+	    var colFin = wdeFinFeatureColor(wdeFeatures, k);
 	    if (/complement/.test(wdeFeatures[k][1])) {
 	        content += '<td style="text-align: center; background-color:' + colAr[2]  + '"'  + '>' + checkBoxStr + "</td>";
 	        content += '<td style="background-color:' + colAr[2]  + '"' + funCl + '>' + wdeFeatures[k][0] + "</td>";
@@ -1882,6 +1903,226 @@ function wdeFeatFocRepaint() {
     mainForm.elements["WDE_FEAT_QUALIF"].value = wdeFeatSelFeat[8];
 }
 
+function wdeLibFocRepaint() {
+    var content = '<table border="0">';
+    content += "<tr>";
+    content += '<th style="text-align: left">Tag';
+    content += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>';
+     content += '<th style="text-align: left">Size';
+    content += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>';
+    content += '<th style="text-align: left">Type';
+    content += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tr>\n";
+    for (var k = 0; k < wdeFeatureLib.length; k++) {
+        var funCl = ' onclick="parent.wdeLibFocUpdate(' + k + ')"';
+	    content += '<tr>\n';
+	    var colFin = wdeFinFeatureColor(wdeFeatureLib, k);
+	    var basePairs = wdeFeatureLib[k][10].length;
+	    var colAr = wdeFinFeatColSeg(wdeFeatureLib[k]);
+	    content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + wdeFeatureLib[k][2] + "</td>";
+	    content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + basePairs + " bp</td>";
+	    content += '<td style="background-color:' + colAr[1]  + '"' + funCl + '>' + wdeFeatureLib[k][0] + "</td>";
+	    content += "</tr>\n";
+    }
+    content += '</table>';
+    window.frames['WDE_LIB_L'].document.body.innerHTML = content;
+
+    var select = document.getElementById('WDE_LIB_TYPE');
+    for(var i = select.options.length - 1 ; i >= 0 ; i--) {
+        select.remove(i);
+    }
+    for (var k = 0; k < wdeFeatColor.length; k++) {
+        var option = document.createElement( 'option' );
+        option.value = k;
+        option.text = wdeFeatColor[k][0];
+        if (wdeFeatColor[k][0] == wdeLibSelFeat[0]) {
+           option.setAttribute('selected', true);
+        }    
+        select.add(option);
+    }
+	select = document.getElementById('WDE_LIB_REG_TYPE');
+    if (wdeLibSelFeat[0] == "regulatory") {
+        var regClass = "promoter";
+        if (/\/regulatory_class="([^"]+)"/g.test(wdeLibSelFeat[8])) {
+	        regClass = RegExp.$1;
+	    }
+	    for(var i = select.options.length - 1 ; i >= 0 ; i--) {
+	        select.remove(i);
+	    }
+	    for (var k = 0; k < wdeFeatRegColor.length; k++) {
+	        var option = document.createElement( 'option' );
+	        option.value = k;
+	        option.text = wdeFeatRegColor[k][0];
+	        if (wdeFeatRegColor[k][0] == regClass) {
+	           option.setAttribute('selected', true);
+	        }    
+	        select.add(option);
+		}
+    } else {
+	    for(var i = select.options.length - 1 ; i >= 0 ; i--) {
+	        select.remove(i);
+	    }
+        var option = document.createElement( 'option' );
+        option.value = 0;
+        option.text = "Only available with regulatory features";
+        select.add(option);
+    }
+    mainForm.elements["WDE_LIB_TAG"].value = wdeLibSelFeat[2];
+    mainForm.elements["WDE_LIB_LOC"].value = wdeLibSelFeat[1];
+    if (wdeLibSelFeat[4] == "D") {
+        var col = "#000000";
+	    if ((wdeLibSelFeat[0] == "regulatory") && (/\/regulatory_class="([^"]+)"/g.test(wdeLibSelFeat[8]))) {
+	        var regClass = RegExp.$1;
+		    for (var k = 0; k < wdeFeatRegColor.length; k++) {
+		        if (wdeFeatRegColor[k][0] == regClass) {
+		            col = wdeFeatRegColor[k][1];
+		        }
+			}
+	    } else {
+		    for (var k = 0; k < wdeFeatColor.length; k++) {
+		        if (wdeFeatColor[k][0] == wdeLibSelFeat[0]) {
+		            col = wdeFeatColor[k][1];
+		        }
+			}
+		}
+        document.getElementById('WDE_LIB_FCOL').value = col;
+    } else {
+        document.getElementById('WDE_LIB_FCOL').value = "#" + wdeLibSelFeat[4];
+    }
+    if (wdeLibSelFeat[5] == "D") {
+        var col = "#000000";
+	    if ((wdeLibSelFeat[0] == "regulatory") && (/\/regulatory_class="([^"]+)"/g.test(wdeLibSelFeat[8]))) {
+	        var regClass = RegExp.$1;
+		    for (var k = 0; k < wdeFeatRegColor.length; k++) {
+		        if (wdeFeatRegColor[k][0] == regClass) {
+		            col = wdeFeatRegColor[k][2];
+		        }
+			}
+	    } else {
+		    for (var k = 0; k < wdeFeatColor.length; k++) {
+		        if (wdeFeatColor[k][0] == wdeLibSelFeat[0]) {
+		            col = wdeFeatColor[k][2];
+		        }
+			}
+		}
+        document.getElementById('WDE_LIB_RCOL').value = col;
+    } else {
+        document.getElementById('WDE_LIB_RCOL').value = "#" + wdeLibSelFeat[5];
+    }
+    select = document.getElementById('WDE_LIB_SHAPE');
+    for(var i = select.options.length - 1 ; i >= 0 ; i--) {
+        select.remove(i);
+    }
+    for (var k = 0; k < 3; k++) {
+        var option = document.createElement( 'option' );
+        option.value = k;
+        if (k == 0) {
+	        option.text = "Default";
+	        if (wdeLibSelFeat[6] == "D") {
+	           option.setAttribute('selected', true);
+	        }
+        }
+        if (k == 1) {
+	        option.text = "Box";
+	        if (wdeLibSelFeat[6] == "box") {
+	           option.setAttribute('selected', true);
+	        }
+        }
+        if (k == 2) {
+	        option.text = "Arrow";
+	        if (wdeLibSelFeat[6] == "arrow") {
+	           option.setAttribute('selected', true);
+	        }
+        }
+        select.add(option);
+	}
+    mainForm.elements["WDE_LIB_SEQ"].value = wdeLibSelFeat[10];
+    if (/\/note="([\s\S]+)"\s*$/g.test(wdeLibSelFeat[7])) {
+        mainForm.elements["WDE_LIB_NOTE"].value = RegExp.$1;
+    } else if (/\/note="\s*"\s*$/g.test(wdeLibSelFeat[7])) {
+        mainForm.elements["WDE_LIB_NOTE"].value = "";
+    } else {
+        mainForm.elements["WDE_LIB_NOTE"].value = wdeLibSelFeat[7];
+    }
+    mainForm.elements["WDE_LIB_QUALIF"].value = wdeLibSelFeat[8];
+}
+
+function wdeSelAddLib() {
+    var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
+    var pos = wdeLibExtractFeature(wdeFeatSelFeat, seq);
+    if (pos == -1) {
+        return;
+    }
+    wdeLibSelFeat = wdeFeatureLib[pos];
+    wdeLibSelNum = pos;
+    wdeLibFocRepaint();
+    wdeShowTab('tab6','WDE_feature_lib');
+}
+
+function wdeAllAddLib() {
+    var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
+    for (var k = 0; k < wdeFeatures.length; k++) {
+        wdeLibExtractFeature(wdeFeatures[k], seq);
+    }
+    wdeLibFocRepaint();
+    wdeShowTab('tab6','WDE_feature_lib');
+}
+
+function wdeLibExtractFeature(feat,seq) {
+    var loc = wdeLibShiftByFirst(feat[1]);
+    var seqExtr = seq.substring(loc[1],loc[2]);
+    var pos = wdeFeatureLib.length;
+    if(/complement\((.*)\)\s*$/.test(loc[0])) {
+        loc[0] = wdeFeatRevCompLoc(loc[0], (seqExtr.length + 1), 0);
+        seqExtr = wdeReverseComplement(seqExtr);
+    } 
+    if((feat[0] == "source") || (seqExtr.length < 6)) {
+        return -1;
+    } 
+    wdeFeatureLib[pos] = [feat[0], loc[0], feat[2], feat[3], 
+                          feat[4], feat[5], feat[6], feat[7], 
+                          feat[8], 1, seqExtr];
+    return pos;
+}
+
+function wdeLibShiftByFirst(loc){
+        var retVal = "";
+        var num = "";
+        var numFound = 0;
+        var firstLoc = -1;
+        var lastLoc = 0;
+	    for (var i = 0; i < loc.length ; i++) {
+	        if (/\d/.test(loc.charAt(i))) {
+	            num += loc.charAt(i);
+	            numFound = 1;
+	        } else {
+	            if (numFound) {
+	                 if (firstLoc == -1){
+	                     firstLoc = num - 1;
+	                 }
+	                 lastLoc = num;
+	                 num = parseInt(num) - firstLoc;
+	                 retVal += "" + num;
+	                 num = "";
+	                 numFound = 0;
+	            }
+	            retVal += loc.charAt(i);
+	        }
+	    }
+        if (numFound) {
+             if (firstLoc == -1){
+                 firstLoc = num - 1;
+             }
+             lastLoc = num;
+             num = parseInt(num) - firstLoc;
+             retVal += "" + num;
+        }
+        return [retVal,firstLoc,lastLoc];
+}
+
+
+
+
+
 function wdeSelFeatures(checkBox, enzId) {
     if (checkBox.checked) {
         wdeFeatures[enzId][9] = 1;
@@ -1936,11 +2177,6 @@ function wdeSetFFeatSetRev(sel) {
         mainForm.elements["WDE_FEAT_LOC"].value = loc;
         wdeFeatSelFeat[1] = loc;
     }
-    if (sel) {
-
-    } else {
-    
-    }
     var lButton = document.getElementById("WDE_FEAT_REVCOMP");
     if (sel) {
         lButton.value = "Set Reverse";
@@ -1992,7 +2228,7 @@ function wdeSelFFeatQualif() {
 }
 
 function wdeSetFFeatNew(loc) {
-    wdeFeatSelFeat = ["gene",loc,"Enter Feature Name","U","D","D","arrow","","",1];
+    wdeFeatSelFeat = ["gene",loc,"Enter Feature Name","U","D","D","arrow","","",1,""];
     wdeFeatSelNum = -1;
     wdeFeatFocRepaint();
 }
@@ -2086,7 +2322,7 @@ function wdeSetFFeatDel() {
     if ((wdeFeatSelNum > -1) && (wdeFeatSelNum < wdeFeatures.length)) {
     	wdeFeatures.splice(wdeFeatSelNum, 1); 
     }
-    wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","","",1];
+    wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","","",1,""];
     wdeFeatSelNum = -1;
     wdeFeatFocRepaint();
 }
@@ -2770,7 +3006,7 @@ function wdeMapSVG(unique) {
 		    var infSum = 0;
 		    var infMin = 999999999;
 		    var infMax = 0;
-		    var infColor = wdeFinFeatureColor(k);
+		    var infColor = wdeFinFeatureColor(wdeFeatures, k);
 		    var isReverse = 0;
 		    if (wdeFeatures[k][9] == 0) {
 		        continue;
@@ -4508,6 +4744,7 @@ function wdeUpdateButtonsToDef() {
     wdeTGTransRevComp(wdeVTransRevComp,0);
     wdeTGTransTreeOne(wdeVTransLetter,0);
     wdeTGUserSel(wdeUser[2]);
+    wdeTGViewNumbers(wdeNumbers,0);
     wdeTGViewZeroOne(wdeZeroOne,0);
 }
 
