@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.24";
+var wdeVVersion = "0.8.25";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -2054,6 +2054,14 @@ function wdeSelAddLib() {
     }
     wdeLibSelFeat = wdeFeatureLib[pos];
     wdeLibSelNum = pos;
+    wdeFeatureLib.sort(wdeLibListSort);
+    // Now we have to cut the strings
+    for (var i = 0; i < wdeFeatureLib.length ; i++) {
+        if (wdeFeatureLib[i] === wdeLibSelFeat) {
+            wdeFeatureLib[i] = wdeLibSelFeat.slice(0);
+            wdeLibSelNum = i;
+        }
+    }
     wdeLibFocRepaint();
     wdeShowTab('tab6','WDE_feature_lib');
 }
@@ -2063,6 +2071,7 @@ function wdeAllAddLib() {
     for (var k = 0; k < wdeFeatures.length; k++) {
         wdeLibExtractFeature(wdeFeatures[k], seq);
     }
+    wdeFeatureLib.sort(wdeLibListSort);
     wdeLibFocRepaint();
     wdeShowTab('tab6','WDE_feature_lib');
 }
@@ -2077,7 +2086,8 @@ function wdeLibExtractFeature(feat,seq) {
     } 
     if((feat[0] == "source") || (seqExtr.length < 6)) {
         return -1;
-    } 
+    }
+    seqExtr = wdeSplitString60(seqExtr);    
     wdeFeatureLib[pos] = [feat[0], loc[0], feat[2], feat[3], 
                           feat[4], feat[5], feat[6], feat[7], 
                           feat[8], 1, seqExtr];
@@ -2138,13 +2148,27 @@ function wdeSelFFeatMTag() {
     wdeFeatSelFeat[3] = "U";
 }
 
+function wdeSelFLibMTag() {
+    wdeLibSelFeat[2] = mainForm.elements["WDE_LIB_TAG"].value;
+    wdeLibSelFeat[3] = "U";
+}
+
 function wdeSetFFeatTagDef() {
     wdeFeatSelFeat[3] = "D";
+}
+
+function wdeSetFLibTagDef() {
+    wdeLibSelFeat[3] = "D";
 }
 
 function wdeSelFFeatType() {
     wdeFeatSelFeat[0] = wdeFeatColor[mainForm.elements["WDE_FEAT_TYPE"].value][0];
     wdeFeatFocRepaint();
+}
+
+function wdeSelFLibType() {
+    wdeLibSelFeat[0] = wdeFeatColor[mainForm.elements["WDE_LIB_TYPE"].value][0];
+    wdeLibFocRepaint();
 }
 
 function wdeSelFFeatRegType() {
@@ -2157,8 +2181,22 @@ function wdeSelFFeatRegType() {
     wdeFeatFocRepaint();
 }
 
+function wdeSelFLibRegType() {
+    var regType = wdeFeatRegColor[mainForm.elements["WDE_LIB_REG_TYPE"].value][0];
+	if (/\/regulatory_class="[^"]+"/g.test(wdeLibSelFeat[8])) {
+		wdeLibSelFeat[8] = wdeLibSelFeat[8].replace(/\/regulatory_class="[^"]+"/g, "/regulatory_class=\"" + regType + "\"");
+    } else {
+        wdeLibSelFeat[8] = "/regulatory_class=\"" + regType + "\"\n" + wdeLibSelFeat[8];
+    }
+    wdeLibFocRepaint();
+}
+
 function wdeSelFFeatLoc() {
     wdeFeatSelFeat[1] =  mainForm.elements["WDE_FEAT_LOC"].value;
+}
+
+function wdeSelFLibLoc() {
+    wdeLibSelFeat[1] =  mainForm.elements["WDE_LIB_LOC"].value;
 }
 
 function wdeSetFFeatSetRev(sel) {
@@ -2192,9 +2230,20 @@ function wdeSetFFeatForVar() {
     wdeFeatFocRepaint();
 }
 
+function wdeSetFLibForVar() {
+    var col = document.getElementById('WDE_LIB_FCOL').value;
+    wdeLibSelFeat[4] = col.replace(/#+/g, "");
+    wdeLibFocRepaint();
+}
+
 function wdeSetFFeatForDef() {
     wdeFeatSelFeat[4] = "D";
     wdeFeatFocRepaint();
+}
+
+function wdeSetFLibForDef() {
+    wdeLibSelFeat[4] = "D";
+    wdeLibFocRepaint();
 }
 
 function wdeSetFFeatRevVar() {
@@ -2203,9 +2252,20 @@ function wdeSetFFeatRevVar() {
     wdeFeatFocRepaint();
 }
 
+function wdeSetFLibRevVar() {
+    var col = document.getElementById('WDE_LIB_RCOL').value;
+    wdeLibSelFeat[5] = col.replace(/#+/g, "");
+    wdeLibFocRepaint();
+}
+
 function wdeSetFFeatRevDef() {
     wdeFeatSelFeat[5] = "D";
     wdeFeatFocRepaint();
+}
+
+function wdeSetFLibRevDef() {
+    wdeLibSelFeat[5] = "D";
+    wdeLibFocRepaint();
 }
 
 function wdeSelFFeatRegShape() {
@@ -2219,18 +2279,58 @@ function wdeSelFFeatRegShape() {
     }
 }
 
+function wdeSelFLibRegShape() {
+    var res = mainForm.elements["WDE_LIB_SHAPE"].value;
+    if (res == 1) {
+        wdeLibSelFeat[6] = "box";
+    } else if (res == 2) {
+        wdeLibSelFeat[6] = "arrow";
+    } else {
+        wdeLibSelFeat[6] = "D";
+    }
+}
+
 function wdeSelFFeatNote() {
     wdeFeatSelFeat[7] = "/note=\"" + mainForm.elements["WDE_FEAT_NOTE"].value +  "\"";
+}
+
+function wdeSelFLibNote() {
+    wdeLibSelFeat[7] = "/note=\"" + mainForm.elements["WDE_LIB_NOTE"].value +  "\"";
 }
 
 function wdeSelFFeatQualif() {
     wdeFeatSelFeat[8] =  mainForm.elements["WDE_FEAT_QUALIF"].value;
 }
 
+function wdeSelFLibQualif() {
+    wdeLibSelFeat[8] =  mainForm.elements["WDE_LIB_QUALIF"].value;
+}
+
+function wdeSelFLibSeq() {
+    wdeLibSelFeat[10] =  wdeSplitString60(wdeCleanSeq(mainForm.elements["WDE_LIB_SEQ"].value));
+}
+
+function wdeSplitString60(str) {
+    var retStr = "";
+    for (var i = 0 ; i < str.length ; i++) {
+        if ((i % 60 == 0) && (i != 0)) {
+            retStr += "\n";
+        }
+        retStr += str.charAt(i);
+    }
+    return retStr;
+}
+
 function wdeSetFFeatNew(loc) {
     wdeFeatSelFeat = ["gene",loc,"Enter Feature Name","U","D","D","arrow","","",1,""];
     wdeFeatSelNum = -1;
     wdeFeatFocRepaint();
+}
+
+function wdeSetFLibNew(loc) {
+    wdeLibSelFeat = ["gene",loc,"Enter Feature Name","U","D","D","arrow","","",1,""];
+    wdeLibSelNum = -1;
+    wdeLibFocRepaint();
 }
 
 function wdeNewFeaturesFromSel() {
@@ -2289,6 +2389,26 @@ function wdeSetFFeatSave() {
     wdeFeatFocRepaint();
 }
 
+function wdeSetFLibSave() {
+    var myArr = wdeLibSelFeat;
+    if ((wdeLibSelNum > -1) && (wdeLibSelNum < wdeFeatureLib.length)) {
+    	wdeFeatureLib[wdeLibSelNum] = myArr;
+    }
+    if (wdeLibSelNum == -1) {
+        wdeLibSelNum = wdeFeatureLib.length;
+        wdeFeatureLib[wdeLibSelNum] = myArr;
+    }
+    wdeFeatureLib.sort(wdeLibListSort);
+    // Now we have to cut the strings
+    for (var i = 0; i < wdeFeatureLib.length ; i++) {
+        if (wdeFeatureLib[i] === myArr) {
+            wdeFeatureLib[i] = myArr.slice(0);
+            wdeLibSelNum = i;
+        }
+    }
+    wdeLibFocRepaint();
+}
+
 function wdeFeatListSort(a, b) {
     if (/^(\d+)\..*?(\d+)$\s*/.test(wdeFECleanPos(a[1]))) {
 	    var firstA = RegExp.$1;
@@ -2318,6 +2438,16 @@ function wdeFeatListSort(a, b) {
     return typeB - typeA;
 }
 
+function wdeLibListSort(a, b) {
+    if(a[2].toLowerCase() < b[2].toLowerCase()) {
+        return -1;
+    }
+    if(a[2].toLowerCase() > b[2].toLowerCase()) {
+        return 1;
+    }
+    return 0;
+}
+
 function wdeSetFFeatDel() {
     if ((wdeFeatSelNum > -1) && (wdeFeatSelNum < wdeFeatures.length)) {
     	wdeFeatures.splice(wdeFeatSelNum, 1); 
@@ -2325,6 +2455,15 @@ function wdeSetFFeatDel() {
     wdeFeatSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","","",1,""];
     wdeFeatSelNum = -1;
     wdeFeatFocRepaint();
+}
+
+function wdeSetFLibDel() {
+    if ((wdeLibSelNum > -1) && (wdeLibSelNum < wdeFeatureLib.length)) {
+    	wdeFeatureLib.splice(wdeLibSelNum, 1); 
+    }
+    wdeLibSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","","",1,""];
+    wdeLibSelNum = -1;
+    wdeLibFocRepaint();
 }
 
 function wdeFindUserSeq() {
