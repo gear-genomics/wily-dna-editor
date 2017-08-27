@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.26";
+var wdeVVersion = "0.9.0";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -969,7 +969,6 @@ function wdeSaveLibFile() {
         modLocStr[k] = tempArr[0];
         seq += wdeCleanSeq(wdeFeatureLib[k][10]) + "NN";
     }
-    var title = "Feature Library";
     var content = "LOCUS       LIBRARY    ";
     content += "" + seq.length + " bp    DNA            ";
     var months = [ "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
@@ -979,7 +978,7 @@ function wdeSaveLibFile() {
     var mm = today.getMonth();
     var yy = today.getFullYear();
     content += "      " + dd + "-" + months[mm] + "-" + yy + "\n";
-    content += "DEFINITION  " + title + " - Feature collection, not a real sequence\n";
+    content += "DEFINITION  Feature Library - Feature collection, not a real sequence\n";
     content += "VERSION     .\n";
     content += "KEYWORDS    .\n";
     content += "FEATURES             Location/Qualifiers\n";
@@ -1074,7 +1073,7 @@ function wdeSaveLibFile() {
         content += seq.charAt(i);
     }
     content += "\n//\n\n";
-    var fileName = title + ".gb";
+    var fileName = "Feature_Library.gb";
     return wdeSaveFile(fileName, content, "text");
 }
 
@@ -2241,6 +2240,74 @@ function wdeLibFocRepaint() {
     mainForm.elements["WDE_LIB_QUALIF"].value = wdeLibSelFeat[8];
 }
 
+function wdeAnnotateSequence() {
+    var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
+    for (var k = 0; k < wdeFeatureLib.length; k++) {
+        var testSeq = wdeCleanSeq(wdeFeatureLib[k][10]);
+        // Forward
+        var posArr = wdeFindTestInSeq(seq, testSeq);
+        if (posArr[0] != -1) {
+            for (var i = 0; i < posArr.length; i++) {
+	            var tempArr = wdeLibShiftByFirst(wdeFeatureLib[k][1],posArr[i]);
+	            wdeAnnoAddFeature(wdeFeatureLib[k], tempArr[0]);
+	        }
+        }
+        // Reverse
+        testSeq = wdeReverseComplement(testSeq);
+        var posArr = wdeFindTestInSeq(seq, testSeq);
+        if (posArr[0] != -1) {
+            for (var i = 0; i < posArr.length; i++) {
+                var locInverse = wdeFeatRevCompLoc(wdeFeatureLib[k][1], (testSeq.length + 1), posArr[i])
+	            wdeAnnoAddFeature(wdeFeatureLib[k], locInverse);
+	        }
+        }
+    }
+    wdeFeatures.sort(wdeFeatListSort);
+    wdeFeatFocUpdate(-1);
+    wdeShowTab('tab5','WDE_features');
+}
+
+function wdeAnnoAddFeature(feat, locString) {
+    var myFeat = feat.slice(0);
+    myFeat[1] = locString;
+    myFeat[10] = "";
+    var newPos = wdeFeatures.length;
+    // Keep it unique
+    for (var k = 0; k < newPos; k++) {
+        if ((wdeFeatures[k][2] == myFeat[2]) && 
+            (wdeFeatures[k][0] == myFeat[0]) && 
+            (wdeFeatures[k][1] == myFeat[1]) && 
+            (wdeFeatures[k][7] == myFeat[7]) && 
+            (wdeFeatures[k][8] == myFeat[8])) {
+            return;
+        }
+    }
+    wdeFeatures[newPos] = myFeat;
+}
+
+function wdeFindTestInSeq(seq, test){
+    if ((seq.length == 0) || (test.length == 0)) {
+        return [-1];
+    }
+    var bigSeq = seq.toLowerCase();
+    var smallSeq = test.toLowerCase();
+    var startIndex = 0;
+    var index;
+    var retArr = [];
+    var found = 0;
+
+    while ((index = bigSeq.indexOf(smallSeq, startIndex)) > -1) {
+        retArr.push(index);
+        startIndex = index + 1;
+        found = 1;
+    }
+    if (found == 1) {
+        return retArr;
+    } else {
+        return [-1];
+    }
+}
+
 function wdeDeleteLib() {
     wdeFeatureLib = [];
     wdeLibFocRepaint();
@@ -2343,10 +2410,6 @@ function wdeLibShiftByFirst(loc,offset){
     }
     return [retVal,firstLoc,lastLoc];
 }
-
-
-
-
 
 function wdeSelFeatures(checkBox, enzId) {
     if (checkBox.checked) {
