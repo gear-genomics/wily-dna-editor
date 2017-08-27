@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.8.25";
+var wdeVVersion = "0.8.26";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -119,6 +119,8 @@ var wdeVFeatTransp = 0;
 
 var wdeSeqHigh = [];
 var wdeSeqFeat = [];
+
+var wdeInTestRun = 0;
 
 // Display Functions
 function wdeInitPage() {
@@ -833,17 +835,17 @@ function wdeSaveGenBank() {
             finNote +="\ntag(" + wdeFeatures[k][2] + ")";
             myPara = 1;
         }
-        if (wdeFeatures[k][7] != "") {
+        if ((wdeFeatures[k][7] != "") && (wdeFeatures[k][7] != '/note=""')) {
 	        if (myPara == 1) {
 	            finNote += "\n";
 	        }
 	        var noteEdit = wdeFeatures[k][7].replace(/\/note=\"\s*/g, "");
 	        noteEdit = noteEdit.replace(/"$/, "");
 	        noteEdit = noteEdit.replace(/"/g, "\"\"");
-            finNote += noteEdit + "\"";
-        } else {
-            finNote += '"';
+            finNote += noteEdit;
         }
+        finNote = finNote.replace(/ +$/, "");
+        finNote += '"';
         var qualifiers = wdeFeatures[k][8];
         if (/note="/g.test(qualifiers)) {            
             if (finNote != '/note=""') {
@@ -884,7 +886,7 @@ function wdeSaveGenBank() {
     }
     content += "\n//\n\n";
     var fileName = title + ".gb";
-    wdeSaveFile(fileName, content, "text");
+    return wdeSaveFile(fileName, content, "text");
 }
 
 function wdeSaveFasta() {
@@ -902,10 +904,13 @@ function wdeSaveFasta() {
         }
     content += "\n";
     var fileName = mainForm.elements["SEQUENCE_ID"].value + ".fa";
-    wdeSaveFile(fileName, content, "text");
+    return wdeSaveFile(fileName, content, "text");
 };
 
 function wdeSaveFile(fileName,content,type) {
+    if (wdeInTestRun == 1) {
+        return [fileName,content,type];
+    }
     var a = document.createElement("a");
     document.body.appendChild(a);
     a.style = "display: none";
@@ -922,6 +927,7 @@ function wdeSaveFile(fileName,content,type) {
     a.download = fileName;
     a.click();
     window.URL.revokeObjectURL(url);
+    return "";
 };
 
 function wdeModifySelection(modifyFunction){
@@ -2087,7 +2093,18 @@ function wdeLibExtractFeature(feat,seq) {
     if((feat[0] == "source") || (seqExtr.length < 6)) {
         return -1;
     }
+    // Keep it unique
     seqExtr = wdeSplitString60(seqExtr);    
+    for (var k = 0; k < wdeFeatureLib.length; k++) {
+        if ((wdeFeatureLib[k][2] == feat[2]) && 
+            (wdeFeatureLib[k][0] == feat[0]) && 
+            (wdeFeatureLib[k][1] == loc[0]) && 
+            (wdeFeatureLib[k][10] == seqExtr) && 
+            (wdeFeatureLib[k][7] == feat[7]) && 
+            (wdeFeatureLib[k][8] == feat[8])) {
+            return -1;
+        }
+    }
     wdeFeatureLib[pos] = [feat[0], loc[0], feat[2], feat[3], 
                           feat[4], feat[5], feat[6], feat[7], 
                           feat[8], 1, seqExtr];

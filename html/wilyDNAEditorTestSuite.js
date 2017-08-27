@@ -40,6 +40,9 @@ var wdeTestPRString = "";
 function wdeTestAll() {
     wdeTestOutput = "";
     wdeTestFailed = 0;
+    wdeInTestRun = 1;
+    
+    var currentTestOut = "";
     var startTime = new Date();
     wdeTestAddToOutput("Starting Tests: " + wdeTestLeadingZero(startTime.getHours()) + ":" 
                    + wdeTestLeadingZero(startTime.getMinutes()) + ":" 
@@ -66,8 +69,38 @@ function wdeTestAll() {
     wdeRComp();
     wdeTestOutCompString(wdeTestDataString_004(), window.frames['WDE_RTF'].document.body.innerHTML);
     
+    wdeTestAddToOutput("wdeSaveFasta() - ");
+    wdeTestLoadSmallGeneBank();
+    currentTestOut = wdeSaveFasta();
+    wdeTestOutCompString(wdeTestDataString_005(), currentTestOut[1]);
     
+    wdeTestAddToOutput("wdeSaveGenBank() - ");
+    currentTestOut = wdeSaveGenBank();
+    wdeTestOutCompString(wdeTestStringSmallGeneBank(), currentTestOut[1]);
 
+    wdeTestAddToOutput("wdeTestLoadLargeGeneBank() - ");
+    wdeTestLoadLargeGeneBank();
+    currentTestOut = wdeSaveGenBank();
+    wdeTestOutCompString(wdeTestStringLargeGeneBank(), currentTestOut[1]);
+
+
+
+  //  wdeTestAddToOutput("wdeTestStringSmallGeneBank() - ");
+    
+     
+ //   wdeInTestRun = 0;
+ //   wdeSaveFile("Bla", wdeTestStringSmallGeneBank(), "text");
+ //   wdeSaveFile("Bla2", wdeTestDataString_006(), "text");
+ //   wdeInTestRun = 1;
+
+ //   wdeTestOutCompString(wdeTestDataString_006(), wdeTestStringSmallGeneBank());
+
+
+    
+ //   wdeTestPRString = currentTestOut[1];
+    
+  //  alert(currentTestOut[1]);
+    
    // wdeTestPRString = window.frames['WDE_RTF'].document.body.innerHTML;
 
 
@@ -78,156 +111,7 @@ function wdeTestAll() {
     
     
     
-        
-    // Functions without tests yet:
-    
-    //  wdeInitPage() 
-    //  wdeShowTab(tab,id) 
-    //  wdeHideTabs() 
-    //  wdeCountUp() 
-    //  wdeLoadTestSeq(size) 
-    //  wdeKeepTryingFunction(funct, cont) 
-    //  wdeLoadTestScripts() 
-    //  wdeVersion()
-    //  wdeTestAlert()
-    //  wdeActivateStartup()
-    //  wdeSaveCookie()
-    //  wdeSaveSetFile() 
-    //  wdeLoadCookie(par)
-    //  wdeLoadSetFile(f)
-    //  wdeSettingsToString()
-    //  wdeStringToSettings(txt)
-    //  wdeDelCookie()
-    //  wdeRepaint()
-    //  wdeCopyEvent (e) 
-    //  wdeCutEvent (e) 
-    //  wdePasteEvent (e) 
-    //  wdeKeyPressEvent(e) 
-    //  wdeSendP3P()
-    //  wdeNewWindow()
-    //  wdeLoadFile(f)
-    //  wdeProcessGenebank() 
-    //  wdeGenebankExtractNote(featStr) 
-    //  wdeSaveGenBank() 
-    //  wdeSaveFasta() 
-    //  wdeSaveFile(fileName,content,type) 
-    //  wdeModifySelection(modifyFunction)
-    //  wdeUpToLow() 
-    //  wdeUpToLowModify(text) 
-    //  wdeLowToUp() 
-    //  wdeLowToUpModify(text) 
-    //  wdeUpexLow() 
-    //  wdeUpexLowModify(text) 
-    //  wdeCopyPaste() 
-    //  wdeRCompSel() 
-    //  wdeFeatModifyBetween(a,b,mod)
-    //  wdeFeatShiftAfterLoc(split,shiftDiff)
-    //  wdeFeatSplitAtLoc(split)
-    //  wdeFeatRevCompLoc(loc,lastPos,offset)
-    //  wdeSequenceModified()
-    //  wdeHighlight()
-    //  wdeFormatSeq(seq, wdeZeroOne, wdeNumbers)
-    //  wdeCleanSeq(seq)
-    //  wdeCleanSeqWithMarks(seq)
-    //  wdeSelFeatSelMod (sel) 
-    //  wdeShowFeatures()
-    //  wdeHideFeatures()
-    //  wdeFECleanPos(loc) 
-    //  wdeFeatureColor(pos)
-    //  wdeColorAddColor(base, add, step) 
-    //  wdeColorHexToRgb(hex) 
-    //  wdeColorRgbToHex(r, g, b) 
-    //  wdeColorSingRgbToHex(c) 
-    //  wdeFeatSortSize(a, b) 
-    //  wdeFeatTypeToInt(featType) 
-    //  wdeFinFeatureColor(feat)
-    //  wdeFinFeatColSeg(feat)
-    //  wdeFeatInfoUpdate(infoCount) 
-    //  wdeFeatFocUpdate(feat) 
-    //  wdeFeatFocRepaint() 
-    //  wdeSelFeatures(checkBox, enzId) 
-    //  wdeSelFFeatMTag() 
-    //  wdeSetFFeatTagDef() 
-    //  wdeSelFFeatType() 
-    //  wdeSelFFeatRegType() 
-    //  wdeSelFFeatLoc() 
-    //  wdeSetFFeatSetRev(sel) 
-    //  wdeSetFFeatForVar() 
-    //  wdeSetFFeatForDef() 
-    //  wdeSetFFeatRevVar() 
-    //  wdeSetFFeatRevDef() 
-    //  wdeSelFFeatRegShape() 
-    //  wdeSelFFeatNote() 
-    //  wdeSelFFeatQualif() 
-    //  wdeSetFFeatNew(loc) 
-    //  wdeNewFeaturesFromSel() 
-    //  wdeSetFFeatSave() 
-    //  wdeFeatListSort(a, b) 
-    //  wdeSetFFeatDel() 
-    //  wdeFindUserSeq() 
-    //  wdeFindRE() 
-    //  wdeDigCutPosFor(enz) 
-    //  wdeDigCutPosRev(enz) 
-    //  wdeGetCutPos(pos,cutDiff) 
-    //  wdeEnzyFoundCheck() 
-    //  wdeSelEnzymes(checkBox, enzId) 
-    //  wdeSelREdeselect() 
-    //  wdeSelREselMLE(sel) 
-    //  wdeSelREsel(sel, rsNr) 
-    //  wdeSelREListDS(sel) 
-    //  wdeDrawEnzymes() 
-    //  wdePrintEnzy() 
-    //  wdeDigList() 
-    //  wdeDigCleanDigList(circ) 
-    //  wdeDigSortPos(a, b) 
-    //  wdeDigSortFrag(a, b) 
-    //  wdeDigAsGelPic() 
-    //  wdeDigCreateSVG() 
-    //  wdeDigCleanBands(arr) 
-    //  wdeDigSVGBand(xPos,yPos,color) 
-    //  wdeDigShowSVG(svg, x, y) 
-    //  wdeSaveGel() 
-    //  wdePrintGel() 
-    //  wdeDigMapDis(unique) 
-    //  wdeMapSVG(unique) 
-    //  wdeDigMapSort(a, b) 
-    //  wdeDigSVGFEatSort(a, b) 
-    //  wdeTransInSel() 
-    //  wdeTransInAll() 
-    //  wdeDrawGeneticCode() 
-    //  wdeSelTransCode() 
-    //  wdeSelTransTable() 
-    //  wdeTransDrawFrame() 
-    //  wdeTransSortOrf(a, b) 
-    //  wdeTransHmlPart(seq, mark) 
-    //  wdeSaveTrans() 
-    //  wdePrintTrans() 
-    //  wdeNumberToBase(seq)
-    //  wdeBaseToNumber(seq)
-    //  wdeTranslateTripToAs(one, two, tre, bas)
-    //  wdeTranslateTripToStart(one, two, tre, bas)
-    //  wdeProteinOneThree(seqIn)
-    //  wdeIsSameSeq(seq1, seq2)
-    //  wdeSetDamDcmMeth() 
-    //  wdeTGCircularLinear(sel)
-    //  wdeTGDamDcm(sel) 
-    //  wdeTGDigGelBandBlack(sel,rPaint)
-    //  wdeTGDigShowFeatures(sel,rPaint)
-    //  wdeTGFeaturesTransp(sel,rPaint)
-    //  wdeTGOrfSort(sel,rPaint)
-    //  wdeTGOrfView(sel,rPaint)
-    //  wdeTGTransFrameNr(sel,rPaint)
-    //  wdeTGTransRevComp(sel,rPaint)
-    //  wdeTGTransTreeOne(sel,rPaint)
-    //  wdeTGUserSel(sel) 
-    //  wdeTGViewNumbers(sel,rPaint)
-    //  wdeTGViewZeroOne(sel,rPaint)
-    //  wdeUpdateButtonsToDef() 
-    //  wdeCleanInputFields() 
-    //  wdePopulateFeatureColors() 
-    //  wdePopulateFeatRegColors() 
-    //  wdePopulateTranslation() 
-    //  wdePopulateEnzmes()     
+    wdeInTestRun = 0;
     
     if (wdeTestFailed) {
         wdeTestAddToOutput("\nAt least one test [FAILED]!\n");
@@ -282,8 +166,9 @@ function wdeTestPRStringAsFunction() {
     var retStr = "function wdeTestDataString_() {\n    var str = \"";
     var j = 10;
     for (var i = 0 ; i < wdeTestPRString.length ; i++) {
-        if (j % 60 == 0) {
+        if (j > 59) {
             retStr += "\" +\n    \"";
+            j = 0;
         }
         if (wdeTestPRString.charAt(i) == "\n") {
             retStr += "\\n";
@@ -304,6 +189,21 @@ function wdeTestPRStringAsFunction() {
     
     window.frames['WDE_TEST_OUT'].document.body.innerHTML = "<pre>\n" + retStr + "\n</pre>";
     wdeShowTab('tab7','WDE_settings');
+}
+
+
+function wdeTestLoadLargeGeneBank() {
+    var seq = wdeTestStringLargeGeneBank();
+    window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(wdeCleanSeq(wdeReadFile(seq, "pHUGE.gb")), wdeZeroOne, wdeNumbers);
+    wdeShowTab('tab1','WDE_main_tab');
+    wdeSequenceModified();
+}
+
+function wdeTestLoadSmallGeneBank() {
+    var seq = wdeTestStringSmallGeneBank();
+    window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(wdeCleanSeq(wdeReadFile(seq, "pHUGE.gb")), wdeZeroOne, wdeNumbers);
+    wdeShowTab('tab1','WDE_main_tab');
+    wdeSequenceModified();
 }
 
 function wdeTestDataString_001() {
@@ -572,6 +472,194 @@ function wdeTestDataString_004() {
     "AGG GTCGATGTCC AT </pre>";
     return str;
 }
+
+function wdeTestDataString_005() {
+    var str = ">Hepatitis B Virus, complete sequence.\nATGGACATCG" +
+    "ACCCTTATAAAGAATTTGGAGCTACTGTGGAGTTACTCTCGTTTTTGCCTTCTGACTTCT" +
+    "\nTTCCTTCAGTACGAGATCTTCTAGATACCGCCTCAGCTCTGTATCGGGAAGCCTTAGA" +
+    "GTCTCCTGAGCA\nTTGTTCACCTCACCATACTGCACTCAGGCAAGCAATTCTTTGCTGG" +
+    "GGGGAACTAATGACTCTAGCTACC\nTGGGTGGGTGTTAATTTGGAAGATCCAGCGTCTA" +
+    "GAGACCTAGTAGTCAGTTATGTCAACACTAATATGG\nGCCTAAAGTTCAGGCAACTCTT" +
+    "GTGGTTTCACATTTCTTGTCTCACTTTTGGAAGAGAAACAGTTATAGA\nGTATTTGGTG" +
+    "TCTTTCGGAGTGTGGATTCGCACTCCTCCAGCTTATAGACCACCAAATGCCCCTATCCTA" +
+    "\nTCAACACTTCCGGAGACTACTGTTGTTAGACGACGAGGCAGGTCCCCTAGAAGAAGAA" +
+    "CTCCCTCGCCTC\nGCAGACGAAGGTCTCAATCGCCGCGTCGCAGAAGATCTCAATCTCG" +
+    "GGAATCTCAATGTTAGTATTCCTT\nGGACTCATAAGGTGGGGAACTTTACTGGGCTTTA" +
+    "TTCTTCTACTGTACCTGTCTTTAATCCTCATTGGAA\nAACACCATCTTTTCCTAATATA" +
+    "CATTTACACCAAGACATTATCAAAAAATGTGAACAGTTTGTAGGCCCA\nCTCACAGTTA" +
+    "ATGAGAAAAGAAGATTGCAATTGATTATGCCTGCCAGGTTTTATCCAAAGGTTACCAAAT" +
+    "\nATTTACCATTGGATAAGGGTATTAAACCTTATTATCCAGAACATCTAGTTAATCATTA" +
+    "CTTCCAAACTAG\nACACTATTTACACACTCTATGGAAGGCGGGTATATTATATAAGAGA" +
+    "GAAACAACACATAGCGCCTCATTT\nTGTGGGTCACCATATTCTTGGGAACAAGATCTAC" +
+    "AGCATGGGGCAGAATCTTTCCACCAGCAATCCTCTG\nGGATTCTTTCCCGACCACCAGT" +
+    "TGGATCCAGCCTTCAGAGCAAACACCGCAAATCCAGATTGGGACTTCA\nATCCCAACAA" +
+    "GGACACCTGGCCAGACGCCAACAAGGTAGGAGCTGGAGCATTCGGGCTGGGTTTCACCCC" +
+    "\nACCGCACGGAGGCCTTTTGGGGTGGAGCCCTCAGGCTCAGGGCATACTACAAACTTTG" +
+    "CCAGCAAATCCG\nCCTCCTGCCTCCACCAATCGCCAGTCAGGAAGGCAGCCTACCCCGC" +
+    "TGTCTCCACCTTTGAGAAACACTC\nATCCTCAGGCCATGCAGTGGAATTCCACAACCTT" +
+    "CCACCAAACTCTGCAAGATCCCAGAGTGAGAGGCCT\nGTATTTCCCTGCTGGTGGCTCC" +
+    "AGTTCAGGAACAGTAAACCCTGTTCTGACTACTGCCTCTCCCTTATCG\nTCAATCTTCT" +
+    "CGAGGATTGGGGACCCTGCGCTGAACATGGAGAACATCACATCAGGATTCCTAGGACCCC" +
+    "\nTTCTCGTGTTACAGGCGGGGTTTTTCTTGTTGACAAGAATCCTCACAATACCGCAGAG" +
+    "TCTAGACTCGTG\nGTGGACTTCTCTCAATTTTCTAGGGGGAACTACCGTGTGTCTTGGC" +
+    "CAAAATTCGCAGTCCCCAACCTCC\nAATCACTCACCAACCTCTTGTCCTCCAACTTGTC" +
+    "CTGGTTATCGCTGGATGTGTCTGCGGCGTTTTATCA\nTCTTCCTCTTCATCCTGCTGCT" +
+    "ATGCCTCATCTTCTTGTTGGTTCTTCTGGACTATCAAGGTATGTTGCC\nCGTTTGTCCT" +
+    "CTAATTCCAGGATCCTCAACAACCAGCACGGGACCATGCCGGACCTGCATGACTACTGCT" +
+    "\nCAAGGAACCTCTATGTATCCCTCCTGTTGCTGTACCAAACCTTCGGACGGAAATTGCA" +
+    "CCTGTATTCCCA\nTCCCATCATCCTGGGCTTTCGGAAAATTCCTATGGGAGTGGGCCTC" +
+    "AGCCCGTTTCTCCTGGCTCAGTTT\nACTAGTGCCATTTGTTCAGTGGTTCGTAGGGCTT" +
+    "TCCCCCACTGTTTGGCTTTCAGTTATATGGATGATG\nTGGTATTGGGGGCCAAGTCTGT" +
+    "ACAGCATCTTGAGTCCCTTTTTACCGCTGTTACCAATTTTCTTTTGTC\nTTTGGGTATA" +
+    "CATTTAAACCCTAACAAAACAAAGAGATGGGGTTACTCTCTAAATTTTATGGGTTATGTC" +
+    "\nATTGGATGTTATGGGTCCTTGCCACAAGAACACATCATACAAAAAATCAAAGAATGTT" +
+    "TTAGAAAACTTC\nCTATTAACAGGCCTATTGATTGGAAAGTATGTCAACGAATTGTGGG" +
+    "TCTTTTGGGTTTTGCTGCCCCTTT\nTACACAATGTGGTTATCCTGCGTTGATGCCTTTG" +
+    "TATGCATGTATTCAATCTAAGCAGGCTTTCACTTTC\nTCGCCAACTTACAAGGCCTTTC" +
+    "TGTGTAAACAATACCTGAACCTTTACCCCGTTGCCCGGCAACGGCCAG\nGTCTGTGCCA" +
+    "AGTGTTTGCTGACGCAACCCCCACTGGCTGGGGCTTGGTCATGGGCCATCAGCGCATGCG" +
+    "\nTGGAACCTTTTCGGCTCCTCTGCCGATCCATACTGCGGAACTCCTAGCCGCTTGTTTT" +
+    "GCTCGCAGCAGG\nTCTGGAGCAAACATTATCGGGACTGATAACTCTGTTGTCCTATCCC" +
+    "GCAAATATACATCGTTTCCATGGC\nTGCTAGGCTGTGCTGCCAACTGGATCCTGCGCGG" +
+    "GACGTCCTTTGTTTACGTCCCGTCGGCGCTGAATCC\nTGCGGACGACCCTTCTCGGGGT" +
+    "CGCTTGGGACTCTCTCGTCCCCTTCTCCGTCTGCCGTTCCGACCGACC\nACGGGGCGCA" +
+    "CCTCTCTTTACGCGGACTCCCCGTCTGTGCCTTCTCATCTGCCGGACCGTGTGCACTTCG" +
+    "\nCTTCACCTCTGCACGTCGCATGGAGACCACCGTGAACGCCCACCAAATATTGCCCAAG" +
+    "GTCTTACATAAG\nAGGACTCTTGGACTCTCAGCAATGTCAACGACCGACCTTGAGGCAT" +
+    "ACTTCAAAGACTGTTTGTTTAAAG\nACTGGGAGGAGTTGGGGGAGGAGATTAGGTTAAA" +
+    "GGTCTTTGTACTAGGAGGCTGTAGGCATAAATTGGT\nCTGCGCACCAGCACCATGCAAC" +
+    "TTTTTCACCTCTGCCTAATCATCTCTTGTTCATGTCCTACTGTTCAAG\nCCTCCAAGCT" +
+    "GTGCCTTGGGTGGCTTTGGGGC\n";
+    return str;
+}
+
+function wdeTestDataString_006() {
+    var str = "LOCUS       HBV                     3182 bp    DNA" +
+    "     circular 22-JUL-2017\nDEFINITION  Hepatitis B Virus, co" +
+    "mplete sequence.\nACCESSION   \nVERSION     \nSOURCE      He" +
+    "patitis B Virus\n  ORGANISM  Hepatitis B Virus\nFEATURES    " +
+    "         Location/Qualifiers\n     gene            1..552\n " +
+    "                    /gene=\"Core-Antigen\"\n     CDS        " +
+    "     1..552\n                     /note=\"forCol(ffff00) rev" +
+    "Col(ffff00) \n                     \"\n                     " +
+    "/gene=\"Core-Antigen\"\n                     /codon_start=1\n" +
+    "                     /transl_table=11\n                     " +
+    "/product=\"Core-Antigen\"\n                     /translation" +
+    "=\"MDIDPYKEFGATVELLSFLPSDFFPSVRDLLDTASALYREALES\n           " +
+    "          PEHCSPHHTALRQAILCWGELMTLATWVGVNLEDPASRDLVVSYVNTNMG" +
+    "LKFRQLLW\n                     FHISCLTFGRETVIEYLVSFGVWIRTPPA" +
+    "YRPPNAPILSTLPETTVVRRRGRSPRRRT\n                     PSPRRRRS" +
+    "QSPRRRRSQSRESQC\"\n     gene            407..2905\n         " +
+    "            /gene=\"Polymerase\"\n     CDS             407.." +
+    "2905\n                     /note=\"forCol(6464ff) revCol(646" +
+    "4ff) \n                     \"\n                     /gene=\"" +
+    "Polymerase\"\n                     /codon_start=1\n         " +
+    "            /transl_table=11\n                     /product=" +
+    "\"Polymerase\"\n                     /translation=\"MPLSYQHF" +
+    "RRLLLLDDEAGPLEEELPRLADEGLNRRVAEDLNLG\n                     N" +
+    "LNVSIPWTHKVGNFTGLYSSTVPVFNPHWKTPSFPNIHLHQDIIKKCEQFVGPLTVN\n " +
+    "                    EKRRLQLIMPARFYPKVTKYLPLDKGIKPYYPEHLVNHYF" +
+    "QTRHYLHTLWKAGILYKR\n                     ETTHSASFCGSPYSWEQDL" +
+    "QHGAESFHQQSSGILSRPPVGSSLQSKHRKSRLGLQSQQ\n                   " +
+    "  GHLARRQQGRSWSIRAGFHPTARRPFGVEPSGSGHTTNFASKSASCLHQSPVRKAAYP" +
+    "\n                     AVSTFEKHSSSGHAVEFHNLPPNSARSQSERPVFPCW" +
+    "WLQFRNSKPCSDYCLSLIVNL\n                     LEDWGPCAEHGEHHIR" +
+    "IPRTPSRVTGGVFLVDKNPHNTAESRLVVDFSQFSRGNYRVS\n                " +
+    "     WPKFAVPNLQSLTNLLSSNLSWLSLDVSAAFYHLPLHPAAMPHLLVGSSGLSRYV" +
+    "ARL\n                     SSNSRILNNQHGTMPDLHDYCSRNLYVSLLLLYQ" +
+    "TFGRKLHLYSHPIILGFRKIPMGV\n                     GLSPFLLAQFTSA" +
+    "ICSVVRRAFPHCLAFSYMDDVVLGAKSVQHLESLFTAVTNFLLSL\n             " +
+    "        GIHLNPNKTKRWGYSLNFMGYVIGCYGSLPQEHIIQKIKECFRKLPINRPID" +
+    "WKVCQR\n                     IVGLLGFAAPFTQCGYPALMPLYACIQSKQA" +
+    "FTFSPTYKAFLCKQYLNLYPVARQRPG\n                     LCQVFADATP" +
+    "TGWGLVMGHQRMRGTFSAPLPIHTAELLAACFARSRSGANIIGTDNSV\n          " +
+    "           VLSRKYTSFPWLLGCAANWILRGTSFVYVPSALNPADDPSRGRLGLSRP" +
+    "LLRLPFRPT\n                     TGRTSLYADSPSVPSHLPDRVHFASPLH" +
+    "VAWRPP\"\n     gene            1437..2117\n                 " +
+    "    /gene=\"S-Antigen\"\n     CDS             1437..2117\n  " +
+    "                   /gene=\"S-Antigen\"\n                    " +
+    " /codon_start=1\n                     /transl_table=11\n    " +
+    "                 /product=\"S-Antigen\"\n                   " +
+    "  /translation=\"MENITSGFLGPLLVLQAGFFLLTRILTIPQSLDSWWTSLNFLG" +
+    "G\n                     TTVCLGQNSQSPTSNHSPTSCPPTCPGYRWMCLRRF" +
+    "IIFLFILLLCLIFLLVLLDYQG\n                     MLPVCPLIPGSSTTS" +
+    "TGPCRTCMTTAQGTSMYPSCCCTKPSDGNCTCIPIPSSWAFGK\n               " +
+    "      FLWEWASARFSWLSLLVPFVQWFVGLSPTVWLSVIWMMWYWGPSLYSILSPFLP" +
+    "LLPI\n                     FFCLWVYI\"\nORIGIN      \n       " +
+    " 1 ATGGACATCG ACCCTTATAA AGAATTTGGA GCTACTGTGG AGTTACTCTC GT" +
+    "TTTTGCCT\n       61 TCTGACTTCT TTCCTTCAGT ACGAGATCTT CTAGATA" +
+    "CCG CCTCAGCTCT GTATCGGGAA\n      121 GCCTTAGAGT CTCCTGAGCA T" +
+    "TGTTCACCT CACCATACTG CACTCAGGCA AGCAATTCTT\n      181 TGCTGG" +
+    "GGGG AACTAATGAC TCTAGCTACC TGGGTGGGTG TTAATTTGGA AGATCCAGCG\n" +
+    "      241 TCTAGAGACC TAGTAGTCAG TTATGTCAAC ACTAATATGG GCCTAA" +
+    "AGTT CAGGCAACTC\n      301 TTGTGGTTTC ACATTTCTTG TCTCACTTTT " +
+    "GGAAGAGAAA CAGTTATAGA GTATTTGGTG\n      361 TCTTTCGGAG TGTGG" +
+    "ATTCG CACTCCTCCA GCTTATAGAC CACCAAATGC CCCTATCCTA\n      421" +
+    " TCAACACTTC CGGAGACTAC TGTTGTTAGA CGACGAGGCA GGTCCCCTAG AAGA" +
+    "AGAACT\n      481 CCCTCGCCTC GCAGACGAAG GTCTCAATCG CCGCGTCGC" +
+    "A GAAGATCTCA ATCTCGGGAA\n      541 TCTCAATGTT AGTATTCCTT GGA" +
+    "CTCATAA GGTGGGGAAC TTTACTGGGC TTTATTCTTC\n      601 TACTGTAC" +
+    "CT GTCTTTAATC CTCATTGGAA AACACCATCT TTTCCTAATA TACATTTACA\n " +
+    "     661 CCAAGACATT ATCAAAAAAT GTGAACAGTT TGTAGGCCCA CTCACAG" +
+    "TTA ATGAGAAAAG\n      721 AAGATTGCAA TTGATTATGC CTGCCAGGTT T" +
+    "TATCCAAAG GTTACCAAAT ATTTACCATT\n      781 GGATAAGGGT ATTAAA" +
+    "CCTT ATTATCCAGA ACATCTAGTT AATCATTACT TCCAAACTAG\n      841 " +
+    "ACACTATTTA CACACTCTAT GGAAGGCGGG TATATTATAT AAGAGAGAAA CAACA" +
+    "CATAG\n      901 CGCCTCATTT TGTGGGTCAC CATATTCTTG GGAACAAGAT" +
+    " CTACAGCATG GGGCAGAATC\n      961 TTTCCACCAG CAATCCTCTG GGAT" +
+    "TCTTTC CCGACCACCA GTTGGATCCA GCCTTCAGAG\n     1021 CAAACACCG" +
+    "C AAATCCAGAT TGGGACTTCA ATCCCAACAA GGACACCTGG CCAGACGCCA\n  " +
+    "   1081 ACAAGGTAGG AGCTGGAGCA TTCGGGCTGG GTTTCACCCC ACCGCACG" +
+    "GA GGCCTTTTGG\n     1141 GGTGGAGCCC TCAGGCTCAG GGCATACTAC AA" +
+    "ACTTTGCC AGCAAATCCG CCTCCTGCCT\n     1201 CCACCAATCG CCAGTCA" +
+    "GGA AGGCAGCCTA CCCCGCTGTC TCCACCTTTG AGAAACACTC\n     1261 A" +
+    "TCCTCAGGC CATGCAGTGG AATTCCACAA CCTTCCACCA AACTCTGCAA GATCCC" +
+    "AGAG\n     1321 TGAGAGGCCT GTATTTCCCT GCTGGTGGCT CCAGTTCAGG " +
+    "AACAGTAAAC CCTGTTCTGA\n     1381 CTACTGCCTC TCCCTTATCG TCAAT" +
+    "CTTCT CGAGGATTGG GGACCCTGCG CTGAACATGG\n     1441 AGAACATCAC" +
+    " ATCAGGATTC CTAGGACCCC TTCTCGTGTT ACAGGCGGGG TTTTTCTTGT\n   " +
+    "  1501 TGACAAGAAT CCTCACAATA CCGCAGAGTC TAGACTCGTG GTGGACTTC" +
+    "T CTCAATTTTC\n     1561 TAGGGGGAAC TACCGTGTGT CTTGGCCAAA ATT" +
+    "CGCAGTC CCCAACCTCC AATCACTCAC\n     1621 CAACCTCTTG TCCTCCAA" +
+    "CT TGTCCTGGTT ATCGCTGGAT GTGTCTGCGG CGTTTTATCA\n     1681 TC" +
+    "TTCCTCTT CATCCTGCTG CTATGCCTCA TCTTCTTGTT GGTTCTTCTG GACTATC" +
+    "AAG\n     1741 GTATGTTGCC CGTTTGTCCT CTAATTCCAG GATCCTCAAC A" +
+    "ACCAGCACG GGACCATGCC\n     1801 GGACCTGCAT GACTACTGCT CAAGGA" +
+    "ACCT CTATGTATCC CTCCTGTTGC TGTACCAAAC\n     1861 CTTCGGACGG " +
+    "AAATTGCACC TGTATTCCCA TCCCATCATC CTGGGCTTTC GGAAAATTCC\n    " +
+    " 1921 TATGGGAGTG GGCCTCAGCC CGTTTCTCCT GGCTCAGTTT ACTAGTGCCA" +
+    " TTTGTTCAGT\n     1981 GGTTCGTAGG GCTTTCCCCC ACTGTTTGGC TTTC" +
+    "AGTTAT ATGGATGATG TGGTATTGGG\n     2041 GGCCAAGTCT GTACAGCAT" +
+    "C TTGAGTCCCT TTTTACCGCT GTTACCAATT TTCTTTTGTC\n     2101 TTT" +
+    "GGGTATA CATTTAAACC CTAACAAAAC AAAGAGATGG GGTTACTCTC TAAATTTT" +
+    "AT\n     2161 GGGTTATGTC ATTGGATGTT ATGGGTCCTT GCCACAAGAA CA" +
+    "CATCATAC AAAAAATCAA\n     2221 AGAATGTTTT AGAAAACTTC CTATTAA" +
+    "CAG GCCTATTGAT TGGAAAGTAT GTCAACGAAT\n     2281 TGTGGGTCTT T" +
+    "TGGGTTTTG CTGCCCCTTT TACACAATGT GGTTATCCTG CGTTGATGCC\n     " +
+    "2341 TTTGTATGCA TGTATTCAAT CTAAGCAGGC TTTCACTTTC TCGCCAACTT " +
+    "ACAAGGCCTT\n     2401 TCTGTGTAAA CAATACCTGA ACCTTTACCC CGTTG" +
+    "CCCGG CAACGGCCAG GTCTGTGCCA\n     2461 AGTGTTTGCT GACGCAACCC" +
+    " CCACTGGCTG GGGCTTGGTC ATGGGCCATC AGCGCATGCG\n     2521 TGGA" +
+    "ACCTTT TCGGCTCCTC TGCCGATCCA TACTGCGGAA CTCCTAGCCG CTTGTTTTG" +
+    "C\n     2581 TCGCAGCAGG TCTGGAGCAA ACATTATCGG GACTGATAAC TCT" +
+    "GTTGTCC TATCCCGCAA\n     2641 ATATACATCG TTTCCATGGC TGCTAGGC" +
+    "TG TGCTGCCAAC TGGATCCTGC GCGGGACGTC\n     2701 CTTTGTTTAC GT" +
+    "CCCGTCGG CGCTGAATCC TGCGGACGAC CCTTCTCGGG GTCGCTTGGG\n     2" +
+    "761 ACTCTCTCGT CCCCTTCTCC GTCTGCCGTT CCGACCGACC ACGGGGCGCA C" +
+    "CTCTCTTTA\n     2821 CGCGGACTCC CCGTCTGTGC CTTCTCATCT GCCGGA" +
+    "CCGT GTGCACTTCG CTTCACCTCT\n     2881 GCACGTCGCA TGGAGACCAC " +
+    "CGTGAACGCC CACCAAATAT TGCCCAAGGT CTTACATAAG\n     2941 AGGAC" +
+    "TCTTG GACTCTCAGC AATGTCAACG ACCGACCTTG AGGCATACTT CAAAGACTGT" +
+    "\n     3001 TTGTTTAAAG ACTGGGAGGA GTTGGGGGAG GAGATTAGGT TAAA" +
+    "GGTCTT TGTACTAGGA\n     3061 GGCTGTAGGC ATAAATTGGT CTGCGCACC" +
+    "A GCACCATGCA ACTTTTTCAC CTCTGCCTAA\n     3121 TCATCTCTTG TTC" +
+    "ATGTCCT ACTGTTCAAG CCTCCAAGCT GTGCCTTGGG TGGCTTTGGG\n     31" +
+    "81 GC\n//\n\n";
+    return str;
+}
+
+
+
 
 
 
@@ -1986,7 +2074,7 @@ function wdeTestLoadLargeSeq() {
     wdeSequenceModified();
 }
 
-function wdeTestLoadLargeGeneBank() {
+function wdeTestStringLargeGeneBank() {
     var seq = "LOCUS       JN874483               93912 bp    DNA     circular SYN 01-NOV-2012\n" +
     "DEFINITION  Cloning vector pHUGE-LjMtNFS, complete sequence.\n" +
     "ACCESSION   JN874483\n" +
@@ -3864,14 +3952,11 @@ function wdeTestLoadLargeGeneBank() {
     "    93781 gtggtgattt tgtgccgagc tgccggtcgg ggagctgttg gctggctggt ggcaggatat\n" +
     "    93841 attgtggtgt aaacaaattg acgcttagac aacttaataa cacattgcgg acgtttttaa\n" +
     "    93901 tgtactgaat tc\n" +
-    "//\n";
-    
-    window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(wdeCleanSeq(wdeReadFile(seq, "pHUGE.gb")), wdeZeroOne, wdeNumbers);
-    wdeShowTab('tab1','WDE_main_tab');
-    wdeSequenceModified();
+    "//\n\n";
+    return seq;
 }
 
-function wdeTestLoadSmallGeneBank() {
+function wdeTestStringSmallGeneBank() {
     var seq = "LOCUS       HBV                     3182 bp    DNA     circular 22-JUL-2017\n" +
     "DEFINITION  Hepatitis B Virus, complete sequence.\n" +
     "ACCESSION   \n" +
@@ -3882,7 +3967,7 @@ function wdeTestLoadSmallGeneBank() {
     "     gene            1..552\n" +
     "                     /gene=\"Core-Antigen\"\n" +
     "     CDS             1..552\n" +
-    "                     /note=\"forCol(ffff00) revCol(ffff00) \"\n" +
+    "                     /note=\"forCol(ffff00) revCol(ffff00)\"\n" +
     "                     /gene=\"Core-Antigen\"\n" +
     "                     /codon_start=1\n" +
     "                     /transl_table=11\n" +
@@ -3894,7 +3979,7 @@ function wdeTestLoadSmallGeneBank() {
     "     gene            407..2905\n" +
     "                     /gene=\"Polymerase\"\n" +
     "     CDS             407..2905\n" +
-    "                     /note=\"forCol(6464ff) revCol(6464ff) \"\n" +
+    "                     /note=\"forCol(6464ff) revCol(6464ff)\"\n" +
     "                     /gene=\"Polymerase\"\n" +
     "                     /codon_start=1\n" +
     "                     /transl_table=11\n" +
@@ -3981,10 +4066,8 @@ function wdeTestLoadSmallGeneBank() {
     "     3061 GGCTGTAGGC ATAAATTGGT CTGCGCACCA GCACCATGCA ACTTTTTCAC CTCTGCCTAA\n" +
     "     3121 TCATCTCTTG TTCATGTCCT ACTGTTCAAG CCTCCAAGCT GTGCCTTGGG TGGCTTTGGG\n" +
     "     3181 GC\n" +
-    "//\n";
+    "//\n\n";
 
-    window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(wdeCleanSeq(wdeReadFile(seq, "pHUGE.gb")), wdeZeroOne, wdeNumbers);
-    wdeShowTab('tab1','WDE_main_tab');
-    wdeSequenceModified();
+    return seq;
 }
 
