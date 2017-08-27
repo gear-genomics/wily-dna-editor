@@ -220,6 +220,8 @@ function wdeActivateStartup(){
     fileLoad.addEventListener("change", wdeLoadFile, false);
     var fileLoad2 = document.getElementById("WDE_Load_Settings");
     fileLoad2.addEventListener("change", wdeLoadSetFile, false);
+    var fileLoad3 = document.getElementById("WDE_Load_Lib_File");
+    fileLoad3.addEventListener("change", wdeLoadLibFile, false);
     window.frames['WDE_RTF'].document.addEventListener('cut', wdeCutEvent);
     window.frames['WDE_RTF'].document.addEventListener('copy', wdeCopyEvent);
     window.frames['WDE_RTF'].document.addEventListener('paste', wdePasteEvent);
@@ -619,7 +621,7 @@ function wdeReadFile(seq, file) {
 	            continue;
 	        }
 	        if (/^\/\//.test(gbLin[k])) {
-	            wdeProcessGenebank();
+	            wdeProcessGenebank(wdeFeatures);
 	            wdeFeatFocUpdate(-1);
 	            return curSeq;
 	        }
@@ -664,62 +666,62 @@ function wdeReadFile(seq, file) {
     return seq;
 }
 
-function wdeProcessGenebank() {
-    for (var k = 0; k < wdeFeatures.length; k++) {
+function wdeProcessGenebank(feat) {
+    for (var k = 0; k < feat.length; k++) {
         // Flip join(complement(),complement())
-        if(/^join\((complement\(.+)\)\s*$/g.test(wdeFeatures[k][1])) {
+        if(/^join\((complement\(.+)\)\s*$/g.test(feat[k][1])) {
             var locFlip = RegExp.$1;
             locFlip = locFlip.replace(/complement\(/g, "");
             locFlip = locFlip.replace(/\)/g, "");
             var locOrder = locFlip.split(",");
-            wdeFeatures[k][1] = "complement(join(";
+            feat[k][1] = "complement(join(";
             for (var i = locOrder.length - 1 ; i >= 0 ; i--) {
-                wdeFeatures[k][1] += locOrder[i] + ",";
+                feat[k][1] += locOrder[i] + ",";
             }
-            wdeFeatures[k][1] = wdeFeatures[k][1].replace(/,$/, "))");
+            feat[k][1] = feat[k][1].replace(/,$/, "))");
         }
     
         // Extract the note qualifier
         // Regular Expression . does not match newline use [\s\S] instead
-        if (/\/note="[\s\S]+/g.test(wdeFeatures[k][8])) {
-            var noteArr = wdeGenebankExtractNote(wdeFeatures[k][8]);
+        if (/\/note="[\s\S]+/g.test(feat[k][8])) {
+            var noteArr = wdeGenebankExtractNote(feat[k][8]);
             var qNote = noteArr[0];
-            wdeFeatures[k][8] = noteArr[1];
+            feat[k][8] = noteArr[1];
 	        if (/forCol\(([^\)]+)\)\s*/g.test(qNote)) {
-	            wdeFeatures[k][4] = RegExp.$1;
+	            feat[k][4] = RegExp.$1;
 	            qNote = qNote.replace(/forCol\(([^\)]+)\)\s*/g, "");
 	        }
 	        if (/revCol\(([^\)]+)\)\s*/g.test(qNote)) {
-	            wdeFeatures[k][5] = RegExp.$1;
+	            feat[k][5] = RegExp.$1;
 	            qNote = qNote.replace(/revCol\(([^\)]+)\)\s*/g, "");
 	        }
 	        if (/drawShape\(([^\)]+)\)\s*/g.test(qNote)) {
-	            wdeFeatures[k][6] = RegExp.$1;
+	            feat[k][6] = RegExp.$1;
 	            qNote = qNote.replace(/drawShape\(([^\)]+)\)\s*/g, "");
 	        }
 	        if (/tag\(([^\)]+)\)\s*/g.test(qNote)) {
-	            wdeFeatures[k][2] = RegExp.$1;
-	            wdeFeatures[k][3] = "U";
+	            feat[k][2] = RegExp.$1;
+	            feat[k][3] = "U";
 	            qNote = qNote.replace(/tag\([^\)]+\)\s*/g, "");
 	        }
-	        wdeFeatures[k][7] = qNote;
-	        if (wdeFeatures[k][3] != "U") {
+	        feat[k][7] = qNote;
+	        if (feat[k][3] != "U") {
 	            /\/note="([\s\S]+?)"/g.test(qNote);
-	            wdeFeatures[k][2] = RegExp.$1;
+	            feat[k][2] = RegExp.$1;
 	        }
         }
-        if (wdeFeatures[k][3] != "U") {
-	        if (/\/allele="([^"]+?)"\s*/g.test(wdeFeatures[k][8])) {
-	              wdeFeatures[k][2] = RegExp.$1;
+        if (feat[k][3] != "U") {
+	        if (/\/allele="([^"]+?)"\s*/g.test(feat[k][8])) {
+	              feat[k][2] = RegExp.$1;
 	        }
-	        if (/\/standard_name="([^"]+?)"\s*/g.test(wdeFeatures[k][8])) {
-	              wdeFeatures[k][2] = RegExp.$1;
+	        if (/\/standard_name="([^"]+?)"\s*/g.test(feat[k][8])) {
+	              feat[k][2] = RegExp.$1;
 	        }
-	        if (/\/product="([^"]+?)"\s*/g.test(wdeFeatures[k][8])) {
-	              wdeFeatures[k][2] = RegExp.$1;
+	        if (/\/product="([^"]+?)"\s*/g.test(feat[k][8])) {
+	              feat[k][2] = RegExp.$1;
 	        }
-	        if (/\/gene="([^"]+?)"\s*/g.test(wdeFeatures[k][8])) {
-	              wdeFeatures[k][2] = RegExp.$1;
+	        if (/\/gene="([^"]+?)"\s*/g.test(feat[k][8])) {
+	              feat[k][2] = RegExp.$1;
 	        }
         }
     }
@@ -766,6 +768,76 @@ function wdeGenebankExtractNote(featStr) {
     }
     noteVal = "/note=\"" + noteVal + "\"";
     return [noteVal,retVal];
+}
+
+function wdeLoadLibFile(f){
+    var file = f.target.files[0];
+    if (file) { // && file.type.match("text/*")) {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            var txt = event.target.result;
+            var regEx1 = /\r\n/g;
+            txt = txt.replace(regEx1, "\n");
+            wdeReadLibFile(txt, file.name);
+        }
+        reader.readAsText(file);
+    } else {
+        alert("Error opening library file");
+    }
+}
+
+function wdeReadLibFile(seq, file) {
+    var wdeLibFeatures = [];
+    // Genebank file format
+    if (/^LOCUS/.test(seq)) {
+	    var gbLin = seq.split("\n");
+	    var curFeat = -1;
+	    var curSeq = -1;
+	    var curFeatCount = -1;
+	    var stillPos = 1;
+	    for (var k = 1; k < gbLin.length; k++) {
+	        if (/^FEATURES/.test(gbLin[k])) {
+	            curFeat = "";
+	            continue;
+	        }
+	        if (/^ORIGIN/.test(gbLin[k])) {
+	            curFeat = -1;
+	            curSeq = "";
+	            continue;
+	        }
+	        if (/^\/\//.test(gbLin[k])) {
+	            wdeProcessGenebank(wdeLibFeatures);
+	        }
+	        if (curFeat != -1) {
+	            var featKey = gbLin[k].substring(5,21);
+	            var featVal = gbLin[k].substring(21);
+                if (/[A-Za-z]/g.test(featKey)) {
+	                curFeatCount++;
+	                featKey = featKey.replace(/\s+/g, "");
+	                wdeLibFeatures[curFeatCount] = [featKey,featVal,"","E","D","D","D","","",1];
+	                stillPos = 1;
+	            } else {
+	                if (/^\//g.test(featVal)) {
+	                    stillPos = 0;
+	                }
+	                if (stillPos == 1) {
+	                    wdeLibFeatures[curFeatCount][1] += featVal;
+	                } else {
+	                    wdeLibFeatures[curFeatCount][8] += featVal + "\n";
+	                }
+	            }
+	        }
+	        if (curSeq != -1) {
+	            curSeq += gbLin[k];
+	        }
+	    }
+    }
+    curSeq = wdeCleanSeq(curSeq);
+    for (var k = 0; k < wdeLibFeatures.length; k++) {
+        wdeLibExtractFeature(wdeLibFeatures[k], curSeq);
+    }
+    wdeFeatureLib.sort(wdeLibListSort);
+    wdeLibFocRepaint();
 }
 
 function wdeSaveGenBank() {
@@ -847,6 +919,123 @@ function wdeSaveGenBank() {
         finNote = finNote.replace(/ +$/, "");
         finNote += '"';
         var qualifiers = wdeFeatures[k][8];
+        if (/note="/g.test(qualifiers)) {            
+            if (finNote != '/note=""') {
+                qualifiers = qualifiers.replace(/\/note="[^"]+"/g, finNote);
+            } else {
+                qualifiers = qualifiers.replace(/\/note="[^"]+"\s*/g, "");
+            }
+ //     } else if (/gene=""\n/g.test(qualifiers)) {
+ //         qualifiers = qualifiers.replace(/\/note=""/g, finNote);
+        } else {
+            if (finNote != '/note=""') {
+                qualifiers = finNote + "\n" + qualifiers;
+            }
+        }
+        var qualArr = qualifiers.split("\n");
+        for (var i = 0 ; i < qualArr.length - 1 ; i++) {
+            content += "                     " + qualArr[i] + "\n";
+        }
+    }
+    content += "ORIGIN      \n";
+    for (var i = 0; i < seq.length ; i++) {
+        if (i % 60 == 0) {
+            if (i != 0) {
+                content += "\n";
+            }
+            var pIco = i + 1;
+            var iStr = pIco.toString();
+            for (var j = iStr.length; j < 9 ; j++) {
+                content += " ";
+            }
+            content += iStr + " ";
+        } else {
+            if (i % 10 == 0) {
+                content += " ";
+            }
+        }
+        content += seq.charAt(i);
+    }
+    content += "\n//\n\n";
+    var fileName = title + ".gb";
+    return wdeSaveFile(fileName, content, "text");
+}
+
+function wdeSaveLibFile() {
+    var seq = "NN";
+    var modLocStr = [];
+    for (var k = 0; k < wdeFeatureLib.length; k++) {
+        var tempArr = wdeLibShiftByFirst(wdeFeatureLib[k][1],seq.length);
+        modLocStr[k] = tempArr[0];
+        seq += wdeCleanSeq(wdeFeatureLib[k][10]) + "NN";
+    }
+    var title = "Feature Library";
+    var content = "LOCUS       LIBRARY    ";
+    content += "" + seq.length + " bp    DNA            ";
+    var months = [ "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+                   "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" ];
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth();
+    var yy = today.getFullYear();
+    content += "      " + dd + "-" + months[mm] + "-" + yy + "\n";
+    content += "DEFINITION  " + title + " - Feature collection, not a real sequence\n";
+    content += "VERSION     .\n";
+    content += "KEYWORDS    .\n";
+    content += "FEATURES             Location/Qualifiers\n";
+    for (var k = 0; k < wdeFeatureLib.length; k++) {
+        var myKey = "     " + wdeFeatureLib[k][0];
+        for (var i = myKey.length ; i < 21 ; i++) {
+            myKey += " ";
+        }
+        content += myKey;
+        var myPos = modLocStr[k].split(",");
+        myKey = "";
+        for (var i = 0 ; i < myPos.length ; i++) {
+            if (myKey.length + myPos[i].length + 1 > 58) {
+                content += myKey + "\n                     ";
+                myKey = "";
+            }
+            if (i < myPos.length - 1) {
+                myKey += myPos[i] + ",";
+            } else {
+                if (myKey != "") {
+                    content += myKey;
+                }
+                content += myPos[i] + "\n";
+            }
+        }
+        var finNote = '/note="';
+        var myPara = 0;
+        if (wdeFeatureLib[k][4] != "D") {
+            finNote +="forCol(" + wdeFeatureLib[k][4] + ") ";
+            myPara = 1;
+        }
+        if (wdeFeatureLib[k][5] != "D") {
+            finNote +="revCol(" + wdeFeatureLib[k][5] + ") ";
+            myPara = 1;
+        }
+        if (wdeFeatureLib[k][6] != "D") {
+            finNote +="drawShape(" + wdeFeatureLib[k][6] + ") ";
+            myPara = 1;
+        }
+        if (wdeFeatureLib[k][3] == "U") {
+            finNote = finNote.replace(/ $/g, "");
+            finNote +="\ntag(" + wdeFeatureLib[k][2] + ")";
+            myPara = 1;
+        }
+        if ((wdeFeatureLib[k][7] != "") && (wdeFeatureLib[k][7] != '/note=""')) {
+	        if (myPara == 1) {
+	            finNote += "\n";
+	        }
+	        var noteEdit = wdeFeatureLib[k][7].replace(/\/note=\"\s*/g, "");
+	        noteEdit = noteEdit.replace(/"$/, "");
+	        noteEdit = noteEdit.replace(/"/g, "\"\"");
+            finNote += noteEdit;
+        }
+        finNote = finNote.replace(/ +$/, "");
+        finNote += '"';
+        var qualifiers = wdeFeatureLib[k][8];
         if (/note="/g.test(qualifiers)) {            
             if (finNote != '/note=""') {
                 qualifiers = qualifiers.replace(/\/note="[^"]+"/g, finNote);
@@ -1922,10 +2111,10 @@ function wdeLibFocRepaint() {
         var funCl = ' onclick="parent.wdeLibFocUpdate(' + k + ')"';
 	    content += '<tr>\n';
 	    var colFin = wdeFinFeatureColor(wdeFeatureLib, k);
-	    var basePairs = wdeFeatureLib[k][10].length;
+	    var basePairs = wdeCleanSeq(wdeFeatureLib[k][10]);
 	    var colAr = wdeFinFeatColSeg(wdeFeatureLib[k]);
 	    content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + wdeFeatureLib[k][2] + "</td>";
-	    content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + basePairs + " bp</td>";
+	    content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + basePairs.length + " bp</td>";
 	    content += '<td style="background-color:' + colAr[1]  + '"' + funCl + '>' + wdeFeatureLib[k][0] + "</td>";
 	    content += "</tr>\n";
     }
@@ -2052,6 +2241,11 @@ function wdeLibFocRepaint() {
     mainForm.elements["WDE_LIB_QUALIF"].value = wdeLibSelFeat[8];
 }
 
+function wdeDeleteLib() {
+    wdeFeatureLib = [];
+    wdeLibFocRepaint();
+}
+
 function wdeSelAddLib() {
     var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
     var pos = wdeLibExtractFeature(wdeFeatSelFeat, seq);
@@ -2083,7 +2277,7 @@ function wdeAllAddLib() {
 }
 
 function wdeLibExtractFeature(feat,seq) {
-    var loc = wdeLibShiftByFirst(feat[1]);
+    var loc = wdeLibShiftByFirst(feat[1],"First");
     var seqExtr = seq.substring(loc[1],loc[2]);
     var pos = wdeFeatureLib.length;
     if(/complement\((.*)\)\s*$/.test(loc[0])) {
@@ -2111,39 +2305,43 @@ function wdeLibExtractFeature(feat,seq) {
     return pos;
 }
 
-function wdeLibShiftByFirst(loc){
-        var retVal = "";
-        var num = "";
-        var numFound = 0;
-        var firstLoc = -1;
-        var lastLoc = 0;
-	    for (var i = 0; i < loc.length ; i++) {
-	        if (/\d/.test(loc.charAt(i))) {
-	            num += loc.charAt(i);
-	            numFound = 1;
-	        } else {
-	            if (numFound) {
-	                 if (firstLoc == -1){
-	                     firstLoc = num - 1;
-	                 }
-	                 lastLoc = num;
-	                 num = parseInt(num) - firstLoc;
-	                 retVal += "" + num;
-	                 num = "";
-	                 numFound = 0;
-	            }
-	            retVal += loc.charAt(i);
-	        }
-	    }
-        if (numFound) {
-             if (firstLoc == -1){
-                 firstLoc = num - 1;
-             }
-             lastLoc = num;
-             num = parseInt(num) - firstLoc;
-             retVal += "" + num;
+function wdeLibShiftByFirst(loc,offset){
+    // if offset == "First" then fist location is used
+    var retVal = "";
+    var num = "";
+    var numFound = 0;
+    var firstLoc = "First";
+    if (offset != "First") {
+        firstLoc = -offset;
+    }
+    var lastLoc = 0;
+    for (var i = 0; i < loc.length ; i++) {
+        if (/\d/.test(loc.charAt(i))) {
+            num += loc.charAt(i);
+            numFound = 1;
+        } else {
+            if (numFound) {
+                 if (firstLoc == "First"){
+                     firstLoc = num - 1;
+                 }
+                 lastLoc = num;
+                 num = parseInt(num) - firstLoc;
+                 retVal += "" + num;
+                 num = "";
+                 numFound = 0;
+            }
+            retVal += loc.charAt(i);
         }
-        return [retVal,firstLoc,lastLoc];
+    }
+    if (numFound) {
+         if (firstLoc == "First"){
+             firstLoc = num - 1;
+         }
+         lastLoc = num;
+         num = parseInt(num) - firstLoc;
+         retVal += "" + num;
+    }
+    return [retVal,firstLoc,lastLoc];
 }
 
 
