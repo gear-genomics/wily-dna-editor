@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.9.2";
+var wdeVVersion = "0.9.3";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -197,10 +197,10 @@ function wdeKeepTryingAllTests() {
         wdeTestAll();
     } 
     catch (e) {
-        if (e.message == "wdeTestAll is not defined") {
+        if ((e.name == "ReferenceError") && (e.message == "wdeTestAll is not defined")) {
             setTimeout(function() { wdeKeepTryingAllTests(); }, 50);
         } else {
-            alert(e.message);
+            alert(e.name + ":\n" + e.message);
         }
     }
 }
@@ -1603,7 +1603,7 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
             }
         }
         // Place the features
-        if (wdeFEdisp && (length == wdeSeqFeat.length - 2) && (wdeSeqFeat[i] == "R")) {
+        if ((wdeFEdisp != 0) && (length == wdeSeqFeat.length - 2) && (wdeSeqFeat[i] == "R")) {
             var featColor = wdeFeatureColor(i);
             if (featColor[0] != "D") {
                 var infoCount = wdeFeatInfo.length;
@@ -1619,7 +1619,7 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
             }
         }
         // Place the enzyme selection
-        if (wdeREdisp && (length == wdeSeqHigh.length) && (wdeSeqHigh[i] != lastBaseMark)) {
+        if ((wdeREdisp != 0) && (length == wdeSeqHigh.length) && (wdeSeqHigh[i] != lastBaseMark)) {
             if (wdeSeqHigh[i] == "R") {
                 outSeq += closeFeat;
                 openMark = '<span style="background-color:red">';
@@ -1689,7 +1689,6 @@ function wdeShowFeatures(){
     for (var j = 0; j < end ; j++) {
         wdeSeqFeat[j] = ".";
     }
-    
     if (wdeFEdisp) {
         wdeFEdisp = 0;
         wdeFeatInfo = [];
@@ -1708,6 +1707,9 @@ function wdeShowFeatures(){
 	        var posList = posListString.split(",");
             for (var i = 0; i < posList.length; i++) {
                 var singPos = posList[i].split(".");
+                if (parseInt(singPos[0]) > seq.length) {
+                    singPos[0] = seq.length;
+                }
                 if (parseInt(singPos[0]) > 0) {
                     wdeSeqFeat[(parseInt(singPos[0]) - 1)] = "R";
                     sel++;
@@ -1716,6 +1718,9 @@ function wdeShowFeatures(){
 	                wdeSeqFeat[parseInt(singPos[0])] = "R";
                 }
                 if (singPos.length == 2) {
+	                if (parseInt(singPos[1]) > seq.length) {
+	                    singPos[1] = seq.length;
+	                }
 	                if (parseInt(singPos[1]) > 1) {
 	                    wdeSeqFeat[parseInt(singPos[1])] = "R";
 	                }

@@ -4059,9 +4059,9 @@ function wdeTestStringTinyGeneBank() {
     "SOURCE      Hepatitis B Virus\n" +
     "  ORGANISM  Hepatitis B Virus\n" +
     "FEATURES             Location/Qualifiers\n" +
-    "     gene            1..552\n" +
+    "     gene            10..480\n" +
     "                     /gene=\"Core-Antigen\"\n" +
-    "     CDS             1..552\n" +
+    "     CDS             10..480\n" +
     "                     /note=\"forCol(ffff00) revCol(ffff00)\"\n" +
     "                     /gene=\"Core-Antigen\"\n" +
     "                     /codon_start=1\n" +
