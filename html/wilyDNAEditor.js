@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.9.1";
+var wdeVVersion = "0.9.2";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -165,20 +165,6 @@ function wdeCountUp() {
 }
 
 function wdeLoadTestSeq(size) {
-    if (size == "TA")  {
-        if (testInstr == 1) {
-            try {
-                wdeTestAll();
-            } 
-            catch (e) {
-                if (e.message == "wdeTestAll is not defined") {
-                    alert("Tests did not load yet.\nPlease try again in a few seconds.");
-                } else {
-                    alert(e.message);
-                }
-            }
-        }
-    }
     wdeLoadTestScripts();
     if (size == "SF") {
         wdeKeepTryingFunction("wdeTestLoadSmallSeq", "");
@@ -192,6 +178,9 @@ function wdeLoadTestSeq(size) {
     if (size == "LG")  {
         wdeKeepTryingFunction("wdeTestLoadLargeGeneBank", "");
     }
+    if (size == "TA")  {
+        wdeKeepTryingAllTests();
+    }
 }
 
 function wdeKeepTryingFunction(funct, cont) {
@@ -203,6 +192,19 @@ function wdeKeepTryingFunction(funct, cont) {
     }
 }
 
+function wdeKeepTryingAllTests() {
+    try {
+        wdeTestAll();
+    } 
+    catch (e) {
+        if (e.message == "wdeTestAll is not defined") {
+            setTimeout(function() { wdeKeepTryingAllTests(); }, 50);
+        } else {
+            alert(e.message);
+        }
+    }
+}
+
 function wdeLoadTestScripts() {
     if (testInstr == 0) {
 	    var scriptBlock = document.createElement('script');
@@ -210,8 +212,6 @@ function wdeLoadTestScripts() {
         scriptBlock.setAttribute("src", "wilyDNAEditorTestSuite.js");
         document.getElementsByTagName("head")[0].appendChild(scriptBlock);
 		testInstr = 1;
-		var lButton = document.getElementById("wdeRunTestsButton");
-        lButton.value = "Run Tests For All Functions";
 	}
 }
 
