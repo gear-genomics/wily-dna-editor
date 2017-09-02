@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.9.3";
+var wdeVVersion = "0.9.4";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -197,7 +197,9 @@ function wdeKeepTryingAllTests() {
         wdeTestAll();
     } 
     catch (e) {
-        if ((e.name == "ReferenceError") && (e.message == "wdeTestAll is not defined")) {
+        if ((e.name == "ReferenceError") && 
+            (/wdeTestAll/.test(e.message)) && 
+            (/(un|not )defined/.test(e.message))) {
             setTimeout(function() { wdeKeepTryingAllTests(); }, 50);
         } else {
             alert(e.name + ":\n" + e.message);

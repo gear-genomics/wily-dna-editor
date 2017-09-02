@@ -36,6 +36,7 @@
 var wdeTestOutput;
 var wdeTestFailed;
 var wdeTestPRString = "";
+var wdeTestLastTime;
 
 function wdeTestAll() {
     wdeTestOutput = "";
@@ -44,6 +45,7 @@ function wdeTestAll() {
     var currentTestOut = "";
     
     var startTime = new Date();
+    wdeTestLastTime = startTime;
     wdeTestAddToOutput("Starting Tests: " + wdeTestLeadingZero(startTime.getHours()) + ":" 
                    + wdeTestLeadingZero(startTime.getMinutes()) + ":" 
                    + wdeTestLeadingZero(startTime.getSeconds()) + "\n\n");
@@ -107,39 +109,48 @@ function wdeTestAll() {
     wdeRCompSel();
     wdeTestOutCompString(wdeTestDataString_009(), window.frames['WDE_RTF'].document.body.innerHTML);
     
+    wdeTestAddToOutput("wdePopulateEnzmes() - ");
+    wdeTestLoadSmallGeneBank();
+    currentTestOut = JSON.stringify(wdeEnzy);
+    // var myObj = JSON.parse(currentTestOut);
+    wdeTestOutCompString(wdeTestDataString_010(), currentTestOut);
+
+    wdeTestAddToOutput("wdeDrawEnzymes() - ");
+    wdeTestOutCompString(wdeTestDataString_011(), document.getElementById("WDE_enzymes_spacer").innerHTML);
+    
+    alert("The next test run for a few seconds,\n please be patient!");
+    wdeTestLastTime = new Date();
+
+    wdeTestAddToOutput("wdeFindRE() on LargeGeneBank - ");
+    wdeTestLoadLargeGeneBank();
+    wdeFindRE();
+    currentTestOut = JSON.stringify(wdeEnzy);
+    // var myObj = JSON.parse(currentTestOut);
+    wdeTestOutCompString(wdeTestDataString_012(), currentTestOut);
+
+    wdeTestAddToOutput("wdeFindRE() on SmallGeneBank - ");
+    wdeTestLoadSmallGeneBank();
+    wdeFindRE();
+    currentTestOut = JSON.stringify(wdeEnzy);
+    // var myObj = JSON.parse(currentTestOut);
+    wdeTestOutCompString(wdeTestDataString_013(), currentTestOut);
 
 
- // alert(currentTestOut);
+
+ // wdeTestPRString = document.getElementById("WDE_enzymes_spacer").innerHTML
+
+
+ // alert(wdeTestPRString);
  // alert(window.frames['WDE_RTF'].document.body.innerHTML);
+  //  wdeTestPRString = currentTestOut;
  // wdeTestPRString = window.frames['WDE_RTF'].document.body.innerHTML;
 
-
-
-   //currentTestOut = JSON.stringify(wdeEnzy);
-   // var myJSON = '{ "name":"John", "age":31, "city":"New York" }';
-   // var myObj = JSON.parse(myJSON);
 
  //   wdeInTestRun = 0;
  //   wdeSaveFile("Bla", wdeTestStringSmallGeneBank(), "text");
  //   wdeSaveFile("Bla2", wdeTestDataString_006(), "text");
  //   wdeInTestRun = 1;
 
- //   wdeTestOutCompString(wdeTestDataString_006(), wdeTestStringSmallGeneBank());
-
-
-    
-   
-  // alert(currentTestOut);
-    
- //   wdeTestPRString = window.frames['WDE_RTF'].document.body.innerHTML;
-
-
-   
-    //  wdeRetAmbiqutyOnly(seq)
-    //  wdeReverseComplement(seq)
-    
-    
-    
     
     wdeInTestRun = 0;
     
@@ -153,13 +164,12 @@ function wdeTestAll() {
     wdeTestAddToOutput("\nFinished Tests: " + wdeTestLeadingZero(endTime.getHours()) + ":" 
                    + wdeTestLeadingZero(endTime.getMinutes()) + ":" 
                    + wdeTestLeadingZero(endTime.getSeconds()) + "\n");
-                   
+
     var seconds = (endTime.getTime() - startTime.getTime()) / 1000;
     wdeTestAddToOutput("Tests Runtime: " + seconds + " s\n");
 
     // See if there is something else for output
-    
-    wdeTestPRStringAsFunction();
+    wdeTestPRStringAsFunction2();
 }
 
 function wdeTestSimulateSelection(start, end) {
@@ -186,10 +196,13 @@ function wdeTestAlert() {
 }
 
 function wdeTestOutCompString(a,b) {
+    var nowTime = new Date();
+    var mSeconds = nowTime.getTime() - wdeTestLastTime.getTime();
+    wdeTestLastTime = nowTime;
     if (a == b) {
-        wdeTestAddToOutput("[OK]\n");
+        wdeTestAddToOutput("[OK] - " + mSeconds + " ms\n");
     } else {
-        wdeTestAddToOutput("[FAILED]\n");
+        wdeTestAddToOutput("[FAILED] - " + mSeconds + " ms\n");
         wdeTestFailed = 1;
     }
 }
@@ -218,6 +231,8 @@ function wdeTestPRStringAsFunction() {
             retStr += "&lt;";
         } else if (wdeTestPRString.charAt(i) == ">") {
             retStr += "&gt;";
+        } else if (wdeTestPRString.charAt(i) == "&") {
+            retStr += "&amp;";
         } else if (wdeTestPRString.charAt(i) == "\"") {
             retStr += "\\\"";
             j++;
@@ -227,6 +242,44 @@ function wdeTestPRStringAsFunction() {
         j++;
     }
     retStr += "\";\n    return str;\n}\n";
+    
+    window.frames['WDE_TEST_OUT'].document.body.innerHTML = "<pre>\n" + retStr + "\n</pre>";
+    wdeShowTab('tab7','WDE_settings');
+}
+
+function wdeTestPRStringAsFunction2() {
+    if (wdeTestPRString == "") {
+        return;
+    }
+    var retStr = "function wdeTestDataString_000() {\n    var str = '";
+    var j = 10;
+    for (var i = 0 ; i < wdeTestPRString.length ; i++) {
+        if (j > 59) {
+            retStr += "' +\n    '";
+            j = 0;
+        }
+        if (wdeTestPRString.charAt(i) == "\n") {
+            retStr += "\\n";
+            j++;
+	    } else if ((wdeTestPRString.charAt(i) == ",") && 
+	               (wdeTestPRString.charAt(i -1 ) == "]")) {
+	        retStr += ",' +\n    '";
+	        j = 0;
+        } else if (wdeTestPRString.charAt(i) == "<") {
+            retStr += "&lt;";
+        } else if (wdeTestPRString.charAt(i) == ">") {
+            retStr += "&gt;";
+        } else if (wdeTestPRString.charAt(i) == "&") {
+            retStr += "&amp;";
+        } else if (wdeTestPRString.charAt(i) == "'") {
+            retStr += "\\'";
+            j++;
+        } else{
+            retStr += wdeTestPRString.charAt(i);
+        }
+        j++;
+    }
+    retStr += "';\n    return str;\n}\n";
     
     window.frames['WDE_TEST_OUT'].document.body.innerHTML = "<pre>\n" + retStr + "\n</pre>";
     wdeShowTab('tab7','WDE_settings');
@@ -638,6 +691,6434 @@ function wdeTestDataString_009() {
     "GTGGATTCG CACTCCTCCA GCTTATAGAC\n 401  CACCAAATGC CCCTATCCTA" +
     " TCAACACTTC CGGAGACTAC TGTTGTTAGA CGACGAGGCA GGTCCCCTAG AAGA" +
     "AGAACT\n 481  CCCTCGCCTC GCAGACGAAG </pre>";
+    return str;
+}
+
+function wdeTestDataString_010() {
+    var str = '[["AatII","GACGT^C",0,"-","","N",""],' +
+    '["AccI","GT^MKAC",0,"-","","N",""],' +
+    '["Acc65I","G^GTACC",0,"-","","C",""],' +
+    '["AciI","CCGC(-3/-1)",0,"-","","N",""],' +
+    '["AclI","AA^CGTT",0,"-","","N",""],' +
+    '["AcuI","CTGAAG(16/14)",0,"-","","N",""],' +
+    '["AfeI","AGC^GCT",0,"-","","N",""],' +
+    '["AflII","C^TTAAG",0,"-","","N",""],' +
+    '["AflIII","A^CRYGT",0,"-","","N",""],' +
+    '["AgeI","A^CCGGT",0,"-","","N",""],' +
+    '["AhdI","GACNNN^NNGTC",0,"-","","N",""],' +
+    '["AleI","CACNN^NNGTG",0,"-","","N",""],' +
+    '["AluI","AG^CT",0,"-","","N",""],' +
+    '["AlwI","GGATC(4/5)",0,"-","","A",""],' +
+    '["AlwNI","CAGNNN^CTG",0,"-","","C",""],' +
+    '["ApaI","GGGCC^C",0,"-","","C",""],' +
+    '["ApaLI","G^TGCAC",0,"-","","N",""],' +
+    '["ApeKI","G^CWGC",0,"-","","N",""],' +
+    '["ApoI","R^AATTY",0,"-","","N",""],' +
+    '["AscI","GG^CGCGCC",0,"-","","N",""],' +
+    '["AseI","AT^TAAT",0,"-","","N",""],' +
+    '["AsiSI","GCGAT^CGC",0,"-","","N",""],' +
+    '["Asp700I","GAANN^NNTTC",0,"-","","N",""],' +
+    '["Asp718I","G^GTACC",0,"-","","C",""],' +
+    '["AvaI","C^YCGRG",0,"-","","N",""],' +
+    '["AvaII","G^GWCC",0,"-","","C",""],' +
+    '["AvrII","C^CTAGG",0,"-","","N",""],' +
+    '["BaeGI","GKGCM^C",0,"-","","N",""],' +
+    '["BamHI","G^GATCC",0,"-","","N",""],' +
+    '["BanI","G^GYRCC",0,"-","","N",""],' +
+    '["BanII","GRGCY^C",0,"-","","N",""],' +
+    '["BbrPI","CAC^GTG",0,"-","","N",""],' +
+    '["BbsI","GAAGAC(2/6)",0,"-","","N",""],' +
+    '["BbvI","GCAGC(8/12)",0,"-","","N",""],' +
+    '["BbvCI","CCTCAGC(-5/-2)",0,"-","","N",""],' +
+    '["BccI","CCATC(4/5)",0,"-","","N",""],' +
+    '["BceAI","ACGGC(12/14)",0,"-","","N",""],' +
+    '["BciVI","GTATCC(6/5)",0,"-","","N",""],' +
+    '["BclI","T^GATCA",0,"-","","A",""],' +
+    '["BcoDI","GTCTC(1/5)",0,"-","","N",""],' +
+    '["BfaI","C^TAG",0,"-","","N",""],' +
+    '["BfrI","C^TTAAG",0,"-","","N",""],' +
+    '["BfuAI","ACCTGC(4/8)",0,"-","","N",""],' +
+    '["BfuCI","^GATC",0,"-","","N",""],' +
+    '["BglI","GCCNNNN^NGGC",0,"-","","N",""],' +
+    '["BglII","A^GATCT",0,"-","","N",""],' +
+    '["BlnI","C^CTAGG",0,"-","","N",""],' +
+    '["BlpI","GC^TNAGC",0,"-","","N",""],' +
+    '["BmgBI","CACGTC(-3/-3)",0,"-","","N",""],' +
+    '["BmrI","ACTGGG(5/4)",0,"-","","N",""],' +
+    '["BmtI","GCTAG^C",0,"-","","N",""],' +
+    '["BpmI","CTGGAG(16/14)",0,"-","","N",""],' +
+    '["Bpu10I","CCTNAGC(-5/-2)",0,"-","","N",""],' +
+    '["BpuEI","CTTGAG(16/14)",0,"-","","N",""],' +
+    '["BsaI","GGTCTC(1/5)",0,"-","","C",""],' +
+    '["BsaAI","YAC^GTR",0,"-","","N",""],' +
+    '["BsaBI","GATNN^NNATC",0,"-","","A",""],' +
+    '["BsaHI","GR^CGYC",0,"-","","N",""],' +
+    '["BsaJI","C^CNNGG",0,"-","","N",""],' +
+    '["BsaWI","W^CCGGW",0,"-","","N",""],' +
+    '["BsaXI","(9/12)ACNNNNNCTCC(10/7)",0,"-","","N",""],' +
+    '["BseRI","GAGGAG(10/8)",0,"-","","N",""],' +
+    '["BseYI","CCCAGC(-5/-1)",0,"-","","N",""],' +
+    '["BsgI","GTGCAG(16/14)",0,"-","","N",""],' +
+    '["BsiEI","CGRY^CG",0,"-","","N",""],' +
+    '["BsiHKAI","GWGCW^C",0,"-","","N",""],' +
+    '["BsiWI","C^GTACG",0,"-","","N",""],' +
+    '["BslI","CCNNNNN^NNGG",0,"-","","N",""],' +
+    '["BsmI","GAATGC(1/-1)",0,"-","","N",""],' +
+    '["BsmAI","GTCTC(1/5)",0,"-","","N",""],' +
+    '["BsmBI","CGTCTC(1/5)",0,"-","","N",""],' +
+    '["BsmFI","GGGAC(10/14)",0,"-","","N",""],' +
+    '["BsoBI","C^YCGRG",0,"-","","N",""],' +
+    '["Bsp1286I","GDGCH^C",0,"-","","N",""],' +
+    '["BspCNI","CTCAG(9/7)",0,"-","","N",""],' +
+    '["BspDI","AT^CGAT",0,"-","","A",""],' +
+    '["BspEI","T^CCGGA",0,"-","","A",""],' +
+    '["BspHI","T^CATGA",0,"-","","A",""],' +
+    '["BspMI","ACCTGC(4/8)",0,"-","","N",""],' +
+    '["BspQI","GCTCTTC(1/4)",0,"-","","N",""],' +
+    '["BsrI","ACTGG(1/-1)",0,"-","","N",""],' +
+    '["BsrBI","CCGCTC(-3/-3)",0,"-","","N",""],' +
+    '["BsrDI","GCAATG(2/0)",0,"-","","N",""],' +
+    '["BsrFI","R^CCGGY",0,"-","","N",""],' +
+    '["BsrGI","T^GTACA",0,"-","","N",""],' +
+    '["BssHII","G^CGCGC",0,"-","","N",""],' +
+    '["BssSI","CACGAG(-5/-1)",0,"-","","N",""],' +
+    '["BstAPI","GCANNNN^NTGC",0,"-","","N",""],' +
+    '["BstBI","TT^CGAA",0,"-","","N",""],' +
+    '["BstEII","G^GTNACC",0,"-","","N",""],' +
+    '["BstNI","CC^WGG",0,"-","","N",""],' +
+    '["BstUI","CG^CG",0,"-","","N",""],' +
+    '["BstXI","CCANNNNN^NTGG",0,"-","","N",""],' +
+    '["BstYI","R^GATCY",0,"-","","N",""],' +
+    '["BstZ17I","GTA^TAC",0,"-","","N",""],' +
+    '["Bsu36I","CC^TNAGG",0,"-","","N",""],' +
+    '["BtgI","C^CRYGG",0,"-","","N",""],' +
+    '["BtgZI","GCGATG(10/14)",0,"-","","N",""],' +
+    '["BtsI","GCAGTG(2/0)",0,"-","","N",""],' +
+    '["BtsIMutI","CAGTG(2/0)",0,"-","","N",""],' +
+    '["BtsCI","GGATG(2/0)",0,"-","","N",""],' +
+    '["Cac8I","GCN^NGC",0,"-","","N",""],' +
+    '["CfoI","GCG^C",0,"-","","N",""],' +
+    '["ClaI","AT^CGAT",0,"-","","A",""],' +
+    '["CviAII","C^ATG",0,"-","","N",""],' +
+    '["CviQI","G^TAC",0,"-","","N",""],' +
+    '["DdeI","C^TNAG",0,"-","","N",""],' +
+    '["DpnI","GA^TC",0,"-","","N",""],' +
+    '["DpnII","^GATC",0,"-","","A",""],' +
+    '["DraI","TTT^AAA",0,"-","","N",""],' +
+    '["DraIII","CACNNN^GTG",0,"-","","N",""],' +
+    '["DrdI","GACNNNN^NNGTC",0,"-","","N",""],' +
+    '["EaeI","Y^GGCCR",0,"-","","C",""],' +
+    '["EagI","C^GGCCG",0,"-","","N",""],' +
+    '["EarI","CTCTTC(1/4)",0,"-","","N",""],' +
+    '["EciI","GGCGGA(11/9)",0,"-","","A",""],' +
+    '["Eco47III","AGC^GCT",0,"-","","N",""],' +
+    '["EcoNI","CCTNN^NNNAGG",0,"-","","N",""],' +
+    '["EcoO109I","RG^GNCCY",0,"-","","N",""],' +
+    '["EcoP15I","CAGCAG(25/27)",0,"-","","N",""],' +
+    '["EcoRI","G^AATTC",0,"-","","N",""],' +
+    '["EcoRV","GAT^ATC",0,"-","","N",""],' +
+    '["Eco53kI","GAG^CTC",0,"-","","N",""],' +
+    '["FatI","^CATG",0,"-","","N",""],' +
+    '["FauI","CCCGC(4/6)",0,"-","","N",""],' +
+    '["Fnu4HI","GC^NGC",0,"-","","N",""],' +
+    '["FokI","GGATG(9/13)",0,"-","","N",""],' +
+    '["FseI","GGCCGG^CC",0,"-","","N",""],' +
+    '["FspI","TGC^GCA",0,"-","","N",""],' +
+    '["HaeII","RGCGC^Y",0,"-","","N",""],' +
+    '["HaeIII","GG^CC",0,"-","","N",""],' +
+    '["HgaI","GACGC(5/10)",0,"-","","N",""],' +
+    '["HhaI","GCG^C",0,"-","","N",""],' +
+    '["HinP1I","G^CGC",0,"-","","N",""],' +
+    '["HincII","GTY^RAC",0,"-","","N",""],' +
+    '["HindII","GTY^RAC",0,"-","","N",""],' +
+    '["HindIII","A^AGCTT",0,"-","","N",""],' +
+    '["HinfI","G^ANTC",0,"-","","N",""],' +
+    '["HpaI","GTT^AAC",0,"-","","N",""],' +
+    '["HpaII","C^CGG",0,"-","","N",""],' +
+    '["HphI","GGTGA(8/7)",0,"-","","A",""],' +
+    '["Hpy99I","CGWCG^",0,"-","","N",""],' +
+    '["Hpy166II","GTN^NAC",0,"-","","N",""],' +
+    '["Hpy188I","TCN^GA",0,"-","","A",""],' +
+    '["Hpy188III","TC^NNGA",0,"-","","A",""],' +
+    '["HpyAV","CCTTC(6/5)",0,"-","","N",""],' +
+    '["HpyCH4III","ACN^GT",0,"-","","N",""],' +
+    '["HpyCH4IV","A^CGT",0,"-","","N",""],' +
+    '["HpyCH4V","TG^CA",0,"-","","N",""],' +
+    '["KasI","G^GCGCC",0,"-","","N",""],' +
+    '["KpnI","GGTAC^C",0,"-","","N",""],' +
+    '["KspI","CCGC^GG",0,"-","","N",""],' +
+    '["MaeI","C^TAG",0,"-","","N",""],' +
+    '["MaeII","A^CGT",0,"-","","N",""],' +
+    '["MaeIII","^GTNAC",0,"-","","N",""],' +
+    '["MboI","^GATC",0,"-","","A",""],' +
+    '["MboII","GAAGA(8/7)",0,"-","","A",""],' +
+    '["MfeI","C^AATTG",0,"-","","N",""],' +
+    '["MluI","A^CGCGT",0,"-","","N",""],' +
+    '["MluCI","^AATT",0,"-","","N",""],' +
+    '["MluNI","TGG^CCA",0,"-","","N",""],' +
+    '["MlyI","GAGTC(5/5)",0,"-","","N",""],' +
+    '["MmeI","TCCRAC(20/18)",0,"-","","N",""],' +
+    '["MnlI","CCTC(7/6)",0,"-","","N",""],' +
+    '["MroI","T^CCGGA",0,"-","","N",""],' +
+    '["MscI","TGG^CCA",0,"-","","C",""],' +
+    '["MseI","T^TAA",0,"-","","N",""],' +
+    '["MslI","CAYNN^NNRTG",0,"-","","N",""],' +
+    '["MspI","C^CGG",0,"-","","N",""],' +
+    '["MspA1I","CMG^CKG",0,"-","","N",""],' +
+    '["MunI","C^AATTG",0,"-","","N",""],' +
+    '["MvaI","CC^WGG",0,"-","","N",""],' +
+    '["MvnI","CG^CG",0,"-","","N",""],' +
+    '["MwoI","GCNNNNN^NNGC",0,"-","","N",""],' +
+    '["NaeI","GCC^GGC",0,"-","","N",""],' +
+    '["NarI","GG^CGCC",0,"-","","N",""],' +
+    '["NciI","CC^SGG",0,"-","","N",""],' +
+    '["NcoI","C^CATGG",0,"-","","N",""],' +
+    '["NdeI","CA^TATG",0,"-","","N",""],' +
+    '["NdeII","^GATC",0,"-","","A",""],' +
+    '["NgoMIV","G^CCGGC",0,"-","","N",""],' +
+    '["NheI","G^CTAGC",0,"-","","N",""],' +
+    '["NlaIII","CATG^",0,"-","","N",""],' +
+    '["NlaIV","GGN^NCC",0,"-","","C",""],' +
+    '["NmeAIII","GCCGAG(21/19)",0,"-","","N",""],' +
+    '["NotI","GC^GGCCGC",0,"-","","N",""],' +
+    '["NruI","TCG^CGA",0,"-","","A",""],' +
+    '["NsiI","ATGCA^T",0,"-","","N",""],' +
+    '["NspI","RCATG^Y",0,"-","","N",""],' +
+    '["PacI","TTAAT^TAA",0,"-","","N",""],' +
+    '["PaeR7I","C^TCGAG",0,"-","","N",""],' +
+    '["PciI","A^CATGT",0,"-","","N",""],' +
+    '["PflFI","GACN^NNGTC",0,"-","","N",""],' +
+    '["PflMI","CCANNNN^NTGG",0,"-","","C",""],' +
+    '["PleI","GAGTC(4/5)",0,"-","","N",""],' +
+    '["PluTI","GGCGC^C",0,"-","","N",""],' +
+    '["PmeI","GTTT^AAAC",0,"-","","N",""],' +
+    '["PmlI","CAC^GTG",0,"-","","N",""],' +
+    '["PpuMI","RG^GWCCY",0,"-","","C",""],' +
+    '["PshAI","GACNN^NNGTC",0,"-","","N",""],' +
+    '["PsiI","TTA^TAA",0,"-","","N",""],' +
+    '["PspGI","^CCWGG",0,"-","","C",""],' +
+    '["PspOMI","G^GGCCC",0,"-","","C",""],' +
+    '["PspXI","VC^TCGAGB",0,"-","","N",""],' +
+    '["PstI","CTGCA^G",0,"-","","N",""],' +
+    '["PvuI","CGAT^CG",0,"-","","N",""],' +
+    '["PvuII","CAG^CTG",0,"-","","N",""],' +
+    '["RsaI","GT^AC",0,"-","","N",""],' +
+    '["RsrII","CG^GWCCG",0,"-","","N",""],' +
+    '["SacI","GAGCT^C",0,"-","","N",""],' +
+    '["SacII","CCGC^GG",0,"-","","N",""],' +
+    '["SalI","G^TCGAC",0,"-","","N",""],' +
+    '["SapI","GCTCTTC(1/4)",0,"-","","N",""],' +
+    '["Sau96I","G^GNCC",0,"-","","C",""],' +
+    '["Sau3AI","^GATC",0,"-","","N",""],' +
+    '["SbfI","CCTGCA^GG",0,"-","","N",""],' +
+    '["ScaI","AGT^ACT",0,"-","","N",""],' +
+    '["ScrFI","CC^NGG",0,"-","","C",""],' +
+    '["SexAI","A^CCWGGT",0,"-","","C",""],' +
+    '["SfaNI","GCATC(5/9)",0,"-","","N",""],' +
+    '["SfcI","C^TRYAG",0,"-","","N",""],' +
+    '["SfoI","GGC^GCC",0,"-","","N",""],' +
+    '["SfuI","TT^CGAA",0,"-","","N",""],' +
+    '["SgrAI","CR^CCGGYG",0,"-","","N",""],' +
+    '["SmaI","CCC^GGG",0,"-","","N",""],' +
+    '["SmlI","C^TYRAG",0,"-","","N",""],' +
+    '["SnaBI","TAC^GTA",0,"-","","N",""],' +
+    '["SpeI","A^CTAGT",0,"-","","N",""],' +
+    '["SphI","GCATG^C",0,"-","","N",""],' +
+    '["SrfI","GCCC^GGGC",0,"-","","N",""],' +
+    '["SspI","AAT^ATT",0,"-","","N",""],' +
+    '["StuI","AGG^CCT",0,"-","","C",""],' +
+    '["StyI","C^CWWGG",0,"-","","N",""],' +
+    '["StyD4I","^CCNGG",0,"-","","C",""],' +
+    '["SwaI","ATTT^AAAT",0,"-","","N",""],' +
+    '["TaqI","T^CGA",0,"-","","A",""],' +
+    '["TfiI","G^AWTC",0,"-","","N",""],' +
+    '["Tru9I","T^TAA",0,"-","","N",""],' +
+    '["TseI","G^CWGC",0,"-","","N",""],' +
+    '["Tsp45I","^GTSAC",0,"-","","N",""],' +
+    '["TspMI","C^CCGGG",0,"-","","N",""],' +
+    '["TspRI","CASTGNN^",0,"-","","N",""],' +
+    '["Tth111I","GACN^NNGTC",0,"-","","N",""],' +
+    '["XbaI","T^CTAGA",0,"-","","A",""],' +
+    '["XhoI","C^TCGAG",0,"-","","N",""],' +
+    '["XmaI","C^CCGGG",0,"-","","N",""],' +
+    '["XmnI","GAANN^NNTTC",0,"-","","N",""],' +
+    '["ZraI","GAC^GTC",0,"-","","N",""]]';
+    return str;
+}
+
+function wdeTestDataString_011() {
+    var str = "<table border=\"0\"><tbody><tr><th>Sel</th><th>&nb" +
+    "sp;&nbsp;Hits</th><th>Name</th><th>Sequence</th><th>&nbsp;&n" +
+    "bsp;&nbsp;</th><th>Sel</th><th>&nbsp;&nbsp;Hits</th><th>Name" +
+    "</th><th>Sequence</th><th>&nbsp;&nbsp;&nbsp;</th><th>Sel</th" +
+    "><th>&nbsp;&nbsp;Hits</th><th>Name</th><th>Sequence</th></tr" +
+    ">\n<tr><td><input id=\"WDE_0\" onclick=\"wdeSelEnzymes(this," +
+    " 0)\" type=\"checkbox\"></td><td style=\"text-align:right\">" +
+    "- &nbsp;</td><td>AatII</td><td>&nbsp;GACGT^C</td><th>&nbsp;&" +
+    "nbsp;&nbsp;</th><td><input id=\"WDE_83\" onclick=\"wdeSelEnz" +
+    "ymes(this, 83)\" type=\"checkbox\"></td><td style=\"text-ali" +
+    "gn:right\">- &nbsp;</td><td>BsrFI</td><td>&nbsp;R^CCGGY</td>" +
+    "<th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_166\" onclick" +
+    "=\"wdeSelEnzymes(this, 166)\" type=\"checkbox\"></td><td sty" +
+    "le=\"text-align:right\">- &nbsp;</td><td>MseI</td><td>&nbsp;" +
+    "T^TAA</td></tr>\n<tr><td><input id=\"WDE_1\" onclick=\"wdeSe" +
+    "lEnzymes(this, 1)\" type=\"checkbox\"></td><td style=\"text-" +
+    "align:right\">- &nbsp;</td><td>AccI</td><td>&nbsp;GT^MKAC</t" +
+    "d><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_84\" onclic" +
+    "k=\"wdeSelEnzymes(this, 84)\" type=\"checkbox\"></td><td sty" +
+    "le=\"text-align:right\">- &nbsp;</td><td>BsrGI</td><td>&nbsp" +
+    ";T^GTACA</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_" +
+    "167\" onclick=\"wdeSelEnzymes(this, 167)\" type=\"checkbox\"" +
+    "></td><td style=\"text-align:right\">- &nbsp;</td><td>MslI</" +
+    "td><td>&nbsp;CAYNN^NNRTG</td></tr>\n<tr><td><input id=\"WDE_" +
+    "2\" onclick=\"wdeSelEnzymes(this, 2)\" type=\"checkbox\"></t" +
+    "d><td style=\"text-align:right\">- &nbsp;</td><td>Acc65I</td" +
+    "><td>&nbsp;G^GTACC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input" +
+    " id=\"WDE_85\" onclick=\"wdeSelEnzymes(this, 85)\" type=\"ch" +
+    "eckbox\"></td><td style=\"text-align:right\">- &nbsp;</td><t" +
+    "d>BssHII</td><td>&nbsp;G^CGCGC</td><th>&nbsp;&nbsp;&nbsp;</t" +
+    "h><td><input id=\"WDE_168\" onclick=\"wdeSelEnzymes(this, 16" +
+    "8)\" type=\"checkbox\"></td><td style=\"text-align:right\">-" +
+    " &nbsp;</td><td>MspI</td><td>&nbsp;C^CGG</td></tr>\n<tr><td>" +
+    "<input id=\"WDE_3\" onclick=\"wdeSelEnzymes(this, 3)\" type=" +
+    "\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;</t" +
+    "d><td>AciI</td><td>&nbsp;CCGC(-3/-1)</td><th>&nbsp;&nbsp;&nb" +
+    "sp;</th><td><input id=\"WDE_86\" onclick=\"wdeSelEnzymes(thi" +
+    "s, 86)\" type=\"checkbox\"></td><td style=\"text-align:right" +
+    "\">- &nbsp;</td><td>BssSI</td><td>&nbsp;CACGAG(-5/-1)</td><t" +
+    "h>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_169\" onclick=\"" +
+    "wdeSelEnzymes(this, 169)\" type=\"checkbox\"></td><td style=" +
+    "\"text-align:right\">- &nbsp;</td><td>MspA1I</td><td>&nbsp;C" +
+    "MG^CKG</td></tr>\n<tr><td><input id=\"WDE_4\" onclick=\"wdeS" +
+    "elEnzymes(this, 4)\" type=\"checkbox\"></td><td style=\"text" +
+    "-align:right\">- &nbsp;</td><td>AclI</td><td>&nbsp;AA^CGTT</" +
+    "td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_87\" oncli" +
+    "ck=\"wdeSelEnzymes(this, 87)\" type=\"checkbox\"></td><td st" +
+    "yle=\"text-align:right\">- &nbsp;</td><td>BstAPI</td><td>&nb" +
+    "sp;GCANNNN^NTGC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id" +
+    "=\"WDE_170\" onclick=\"wdeSelEnzymes(this, 170)\" type=\"che" +
+    "ckbox\"></td><td style=\"text-align:right\">- &nbsp;</td><td" +
+    ">MunI</td><td>&nbsp;C^AATTG</td></tr>\n<tr><td><input id=\"W" +
+    "DE_5\" onclick=\"wdeSelEnzymes(this, 5)\" type=\"checkbox\">" +
+    "</td><td style=\"text-align:right\">- &nbsp;</td><td>AcuI</t" +
+    "d><td>&nbsp;CTGAAG(16/14)</td><th>&nbsp;&nbsp;&nbsp;</th><td" +
+    "><input id=\"WDE_88\" onclick=\"wdeSelEnzymes(this, 88)\" ty" +
+    "pe=\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;" +
+    "</td><td>BstBI</td><td>&nbsp;TT^CGAA</td><th>&nbsp;&nbsp;&nb" +
+    "sp;</th><td><input id=\"WDE_171\" onclick=\"wdeSelEnzymes(th" +
+    "is, 171)\" type=\"checkbox\"></td><td style=\"text-align:rig" +
+    "ht\">- &nbsp;</td><td>MvaI</td><td>&nbsp;CC^WGG</td></tr>\n<" +
+    "tr><td><input id=\"WDE_6\" onclick=\"wdeSelEnzymes(this, 6)\"" +
+    " type=\"checkbox\"></td><td style=\"text-align:right\">- &nb" +
+    "sp;</td><td>AfeI</td><td>&nbsp;AGC^GCT</td><th>&nbsp;&nbsp;&" +
+    "nbsp;</th><td><input id=\"WDE_89\" onclick=\"wdeSelEnzymes(t" +
+    "his, 89)\" type=\"checkbox\"></td><td style=\"text-align:rig" +
+    "ht\">- &nbsp;</td><td>BstEII</td><td>&nbsp;G^GTNACC</td><th>" +
+    "&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_172\" onclick=\"w" +
+    "deSelEnzymes(this, 172)\" type=\"checkbox\"></td><td style=\"" +
+    "text-align:right\">- &nbsp;</td><td>MvnI</td><td>&nbsp;CG^CG" +
+    "</td></tr>\n<tr><td><input id=\"WDE_7\" onclick=\"wdeSelEnzy" +
+    "mes(this, 7)\" type=\"checkbox\"></td><td style=\"text-align" +
+    ":right\">- &nbsp;</td><td>AflII</td><td>&nbsp;C^TTAAG</td><t" +
+    "h>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_90\" onclick=\"" +
+    "wdeSelEnzymes(this, 90)\" type=\"checkbox\"></td><td style=\"" +
+    "text-align:right\">- &nbsp;</td><td>BstNI</td><td>&nbsp;CC^W" +
+    "GG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_173\" " +
+    "onclick=\"wdeSelEnzymes(this, 173)\" type=\"checkbox\"></td>" +
+    "<td style=\"text-align:right\">- &nbsp;</td><td>MwoI</td><td" +
+    ">&nbsp;GCNNNNN^NNGC</td></tr>\n<tr><td><input id=\"WDE_8\" o" +
+    "nclick=\"wdeSelEnzymes(this, 8)\" type=\"checkbox\"></td><td" +
+    " style=\"text-align:right\">- &nbsp;</td><td>AflIII</td><td>" +
+    "&nbsp;A^CRYGT</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"" +
+    "WDE_91\" onclick=\"wdeSelEnzymes(this, 91)\" type=\"checkbox" +
+    "\"></td><td style=\"text-align:right\">- &nbsp;</td><td>BstU" +
+    "I</td><td>&nbsp;CG^CG</td><th>&nbsp;&nbsp;&nbsp;</th><td><in" +
+    "put id=\"WDE_174\" onclick=\"wdeSelEnzymes(this, 174)\" type" +
+    "=\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;</" +
+    "td><td>NaeI</td><td>&nbsp;GCC^GGC</td></tr>\n<tr><td><input " +
+    "id=\"WDE_9\" onclick=\"wdeSelEnzymes(this, 9)\" type=\"check" +
+    "box\"></td><td style=\"text-align:right\">- &nbsp;</td><td>A" +
+    "geI</td><td>&nbsp;A^CCGGT</td><th>&nbsp;&nbsp;&nbsp;</th><td" +
+    "><input id=\"WDE_92\" onclick=\"wdeSelEnzymes(this, 92)\" ty" +
+    "pe=\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;" +
+    "</td><td>BstXI</td><td>&nbsp;CCANNNNN^NTGG</td><th>&nbsp;&nb" +
+    "sp;&nbsp;</th><td><input id=\"WDE_175\" onclick=\"wdeSelEnzy" +
+    "mes(this, 175)\" type=\"checkbox\"></td><td style=\"text-ali" +
+    "gn:right\">- &nbsp;</td><td>NarI</td><td>&nbsp;GG^CGCC</td><" +
+    "/tr>\n<tr><td><input id=\"WDE_10\" onclick=\"wdeSelEnzymes(t" +
+    "his, 10)\" type=\"checkbox\"></td><td style=\"text-align:rig" +
+    "ht\">- &nbsp;</td><td>AhdI</td><td>&nbsp;GACNNN^NNGTC</td><t" +
+    "h>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_93\" onclick=\"" +
+    "wdeSelEnzymes(this, 93)\" type=\"checkbox\"></td><td style=\"" +
+    "text-align:right\">- &nbsp;</td><td>BstYI</td><td>&nbsp;R^GA" +
+    "TCY</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_176\"" +
+    " onclick=\"wdeSelEnzymes(this, 176)\" type=\"checkbox\"></td" +
+    "><td style=\"text-align:right\">- &nbsp;</td><td>NciI</td><t" +
+    "d>&nbsp;CC^SGG</td></tr>\n<tr><td><input id=\"WDE_11\" oncli" +
+    "ck=\"wdeSelEnzymes(this, 11)\" type=\"checkbox\"></td><td st" +
+    "yle=\"text-align:right\">- &nbsp;</td><td>AleI</td><td>&nbsp" +
+    ";CACNN^NNGTG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"" +
+    "WDE_94\" onclick=\"wdeSelEnzymes(this, 94)\" type=\"checkbox" +
+    "\"></td><td style=\"text-align:right\">- &nbsp;</td><td>BstZ" +
+    "17I</td><td>&nbsp;GTA^TAC</td><th>&nbsp;&nbsp;&nbsp;</th><td" +
+    "><input id=\"WDE_177\" onclick=\"wdeSelEnzymes(this, 177)\" " +
+    "type=\"checkbox\"></td><td style=\"text-align:right\">- &nbs" +
+    "p;</td><td>NcoI</td><td>&nbsp;C^CATGG</td></tr>\n<tr><td><in" +
+    "put id=\"WDE_12\" onclick=\"wdeSelEnzymes(this, 12)\" type=\"" +
+    "checkbox\"></td><td style=\"text-align:right\">- &nbsp;</td>" +
+    "<td>AluI</td><td>&nbsp;AG^CT</td><th>&nbsp;&nbsp;&nbsp;</th>" +
+    "<td><input id=\"WDE_95\" onclick=\"wdeSelEnzymes(this, 95)\"" +
+    " type=\"checkbox\"></td><td style=\"text-align:right\">- &nb" +
+    "sp;</td><td>Bsu36I</td><td>&nbsp;CC^TNAGG</td><th>&nbsp;&nbs" +
+    "p;&nbsp;</th><td><input id=\"WDE_178\" onclick=\"wdeSelEnzym" +
+    "es(this, 178)\" type=\"checkbox\"></td><td style=\"text-alig" +
+    "n:right\">- &nbsp;</td><td>NdeI</td><td>&nbsp;CA^TATG</td></" +
+    "tr>\n<tr><td><input id=\"WDE_13\" onclick=\"wdeSelEnzymes(th" +
+    "is, 13)\" type=\"checkbox\"></td><td style=\"text-align:righ" +
+    "t\">- &nbsp;</td><td>AlwI</td><td>&nbsp;GGATC(4/5)</td><th>&" +
+    "nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_96\" onclick=\"wde" +
+    "SelEnzymes(this, 96)\" type=\"checkbox\"></td><td style=\"te" +
+    "xt-align:right\">- &nbsp;</td><td>BtgI</td><td>&nbsp;C^CRYGG" +
+    "</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_179\" on" +
+    "click=\"wdeSelEnzymes(this, 179)\" type=\"checkbox\"></td><t" +
+    "d style=\"text-align:right\">- &nbsp;</td><td>NdeII</td><td>" +
+    "&nbsp;^GATC</td></tr>\n<tr><td><input id=\"WDE_14\" onclick=" +
+    "\"wdeSelEnzymes(this, 14)\" type=\"checkbox\"></td><td style" +
+    "=\"text-align:right\">- &nbsp;</td><td>AlwNI</td><td>&nbsp;C" +
+    "AGNNN^CTG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE" +
+    "_97\" onclick=\"wdeSelEnzymes(this, 97)\" type=\"checkbox\">" +
+    "</td><td style=\"text-align:right\">- &nbsp;</td><td>BtgZI</" +
+    "td><td>&nbsp;GCGATG(10/14)</td><th>&nbsp;&nbsp;&nbsp;</th><t" +
+    "d><input id=\"WDE_180\" onclick=\"wdeSelEnzymes(this, 180)\"" +
+    " type=\"checkbox\"></td><td style=\"text-align:right\">- &nb" +
+    "sp;</td><td>NgoMIV</td><td>&nbsp;G^CCGGC</td></tr>\n<tr><td>" +
+    "<input id=\"WDE_15\" onclick=\"wdeSelEnzymes(this, 15)\" typ" +
+    "e=\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;<" +
+    "/td><td>ApaI</td><td>&nbsp;GGGCC^C</td><th>&nbsp;&nbsp;&nbsp" +
+    ";</th><td><input id=\"WDE_98\" onclick=\"wdeSelEnzymes(this," +
+    " 98)\" type=\"checkbox\"></td><td style=\"text-align:right\"" +
+    ">- &nbsp;</td><td>BtsI</td><td>&nbsp;GCAGTG(2/0)</td><th>&nb" +
+    "sp;&nbsp;&nbsp;</th><td><input id=\"WDE_181\" onclick=\"wdeS" +
+    "elEnzymes(this, 181)\" type=\"checkbox\"></td><td style=\"te" +
+    "xt-align:right\">- &nbsp;</td><td>NheI</td><td>&nbsp;G^CTAGC" +
+    "</td></tr>\n<tr><td><input id=\"WDE_16\" onclick=\"wdeSelEnz" +
+    "ymes(this, 16)\" type=\"checkbox\"></td><td style=\"text-ali" +
+    "gn:right\">- &nbsp;</td><td>ApaLI</td><td>&nbsp;G^TGCAC</td>" +
+    "<th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_99\" onclick=" +
+    "\"wdeSelEnzymes(this, 99)\" type=\"checkbox\"></td><td style" +
+    "=\"text-align:right\">- &nbsp;</td><td>BtsIMutI</td><td>&nbs" +
+    "p;CAGTG(2/0)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"" +
+    "WDE_182\" onclick=\"wdeSelEnzymes(this, 182)\" type=\"checkb" +
+    "ox\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Nl" +
+    "aIII</td><td>&nbsp;CATG^</td></tr>\n<tr><td><input id=\"WDE_" +
+    "17\" onclick=\"wdeSelEnzymes(this, 17)\" type=\"checkbox\"><" +
+    "/td><td style=\"text-align:right\">- &nbsp;</td><td>ApeKI</t" +
+    "d><td>&nbsp;G^CWGC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input" +
+    " id=\"WDE_100\" onclick=\"wdeSelEnzymes(this, 100)\" type=\"" +
+    "checkbox\"></td><td style=\"text-align:right\">- &nbsp;</td>" +
+    "<td>BtsCI</td><td>&nbsp;GGATG(2/0)</td><th>&nbsp;&nbsp;&nbsp" +
+    ";</th><td><input id=\"WDE_183\" onclick=\"wdeSelEnzymes(this" +
+    ", 183)\" type=\"checkbox\"></td><td style=\"text-align:right" +
+    "\">- &nbsp;</td><td>NlaIV</td><td>&nbsp;GGN^NCC</td></tr>\n<" +
+    "tr><td><input id=\"WDE_18\" onclick=\"wdeSelEnzymes(this, 18" +
+    ")\" type=\"checkbox\"></td><td style=\"text-align:right\">- " +
+    "&nbsp;</td><td>ApoI</td><td>&nbsp;R^AATTY</td><th>&nbsp;&nbs" +
+    "p;&nbsp;</th><td><input id=\"WDE_101\" onclick=\"wdeSelEnzym" +
+    "es(this, 101)\" type=\"checkbox\"></td><td style=\"text-alig" +
+    "n:right\">- &nbsp;</td><td>Cac8I</td><td>&nbsp;GCN^NGC</td><" +
+    "th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_184\" onclick=" +
+    "\"wdeSelEnzymes(this, 184)\" type=\"checkbox\"></td><td styl" +
+    "e=\"text-align:right\">- &nbsp;</td><td>NmeAIII</td><td>&nbs" +
+    "p;GCCGAG(21/19)</td></tr>\n<tr><td><input id=\"WDE_19\" oncl" +
+    "ick=\"wdeSelEnzymes(this, 19)\" type=\"checkbox\"></td><td s" +
+    "tyle=\"text-align:right\">- &nbsp;</td><td>AscI</td><td>&nbs" +
+    "p;GG^CGCGCC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"W" +
+    "DE_102\" onclick=\"wdeSelEnzymes(this, 102)\" type=\"checkbo" +
+    "x\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Cfo" +
+    "I</td><td>&nbsp;GCG^C</td><th>&nbsp;&nbsp;&nbsp;</th><td><in" +
+    "put id=\"WDE_185\" onclick=\"wdeSelEnzymes(this, 185)\" type" +
+    "=\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;</" +
+    "td><td>NotI</td><td>&nbsp;GC^GGCCGC</td></tr>\n<tr><td><inpu" +
+    "t id=\"WDE_20\" onclick=\"wdeSelEnzymes(this, 20)\" type=\"c" +
+    "heckbox\"></td><td style=\"text-align:right\">- &nbsp;</td><" +
+    "td>AseI</td><td>&nbsp;AT^TAAT</td><th>&nbsp;&nbsp;&nbsp;</th" +
+    "><td><input id=\"WDE_103\" onclick=\"wdeSelEnzymes(this, 103" +
+    ")\" type=\"checkbox\"></td><td style=\"text-align:right\">- " +
+    "&nbsp;</td><td>ClaI</td><td>&nbsp;AT^CGAT</td><th>&nbsp;&nbs" +
+    "p;&nbsp;</th><td><input id=\"WDE_186\" onclick=\"wdeSelEnzym" +
+    "es(this, 186)\" type=\"checkbox\"></td><td style=\"text-alig" +
+    "n:right\">- &nbsp;</td><td>NruI</td><td>&nbsp;TCG^CGA</td></" +
+    "tr>\n<tr><td><input id=\"WDE_21\" onclick=\"wdeSelEnzymes(th" +
+    "is, 21)\" type=\"checkbox\"></td><td style=\"text-align:righ" +
+    "t\">- &nbsp;</td><td>AsiSI</td><td>&nbsp;GCGAT^CGC</td><th>&" +
+    "nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_104\" onclick=\"wd" +
+    "eSelEnzymes(this, 104)\" type=\"checkbox\"></td><td style=\"" +
+    "text-align:right\">- &nbsp;</td><td>CviAII</td><td>&nbsp;C^A" +
+    "TG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_187\" " +
+    "onclick=\"wdeSelEnzymes(this, 187)\" type=\"checkbox\"></td>" +
+    "<td style=\"text-align:right\">- &nbsp;</td><td>NsiI</td><td" +
+    ">&nbsp;ATGCA^T</td></tr>\n<tr><td><input id=\"WDE_22\" oncli" +
+    "ck=\"wdeSelEnzymes(this, 22)\" type=\"checkbox\"></td><td st" +
+    "yle=\"text-align:right\">- &nbsp;</td><td>Asp700I</td><td>&n" +
+    "bsp;GAANN^NNTTC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id" +
+    "=\"WDE_105\" onclick=\"wdeSelEnzymes(this, 105)\" type=\"che" +
+    "ckbox\"></td><td style=\"text-align:right\">- &nbsp;</td><td" +
+    ">CviQI</td><td>&nbsp;G^TAC</td><th>&nbsp;&nbsp;&nbsp;</th><t" +
+    "d><input id=\"WDE_188\" onclick=\"wdeSelEnzymes(this, 188)\"" +
+    " type=\"checkbox\"></td><td style=\"text-align:right\">- &nb" +
+    "sp;</td><td>NspI</td><td>&nbsp;RCATG^Y</td></tr>\n<tr><td><i" +
+    "nput id=\"WDE_23\" onclick=\"wdeSelEnzymes(this, 23)\" type=" +
+    "\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;</t" +
+    "d><td>Asp718I</td><td>&nbsp;G^GTACC</td><th>&nbsp;&nbsp;&nbs" +
+    "p;</th><td><input id=\"WDE_106\" onclick=\"wdeSelEnzymes(thi" +
+    "s, 106)\" type=\"checkbox\"></td><td style=\"text-align:righ" +
+    "t\">- &nbsp;</td><td>DdeI</td><td>&nbsp;C^TNAG</td><th>&nbsp" +
+    ";&nbsp;&nbsp;</th><td><input id=\"WDE_189\" onclick=\"wdeSel" +
+    "Enzymes(this, 189)\" type=\"checkbox\"></td><td style=\"text" +
+    "-align:right\">- &nbsp;</td><td>PacI</td><td>&nbsp;TTAAT^TAA" +
+    "</td></tr>\n<tr><td><input id=\"WDE_24\" onclick=\"wdeSelEnz" +
+    "ymes(this, 24)\" type=\"checkbox\"></td><td style=\"text-ali" +
+    "gn:right\">- &nbsp;</td><td>AvaI</td><td>&nbsp;C^YCGRG</td><" +
+    "th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_107\" onclick=" +
+    "\"wdeSelEnzymes(this, 107)\" type=\"checkbox\"></td><td styl" +
+    "e=\"text-align:right\">- &nbsp;</td><td>DpnI</td><td>&nbsp;G" +
+    "A^TC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_190\"" +
+    " onclick=\"wdeSelEnzymes(this, 190)\" type=\"checkbox\"></td" +
+    "><td style=\"text-align:right\">- &nbsp;</td><td>PaeR7I</td>" +
+    "<td>&nbsp;C^TCGAG</td></tr>\n<tr><td><input id=\"WDE_25\" on" +
+    "click=\"wdeSelEnzymes(this, 25)\" type=\"checkbox\"></td><td" +
+    " style=\"text-align:right\">- &nbsp;</td><td>AvaII</td><td>&" +
+    "nbsp;G^GWCC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"W" +
+    "DE_108\" onclick=\"wdeSelEnzymes(this, 108)\" type=\"checkbo" +
+    "x\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Dpn" +
+    "II</td><td>&nbsp;^GATC</td><th>&nbsp;&nbsp;&nbsp;</th><td><i" +
+    "nput id=\"WDE_191\" onclick=\"wdeSelEnzymes(this, 191)\" typ" +
+    "e=\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;<" +
+    "/td><td>PciI</td><td>&nbsp;A^CATGT</td></tr>\n<tr><td><input" +
+    " id=\"WDE_26\" onclick=\"wdeSelEnzymes(this, 26)\" type=\"ch" +
+    "eckbox\"></td><td style=\"text-align:right\">- &nbsp;</td><t" +
+    "d>AvrII</td><td>&nbsp;C^CTAGG</td><th>&nbsp;&nbsp;&nbsp;</th" +
+    "><td><input id=\"WDE_109\" onclick=\"wdeSelEnzymes(this, 109" +
+    ")\" type=\"checkbox\"></td><td style=\"text-align:right\">- " +
+    "&nbsp;</td><td>DraI</td><td>&nbsp;TTT^AAA</td><th>&nbsp;&nbs" +
+    "p;&nbsp;</th><td><input id=\"WDE_192\" onclick=\"wdeSelEnzym" +
+    "es(this, 192)\" type=\"checkbox\"></td><td style=\"text-alig" +
+    "n:right\">- &nbsp;</td><td>PflFI</td><td>&nbsp;GACN^NNGTC</t" +
+    "d></tr>\n<tr><td><input id=\"WDE_27\" onclick=\"wdeSelEnzyme" +
+    "s(this, 27)\" type=\"checkbox\"></td><td style=\"text-align:" +
+    "right\">- &nbsp;</td><td>BaeGI</td><td>&nbsp;GKGCM^C</td><th" +
+    ">&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_110\" onclick=\"" +
+    "wdeSelEnzymes(this, 110)\" type=\"checkbox\"></td><td style=" +
+    "\"text-align:right\">- &nbsp;</td><td>DraIII</td><td>&nbsp;C" +
+    "ACNNN^GTG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE" +
+    "_193\" onclick=\"wdeSelEnzymes(this, 193)\" type=\"checkbox\"" +
+    "></td><td style=\"text-align:right\">- &nbsp;</td><td>PflMI<" +
+    "/td><td>&nbsp;CCANNNN^NTGG</td></tr>\n<tr><td><input id=\"WD" +
+    "E_28\" onclick=\"wdeSelEnzymes(this, 28)\" type=\"checkbox\"" +
+    "></td><td style=\"text-align:right\">- &nbsp;</td><td>BamHI<" +
+    "/td><td>&nbsp;G^GATCC</td><th>&nbsp;&nbsp;&nbsp;</th><td><in" +
+    "put id=\"WDE_111\" onclick=\"wdeSelEnzymes(this, 111)\" type" +
+    "=\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;</" +
+    "td><td>DrdI</td><td>&nbsp;GACNNNN^NNGTC</td><th>&nbsp;&nbsp;" +
+    "&nbsp;</th><td><input id=\"WDE_194\" onclick=\"wdeSelEnzymes" +
+    "(this, 194)\" type=\"checkbox\"></td><td style=\"text-align:" +
+    "right\">- &nbsp;</td><td>PleI</td><td>&nbsp;GAGTC(4/5)</td><" +
+    "/tr>\n<tr><td><input id=\"WDE_29\" onclick=\"wdeSelEnzymes(t" +
+    "his, 29)\" type=\"checkbox\"></td><td style=\"text-align:rig" +
+    "ht\">- &nbsp;</td><td>BanI</td><td>&nbsp;G^GYRCC</td><th>&nb" +
+    "sp;&nbsp;&nbsp;</th><td><input id=\"WDE_112\" onclick=\"wdeS" +
+    "elEnzymes(this, 112)\" type=\"checkbox\"></td><td style=\"te" +
+    "xt-align:right\">- &nbsp;</td><td>EaeI</td><td>&nbsp;Y^GGCCR" +
+    "</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_195\" on" +
+    "click=\"wdeSelEnzymes(this, 195)\" type=\"checkbox\"></td><t" +
+    "d style=\"text-align:right\">- &nbsp;</td><td>PluTI</td><td>" +
+    "&nbsp;GGCGC^C</td></tr>\n<tr><td><input id=\"WDE_30\" onclic" +
+    "k=\"wdeSelEnzymes(this, 30)\" type=\"checkbox\"></td><td sty" +
+    "le=\"text-align:right\">- &nbsp;</td><td>BanII</td><td>&nbsp" +
+    ";GRGCY^C</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_" +
+    "113\" onclick=\"wdeSelEnzymes(this, 113)\" type=\"checkbox\"" +
+    "></td><td style=\"text-align:right\">- &nbsp;</td><td>EagI</" +
+    "td><td>&nbsp;C^GGCCG</td><th>&nbsp;&nbsp;&nbsp;</th><td><inp" +
+    "ut id=\"WDE_196\" onclick=\"wdeSelEnzymes(this, 196)\" type=" +
+    "\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;</t" +
+    "d><td>PmeI</td><td>&nbsp;GTTT^AAAC</td></tr>\n<tr><td><input" +
+    " id=\"WDE_31\" onclick=\"wdeSelEnzymes(this, 31)\" type=\"ch" +
+    "eckbox\"></td><td style=\"text-align:right\">- &nbsp;</td><t" +
+    "d>BbrPI</td><td>&nbsp;CAC^GTG</td><th>&nbsp;&nbsp;&nbsp;</th" +
+    "><td><input id=\"WDE_114\" onclick=\"wdeSelEnzymes(this, 114" +
+    ")\" type=\"checkbox\"></td><td style=\"text-align:right\">- " +
+    "&nbsp;</td><td>EarI</td><td>&nbsp;CTCTTC(1/4)</td><th>&nbsp;" +
+    "&nbsp;&nbsp;</th><td><input id=\"WDE_197\" onclick=\"wdeSelE" +
+    "nzymes(this, 197)\" type=\"checkbox\"></td><td style=\"text-" +
+    "align:right\">- &nbsp;</td><td>PmlI</td><td>&nbsp;CAC^GTG</t" +
+    "d></tr>\n<tr><td><input id=\"WDE_32\" onclick=\"wdeSelEnzyme" +
+    "s(this, 32)\" type=\"checkbox\"></td><td style=\"text-align:" +
+    "right\">- &nbsp;</td><td>BbsI</td><td>&nbsp;GAAGAC(2/6)</td>" +
+    "<th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_115\" onclick" +
+    "=\"wdeSelEnzymes(this, 115)\" type=\"checkbox\"></td><td sty" +
+    "le=\"text-align:right\">- &nbsp;</td><td>EciI</td><td>&nbsp;" +
+    "GGCGGA(11/9)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"" +
+    "WDE_198\" onclick=\"wdeSelEnzymes(this, 198)\" type=\"checkb" +
+    "ox\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Pp" +
+    "uMI</td><td>&nbsp;RG^GWCCY</td></tr>\n<tr><td><input id=\"WD" +
+    "E_33\" onclick=\"wdeSelEnzymes(this, 33)\" type=\"checkbox\"" +
+    "></td><td style=\"text-align:right\">- &nbsp;</td><td>BbvI</" +
+    "td><td>&nbsp;GCAGC(8/12)</td><th>&nbsp;&nbsp;&nbsp;</th><td>" +
+    "<input id=\"WDE_116\" onclick=\"wdeSelEnzymes(this, 116)\" t" +
+    "ype=\"checkbox\"></td><td style=\"text-align:right\">- &nbsp" +
+    ";</td><td>Eco47III</td><td>&nbsp;AGC^GCT</td><th>&nbsp;&nbsp" +
+    ";&nbsp;</th><td><input id=\"WDE_199\" onclick=\"wdeSelEnzyme" +
+    "s(this, 199)\" type=\"checkbox\"></td><td style=\"text-align" +
+    ":right\">- &nbsp;</td><td>PshAI</td><td>&nbsp;GACNN^NNGTC</t" +
+    "d></tr>\n<tr><td><input id=\"WDE_34\" onclick=\"wdeSelEnzyme" +
+    "s(this, 34)\" type=\"checkbox\"></td><td style=\"text-align:" +
+    "right\">- &nbsp;</td><td>BbvCI</td><td>&nbsp;CCTCAGC(-5/-2)<" +
+    "/td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_117\" onc" +
+    "lick=\"wdeSelEnzymes(this, 117)\" type=\"checkbox\"></td><td" +
+    " style=\"text-align:right\">- &nbsp;</td><td>EcoNI</td><td>&" +
+    "nbsp;CCTNN^NNNAGG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input " +
+    "id=\"WDE_200\" onclick=\"wdeSelEnzymes(this, 200)\" type=\"c" +
+    "heckbox\"></td><td style=\"text-align:right\">- &nbsp;</td><" +
+    "td>PsiI</td><td>&nbsp;TTA^TAA</td></tr>\n<tr><td><input id=\"" +
+    "WDE_35\" onclick=\"wdeSelEnzymes(this, 35)\" type=\"checkbox" +
+    "\"></td><td style=\"text-align:right\">- &nbsp;</td><td>BccI" +
+    "</td><td>&nbsp;CCATC(4/5)</td><th>&nbsp;&nbsp;&nbsp;</th><td" +
+    "><input id=\"WDE_118\" onclick=\"wdeSelEnzymes(this, 118)\" " +
+    "type=\"checkbox\"></td><td style=\"text-align:right\">- &nbs" +
+    "p;</td><td>EcoO109I</td><td>&nbsp;RG^GNCCY</td><th>&nbsp;&nb" +
+    "sp;&nbsp;</th><td><input id=\"WDE_201\" onclick=\"wdeSelEnzy" +
+    "mes(this, 201)\" type=\"checkbox\"></td><td style=\"text-ali" +
+    "gn:right\">- &nbsp;</td><td>PspGI</td><td>&nbsp;^CCWGG</td><" +
+    "/tr>\n<tr><td><input id=\"WDE_36\" onclick=\"wdeSelEnzymes(t" +
+    "his, 36)\" type=\"checkbox\"></td><td style=\"text-align:rig" +
+    "ht\">- &nbsp;</td><td>BceAI</td><td>&nbsp;ACGGC(12/14)</td><" +
+    "th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_119\" onclick=" +
+    "\"wdeSelEnzymes(this, 119)\" type=\"checkbox\"></td><td styl" +
+    "e=\"text-align:right\">- &nbsp;</td><td>EcoP15I</td><td>&nbs" +
+    "p;CAGCAG(25/27)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id" +
+    "=\"WDE_202\" onclick=\"wdeSelEnzymes(this, 202)\" type=\"che" +
+    "ckbox\"></td><td style=\"text-align:right\">- &nbsp;</td><td" +
+    ">PspOMI</td><td>&nbsp;G^GGCCC</td></tr>\n<tr><td><input id=\"" +
+    "WDE_37\" onclick=\"wdeSelEnzymes(this, 37)\" type=\"checkbox" +
+    "\"></td><td style=\"text-align:right\">- &nbsp;</td><td>BciV" +
+    "I</td><td>&nbsp;GTATCC(6/5)</td><th>&nbsp;&nbsp;&nbsp;</th><" +
+    "td><input id=\"WDE_120\" onclick=\"wdeSelEnzymes(this, 120)\"" +
+    " type=\"checkbox\"></td><td style=\"text-align:right\">- &nb" +
+    "sp;</td><td>EcoRI</td><td>&nbsp;G^AATTC</td><th>&nbsp;&nbsp;" +
+    "&nbsp;</th><td><input id=\"WDE_203\" onclick=\"wdeSelEnzymes" +
+    "(this, 203)\" type=\"checkbox\"></td><td style=\"text-align:" +
+    "right\">- &nbsp;</td><td>PspXI</td><td>&nbsp;VC^TCGAGB</td><" +
+    "/tr>\n<tr><td><input id=\"WDE_38\" onclick=\"wdeSelEnzymes(t" +
+    "his, 38)\" type=\"checkbox\"></td><td style=\"text-align:rig" +
+    "ht\">- &nbsp;</td><td>BclI</td><td>&nbsp;T^GATCA</td><th>&nb" +
+    "sp;&nbsp;&nbsp;</th><td><input id=\"WDE_121\" onclick=\"wdeS" +
+    "elEnzymes(this, 121)\" type=\"checkbox\"></td><td style=\"te" +
+    "xt-align:right\">- &nbsp;</td><td>EcoRV</td><td>&nbsp;GAT^AT" +
+    "C</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_204\" o" +
+    "nclick=\"wdeSelEnzymes(this, 204)\" type=\"checkbox\"></td><" +
+    "td style=\"text-align:right\">- &nbsp;</td><td>PstI</td><td>" +
+    "&nbsp;CTGCA^G</td></tr>\n<tr><td><input id=\"WDE_39\" onclic" +
+    "k=\"wdeSelEnzymes(this, 39)\" type=\"checkbox\"></td><td sty" +
+    "le=\"text-align:right\">- &nbsp;</td><td>BcoDI</td><td>&nbsp" +
+    ";GTCTC(1/5)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"W" +
+    "DE_122\" onclick=\"wdeSelEnzymes(this, 122)\" type=\"checkbo" +
+    "x\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Eco" +
+    "53kI</td><td>&nbsp;GAG^CTC</td><th>&nbsp;&nbsp;&nbsp;</th><t" +
+    "d><input id=\"WDE_205\" onclick=\"wdeSelEnzymes(this, 205)\"" +
+    " type=\"checkbox\"></td><td style=\"text-align:right\">- &nb" +
+    "sp;</td><td>PvuI</td><td>&nbsp;CGAT^CG</td></tr>\n<tr><td><i" +
+    "nput id=\"WDE_40\" onclick=\"wdeSelEnzymes(this, 40)\" type=" +
+    "\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;</t" +
+    "d><td>BfaI</td><td>&nbsp;C^TAG</td><th>&nbsp;&nbsp;&nbsp;</t" +
+    "h><td><input id=\"WDE_123\" onclick=\"wdeSelEnzymes(this, 12" +
+    "3)\" type=\"checkbox\"></td><td style=\"text-align:right\">-" +
+    " &nbsp;</td><td>FatI</td><td>&nbsp;^CATG</td><th>&nbsp;&nbsp" +
+    ";&nbsp;</th><td><input id=\"WDE_206\" onclick=\"wdeSelEnzyme" +
+    "s(this, 206)\" type=\"checkbox\"></td><td style=\"text-align" +
+    ":right\">- &nbsp;</td><td>PvuII</td><td>&nbsp;CAG^CTG</td></" +
+    "tr>\n<tr><td><input id=\"WDE_41\" onclick=\"wdeSelEnzymes(th" +
+    "is, 41)\" type=\"checkbox\"></td><td style=\"text-align:righ" +
+    "t\">- &nbsp;</td><td>BfrI</td><td>&nbsp;C^TTAAG</td><th>&nbs" +
+    "p;&nbsp;&nbsp;</th><td><input id=\"WDE_124\" onclick=\"wdeSe" +
+    "lEnzymes(this, 124)\" type=\"checkbox\"></td><td style=\"tex" +
+    "t-align:right\">- &nbsp;</td><td>FauI</td><td>&nbsp;CCCGC(4/" +
+    "6)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_207\" " +
+    "onclick=\"wdeSelEnzymes(this, 207)\" type=\"checkbox\"></td>" +
+    "<td style=\"text-align:right\">- &nbsp;</td><td>RsaI</td><td" +
+    ">&nbsp;GT^AC</td></tr>\n<tr><td><input id=\"WDE_42\" onclick" +
+    "=\"wdeSelEnzymes(this, 42)\" type=\"checkbox\"></td><td styl" +
+    "e=\"text-align:right\">- &nbsp;</td><td>BfuAI</td><td>&nbsp;" +
+    "ACCTGC(4/8)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"W" +
+    "DE_125\" onclick=\"wdeSelEnzymes(this, 125)\" type=\"checkbo" +
+    "x\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Fnu" +
+    "4HI</td><td>&nbsp;GC^NGC</td><th>&nbsp;&nbsp;&nbsp;</th><td>" +
+    "<input id=\"WDE_208\" onclick=\"wdeSelEnzymes(this, 208)\" t" +
+    "ype=\"checkbox\"></td><td style=\"text-align:right\">- &nbsp" +
+    ";</td><td>RsrII</td><td>&nbsp;CG^GWCCG</td></tr>\n<tr><td><i" +
+    "nput id=\"WDE_43\" onclick=\"wdeSelEnzymes(this, 43)\" type=" +
+    "\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;</t" +
+    "d><td>BfuCI</td><td>&nbsp;^GATC</td><th>&nbsp;&nbsp;&nbsp;</" +
+    "th><td><input id=\"WDE_126\" onclick=\"wdeSelEnzymes(this, 1" +
+    "26)\" type=\"checkbox\"></td><td style=\"text-align:right\">" +
+    "- &nbsp;</td><td>FokI</td><td>&nbsp;GGATG(9/13)</td><th>&nbs" +
+    "p;&nbsp;&nbsp;</th><td><input id=\"WDE_209\" onclick=\"wdeSe" +
+    "lEnzymes(this, 209)\" type=\"checkbox\"></td><td style=\"tex" +
+    "t-align:right\">- &nbsp;</td><td>SacI</td><td>&nbsp;GAGCT^C<" +
+    "/td></tr>\n<tr><td><input id=\"WDE_44\" onclick=\"wdeSelEnzy" +
+    "mes(this, 44)\" type=\"checkbox\"></td><td style=\"text-alig" +
+    "n:right\">- &nbsp;</td><td>BglI</td><td>&nbsp;GCCNNNN^NGGC</" +
+    "td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_127\" oncl" +
+    "ick=\"wdeSelEnzymes(this, 127)\" type=\"checkbox\"></td><td " +
+    "style=\"text-align:right\">- &nbsp;</td><td>FseI</td><td>&nb" +
+    "sp;GGCCGG^CC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"" +
+    "WDE_210\" onclick=\"wdeSelEnzymes(this, 210)\" type=\"checkb" +
+    "ox\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Sa" +
+    "cII</td><td>&nbsp;CCGC^GG</td></tr>\n<tr><td><input id=\"WDE" +
+    "_45\" onclick=\"wdeSelEnzymes(this, 45)\" type=\"checkbox\">" +
+    "</td><td style=\"text-align:right\">- &nbsp;</td><td>BglII</" +
+    "td><td>&nbsp;A^GATCT</td><th>&nbsp;&nbsp;&nbsp;</th><td><inp" +
+    "ut id=\"WDE_128\" onclick=\"wdeSelEnzymes(this, 128)\" type=" +
+    "\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;</t" +
+    "d><td>FspI</td><td>&nbsp;TGC^GCA</td><th>&nbsp;&nbsp;&nbsp;<" +
+    "/th><td><input id=\"WDE_211\" onclick=\"wdeSelEnzymes(this, " +
+    "211)\" type=\"checkbox\"></td><td style=\"text-align:right\"" +
+    ">- &nbsp;</td><td>SalI</td><td>&nbsp;G^TCGAC</td></tr>\n<tr>" +
+    "<td><input id=\"WDE_46\" onclick=\"wdeSelEnzymes(this, 46)\"" +
+    " type=\"checkbox\"></td><td style=\"text-align:right\">- &nb" +
+    "sp;</td><td>BlnI</td><td>&nbsp;C^CTAGG</td><th>&nbsp;&nbsp;&" +
+    "nbsp;</th><td><input id=\"WDE_129\" onclick=\"wdeSelEnzymes(" +
+    "this, 129)\" type=\"checkbox\"></td><td style=\"text-align:r" +
+    "ight\">- &nbsp;</td><td>HaeII</td><td>&nbsp;RGCGC^Y</td><th>" +
+    "&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_212\" onclick=\"w" +
+    "deSelEnzymes(this, 212)\" type=\"checkbox\"></td><td style=\"" +
+    "text-align:right\">- &nbsp;</td><td>SapI</td><td>&nbsp;GCTCT" +
+    "TC(1/4)</td></tr>\n<tr><td><input id=\"WDE_47\" onclick=\"wd" +
+    "eSelEnzymes(this, 47)\" type=\"checkbox\"></td><td style=\"t" +
+    "ext-align:right\">- &nbsp;</td><td>BlpI</td><td>&nbsp;GC^TNA" +
+    "GC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_130\" " +
+    "onclick=\"wdeSelEnzymes(this, 130)\" type=\"checkbox\"></td>" +
+    "<td style=\"text-align:right\">- &nbsp;</td><td>HaeIII</td><" +
+    "td>&nbsp;GG^CC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=" +
+    "\"WDE_213\" onclick=\"wdeSelEnzymes(this, 213)\" type=\"chec" +
+    "kbox\"></td><td style=\"text-align:right\">- &nbsp;</td><td>" +
+    "Sau96I</td><td>&nbsp;G^GNCC</td></tr>\n<tr><td><input id=\"W" +
+    "DE_48\" onclick=\"wdeSelEnzymes(this, 48)\" type=\"checkbox\"" +
+    "></td><td style=\"text-align:right\">- &nbsp;</td><td>BmgBI<" +
+    "/td><td>&nbsp;CACGTC(-3/-3)</td><th>&nbsp;&nbsp;&nbsp;</th><" +
+    "td><input id=\"WDE_131\" onclick=\"wdeSelEnzymes(this, 131)\"" +
+    " type=\"checkbox\"></td><td style=\"text-align:right\">- &nb" +
+    "sp;</td><td>HgaI</td><td>&nbsp;GACGC(5/10)</td><th>&nbsp;&nb" +
+    "sp;&nbsp;</th><td><input id=\"WDE_214\" onclick=\"wdeSelEnzy" +
+    "mes(this, 214)\" type=\"checkbox\"></td><td style=\"text-ali" +
+    "gn:right\">- &nbsp;</td><td>Sau3AI</td><td>&nbsp;^GATC</td><" +
+    "/tr>\n<tr><td><input id=\"WDE_49\" onclick=\"wdeSelEnzymes(t" +
+    "his, 49)\" type=\"checkbox\"></td><td style=\"text-align:rig" +
+    "ht\">- &nbsp;</td><td>BmrI</td><td>&nbsp;ACTGGG(5/4)</td><th" +
+    ">&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_132\" onclick=\"" +
+    "wdeSelEnzymes(this, 132)\" type=\"checkbox\"></td><td style=" +
+    "\"text-align:right\">- &nbsp;</td><td>HhaI</td><td>&nbsp;GCG" +
+    "^C</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_215\" " +
+    "onclick=\"wdeSelEnzymes(this, 215)\" type=\"checkbox\"></td>" +
+    "<td style=\"text-align:right\">- &nbsp;</td><td>SbfI</td><td" +
+    ">&nbsp;CCTGCA^GG</td></tr>\n<tr><td><input id=\"WDE_50\" onc" +
+    "lick=\"wdeSelEnzymes(this, 50)\" type=\"checkbox\"></td><td " +
+    "style=\"text-align:right\">- &nbsp;</td><td>BmtI</td><td>&nb" +
+    "sp;GCTAG^C</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WD" +
+    "E_133\" onclick=\"wdeSelEnzymes(this, 133)\" type=\"checkbox" +
+    "\"></td><td style=\"text-align:right\">- &nbsp;</td><td>HinP" +
+    "1I</td><td>&nbsp;G^CGC</td><th>&nbsp;&nbsp;&nbsp;</th><td><i" +
+    "nput id=\"WDE_216\" onclick=\"wdeSelEnzymes(this, 216)\" typ" +
+    "e=\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;<" +
+    "/td><td>ScaI</td><td>&nbsp;AGT^ACT</td></tr>\n<tr><td><input" +
+    " id=\"WDE_51\" onclick=\"wdeSelEnzymes(this, 51)\" type=\"ch" +
+    "eckbox\"></td><td style=\"text-align:right\">- &nbsp;</td><t" +
+    "d>BpmI</td><td>&nbsp;CTGGAG(16/14)</td><th>&nbsp;&nbsp;&nbsp" +
+    ";</th><td><input id=\"WDE_134\" onclick=\"wdeSelEnzymes(this" +
+    ", 134)\" type=\"checkbox\"></td><td style=\"text-align:right" +
+    "\">- &nbsp;</td><td>HincII</td><td>&nbsp;GTY^RAC</td><th>&nb" +
+    "sp;&nbsp;&nbsp;</th><td><input id=\"WDE_217\" onclick=\"wdeS" +
+    "elEnzymes(this, 217)\" type=\"checkbox\"></td><td style=\"te" +
+    "xt-align:right\">- &nbsp;</td><td>ScrFI</td><td>&nbsp;CC^NGG" +
+    "</td></tr>\n<tr><td><input id=\"WDE_52\" onclick=\"wdeSelEnz" +
+    "ymes(this, 52)\" type=\"checkbox\"></td><td style=\"text-ali" +
+    "gn:right\">- &nbsp;</td><td>Bpu10I</td><td>&nbsp;CCTNAGC(-5/" +
+    "-2)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_135\"" +
+    " onclick=\"wdeSelEnzymes(this, 135)\" type=\"checkbox\"></td" +
+    "><td style=\"text-align:right\">- &nbsp;</td><td>HindII</td>" +
+    "<td>&nbsp;GTY^RAC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input " +
+    "id=\"WDE_218\" onclick=\"wdeSelEnzymes(this, 218)\" type=\"c" +
+    "heckbox\"></td><td style=\"text-align:right\">- &nbsp;</td><" +
+    "td>SexAI</td><td>&nbsp;A^CCWGGT</td></tr>\n<tr><td><input id" +
+    "=\"WDE_53\" onclick=\"wdeSelEnzymes(this, 53)\" type=\"check" +
+    "box\"></td><td style=\"text-align:right\">- &nbsp;</td><td>B" +
+    "puEI</td><td>&nbsp;CTTGAG(16/14)</td><th>&nbsp;&nbsp;&nbsp;<" +
+    "/th><td><input id=\"WDE_136\" onclick=\"wdeSelEnzymes(this, " +
+    "136)\" type=\"checkbox\"></td><td style=\"text-align:right\"" +
+    ">- &nbsp;</td><td>HindIII</td><td>&nbsp;A^AGCTT</td><th>&nbs" +
+    "p;&nbsp;&nbsp;</th><td><input id=\"WDE_219\" onclick=\"wdeSe" +
+    "lEnzymes(this, 219)\" type=\"checkbox\"></td><td style=\"tex" +
+    "t-align:right\">- &nbsp;</td><td>SfaNI</td><td>&nbsp;GCATC(5" +
+    "/9)</td></tr>\n<tr><td><input id=\"WDE_54\" onclick=\"wdeSel" +
+    "Enzymes(this, 54)\" type=\"checkbox\"></td><td style=\"text-" +
+    "align:right\">- &nbsp;</td><td>BsaI</td><td>&nbsp;GGTCTC(1/5" +
+    ")</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_137\" o" +
+    "nclick=\"wdeSelEnzymes(this, 137)\" type=\"checkbox\"></td><" +
+    "td style=\"text-align:right\">- &nbsp;</td><td>HinfI</td><td" +
+    ">&nbsp;G^ANTC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"" +
+    "WDE_220\" onclick=\"wdeSelEnzymes(this, 220)\" type=\"checkb" +
+    "ox\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Sf" +
+    "cI</td><td>&nbsp;C^TRYAG</td></tr>\n<tr><td><input id=\"WDE_" +
+    "55\" onclick=\"wdeSelEnzymes(this, 55)\" type=\"checkbox\"><" +
+    "/td><td style=\"text-align:right\">- &nbsp;</td><td>BsaAI</t" +
+    "d><td>&nbsp;YAC^GTR</td><th>&nbsp;&nbsp;&nbsp;</th><td><inpu" +
+    "t id=\"WDE_138\" onclick=\"wdeSelEnzymes(this, 138)\" type=\"" +
+    "checkbox\"></td><td style=\"text-align:right\">- &nbsp;</td>" +
+    "<td>HpaI</td><td>&nbsp;GTT^AAC</td><th>&nbsp;&nbsp;&nbsp;</t" +
+    "h><td><input id=\"WDE_221\" onclick=\"wdeSelEnzymes(this, 22" +
+    "1)\" type=\"checkbox\"></td><td style=\"text-align:right\">-" +
+    " &nbsp;</td><td>SfoI</td><td>&nbsp;GGC^GCC</td></tr>\n<tr><t" +
+    "d><input id=\"WDE_56\" onclick=\"wdeSelEnzymes(this, 56)\" t" +
+    "ype=\"checkbox\"></td><td style=\"text-align:right\">- &nbsp" +
+    ";</td><td>BsaBI</td><td>&nbsp;GATNN^NNATC</td><th>&nbsp;&nbs" +
+    "p;&nbsp;</th><td><input id=\"WDE_139\" onclick=\"wdeSelEnzym" +
+    "es(this, 139)\" type=\"checkbox\"></td><td style=\"text-alig" +
+    "n:right\">- &nbsp;</td><td>HpaII</td><td>&nbsp;C^CGG</td><th" +
+    ">&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_222\" onclick=\"" +
+    "wdeSelEnzymes(this, 222)\" type=\"checkbox\"></td><td style=" +
+    "\"text-align:right\">- &nbsp;</td><td>SfuI</td><td>&nbsp;TT^" +
+    "CGAA</td></tr>\n<tr><td><input id=\"WDE_57\" onclick=\"wdeSe" +
+    "lEnzymes(this, 57)\" type=\"checkbox\"></td><td style=\"text" +
+    "-align:right\">- &nbsp;</td><td>BsaHI</td><td>&nbsp;GR^CGYC<" +
+    "/td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_140\" onc" +
+    "lick=\"wdeSelEnzymes(this, 140)\" type=\"checkbox\"></td><td" +
+    " style=\"text-align:right\">- &nbsp;</td><td>HphI</td><td>&n" +
+    "bsp;GGTGA(8/7)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=" +
+    "\"WDE_223\" onclick=\"wdeSelEnzymes(this, 223)\" type=\"chec" +
+    "kbox\"></td><td style=\"text-align:right\">- &nbsp;</td><td>" +
+    "SgrAI</td><td>&nbsp;CR^CCGGYG</td></tr>\n<tr><td><input id=\"" +
+    "WDE_58\" onclick=\"wdeSelEnzymes(this, 58)\" type=\"checkbox" +
+    "\"></td><td style=\"text-align:right\">- &nbsp;</td><td>BsaJ" +
+    "I</td><td>&nbsp;C^CNNGG</td><th>&nbsp;&nbsp;&nbsp;</th><td><" +
+    "input id=\"WDE_141\" onclick=\"wdeSelEnzymes(this, 141)\" ty" +
+    "pe=\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;" +
+    "</td><td>Hpy99I</td><td>&nbsp;CGWCG^</td><th>&nbsp;&nbsp;&nb" +
+    "sp;</th><td><input id=\"WDE_224\" onclick=\"wdeSelEnzymes(th" +
+    "is, 224)\" type=\"checkbox\"></td><td style=\"text-align:rig" +
+    "ht\">- &nbsp;</td><td>SmaI</td><td>&nbsp;CCC^GGG</td></tr>\n" +
+    "<tr><td><input id=\"WDE_59\" onclick=\"wdeSelEnzymes(this, 5" +
+    "9)\" type=\"checkbox\"></td><td style=\"text-align:right\">-" +
+    " &nbsp;</td><td>BsaWI</td><td>&nbsp;W^CCGGW</td><th>&nbsp;&n" +
+    "bsp;&nbsp;</th><td><input id=\"WDE_142\" onclick=\"wdeSelEnz" +
+    "ymes(this, 142)\" type=\"checkbox\"></td><td style=\"text-al" +
+    "ign:right\">- &nbsp;</td><td>Hpy166II</td><td>&nbsp;GTN^NAC<" +
+    "/td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_225\" onc" +
+    "lick=\"wdeSelEnzymes(this, 225)\" type=\"checkbox\"></td><td" +
+    " style=\"text-align:right\">- &nbsp;</td><td>SmlI</td><td>&n" +
+    "bsp;C^TYRAG</td></tr>\n<tr><td><input id=\"WDE_60\" onclick=" +
+    "\"wdeSelEnzymes(this, 60)\" type=\"checkbox\"></td><td style" +
+    "=\"text-align:right\">- &nbsp;</td><td>BsaXI</td><td>&nbsp;(" +
+    "9/12)ACNNNNNCTCC(10/7)</td><th>&nbsp;&nbsp;&nbsp;</th><td><i" +
+    "nput id=\"WDE_143\" onclick=\"wdeSelEnzymes(this, 143)\" typ" +
+    "e=\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;<" +
+    "/td><td>Hpy188I</td><td>&nbsp;TCN^GA</td><th>&nbsp;&nbsp;&nb" +
+    "sp;</th><td><input id=\"WDE_226\" onclick=\"wdeSelEnzymes(th" +
+    "is, 226)\" type=\"checkbox\"></td><td style=\"text-align:rig" +
+    "ht\">- &nbsp;</td><td>SnaBI</td><td>&nbsp;TAC^GTA</td></tr>\n" +
+    "<tr><td><input id=\"WDE_61\" onclick=\"wdeSelEnzymes(this, 6" +
+    "1)\" type=\"checkbox\"></td><td style=\"text-align:right\">-" +
+    " &nbsp;</td><td>BseRI</td><td>&nbsp;GAGGAG(10/8)</td><th>&nb" +
+    "sp;&nbsp;&nbsp;</th><td><input id=\"WDE_144\" onclick=\"wdeS" +
+    "elEnzymes(this, 144)\" type=\"checkbox\"></td><td style=\"te" +
+    "xt-align:right\">- &nbsp;</td><td>Hpy188III</td><td>&nbsp;TC" +
+    "^NNGA</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_227" +
+    "\" onclick=\"wdeSelEnzymes(this, 227)\" type=\"checkbox\"></" +
+    "td><td style=\"text-align:right\">- &nbsp;</td><td>SpeI</td>" +
+    "<td>&nbsp;A^CTAGT</td></tr>\n<tr><td><input id=\"WDE_62\" on" +
+    "click=\"wdeSelEnzymes(this, 62)\" type=\"checkbox\"></td><td" +
+    " style=\"text-align:right\">- &nbsp;</td><td>BseYI</td><td>&" +
+    "nbsp;CCCAGC(-5/-1)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input" +
+    " id=\"WDE_145\" onclick=\"wdeSelEnzymes(this, 145)\" type=\"" +
+    "checkbox\"></td><td style=\"text-align:right\">- &nbsp;</td>" +
+    "<td>HpyAV</td><td>&nbsp;CCTTC(6/5)</td><th>&nbsp;&nbsp;&nbsp" +
+    ";</th><td><input id=\"WDE_228\" onclick=\"wdeSelEnzymes(this" +
+    ", 228)\" type=\"checkbox\"></td><td style=\"text-align:right" +
+    "\">- &nbsp;</td><td>SphI</td><td>&nbsp;GCATG^C</td></tr>\n<t" +
+    "r><td><input id=\"WDE_63\" onclick=\"wdeSelEnzymes(this, 63)" +
+    "\" type=\"checkbox\"></td><td style=\"text-align:right\">- &" +
+    "nbsp;</td><td>BsgI</td><td>&nbsp;GTGCAG(16/14)</td><th>&nbsp" +
+    ";&nbsp;&nbsp;</th><td><input id=\"WDE_146\" onclick=\"wdeSel" +
+    "Enzymes(this, 146)\" type=\"checkbox\"></td><td style=\"text" +
+    "-align:right\">- &nbsp;</td><td>HpyCH4III</td><td>&nbsp;ACN^" +
+    "GT</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_229\" " +
+    "onclick=\"wdeSelEnzymes(this, 229)\" type=\"checkbox\"></td>" +
+    "<td style=\"text-align:right\">- &nbsp;</td><td>SrfI</td><td" +
+    ">&nbsp;GCCC^GGGC</td></tr>\n<tr><td><input id=\"WDE_64\" onc" +
+    "lick=\"wdeSelEnzymes(this, 64)\" type=\"checkbox\"></td><td " +
+    "style=\"text-align:right\">- &nbsp;</td><td>BsiEI</td><td>&n" +
+    "bsp;CGRY^CG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"W" +
+    "DE_147\" onclick=\"wdeSelEnzymes(this, 147)\" type=\"checkbo" +
+    "x\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Hpy" +
+    "CH4IV</td><td>&nbsp;A^CGT</td><th>&nbsp;&nbsp;&nbsp;</th><td" +
+    "><input id=\"WDE_230\" onclick=\"wdeSelEnzymes(this, 230)\" " +
+    "type=\"checkbox\"></td><td style=\"text-align:right\">- &nbs" +
+    "p;</td><td>SspI</td><td>&nbsp;AAT^ATT</td></tr>\n<tr><td><in" +
+    "put id=\"WDE_65\" onclick=\"wdeSelEnzymes(this, 65)\" type=\"" +
+    "checkbox\"></td><td style=\"text-align:right\">- &nbsp;</td>" +
+    "<td>BsiHKAI</td><td>&nbsp;GWGCW^C</td><th>&nbsp;&nbsp;&nbsp;" +
+    "</th><td><input id=\"WDE_148\" onclick=\"wdeSelEnzymes(this," +
+    " 148)\" type=\"checkbox\"></td><td style=\"text-align:right\"" +
+    ">- &nbsp;</td><td>HpyCH4V</td><td>&nbsp;TG^CA</td><th>&nbsp;" +
+    "&nbsp;&nbsp;</th><td><input id=\"WDE_231\" onclick=\"wdeSelE" +
+    "nzymes(this, 231)\" type=\"checkbox\"></td><td style=\"text-" +
+    "align:right\">- &nbsp;</td><td>StuI</td><td>&nbsp;AGG^CCT</t" +
+    "d></tr>\n<tr><td><input id=\"WDE_66\" onclick=\"wdeSelEnzyme" +
+    "s(this, 66)\" type=\"checkbox\"></td><td style=\"text-align:" +
+    "right\">- &nbsp;</td><td>BsiWI</td><td>&nbsp;C^GTACG</td><th" +
+    ">&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_149\" onclick=\"" +
+    "wdeSelEnzymes(this, 149)\" type=\"checkbox\"></td><td style=" +
+    "\"text-align:right\">- &nbsp;</td><td>KasI</td><td>&nbsp;G^G" +
+    "CGCC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_232\"" +
+    " onclick=\"wdeSelEnzymes(this, 232)\" type=\"checkbox\"></td" +
+    "><td style=\"text-align:right\">- &nbsp;</td><td>StyI</td><t" +
+    "d>&nbsp;C^CWWGG</td></tr>\n<tr><td><input id=\"WDE_67\" oncl" +
+    "ick=\"wdeSelEnzymes(this, 67)\" type=\"checkbox\"></td><td s" +
+    "tyle=\"text-align:right\">- &nbsp;</td><td>BslI</td><td>&nbs" +
+    "p;CCNNNNN^NNGG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=" +
+    "\"WDE_150\" onclick=\"wdeSelEnzymes(this, 150)\" type=\"chec" +
+    "kbox\"></td><td style=\"text-align:right\">- &nbsp;</td><td>" +
+    "KpnI</td><td>&nbsp;GGTAC^C</td><th>&nbsp;&nbsp;&nbsp;</th><t" +
+    "d><input id=\"WDE_233\" onclick=\"wdeSelEnzymes(this, 233)\"" +
+    " type=\"checkbox\"></td><td style=\"text-align:right\">- &nb" +
+    "sp;</td><td>StyD4I</td><td>&nbsp;^CCNGG</td></tr>\n<tr><td><" +
+    "input id=\"WDE_68\" onclick=\"wdeSelEnzymes(this, 68)\" type" +
+    "=\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;</" +
+    "td><td>BsmI</td><td>&nbsp;GAATGC(1/-1)</td><th>&nbsp;&nbsp;&" +
+    "nbsp;</th><td><input id=\"WDE_151\" onclick=\"wdeSelEnzymes(" +
+    "this, 151)\" type=\"checkbox\"></td><td style=\"text-align:r" +
+    "ight\">- &nbsp;</td><td>KspI</td><td>&nbsp;CCGC^GG</td><th>&" +
+    "nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_234\" onclick=\"wd" +
+    "eSelEnzymes(this, 234)\" type=\"checkbox\"></td><td style=\"" +
+    "text-align:right\">- &nbsp;</td><td>SwaI</td><td>&nbsp;ATTT^" +
+    "AAAT</td></tr>\n<tr><td><input id=\"WDE_69\" onclick=\"wdeSe" +
+    "lEnzymes(this, 69)\" type=\"checkbox\"></td><td style=\"text" +
+    "-align:right\">- &nbsp;</td><td>BsmAI</td><td>&nbsp;GTCTC(1/" +
+    "5)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_152\" " +
+    "onclick=\"wdeSelEnzymes(this, 152)\" type=\"checkbox\"></td>" +
+    "<td style=\"text-align:right\">- &nbsp;</td><td>MaeI</td><td" +
+    ">&nbsp;C^TAG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"" +
+    "WDE_235\" onclick=\"wdeSelEnzymes(this, 235)\" type=\"checkb" +
+    "ox\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Ta" +
+    "qI</td><td>&nbsp;T^CGA</td></tr>\n<tr><td><input id=\"WDE_70" +
+    "\" onclick=\"wdeSelEnzymes(this, 70)\" type=\"checkbox\"></t" +
+    "d><td style=\"text-align:right\">- &nbsp;</td><td>BsmBI</td>" +
+    "<td>&nbsp;CGTCTC(1/5)</td><th>&nbsp;&nbsp;&nbsp;</th><td><in" +
+    "put id=\"WDE_153\" onclick=\"wdeSelEnzymes(this, 153)\" type" +
+    "=\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;</" +
+    "td><td>MaeII</td><td>&nbsp;A^CGT</td><th>&nbsp;&nbsp;&nbsp;<" +
+    "/th><td><input id=\"WDE_236\" onclick=\"wdeSelEnzymes(this, " +
+    "236)\" type=\"checkbox\"></td><td style=\"text-align:right\"" +
+    ">- &nbsp;</td><td>TfiI</td><td>&nbsp;G^AWTC</td></tr>\n<tr><" +
+    "td><input id=\"WDE_71\" onclick=\"wdeSelEnzymes(this, 71)\" " +
+    "type=\"checkbox\"></td><td style=\"text-align:right\">- &nbs" +
+    "p;</td><td>BsmFI</td><td>&nbsp;GGGAC(10/14)</td><th>&nbsp;&n" +
+    "bsp;&nbsp;</th><td><input id=\"WDE_154\" onclick=\"wdeSelEnz" +
+    "ymes(this, 154)\" type=\"checkbox\"></td><td style=\"text-al" +
+    "ign:right\">- &nbsp;</td><td>MaeIII</td><td>&nbsp;^GTNAC</td" +
+    "><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_237\" onclic" +
+    "k=\"wdeSelEnzymes(this, 237)\" type=\"checkbox\"></td><td st" +
+    "yle=\"text-align:right\">- &nbsp;</td><td>Tru9I</td><td>&nbs" +
+    "p;T^TAA</td></tr>\n<tr><td><input id=\"WDE_72\" onclick=\"wd" +
+    "eSelEnzymes(this, 72)\" type=\"checkbox\"></td><td style=\"t" +
+    "ext-align:right\">- &nbsp;</td><td>BsoBI</td><td>&nbsp;C^YCG" +
+    "RG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_155\" " +
+    "onclick=\"wdeSelEnzymes(this, 155)\" type=\"checkbox\"></td>" +
+    "<td style=\"text-align:right\">- &nbsp;</td><td>MboI</td><td" +
+    ">&nbsp;^GATC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"" +
+    "WDE_238\" onclick=\"wdeSelEnzymes(this, 238)\" type=\"checkb" +
+    "ox\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Ts" +
+    "eI</td><td>&nbsp;G^CWGC</td></tr>\n<tr><td><input id=\"WDE_7" +
+    "3\" onclick=\"wdeSelEnzymes(this, 73)\" type=\"checkbox\"></" +
+    "td><td style=\"text-align:right\">- &nbsp;</td><td>Bsp1286I<" +
+    "/td><td>&nbsp;GDGCH^C</td><th>&nbsp;&nbsp;&nbsp;</th><td><in" +
+    "put id=\"WDE_156\" onclick=\"wdeSelEnzymes(this, 156)\" type" +
+    "=\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;</" +
+    "td><td>MboII</td><td>&nbsp;GAAGA(8/7)</td><th>&nbsp;&nbsp;&n" +
+    "bsp;</th><td><input id=\"WDE_239\" onclick=\"wdeSelEnzymes(t" +
+    "his, 239)\" type=\"checkbox\"></td><td style=\"text-align:ri" +
+    "ght\">- &nbsp;</td><td>Tsp45I</td><td>&nbsp;^GTSAC</td></tr>" +
+    "\n<tr><td><input id=\"WDE_74\" onclick=\"wdeSelEnzymes(this," +
+    " 74)\" type=\"checkbox\"></td><td style=\"text-align:right\"" +
+    ">- &nbsp;</td><td>BspCNI</td><td>&nbsp;CTCAG(9/7)</td><th>&n" +
+    "bsp;&nbsp;&nbsp;</th><td><input id=\"WDE_157\" onclick=\"wde" +
+    "SelEnzymes(this, 157)\" type=\"checkbox\"></td><td style=\"t" +
+    "ext-align:right\">- &nbsp;</td><td>MfeI</td><td>&nbsp;C^AATT" +
+    "G</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_240\" o" +
+    "nclick=\"wdeSelEnzymes(this, 240)\" type=\"checkbox\"></td><" +
+    "td style=\"text-align:right\">- &nbsp;</td><td>TspMI</td><td" +
+    ">&nbsp;C^CCGGG</td></tr>\n<tr><td><input id=\"WDE_75\" oncli" +
+    "ck=\"wdeSelEnzymes(this, 75)\" type=\"checkbox\"></td><td st" +
+    "yle=\"text-align:right\">- &nbsp;</td><td>BspDI</td><td>&nbs" +
+    "p;AT^CGAT</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE" +
+    "_158\" onclick=\"wdeSelEnzymes(this, 158)\" type=\"checkbox\"" +
+    "></td><td style=\"text-align:right\">- &nbsp;</td><td>MluI</" +
+    "td><td>&nbsp;A^CGCGT</td><th>&nbsp;&nbsp;&nbsp;</th><td><inp" +
+    "ut id=\"WDE_241\" onclick=\"wdeSelEnzymes(this, 241)\" type=" +
+    "\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;</t" +
+    "d><td>TspRI</td><td>&nbsp;CASTGNN^</td></tr>\n<tr><td><input" +
+    " id=\"WDE_76\" onclick=\"wdeSelEnzymes(this, 76)\" type=\"ch" +
+    "eckbox\"></td><td style=\"text-align:right\">- &nbsp;</td><t" +
+    "d>BspEI</td><td>&nbsp;T^CCGGA</td><th>&nbsp;&nbsp;&nbsp;</th" +
+    "><td><input id=\"WDE_159\" onclick=\"wdeSelEnzymes(this, 159" +
+    ")\" type=\"checkbox\"></td><td style=\"text-align:right\">- " +
+    "&nbsp;</td><td>MluCI</td><td>&nbsp;^AATT</td><th>&nbsp;&nbsp" +
+    ";&nbsp;</th><td><input id=\"WDE_242\" onclick=\"wdeSelEnzyme" +
+    "s(this, 242)\" type=\"checkbox\"></td><td style=\"text-align" +
+    ":right\">- &nbsp;</td><td>Tth111I</td><td>&nbsp;GACN^NNGTC</" +
+    "td></tr>\n<tr><td><input id=\"WDE_77\" onclick=\"wdeSelEnzym" +
+    "es(this, 77)\" type=\"checkbox\"></td><td style=\"text-align" +
+    ":right\">- &nbsp;</td><td>BspHI</td><td>&nbsp;T^CATGA</td><t" +
+    "h>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_160\" onclick=\"" +
+    "wdeSelEnzymes(this, 160)\" type=\"checkbox\"></td><td style=" +
+    "\"text-align:right\">- &nbsp;</td><td>MluNI</td><td>&nbsp;TG" +
+    "G^CCA</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_243" +
+    "\" onclick=\"wdeSelEnzymes(this, 243)\" type=\"checkbox\"></" +
+    "td><td style=\"text-align:right\">- &nbsp;</td><td>XbaI</td>" +
+    "<td>&nbsp;T^CTAGA</td></tr>\n<tr><td><input id=\"WDE_78\" on" +
+    "click=\"wdeSelEnzymes(this, 78)\" type=\"checkbox\"></td><td" +
+    " style=\"text-align:right\">- &nbsp;</td><td>BspMI</td><td>&" +
+    "nbsp;ACCTGC(4/8)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input i" +
+    "d=\"WDE_161\" onclick=\"wdeSelEnzymes(this, 161)\" type=\"ch" +
+    "eckbox\"></td><td style=\"text-align:right\">- &nbsp;</td><t" +
+    "d>MlyI</td><td>&nbsp;GAGTC(5/5)</td><th>&nbsp;&nbsp;&nbsp;</" +
+    "th><td><input id=\"WDE_244\" onclick=\"wdeSelEnzymes(this, 2" +
+    "44)\" type=\"checkbox\"></td><td style=\"text-align:right\">" +
+    "- &nbsp;</td><td>XhoI</td><td>&nbsp;C^TCGAG</td></tr>\n<tr><" +
+    "td><input id=\"WDE_79\" onclick=\"wdeSelEnzymes(this, 79)\" " +
+    "type=\"checkbox\"></td><td style=\"text-align:right\">- &nbs" +
+    "p;</td><td>BspQI</td><td>&nbsp;GCTCTTC(1/4)</td><th>&nbsp;&n" +
+    "bsp;&nbsp;</th><td><input id=\"WDE_162\" onclick=\"wdeSelEnz" +
+    "ymes(this, 162)\" type=\"checkbox\"></td><td style=\"text-al" +
+    "ign:right\">- &nbsp;</td><td>MmeI</td><td>&nbsp;TCCRAC(20/18" +
+    ")</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_245\" o" +
+    "nclick=\"wdeSelEnzymes(this, 245)\" type=\"checkbox\"></td><" +
+    "td style=\"text-align:right\">- &nbsp;</td><td>XmaI</td><td>" +
+    "&nbsp;C^CCGGG</td></tr>\n<tr><td><input id=\"WDE_80\" onclic" +
+    "k=\"wdeSelEnzymes(this, 80)\" type=\"checkbox\"></td><td sty" +
+    "le=\"text-align:right\">- &nbsp;</td><td>BsrI</td><td>&nbsp;" +
+    "ACTGG(1/-1)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"W" +
+    "DE_163\" onclick=\"wdeSelEnzymes(this, 163)\" type=\"checkbo" +
+    "x\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Mnl" +
+    "I</td><td>&nbsp;CCTC(7/6)</td><th>&nbsp;&nbsp;&nbsp;</th><td" +
+    "><input id=\"WDE_246\" onclick=\"wdeSelEnzymes(this, 246)\" " +
+    "type=\"checkbox\"></td><td style=\"text-align:right\">- &nbs" +
+    "p;</td><td>XmnI</td><td>&nbsp;GAANN^NNTTC</td></tr>\n<tr><td" +
+    "><input id=\"WDE_81\" onclick=\"wdeSelEnzymes(this, 81)\" ty" +
+    "pe=\"checkbox\"></td><td style=\"text-align:right\">- &nbsp;" +
+    "</td><td>BsrBI</td><td>&nbsp;CCGCTC(-3/-3)</td><th>&nbsp;&nb" +
+    "sp;&nbsp;</th><td><input id=\"WDE_164\" onclick=\"wdeSelEnzy" +
+    "mes(this, 164)\" type=\"checkbox\"></td><td style=\"text-ali" +
+    "gn:right\">- &nbsp;</td><td>MroI</td><td>&nbsp;T^CCGGA</td><" +
+    "th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_247\" onclick=" +
+    "\"wdeSelEnzymes(this, 247)\" type=\"checkbox\"></td><td styl" +
+    "e=\"text-align:right\">- &nbsp;</td><td>ZraI</td><td>&nbsp;G" +
+    "AC^GTC</td></tr>\n<tr><td><input id=\"WDE_82\" onclick=\"wde" +
+    "SelEnzymes(this, 82)\" type=\"checkbox\"></td><td style=\"te" +
+    "xt-align:right\">- &nbsp;</td><td>BsrDI</td><td>&nbsp;GCAATG" +
+    "(2/0)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input id=\"WDE_165" +
+    "\" onclick=\"wdeSelEnzymes(this, 165)\" type=\"checkbox\"></" +
+    "td><td style=\"text-align:right\">- &nbsp;</td><td>MscI</td>" +
+    "<td>&nbsp;TGG^CCA</td><th>&nbsp;&nbsp;&nbsp;</th><td></td><t" +
+    "d></td><td></td><td></td></tr>\n</tbody></table>";
+    return str;
+}
+
+function wdeTestDataString_012() {
+    var str = '[["AatII","GACGT^C",0,14,";2640,6;7442,6;9753,6;98' +
+    '28,6;30962,6;33504,6;48414,6;59063,6;74046,6;75295,6;75360,6' +
+    ';75800,6;82024,6;83619,6","N",";2644;7446;9757;9832;30966;33' +
+    '508;48418;59067;74050;75299;75364;75804;82028;83623"],' +
+    '["AccI","GT^MKAC",0,32,";3087,6;4455,6;6451,6;7781,6;9831,6' +
+    ';10407,6;13934,6;17342,6;17675,6;20291,6;22736,6;22784,6;265' +
+    '51,6;33501,6;33731,6;33841,6;34406,6;42027,6;47224,6;51740,6' +
+    ';51836,6;58177,6;58292,6;59213,6;61750,6;66845,6;70009,6;713' +
+    '34,6;76380,6;82100,6;83542,6;93027,6","N",";3088;4456;6452;7' +
+    '782;9832;10408;13935;17343;17676;20292;22737;22785;26552;335' +
+    '02;33732;33842;34407;42028;47225;51741;51837;58178;58293;592' +
+    '14;61751;66846;70010;71335;76381;82101;83543;93028"],' +
+    '["Acc65I","G^GTACC",0,7,";100,6;14884,6;17522,6;19498,6;584' +
+    '26,6;69982,6;71851,6","C",";100;14884;17522;19498;58426;6998' +
+    '2;71851"],' +
+    '["AciI","CCGC(-3/-1)",0,337,";133,4;137,4;203,4;272,4;465,4' +
+    ';614,4;667,4;818,4;896,4;971,4;1018,4;1596,4;3850,4;3893,4;4' +
+    '237,4;4415,4;4473,4;4513,4;4565,4;4648,4;4793,4;4883,4;4886,' +
+    '4;5003,4;5066,4;5160,4;5224,4;5325,4;5328,4;5568,4;5608,4;56' +
+    '13,4;5663,4;5679,4;5705,4;5761,4;5940,4;6009,4;7623,4;8016,4' +
+    ';8079,4;8190,4;8457,4;9558,4;9627,4;9825,4;10992,4;11068,4;1' +
+    '2055,4;12248,4;12502,4;13254,4;13315,4;14326,4;14753,4;18357' +
+    ',4;20486,4;22208,4;22394,4;24614,4;25037,4;25433,4;25437,4;2' +
+    '6008,4;26823,4;28221,4;28502,4;28570,4;28580,4;28681,4;28910' +
+    ',4;29022,4;30414,4;30871,4;30959,4;33217,4;33252,4;33436,4;3' +
+    '4123,4;34766,4;36501,4;37126,4;37246,4;40790,4;40978,4;41542' +
+    ',4;45057,4;46761,4;48180,4;48184,4;49641,4;49650,4;50277,4;5' +
+    '0358,4;50661,4;52354,4;59009,4;59024,4;59026,4;59054,4;59058' +
+    ',4;59060,4;60727,4;60739,4;63519,4;64272,4;65352,4;65470,4;6' +
+    '6196,4;67900,4;67960,4;69236,4;69834,4;69913,4;69917,4;69922' +
+    ',4;71132,4;71328,4;71520,4;71540,4;71839,4;72046,4;72067,4;7' +
+    '2911,4;73458,4;73460,4;73622,4;73647,4;73689,4;73956,4;73962' +
+    ',4;74135,4;74241,4;74486,4;74489,4;74659,4;74662,4;74747,4;7' +
+    '4853,4;74855,4;74888,4;74951,4;74954,4;74984,4;75225,4;75283' +
+    ',4;75344,4;75355,4;75385,4;75552,4;75602,4;75604,4;75808,4;7' +
+    '5833,4;75843,4;75956,4;76104,4;76148,4;76191,4;76333,4;76420' +
+    ',4;76554,4;76780,4;76815,4;76966,4;76969,4;76993,4;77036,4;7' +
+    '7067,4;77069,4;77360,4;77371,4;77504,4;77865,4;77870,4;77903' +
+    ',4;77981,4;78061,4;78120,4;78136,4;78351,4;78354,4;78384,4;7' +
+    '8500,4;78583,4;78619,4;78621,4;78681,4;78755,4;78844,4;78893' +
+    ',4;78925,4;78997,4;79145,4;79157,4;79163,4;79196,4;79356,4;7' +
+    '9391,4;79394,4;79421,4;79423,4;79435,4;79521,4;79532,4;79653' +
+    ',4;79688,4;79721,4;79777,4;79806,4;79854,4;79886,4;79997,4;8' +
+    '0181,4;80494,4;80529,4;80629,4;81057,4;81072,4;81123,4;81226' +
+    ',4;81275,4;81346,4;81540,4;81554,4;81568,4;81588,4;81613,4;8' +
+    '1619,4;81692,4;81793,4;81805,4;81808,4;81811,4;81968,4;81977' +
+    ',4;81994,4;82018,4;82070,4;82090,4;82249,4;82499,4;82546,4;8' +
+    '2624,4;82627,4;82823,4;82886,4;82953,4;82965,4;83062,4;83234' +
+    ',4;83254,4;83414,4;83494,4;83513,4;83563,4;83572,4;83589,4;8' +
+    '3613,4;83665,4;83685,4;83753,4;83800,4;83808,4;83925,4;84179' +
+    ',4;85020,4;85158,4;85166,4;85209,4;85250,4;85628,4;85631,4;8' +
+    '5669,4;85879,4;86421,4;86526,4;87061,4;87079,4;87270,4;87285' +
+    ',4;87495,4;87614,4;87754,4;88044,4;88201,4;88267,4;88371,4;8' +
+    '8737,4;88781,4;88969,4;89053,4;89055,4;89183,4;89493,4;90476' +
+    ',4;90485,4;90526,4;90548,4;90593,4;90613,4;90675,4;90809,4;9' +
+    '0957,4;90998,4;91259,4;91276,4;91333,4;91354,4;91406,4;91453' +
+    ',4;91564,4;91646,4;91649,4;91703,4;91771,4;91889,4;91895,4;9' +
+    '2163,4;92345,4;92383,4;92393,4;92594,4;92754,4;92827,4;92879' +
+    ',4;92887,4;92931,4;92957,4;92990,4;93264,4;93354,4;93469,4;9' +
+    '3642,4;93722,4;93741,4;93887,4","N",";133;137;203;272;465;61' +
+    '4;667;818;896;971;1018;1596;3850;3893;4237;4415;4473;4513;45' +
+    '65;4648;4793;4883;4886;5003;5066;5160;5224;5325;5328;5568;56' +
+    '08;5613;5663;5679;5705;5761;5940;6009;7623;8016;8079;8190;84' +
+    '57;9558;9627;9825;10992;11068;12055;12248;12502;13254;13315;' +
+    '14326;14753;18357;20486;22208;22394;24614;25037;25433;25437;' +
+    '26008;26823;28221;28502;28570;28580;28681;28910;29022;30414;' +
+    '30871;30959;33217;33252;33436;34123;34766;36501;37126;37246;' +
+    '40790;40978;41542;45057;46761;48180;48184;49641;49650;50277;' +
+    '50358;50661;52354;59009;59024;59026;59054;59058;59060;60727;' +
+    '60739;63519;64272;65352;65470;66196;67900;67960;69236;69834;' +
+    '69913;69917;69922;71132;71328;71520;71540;71839;72046;72067;' +
+    '72911;73458;73460;73622;73647;73689;73956;73962;74135;74241;' +
+    '74486;74489;74659;74662;74747;74853;74855;74888;74951;74954;' +
+    '74984;75225;75283;75344;75355;75385;75552;75602;75604;75808;' +
+    '75833;75843;75956;76104;76148;76191;76333;76420;76554;76780;' +
+    '76815;76966;76969;76993;77036;77067;77069;77360;77371;77504;' +
+    '77865;77870;77903;77981;78061;78120;78136;78351;78354;78384;' +
+    '78500;78583;78619;78621;78681;78755;78844;78893;78925;78997;' +
+    '79145;79157;79163;79196;79356;79391;79394;79421;79423;79435;' +
+    '79521;79532;79653;79688;79721;79777;79806;79854;79886;79997;' +
+    '80181;80494;80529;80629;81057;81072;81123;81226;81275;81346;' +
+    '81540;81554;81568;81588;81613;81619;81692;81793;81805;81808;' +
+    '81811;81968;81977;81994;82018;82070;82090;82249;82499;82546;' +
+    '82624;82627;82823;82886;82953;82965;83062;83234;83254;83414;' +
+    '83494;83513;83563;83572;83589;83613;83665;83685;83753;83800;' +
+    '83808;83925;84179;85020;85158;85166;85209;85250;85628;85631;' +
+    '85669;85879;86421;86526;87061;87079;87270;87285;87495;87614;' +
+    '87754;88044;88201;88267;88371;88737;88781;88969;89053;89055;' +
+    '89183;89493;90476;90485;90526;90548;90593;90613;90675;90809;' +
+    '90957;90998;91259;91276;91333;91354;91406;91453;91564;91646;' +
+    '91649;91703;91771;91889;91895;92163;92345;92383;92393;92594;' +
+    '92754;92827;92879;92887;92931;92957;92990;93264;93354;93469;' +
+    '93642;93722;93741;93887"],' +
+    '["AclI","AA^CGTT",0,14,";10473,6;14787,6;16513,6;21979,6;28' +
+    '319,6;38974,6;40766,6;40997,6;42932,6;45753,6;78417,6;85851,' +
+    '6;88080,6;93428,6","N",";10474;14788;16514;21980;28320;38975' +
+    ';40767;40998;42933;45754;78418;85852;88081;93429"],' +
+    '["AcuI","CTGAAG(16/14)",0,68,";622,6;628,6;652,6;985,6;2458' +
+    ',6;5219,6;5651,6;7102,6;7640,6;8794,6;9083,6;13132,6;13750,6' +
+    ';14016,6;14835,6;19983,6;20384,6;20460,6;23745,6;25500,6;261' +
+    '15,6;27885,6;30665,6;32897,6;33291,6;33417,6;33780,6;34634,6' +
+    ';35175,6;37222,6;41319,6;45587,6;45617,6;49628,6;50933,6;509' +
+    '70,6;53761,6;55616,6;56147,6;61802,6;62880,6;64334,6;65577,6' +
+    ';65782,6;66783,6;68147,6;70955,6;73651,6;74899,6;75967,6;765' +
+    '69,6;79547,6;79648,6;81307,6;81325,6;81752,6;82946,6;85286,6' +
+    ';85605,6;86124,6;87099,6;88378,6;88635,6;89198,6;91714,6;917' +
+    '84,6;92589,6;92903,6","N",";607;613;637;970;2479;5240;5672;7' +
+    '087;7625;8779;9104;13117;13771;14037;14856;19968;20369;20445' +
+    ';23730;25485;26100;27906;30686;32918;33276;33438;33801;34619' +
+    ';35160;37207;41304;45608;45602;49649;50918;50955;53782;55637' +
+    ';56132;61787;62901;64355;65598;65767;66768;68168;70976;73636' +
+    ';74884;75988;76590;79568;79633;81292;81310;81773;82931;85271' +
+    ';85626;86145;87120;88363;88656;89183;91735;91805;92574;92924' +
+    '"],' +
+    '["AfeI","AGC^GCT",0,8,";7290,6;15837,6;41246,6;62016,6;7652' +
+    '6,6;76727,6;81164,6;83953,6","N",";7292;15839;41248;62018;76' +
+    '528;76729;81166;83955"],' +
+    '["AflII","C^TTAAG",0,22,";400,6;5810,6;9428,6;17239,6;20844' +
+    ',6;23771,6;31279,6;31849,6;36325,6;40313,6;44345,6;44864,6;4' +
+    '5492,6;47680,6;57600,6;59127,6;69708,6;69734,6;73091,6;74647' +
+    ',6;79592,6;80296,6","N",";400;5810;9428;17239;20844;23771;31' +
+    '279;31849;36325;40313;44345;44864;45492;47680;57600;59127;69' +
+    '708;69734;73091;74647;79592;80296"],' +
+    '["AflIII","A^CRYGT",0,50,";320,6;1625,6;1627,6;5890,6;8322,' +
+    '6;8736,6;9508,6;11061,6;12305,6;13978,6;15170,6;15482,6;1598' +
+    '1,6;18276,6;22842,6;24870,6;28752,6;30844,6;32368,6;35331,6;' +
+    '40338,6;42645,6;44257,6;44960,6;45152,6;45162,6;46170,6;4931' +
+    '8,6;50799,6;54595,6;58710,6;61689,6;61972,6;63441,6;63856,6;' +
+    '64814,6;67079,6;67097,6;70192,6;71234,6;77061,6;77952,6;8126' +
+    '1,6;81662,6;83207,6;85299,6;86899,6;89674,6;90838,6;91878,6"' +
+    ',"N",";320;1625;1627;5890;8322;8736;9508;11061;12305;13978;1' +
+    '5170;15482;15981;18276;22842;24870;28752;30844;32368;35331;4' +
+    '0338;42645;44257;44960;45152;45162;46170;49318;50799;54595;5' +
+    '8710;61689;61972;63441;63856;64814;67079;67097;70192;71234;7' +
+    '7061;77952;81261;81662;83207;85299;86899;89674;90838;91878"]' +
+    ',' +
+    '["AgeI","A^CCGGT",0,10,";11622,6;20598,6;20661,6;25634,6;29' +
+    '008,6;30693,6;77634,6;86844,6;91987,6;92514,6","N",";11622;2' +
+    '0598;20661;25634;29008;30693;77634;86844;91987;92514"],' +
+    '["AhdI","GACNNN^NNGTC",0,8,";941,11;4345,11;45762,11;64341,' +
+    '11;76078,11;76177,11;77888,11;93518,11","N",";946;4350;45767' +
+    ';64346;76083;76182;77893;93523"],' +
+    '["AleI","CACNN^NNGTG",0,6,";492,10;16536,10;31973,10;54838,' +
+    '10;68246,10;90322,10","N",";496;16540;31977;54842;68250;9032' +
+    '6"],' +
+    '["AluI","AG^CT",0,382,";530,4;560,4;626,4;872,4;989,4;1524,' +
+    '4;1589,4;1609,4;1892,4;2519,4;3191,4;3505,4;5199,4;5657,4;65' +
+    '55,4;6869,4;7110,4;7191,4;7371,4;7594,4;7669,4;7902,4;8342,4' +
+    ';8389,4;8396,4;8625,4;8693,4;9132,4;9204,4;9304,4;9357,4;980' +
+    '8,4;9813,4;10086,4;10463,4;11399,4;12107,4;12208,4;12212,4;1' +
+    '2216,4;12278,4;12447,4;12481,4;12657,4;12722,4;12877,4;12940' +
+    ',4;13008,4;13300,4;13403,4;13748,4;13813,4;13823,4;14153,4;1' +
+    '4340,4;15253,4;15560,4;15774,4;16224,4;16361,4;16493,4;16999' +
+    ',4;17076,4;17088,4;18477,4;18786,4;19061,4;19220,4;19299,4;1' +
+    '9334,4;19531,4;19668,4;20119,4;20388,4;20614,4;20754,4;20805' +
+    ',4;20945,4;21969,4;22582,4;23140,4;23604,4;23698,4;24126,4;2' +
+    '4688,4;24772,4;25404,4;25418,4;25480,4;25498,4;25793,4;26021' +
+    ',4;26081,4;26421,4;26565,4;26569,4;27377,4;27836,4;28010,4;2' +
+    '8035,4;28307,4;28424,4;28984,4;29186,4;29343,4;29912,4;30856' +
+    ',4;30947,4;30976,4;31650,4;31842,4;31877,4;32019,4;32048,4;3' +
+    '2413,4;32670,4;32693,4;32995,4;33295,4;33304,4;33323,4;33421' +
+    ',4;33930,4;34080,4;34157,4;34713,4;34868,4;34947,4;35257,4;3' +
+    '5262,4;35320,4;35810,4;36345,4;36350,4;36505,4;36711,4;36801' +
+    ',4;36842,4;37193,4;37308,4;37487,4;37714,4;38576,4;39868,4;4' +
+    '0080,4;40674,4;41403,4;41502,4;41722,4;41806,4;42325,4;42344' +
+    ',4;42513,4;42694,4;42879,4;43742,4;43849,4;43948,4;44097,4;4' +
+    '4119,4;44148,4;44228,4;44862,4;44934,4;44956,4;45048,4;45070' +
+    ',4;45564,4;45576,4;45591,4;45615,4;45679,4;46335,4;46645,4;4' +
+    '7669,4;47830,4;47878,4;48601,4;49514,4;49518,4;49626,4;49873' +
+    ',4;50617,4;50692,4;50758,4;51843,4;51905,4;52151,4;52167,4;5' +
+    '2247,4;53165,4;53401,4;53446,4;53553,4;53980,4;54401,4;54469' +
+    ',4;54560,4;55146,4;56884,4;56910,4;57192,4;57263,4;58107,4;5' +
+    '8135,4;58264,4;58618,4;59103,4;59131,4;59280,4;60162,4;60214' +
+    ',4;60418,4;60713,4;60848,4;61320,4;61676,4;61763,4;62072,4;6' +
+    '2114,4;62141,4;62151,4;62170,4;62179,4;62221,4;62253,4;62300' +
+    ',4;62538,4;62762,4;62907,4;63157,4;63456,4;63469,4;64126,4;6' +
+    '4254,4;64384,4;64419,4;64584,4;65240,4;65330,4;65342,4;65370' +
+    ',4;65375,4;65604,4;65617,4;66015,4;66105,4;66118,4;66246,4;6' +
+    '6464,4;66549,4;66668,4;66762,4;66768,4;66859,4;67202,4;67376' +
+    ',4;67556,4;68169,4;70086,4;70105,4;70273,4;70515,4;70544,4;7' +
+    '0571,4;71208,4;71292,4;71452,4;71721,4;71780,4;71791,4;71878' +
+    ',4;71982,4;72621,4;72625,4;72828,4;72841,4;72943,4;72998,4;7' +
+    '3013,4;73095,4;73319,4;73430,4;73442,4;73536,4;73558,4;73575' +
+    ',4;74448,4;74711,4;74897,4;75182,4;75323,4;75886,4;76462,4;7' +
+    '6898,4;77129,4;77166,4;77193,4;77382,4;77475,4;77488,4;77521' +
+    ',4;77879,4;78069,4;78183,4;78436,4;78667,4;78751,4;78855,4;7' +
+    '8861,4;79515,4;79569,4;79946,4;79954,4;80300,4;80451,4;80583' +
+    ',4;80868,4;81012,4;81047,4;81171,4;81417,4;82274,4;82394,4;8' +
+    '2766,4;82880,4;83316,4;83444,4;83824,4;83931,4;84053,4;84506' +
+    ',4;85327,4;85419,4;85603,4;85871,4;86013,4;86025,4;86247,4;8' +
+    '6555,4;86559,4;86800,4;86810,4;87139,4;87166,4;87175,4;87233' +
+    ',4;87329,4;87373,4;87457,4;87640,4;87681,4;87685,4;87931,4;8' +
+    '8006,4;88471,4;88567,4;88633,4;88831,4;88997,4;89463,4;89813' +
+    ',4;90411,4;90501,4;90804,4;90976,4;91268,4;91495,4;91590,4;9' +
+    '1612,4;91616,4;91788,4;92231,4;92443,4;92611,4;92980,4;93277' +
+    ',4;93376,4;93459,4;93672,4;93798,4;93813,4","N",";531;561;62' +
+    '7;873;990;1525;1590;1610;1893;2520;3192;3506;5200;5658;6556;' +
+    '6870;7111;7192;7372;7595;7670;7903;8343;8390;8397;8626;8694;' +
+    '9133;9205;9305;9358;9809;9814;10087;10464;11400;12108;12209;' +
+    '12213;12217;12279;12448;12482;12658;12723;12878;12941;13009;' +
+    '13301;13404;13749;13814;13824;14154;14341;15254;15561;15775;' +
+    '16225;16362;16494;17000;17077;17089;18478;18787;19062;19221;' +
+    '19300;19335;19532;19669;20120;20389;20615;20755;20806;20946;' +
+    '21970;22583;23141;23605;23699;24127;24689;24773;25405;25419;' +
+    '25481;25499;25794;26022;26082;26422;26566;26570;27378;27837;' +
+    '28011;28036;28308;28425;28985;29187;29344;29913;30857;30948;' +
+    '30977;31651;31843;31878;32020;32049;32414;32671;32694;32996;' +
+    '33296;33305;33324;33422;33931;34081;34158;34714;34869;34948;' +
+    '35258;35263;35321;35811;36346;36351;36506;36712;36802;36843;' +
+    '37194;37309;37488;37715;38577;39869;40081;40675;41404;41503;' +
+    '41723;41807;42326;42345;42514;42695;42880;43743;43850;43949;' +
+    '44098;44120;44149;44229;44863;44935;44957;45049;45071;45565;' +
+    '45577;45592;45616;45680;46336;46646;47670;47831;47879;48602;' +
+    '49515;49519;49627;49874;50618;50693;50759;51844;51906;52152;' +
+    '52168;52248;53166;53402;53447;53554;53981;54402;54470;54561;' +
+    '55147;56885;56911;57193;57264;58108;58136;58265;58619;59104;' +
+    '59132;59281;60163;60215;60419;60714;60849;61321;61677;61764;' +
+    '62073;62115;62142;62152;62171;62180;62222;62254;62301;62539;' +
+    '62763;62908;63158;63457;63470;64127;64255;64385;64420;64585;' +
+    '65241;65331;65343;65371;65376;65605;65618;66016;66106;66119;' +
+    '66247;66465;66550;66669;66763;66769;66860;67203;67377;67557;' +
+    '68170;70087;70106;70274;70516;70545;70572;71209;71293;71453;' +
+    '71722;71781;71792;71879;71983;72622;72626;72829;72842;72944;' +
+    '72999;73014;73096;73320;73431;73443;73537;73559;73576;74449;' +
+    '74712;74898;75183;75324;75887;76463;76899;77130;77167;77194;' +
+    '77383;77476;77489;77522;77880;78070;78184;78437;78668;78752;' +
+    '78856;78862;79516;79570;79947;79955;80301;80452;80584;80869;' +
+    '81013;81048;81172;81418;82275;82395;82767;82881;83317;83445;' +
+    '83825;83932;84054;84507;85328;85420;85604;85872;86014;86026;' +
+    '86248;86556;86560;86801;86811;87140;87167;87176;87234;87330;' +
+    '87374;87458;87641;87682;87686;87932;88007;88472;88568;88634;' +
+    '88832;88998;89464;89814;90412;90502;90805;90977;91269;91496;' +
+    '91591;91613;91617;91789;92232;92444;92612;92981;93278;93377;' +
+    '93460;93673;93799;93814"],' +
+    '["AlwI","GGATC(4/5)",0,0,"","A",""],' +
+    '["AlwNI","CAGNNN^CTG",0,12,";15782,9;27879,9;70236,9;71610,' +
+    '9;74567,9;75388,9;75415,9;88741,9;89201,9;90643,9;92119,9;92' +
+    '397,9","C",";15787;27884;70241;71615;74572;75393;75420;88746' +
+    ';89206;90648;92124;92402"],' +
+    '["ApaI","GGGCC^C",0,5,";173,6;28176,6;30908,6;73497,6;81757' +
+    ',6","C",";177;28180;30912;73501;81761"],' +
+    '["ApaLI","G^TGCAC",0,8,";7424,6;28359,6;29041,6;47855,6;585' +
+    '04,6;60284,6;82796,6;90575,6","N",";7424;28359;29041;47855;5' +
+    '8504;60284;82796;90575"],' +
+    '["ApeKI","G^CWGC",0,156,";558,5;561,5;775,5;1739,5;2709,5;3' +
+    '612,5;4275,5;4375,5;4668,5;4677,5;4689,5;4848,5;4938,5;5054,' +
+    '5;5155,5;5197,5;5238,5;5331,5;5718,5;6073,5;6976,5;8340,5;83' +
+    '94,5;8459,5;8612,5;8762,5;10425,5;10751,5;12233,5;12236,5;12' +
+    '239,5;12448,5;12655,5;13450,5;13453,5;13456,5;13459,5;13920,' +
+    '5;13962,5;14174,5;14328,5;14741,5;15061,5;15197,5;15561,5;15' +
+    '781,5;15835,5;15900,5;19789,5;19920,5;20575,5;20755,5;20806,' +
+    '5;20986,5;23367,5;24574,5;28775,5;30342,5;30352,5;30571,5;31' +
+    '243,5;32251,5;32414,5;32417,5;32694,5;33607,5;34196,5;35886,' +
+    '5;36503,5;36802,5;38042,5;38577,5;39612,5;42342,5;42576,5;44' +
+    '117,5;44120,5;45613,5;50246,5;51906,5;52168,5;53368,5;54672,' +
+    '5;54675,5;60502,5;62751,5;65331,5;66883,5;68167,5;68319,5;71' +
+    '418,5;71497,5;72941,5;73877,5;73932,5;73973,5;74162,5;74566,' +
+    '5;74712,5;74895,5;76529,5;77420,5;77486,5;77678,5;77692,5;77' +
+    '900,5;77984,5;77987,5;78515,5;78518,5;78536,5;78752,5;79229,' +
+    '5;79247,5;79495,5;80019,5;80697,5;81551,5;81906,5;81927,5;82' +
+    '449,5;82735,5;83107,5;83123,5;83167,5;83256,5;83373,5;83442,' +
+    '5;84504,5;85352,5;86148,5;86702,5;87234,5;87514,5;87641,5;87' +
+    '691,5;87866,5;88819,5;88966,5;89568,5;89641,5;89689,5;90502,' +
+    '5;90595,5;90721,5;90802,5;90901,5;91106,5;91132,5;91801,5;92' +
+    '154,5;92882,5;93601,5;93670,5;93767,5;93799,5","N",";558;561' +
+    ';775;1739;2709;3612;4275;4375;4668;4677;4689;4848;4938;5054;' +
+    '5155;5197;5238;5331;5718;6073;6976;8340;8394;8459;8612;8762;' +
+    '10425;10751;12233;12236;12239;12448;12655;13450;13453;13456;' +
+    '13459;13920;13962;14174;14328;14741;15061;15197;15561;15781;' +
+    '15835;15900;19789;19920;20575;20755;20806;20986;23367;24574;' +
+    '28775;30342;30352;30571;31243;32251;32414;32417;32694;33607;' +
+    '34196;35886;36503;36802;38042;38577;39612;42342;42576;44117;' +
+    '44120;45613;50246;51906;52168;53368;54672;54675;60502;62751;' +
+    '65331;66883;68167;68319;71418;71497;72941;73877;73932;73973;' +
+    '74162;74566;74712;74895;76529;77420;77486;77678;77692;77900;' +
+    '77984;77987;78515;78518;78536;78752;79229;79247;79495;80019;' +
+    '80697;81551;81906;81927;82449;82735;83107;83123;83167;83256;' +
+    '83373;83442;84504;85352;86148;86702;87234;87514;87641;87691;' +
+    '87866;88819;88966;89568;89641;89689;90502;90595;90721;90802;' +
+    '90901;91106;91132;91801;92154;92882;93601;93670;93767;93799"' +
+    '],' +
+    '["ApoI","R^AATTY",0,234,";161,6;1175,6;1440,6;1959,6;2038,6' +
+    ';2539,6;2658,6;4246,6;4737,6;4770,6;5771,6;7071,6;9389,6;106' +
+    '53,6;10681,6;10741,6;10813,6;11286,6;11382,6;11414,6;11429,6' +
+    ';11482,6;11756,6;11870,6;12135,6;13220,6;13475,6;13532,6;139' +
+    '01,6;16057,6;16184,6;16370,6;16722,6;18394,6;18626,6;21247,6' +
+    ';21416,6;21587,6;21721,6;21794,6;21959,6;21992,6;22437,6;230' +
+    '28,6;23047,6;23061,6;23076,6;23285,6;23375,6;23492,6;23529,6' +
+    ';23691,6;23755,6;24789,6;25707,6;25851,6;25934,6;26508,6;267' +
+    '15,6;26879,6;27336,6;27633,6;27693,6;28382,6;28735,6;30150,6' +
+    ';30890,6;31145,6;31628,6;32662,6;33184,6;33390,6;33786,6;338' +
+    '02,6;34329,6;34656,6;34988,6;35232,6;35271,6;35441,6;36392,6' +
+    ';36704,6;36914,6;36929,6;37657,6;38619,6;38668,6;38805,6;389' +
+    '50,6;39464,6;39568,6;39707,6;40753,6;40829,6;41579,6;41676,6' +
+    ';41709,6;42350,6;43089,6;43160,6;43292,6;43939,6;44571,6;445' +
+    '90,6;44622,6;45003,6;45118,6;45125,6;46007,6;46474,6;46862,6' +
+    ';46991,6;47067,6;47462,6;47473,6;48124,6;48807,6;48896,6;490' +
+    '55,6;49083,6;49489,6;49922,6;50158,6;50768,6;50850,6;51983,6' +
+    ';52090,6;52217,6;52321,6;52740,6;53122,6;53244,6;53638,6;536' +
+    '73,6;54776,6;54984,6;55491,6;55525,6;55545,6;55706,6;56323,6' +
+    ';56418,6;56456,6;56602,6;56640,6;57076,6;57086,6;57559,6;577' +
+    '75,6;58001,6;58537,6;58867,6;58920,6;58947,6;60924,6;61192,6' +
+    ';61387,6;61696,6;62048,6;62616,6;63240,6;63682,6;63885,6;641' +
+    '55,6;64276,6;64658,6;64780,6;64929,6;64970,6;64997,6;65026,6' +
+    ';65175,6;65631,6;65790,6;66202,6;66499,6;66650,6;66916,6;670' +
+    '85,6;67382,6;67737,6;68220,6;68334,6;68790,6;68808,6;68846,6' +
+    ';68856,6;68913,6;69145,6;69480,6;69540,6;69559,6;69633,6;697' +
+    '72,6;69841,6;70177,6;70789,6;71087,6;72299,6;72951,6;73100,6' +
+    ';73110,6;73340,6;73479,6;74919,6;77556,6;77704,6;78991,6;790' +
+    '64,6;80350,6;80712,6;81582,6;81627,6;82266,6;82328,6;84826,6' +
+    ';85010,6;85694,6;86952,6;87881,6;89091,6;89438,6;89538,6;897' +
+    '96,6;89974,6;90143,6;90186,6;90623,6;91867,6;91973,6;92457,6' +
+    ';93245,6;93360,6;93907,6","N",";161;1175;1440;1959;2038;2539' +
+    ';2658;4246;4737;4770;5771;7071;9389;10653;10681;10741;10813;' +
+    '11286;11382;11414;11429;11482;11756;11870;12135;13220;13475;' +
+    '13532;13901;16057;16184;16370;16722;18394;18626;21247;21416;' +
+    '21587;21721;21794;21959;21992;22437;23028;23047;23061;23076;' +
+    '23285;23375;23492;23529;23691;23755;24789;25707;25851;25934;' +
+    '26508;26715;26879;27336;27633;27693;28382;28735;30150;30890;' +
+    '31145;31628;32662;33184;33390;33786;33802;34329;34656;34988;' +
+    '35232;35271;35441;36392;36704;36914;36929;37657;38619;38668;' +
+    '38805;38950;39464;39568;39707;40753;40829;41579;41676;41709;' +
+    '42350;43089;43160;43292;43939;44571;44590;44622;45003;45118;' +
+    '45125;46007;46474;46862;46991;47067;47462;47473;48124;48807;' +
+    '48896;49055;49083;49489;49922;50158;50768;50850;51983;52090;' +
+    '52217;52321;52740;53122;53244;53638;53673;54776;54984;55491;' +
+    '55525;55545;55706;56323;56418;56456;56602;56640;57076;57086;' +
+    '57559;57775;58001;58537;58867;58920;58947;60924;61192;61387;' +
+    '61696;62048;62616;63240;63682;63885;64155;64276;64658;64780;' +
+    '64929;64970;64997;65026;65175;65631;65790;66202;66499;66650;' +
+    '66916;67085;67382;67737;68220;68334;68790;68808;68846;68856;' +
+    '68913;69145;69480;69540;69559;69633;69772;69841;70177;70789;' +
+    '71087;72299;72951;73100;73110;73340;73479;74919;77556;77704;' +
+    '78991;79064;80350;80712;81582;81627;82266;82328;84826;85010;' +
+    '85694;86952;87881;89091;89438;89538;89796;89974;90143;90186;' +
+    '90623;91867;91973;92457;93245;93360;93907"],' +
+    '["AscI","GG^CGCGCC",0,5,";18809,8;30925,8;40281,8;59137,8;7' +
+    '3589,8","N",";18810;30926;40282;59138;73590"],' +
+    '["AseI","AT^TAAT",0,67,";38,6;1165,6;2317,6;8930,6;9685,6;1' +
+    '0506,6;10585,6;11313,6;12677,6;13193,6;13197,6;13201,6;16064' +
+    ',6;16839,6;17020,6;18106,6;18283,6;22816,6;22881,6;23115,6;2' +
+    '3457,6;24000,6;27618,6;27858,6;28628,6;29985,6;35928,6;37409' +
+    ',6;39487,6;39491,6;39632,6;39853,6;41189,6;42468,6;42518,6;4' +
+    '2683,6;42712,6;45031,6;47286,6;47902,6;48765,6;50922,6;56767' +
+    ',6;57634,6;59174,6;60252,6;61506,6;62443,6;62825,6;62927,6;6' +
+    '3279,6;63553,6;63781,6;65588,6;65641,6;66990,6;67406,6;67723' +
+    ',6;67727,6;68065,6;68503,6;68667,6;68883,6;69607,6;72855,6;7' +
+    '8472,6;84422,6","N",";39;1166;2318;8931;9686;10507;10586;113' +
+    '14;12678;13194;13198;13202;16065;16840;17021;18107;18284;228' +
+    '17;22882;23116;23458;24001;27619;27859;28629;29986;35929;374' +
+    '10;39488;39492;39633;39854;41190;42469;42519;42684;42713;450' +
+    '32;47287;47903;48766;50923;56768;57635;59175;60253;61507;624' +
+    '44;62826;62928;63280;63554;63782;65589;65642;66991;67407;677' +
+    '24;67728;68066;68504;68668;68884;69608;72856;78473;84423"],' +
+    '["AsiSI","GCGAT^CGC",0,3,";9657,8;80227,8;84625,8","N",";96' +
+    '61;80231;84629"],' +
+    '["Asp700I","GAANN^NNTTC",0,50,";2359,10;3050,10;3345,10;641' +
+    '4,10;6709,10;7706,10;13552,10;18899,10;23028,10;25045,10;258' +
+    '08,10;26712,10;26791,10;28890,10;30890,10;33744,10;33782,10;' +
+    '39159,10;40540,10;44226,10;45572,10;47429,10;47747,10;48645,' +
+    '10;50961,10;51417,10;52213,10;54699,10;59295,10;59478,10;596' +
+    '71,10;60180,10;60821,10;60864,10;62731,10;62859,10;62889,10;' +
+    '62925,10;65554,10;65586,10;65997,10;66471,10;70475,10;71196,' +
+    '10;72191,10;72807,10;73479,10;74344,10;76818,10;87261,10","N' +
+    '",";2363;3054;3349;6418;6713;7710;13556;18903;23032;25049;25' +
+    '812;26716;26795;28894;30894;33748;33786;39163;40544;44230;45' +
+    '576;47433;47751;48649;50965;51421;52217;54703;59299;59482;59' +
+    '675;60184;60825;60868;62735;62863;62893;62929;65558;65590;66' +
+    '001;66475;70479;71200;72195;72811;73483;74348;76822;87265"],' +
+    '["Asp718I","G^GTACC",0,7,";100,6;14884,6;17522,6;19498,6;58' +
+    '426,6;69982,6;71851,6","C",";100;14884;17522;19498;58426;699' +
+    '82;71851"],' +
+    '["AvaI","C^YCGRG",0,35,";104,6;128,6;859,6;2735,6;6099,6;86' +
+    '66,6;28980,6;30899,6;34114,6;40069,6;40407,6;41736,6;51901,6' +
+    ';52326,6;55101,6;56262,6;73488,6;73802,6;74622,6;74784,6;763' +
+    '15,6;76599,6;77816,6;78032,6;78071,6;78827,6;79410,6;80662,6' +
+    ';83179,6;83537,6;83547,6;83553,6;84751,6;85025,6;88072,6","N' +
+    '",";104;128;859;2735;6099;8666;28980;30899;34114;40069;40407' +
+    ';41736;51901;52326;55101;56262;73488;73802;74622;74784;76315' +
+    ';76599;77816;78032;78071;78827;79410;80662;83179;83537;83547' +
+    ';83553;84751;85025;88072"],' +
+    '["AvaII","G^GWCC",0,57,";1922,5;2392,5;2978,5;3300,5;3312,5' +
+    ';5610,5;6342,5;6664,5;6676,5;7582,5;7845,5;7985,5;15301,5;15' +
+    '761,5;17112,5;17302,5;18799,5;19082,5;20194,5;20281,5;21828,' +
+    '5;23524,5;25632,5;28598,5;28644,5;28805,5;30448,5;30661,5;31' +
+    '678,5;32337,5;32871,5;35731,5;44175,5;44397,5;47546,5;49186,' +
+    '5;54877,5;54963,5;60640,5;71349,5;75378,5;75523,5;77373,5;77' +
+    '969,5;78937,5;79437,5;79484,5;79963,5;82067,5;82632,5;83277,' +
+    '5;83557,5;83662,5;84068,5;86371,5;86847,5;88671,5","C",";192' +
+    '2;2392;2978;3300;3312;5610;6342;6664;6676;7582;7845;7985;153' +
+    '01;15761;17112;17302;18799;19082;20194;20281;21828;23524;256' +
+    '32;28598;28644;28805;30448;30661;31678;32337;32871;35731;441' +
+    '75;44397;47546;49186;54877;54963;60640;71349;75378;75523;773' +
+    '73;77969;78937;79437;79484;79963;82067;82632;83277;83557;836' +
+    '62;84068;86371;86847;88671"],' +
+    '["AvrII","C^CTAGG",0,5,";14997,6;35532,6;61025,6;61569,6;78' +
+    '407,6","N",";14997;35532;61025;61569;78407"],' +
+    '["BaeGI","GKGCM^C",0,26,";173,6;1064,6;5036,6;5129,6;7424,6' +
+    ';28176,6;28359,6;29041,6;29250,6;30908,6;42159,6;47855,6;523' +
+    '91,6;58504,6;58992,6;59251,6;60284,6;71647,6;73497,6;81757,6' +
+    ';81913,6;82796,6;83354,6;87214,6;90575,6;93304,6","N",";177;' +
+    '1068;5040;5133;7428;28180;28363;29045;29254;30912;42163;4785' +
+    '9;52395;58508;58996;59255;60288;71651;73501;81761;81917;8280' +
+    '0;83358;87218;90579;93308"],' +
+    '["BamHI","G^GATCC",0,15,";109,6;442,6;14526,6;17504,6;22390' +
+    ',6;33438,6;40947,6;41544,6;44050,6;50283,6;51096,6;55432,6;6' +
+    '1573,6;64525,6;70585,6","N",";109;442;14526;17504;22390;3343' +
+    '8;40947;41544;44050;50283;51096;55432;61573;64525;70585"],' +
+    '["BanI","G^GYRCC",0,36,";100,6;1063,6;3623,6;5093,6;5128,6;' +
+    '6987,6;12968,6;13382,6;14884,6;17522,6;19498,6;25327,6;29251' +
+    ',6;34119,6;35480,6;42160,6;52128,6;57696,6;58426,6;60632,6;6' +
+    '9055,6;69982,6;71106,6;71648,6;71851,6;75463,6;76416,6;76623' +
+    ',6;76995,6;79619,6;79717,6;79773,6;81277,6;90985,6;91508,6;9' +
+    '2756,6","N",";100;1063;3623;5093;5128;6987;12968;13382;14884' +
+    ';17522;19498;25327;29251;34119;35480;42160;52128;57696;58426' +
+    ';60632;69055;69982;71106;71648;71851;75463;76416;76623;76995' +
+    ';79619;79717;79773;81277;90985;91508;92756"],' +
+    '["BanII","GRGCY^C",0,27,";173,6;1523,6;5455,6;7399,6;8140,6' +
+    ';12721,6;14254,6;19530,6;28176,6;30908,6;32994,6;36816,6;417' +
+    '39,6;44096,6;58992,6;69246,6;73497,6;74781,6;76050,6;76793,6' +
+    ';78068,6;79953,6;81046,6;81757,6;81766,6;83550,6;84972,6","N' +
+    '",";177;1527;5459;7403;8144;12725;14258;19534;28180;30912;32' +
+    '998;36820;41743;44100;58996;69250;73501;74785;76054;76797;78' +
+    '072;79957;81050;81761;81770;83554;84976"],' +
+    '["BbrPI","CAC^GTG",0,4,";1626,6;31667,6;36371,6;36522,6","N' +
+    '",";1628;31669;36373;36524"],' +
+    '["BbsI","GAAGAC(2/6)",0,46,";707,6;1339,6;3120,6;3345,6;336' +
+    '2,6;4630,6;6484,6;6709,6;6726,6;7880,6;10767,6;13308,6;13362' +
+    ',6;16531,6;20564,6;21742,6;23743,6;30228,6;30667,6;33289,6;3' +
+    '4107,6;38023,6;38187,6;39140,6;40892,6;41268,6;42439,6;44604' +
+    ',6;46084,6;57279,6;57486,6;60833,6;61800,6;67943,6;70737,6;7' +
+    '0957,6;72132,6;77174,6;79711,6;80758,6;81746,6;85295,6;86268' +
+    ',6;88935,6;91015,6;93237,6","N",";700;1332;3127;3352;3355;46' +
+    '23;6491;6716;6719;7887;10774;13301;13369;16538;20571;21749;2' +
+    '3736;30221;30674;33282;34114;38016;38180;39147;40885;41275;4' +
+    '2446;44597;46091;57286;57479;60840;61793;67936;70744;70964;7' +
+    '2139;77167;79704;80765;81753;85302;86261;88928;91022;93230"]' +
+    ',' +
+    '["BbvI","GCAGC(8/12)",0,156,";558,5;561,5;775,5;1739,5;2709' +
+    ',5;3612,5;4275,5;4375,5;4668,5;4677,5;4689,5;4848,5;4938,5;5' +
+    '054,5;5155,5;5197,5;5238,5;5331,5;5718,5;6073,5;6976,5;8340,' +
+    '5;8394,5;8459,5;8612,5;8762,5;10425,5;10751,5;12233,5;12236,' +
+    '5;12239,5;12448,5;12655,5;13450,5;13453,5;13456,5;13459,5;13' +
+    '920,5;13962,5;14174,5;14328,5;14741,5;15061,5;15197,5;15561,' +
+    '5;15781,5;15835,5;15900,5;19789,5;19920,5;20575,5;20755,5;20' +
+    '806,5;20986,5;23367,5;24574,5;28775,5;30342,5;30352,5;30571,' +
+    '5;31243,5;32251,5;32414,5;32417,5;32694,5;33607,5;34196,5;35' +
+    '886,5;36503,5;36802,5;38042,5;38577,5;39612,5;42342,5;42576,' +
+    '5;44117,5;44120,5;45613,5;50246,5;51906,5;52168,5;53368,5;54' +
+    '672,5;54675,5;60502,5;62751,5;65331,5;66883,5;68167,5;68319,' +
+    '5;71418,5;71497,5;72941,5;73877,5;73932,5;73973,5;74162,5;74' +
+    '566,5;74712,5;74895,5;76529,5;77420,5;77486,5;77678,5;77692,' +
+    '5;77900,5;77984,5;77987,5;78515,5;78518,5;78536,5;78752,5;79' +
+    '229,5;79247,5;79495,5;80019,5;80697,5;81551,5;81906,5;81927,' +
+    '5;82449,5;82735,5;83107,5;83123,5;83167,5;83256,5;83373,5;83' +
+    '442,5;84504,5;85352,5;86148,5;86702,5;87234,5;87514,5;87641,' +
+    '5;87691,5;87866,5;88819,5;88966,5;89568,5;89641,5;89689,5;90' +
+    '502,5;90595,5;90721,5;90802,5;90901,5;91106,5;91132,5;91801,' +
+    '5;92154,5;92882,5;93601,5;93670,5;93767,5;93799,5","N",";570' +
+    ';548;787;1726;2721;3624;4262;4362;4655;4664;4676;4835;4950;5' +
+    '041;5167;5209;5225;5318;5730;6085;6988;8352;8406;8446;8599;8' +
+    '774;10437;10738;12220;12223;12226;12435;12667;13437;13440;13' +
+    '443;13446;13932;13974;14186;14315;14728;15048;15184;15548;15' +
+    '793;15847;15887;19801;19932;20562;20742;20793;20998;23379;24' +
+    '561;28787;30329;30364;30558;31255;32263;32401;32404;32681;33' +
+    '619;34208;35898;36515;36789;38029;38564;39624;42354;42588;44' +
+    '129;44107;45625;50258;51893;52155;53380;54684;54687;60514;62' +
+    '738;65318;66895;68179;68331;71405;71509;72953;73889;73919;73' +
+    '985;74174;74578;74699;74907;76516;77432;77498;77665;77704;77' +
+    '887;77996;77999;78502;78505;78523;78739;79216;79234;79482;80' +
+    '031;80684;81563;81918;81939;82461;82722;83094;83110;83154;83' +
+    '243;83385;83454;84516;85339;86135;86714;87221;87501;87628;87' +
+    '678;87878;88806;88953;89580;89653;89701;90489;90607;90733;90' +
+    '814;90888;91118;91119;91788;92141;92869;93613;93682;93754;93' +
+    '786"],' +
+    '["BbvCI","CCTCAGC(-5/-2)",0,7,";35806,7;60414,7;78625,7;805' +
+    '24,7;83865,7;83956,7;93464,7","N",";35807;60415;78626;80525;' +
+    '83866;83957;93465"],' +
+    '["BccI","CCATC(4/5)",0,176,";147,5;294,5;495,5;586,5;2690,5' +
+    ';3248,5;3271,5;3309,5;4707,5;4729,5;4949,5;4978,5;5306,5;540' +
+    '6,5;5917,5;6054,5;6612,5;6635,5;6673,5;7222,5;8041,5;8130,5;' +
+    '8281,5;9144,5;9535,5;10997,5;12225,5;12661,5;12757,5;12852,5' +
+    ';12900,5;13052,5;13600,5;14523,5;15012,5;15206,5;15296,5;153' +
+    '44,5;16552,5;17443,5;18362,5;18878,5;19678,5;19802,5;20518,5' +
+    ';20710,5;21130,5;21683,5;22078,5;22289,5;22612,5;23872,5;249' +
+    '71,5;25451,5;26248,5;26314,5;26399,5;26406,5;26684,5;26945,5' +
+    ';27986,5;28708,5;28845,5;29031,5;29177,5;29218,5;29278,5;293' +
+    '71,5;29385,5;29547,5;29897,5;30156,5;30271,5;30590,5;30703,5' +
+    ';30918,5;31702,5;32747,5;33199,5;33864,5;34349,5;35384,5;358' +
+    '32,5;35880,5;35966,5;37859,5;37898,5;39056,5;39168,5;39246,5' +
+    ';39814,5;40939,5;41888,5;42106,5;42372,5;43343,5;44696,5;461' +
+    '32,5;46961,5;47082,5;47133,5;47187,5;49276,5;50071,5;50163,5' +
+    ';50982,5;51498,5;52178,5;52195,5;52379,5;52614,5;52704,5;533' +
+    '60,5;53533,5;55108,5;55453,5;56984,5;57275,5;59019,5;59574,5' +
+    ';60619,5;61038,5;62405,5;62701,5;63908,5;64019,5;65196,5;662' +
+    '28,5;67648,5;68094,5;68928,5;68957,5;70127,5;70215,5;70589,5' +
+    ';71026,5;73507,5;74212,5;74544,5;74598,5;74695,5;75186,5;753' +
+    '81,5;76533,5;77215,5;77315,5;77392,5;77407,5;77431,5;77992,5' +
+    ';78169,5;78240,5;78272,5;79251,5;80011,5;80355,5;80640,5;816' +
+    '95,5;81738,5;82956,5;83005,5;84012,5;84364,5;84808,5;84852,5' +
+    ';85826,5;86745,5;86932,5;87610,5;89446,5;89471,5;89617,5;909' +
+    '82,5;91011,5;92525,5;93762,5","N",";141;302;489;580;2684;325' +
+    '6;3279;3303;4701;4723;4957;4972;5314;5400;5911;6048;6620;664' +
+    '3;6667;7216;8035;8138;8275;9152;9529;10991;12219;12655;12751' +
+    ';12860;12908;13060;13608;14517;15020;15214;15304;15352;16546' +
+    ';17451;18370;18886;19686;19810;20512;20718;21124;21677;22072' +
+    ';22297;22606;23866;24965;25459;26256;26322;26407;26400;26678' +
+    ';26953;27994;28702;28839;29039;29171;29212;29272;29365;29393' +
+    ';29541;29905;30150;30265;30598;30697;30912;31696;32755;33207' +
+    ';33872;34343;35378;35840;35888;35974;37853;37892;39064;39176' +
+    ';39240;39822;40933;41896;42100;42380;43351;44690;46126;46969' +
+    ';47090;47141;47195;49284;50065;50171;50976;51506;52186;52189' +
+    ';52387;52622;52698;53354;53541;55116;55447;56992;57269;59013' +
+    ';59582;60627;61032;62413;62695;63916;64027;65204;66236;67656' +
+    ';68088;68936;68965;70135;70223;70597;71034;73501;74206;74538' +
+    ';74592;74703;75180;75389;76541;77209;77309;77386;77401;77425' +
+    ';77986;78163;78248;78266;79259;80019;80363;80648;81689;81732' +
+    ';82964;82999;84020;84358;84802;84860;85820;86753;86940;87618' +
+    ';89440;89479;89611;90976;91005;92533;93756"],' +
+    '["BceAI","ACGGC(12/14)",0,87,";616,5;661,5;727,5;778,5;820,' +
+    '5;922,5;1054,5;1756,5;1818,5;2994,5;3852,5;4028,5;4119,5;426' +
+    '2,5;4429,5;4657,5;4784,5;4853,5;5068,5;5504,5;6358,5;9762,5;' +
+    '16051,5;16424,5;25311,5;26260,5;28697,5;28933,5;29093,5;2974' +
+    '4,5;35478,5;36628,5;40279,5;42031,5;48209,5;49653,5;53108,5;' +
+    '57671,5;62845,5;68990,5;69022,5;70671,5;72596,5;74280,5;7459' +
+    '0,5;74739,5;75086,5;75703,5;75822,5;75937,5;76161,5;76436,5;' +
+    '76621,5;76809,5;76886,5;77003,5;77108,5;77483,5;78058,5;7870' +
+    '1,5;78782,5;79152,5;79846,5;79876,5;79897,5;79991,5;81244,5;' +
+    '82970,5;82983,5;83151,5;83244,5;83291,5;83453,5;83504,5;8352' +
+    '1,5;84181,5;84318,5;86914,5;87653,5;88092,5;88462,5;90017,5;' +
+    '91640,5;91827,5;93681,5;93732,5;93749,5","N",";601;646;712;7' +
+    '63;805;907;1039;1741;1803;2979;3837;4044;4104;4278;4445;4673' +
+    ';4800;4838;5053;5520;6343;9778;16036;16409;25327;26276;28713' +
+    ';28918;29078;29729;35494;36644;40295;42047;48225;49638;53124' +
+    ';57687;62830;69006;69038;70656;72612;74296;74606;74755;75102' +
+    ';75688;75838;75922;76146;76452;76637;76794;76871;77019;77093' +
+    ';77499;78074;78686;78767;79137;79862;79892;79913;79976;81260' +
+    ';82955;82999;83167;83229;83307;83438;83520;83506;84166;84303' +
+    ';86930;87638;88077;88447;90002;91625;91843;93666;93748;93734' +
+    '"],' +
+    '["BciVI","GTATCC(6/5)",0,29,";2486,6;4170,6;4551,6;4644,6;5' +
+    '302,6;9017,6;10983,6;11122,6;17248,6;18083,6;18637,6;24452,6' +
+    ';33355,6;35528,6;44757,6;44821,6;48004,6;52080,6;60307,6;624' +
+    '83,6;63084,6;64217,6;64306,6;66340,6;68480,6;86219,6;86864,6' +
+    ';89366,6;91408,6","N",";2480;4181;4562;4655;5313;9028;10977;' +
+    '11133;17242;18077;18631;24446;33349;35539;44751;44815;47998;' +
+    '52074;60318;62494;63095;64211;64317;66351;68491;86213;86858;' +
+    '89377;91402"],' +
+    '["BclI","T^GATCA",0,0,"","A",""],' +
+    '["BcoDI","GTCTC(1/5)",0,118,";2182,5;2716,5;2919,5;3025,5;3' +
+    '114,5;3138,5;4313,5;6080,5;6283,5;6389,5;6478,5;6502,5;7497,' +
+    '5;7757,5;8096,5;8273,5;8567,5;8947,5;8990,5;10363,5;10391,5;' +
+    '13285,5;13572,5;15703,5;16015,5;16025,5;16113,5;17063,5;1771' +
+    '1,5;20212,5;20338,5;20849,5;20883,5;21142,5;21512,5;22871,5;' +
+    '24966,5;24988,5;26387,5;27745,5;28917,5;28949,5;29283,5;2957' +
+    '8,5;30015,5;30765,5;31582,5;32037,5;33507,5;34097,5;34803,5;' +
+    '36387,5;37137,5;37143,5;38456,5;38462,5;38468,5;38644,5;4085' +
+    '0,5;40879,5;41817,5;42055,5;42707,5;42856,5;43300,5;43450,5;' +
+    '44162,5;44533,5;45042,5;45359,5;45622,5;45770,5;45821,5;4820' +
+    '6,5;48461,5;49450,5;49612,5;50635,5;51056,5;51143,5;51658,5;' +
+    '53846,5;54631,5;54826,5;55099,5;55314,5;56009,5;57853,5;5957' +
+    '9,5;62596,5;64339,5;66537,5;66691,5;67314,5;67996,5;70499,5;' +
+    '70928,5;70985,5;71041,5;71287,5;71975,5;75055,5;75780,5;7579' +
+    '8,5;75961,5;76829,5;77058,5;77356,5;77649,5;78767,5;79750,5;' +
+    '84613,5;85152,5;85508,5;89658,5;91237,5;91397,5;91778,5","N"' +
+    ',";2187;2721;2924;3030;3119;3132;4318;6085;6288;6394;6483;64' +
+    '96;7491;7751;8101;8267;8572;8952;8995;10357;10385;13290;1356' +
+    '6;15708;16009;16019;16118;17068;17705;20217;20332;20854;2087' +
+    '7;21136;21517;22876;24960;24982;26392;27739;28922;28943;2927' +
+    '7;29572;30020;30759;31576;32042;33512;34102;34797;36381;3713' +
+    '1;37137;38461;38467;38473;38649;40855;40884;41811;42049;4270' +
+    '1;42850;43294;43455;44156;44538;45036;45353;45627;45775;4582' +
+    '6;48200;48455;49444;49606;50640;51050;51148;51663;53840;5463' +
+    '6;54831;55104;55308;56003;57858;59584;62601;64333;66542;6668' +
+    '5;67319;67990;70493;70922;70979;71035;71292;71969;75049;7578' +
+    '5;75792;75966;76834;77052;77361;77643;78772;79744;84607;8514' +
+    '6;85502;89663;91231;91402;91783"],' +
+    '["BfaI","C^TAG",0,190,";117,4;185,4;222,4;1192,4;1211,4;157' +
+    '5,4;1956,4;2396,4;2647,4;3618,4;5990,4;6982,4;7596,4;7866,4;' +
+    '9134,4;9608,4;10326,4;11034,4;11767,4;12210,4;12214,4;12218,' +
+    '4;12538,4;12840,4;14717,4;14998,4;15768,4;15988,4;16093,4;16' +
+    '226,4;17174,4;17408,4;17885,4;18945,4;20309,4;20390,4;20612,' +
+    '4;20983,4;21353,4;21397,4;21497,4;21629,4;22164,4;22804,4;23' +
+    '138,4;23883,4;24046,4;24076,4;25471,4;26540,4;26567,4;27345,' +
+    '4;27838,4;28142,4;28878,4;29046,4;30276,4;30390,4;30782,4;30' +
+    '817,4;31648,4;31726,4;31875,4;31879,4;32529,4;32691,4;33152,' +
+    '4;33206,4;33306,4;33366,4;33374,4;33380,4;33650,4;34026,4;34' +
+    '455,4;35074,4;35144,4;35533,4;35753,4;36001,4;36278,4;36293,' +
+    '4;36799,4;38581,4;39834,4;40092,4;40932,4;41521,4;41635,4;42' +
+    '049,4;42657,4;43126,4;43139,4;43851,4;44108,4;44529,4;44541,' +
+    '4;44808,4;45147,4;45263,4;45883,4;46004,4;47102,4;47210,4;47' +
+    '237,4;47360,4;47876,4;48268,4;48420,4;48473,4;48902,4;49211,' +
+    '4;49516,4;49912,4;50402,4;50818,4;51930,4;52054,4;52386,4;52' +
+    '736,4;53999,4;55424,4;55677,4;56122,4;56269,4;56288,4;56645,' +
+    '4;56707,4;57265,4;57957,4;58137,4;58939,4;59068,4;59105,4;59' +
+    '396,4;60303,4;61026,4;61328,4;61435,4;61570,4;62156,4;62758,' +
+    '4;62778,4;63638,4;64443,4;64487,4;64505,4;64553,4;64586,4;65' +
+    '287,4;65340,4;65344,4;65443,4;65948,4;66572,4;66770,4;66922,' +
+    '4;67200,4;67204,4;67299,4;67387,4;70275,4;71789,4;72623,4;73' +
+    '190,4;73376,4;73916,4;76564,4;76835,4;77384,4;77877,4;78117,' +
+    '4;78145,4;78408,4;78543,4;78922,4;79705,4;80121,4;80384,4;80' +
+    '839,4;81432,4;81849,4;82272,4;82276,4;82392,4;86557,4;87683,' +
+    '4;91614,4;93093,4;93410,4","N",";117;185;222;1192;1211;1575;' +
+    '1956;2396;2647;3618;5990;6982;7596;7866;9134;9608;10326;1103' +
+    '4;11767;12210;12214;12218;12538;12840;14717;14998;15768;1598' +
+    '8;16093;16226;17174;17408;17885;18945;20309;20390;20612;2098' +
+    '3;21353;21397;21497;21629;22164;22804;23138;23883;24046;2407' +
+    '6;25471;26540;26567;27345;27838;28142;28878;29046;30276;3039' +
+    '0;30782;30817;31648;31726;31875;31879;32529;32691;33152;3320' +
+    '6;33306;33366;33374;33380;33650;34026;34455;35074;35144;3553' +
+    '3;35753;36001;36278;36293;36799;38581;39834;40092;40932;4152' +
+    '1;41635;42049;42657;43126;43139;43851;44108;44529;44541;4480' +
+    '8;45147;45263;45883;46004;47102;47210;47237;47360;47876;4826' +
+    '8;48420;48473;48902;49211;49516;49912;50402;50818;51930;5205' +
+    '4;52386;52736;53999;55424;55677;56122;56269;56288;56645;5670' +
+    '7;57265;57957;58137;58939;59068;59105;59396;60303;61026;6132' +
+    '8;61435;61570;62156;62758;62778;63638;64443;64487;64505;6455' +
+    '3;64586;65287;65340;65344;65443;65948;66572;66770;66922;6720' +
+    '0;67204;67299;67387;70275;71789;72623;73190;73376;73916;7656' +
+    '4;76835;77384;77877;78117;78145;78408;78543;78922;79705;8012' +
+    '1;80384;80839;81432;81849;82272;82276;82392;86557;87683;9161' +
+    '4;93093;93410"],' +
+    '["BfrI","C^TTAAG",0,22,";400,6;5810,6;9428,6;17239,6;20844,' +
+    '6;23771,6;31279,6;31849,6;36325,6;40313,6;44345,6;44864,6;45' +
+    '492,6;47680,6;57600,6;59127,6;69708,6;69734,6;73091,6;74647,' +
+    '6;79592,6;80296,6","N",";400;5810;9428;17239;20844;23771;312' +
+    '79;31849;36325;40313;44345;44864;45492;47680;57600;59127;697' +
+    '08;69734;73091;74647;79592;80296"],' +
+    '["BfuAI","ACCTGC(4/8)",0,31,";2712,6;4990,6;5353,6;6076,6;7' +
+    '484,6;8901,6;9013,6;13517,6;22263,6;24677,6;34280,6;44761,6;' +
+    '47718,6;48848,6;50737,6;51281,6;61444,6;65348,6;65466,6;6945' +
+    '0,6;71651,6;73210,6;74870,6;75111,6;77401,6;82715,6;89223,6;' +
+    '90877,6;91156,6;91629,6;91761,6","N",";2703;4981;5362;6067;7' +
+    '475;8910;9004;13508;22272;24668;34289;44770;47709;48857;5074' +
+    '6;51290;61453;65357;65475;69441;71660;73219;74879;75102;7739' +
+    '2;82724;89214;90868;91165;91620;91770"],' +
+    '["BfuCI","^GATC",0,376,";110,4;182,4;431,4;443,4;643,4;1039' +
+    ',4;1135,4;1181,4;1208,4;1321,4;1345,4;1392,4;1451,4;1812,4;1' +
+    '834,4;2250,4;2399,4;2455,4;2652,4;2729,4;2846,4;3481,4;3644,' +
+    '4;4129,4;4338,4;4636,4;4967,4;5266,4;5344,4;5425,4;5434,4;55' +
+    '12,4;5765,4;5781,4;6029,4;6035,4;6093,4;6210,4;6845,4;7008,4' +
+    ';7147,4;7213,4;7525,4;7850,4;8260,4;8308,4;8520,4;8877,4;892' +
+    '1,4;9383,4;9399,4;9647,4;9653,4;9659,4;9748,4;10848,4;11084,' +
+    '4;11496,4;11588,4;12194,4;12346,4;12646,4;12706,4;13149,4;13' +
+    '444,4;13732,4;13738,4;14407,4;14430,4;14527,4;14618,4;14725,' +
+    '4;14869,4;15047,4;15128,4;15275,4;15372,4;15390,4;15694,4;16' +
+    '106,4;17435,4;17505,4;18875,4;19229,4;21116,4;21173,4;21281,' +
+    '4;21317,4;22211,4;22391,4;22718,4;23800,4;24556,4;24592,4;24' +
+    '900,4;24906,4;25021,4;25098,4;25306,4;25344,4;26060,4;26242,' +
+    '4;26532,4;26594,4;26736,4;27268,4;27283,4;27495,4;27540,4;27' +
+    '701,4;27712,4;28969,4;29430,4;30106,4;30111,4;30142,4;30394,' +
+    '4;30545,4;31014,4;31353,4;31368,4;31493,4;31813,4;31970,4;32' +
+    '483,4;33093,4;33280,4;33349,4;33439,4;33585,4;33655,4;33711,' +
+    '4;34297,4;34889,4;35306,4;35460,4;35522,4;35638,4;35950,4;36' +
+    '157,4;36486,4;36573,4;38388,4;38531,4;38630,4;38640,4;39034,' +
+    '4;39153,4;40158,4;40843,4;40948,4;41173,4;41545,4;41775,4;41' +
+    '798,4;41934,4;41971,4;42011,4;42583,4;43029,4;43390,4;44043,' +
+    '4;44051,4;44217,4;44545,4;45209,4;45427,4;45449,4;45728,4;47' +
+    '111,4;47798,4;48056,4;48063,4;48777,4;48953,4;50139,4;50284,' +
+    '4;50471,4;50598,4;50627,4;51097,4;51205,4;51304,4;51441,4;52' +
+    '099,4;52175,4;52627,4;52915,4;52923,4;53151,4;53544,4;53559,' +
+    '4;53566,4;53580,4;54278,4;54889,4;54922,4;55433,4;55736,4;56' +
+    '058,4;56275,4;56304,4;56369,4;56504,4;56534,4;56776,4;56861,' +
+    '4;56914,4;57159,4;57873,4;58256,4;58553,4;58635,4;59925,4;59' +
+    '934,4;60479,4;61279,4;61574,4;61604,4;62623,4;62951,4;63070,' +
+    '4;63649,4;63673,4;64526,4;64650,4;64702,4;65665,4;66159,4;66' +
+    '458,4;66485,4;66773,4;66944,4;67107,4;67511,4;67965,4;68426,' +
+    '4;68439,4;69263,4;69990,4;70319,4;70423,4;70586,4;70602,4;70' +
+    '635,4;71475,4;72061,4;72285,4;72325,4;72773,4;73357,4;73630,' +
+    '4;73892,4;73945,4;73992,4;74022,4;74090,4;74109,4;74169,4;74' +
+    '176,4;74842,4;75007,4;75013,4;75679,4;75717,4;75729,4;75873,' +
+    '4;75927,4;75950,4;76026,4;76064,4;76260,4;76343,4;76559,4;76' +
+    '716,4;77170,4;77269,4;77329,4;77414,4;77824,4;78050,4;78230,' +
+    '4;78317,4;78324,4;78431,4;78490,4;78591,4;78652,4;78709,4;79' +
+    '008,4;79235,4;79407,4;79561,4;79676,4;79684,4;79809,4;79851,' +
+    '4;79983,4;80025,4;80118,4;80229,4;80548,4;80578,4;80620,4;80' +
+    '635,4;80936,4;80940,4;81031,4;81319,4;81405,4;81732,4;81801,' +
+    '4;81951,4;82078,4;82093,4;82304,4;82342,4;82363,4;82591,4;82' +
+    '609,4;82684,4;82694,4;82874,4;83057,4;83365,4;83420,4;83534,' +
+    '4;83673,4;83688,4;83730,4;83790,4;83888,4;84134,4;84139,4;84' +
+    '372,4;84627,4;84757,4;85454,4;85490,4;85687,4;85788,4;85986,' +
+    '4;86021,4;86144,4;86358,4;86381,4;86392,4;86402,4;86409,4;86' +
+    '885,4;87129,4;88221,4;88368,4;89101,4;89212,4;89311,4;89517,' +
+    '4;89809,4;89989,4;90780,4;91227,4;91272,4;91281,4;91980,4;92' +
+    '058,4;92389,4;92486,4;92584,4;92742,4;92794,4;93414,4;93421,' +
+    '4;93514,4;93568,4;93593,4;93648,4","N",";109;181;430;442;642' +
+    ';1038;1134;1180;1207;1320;1344;1391;1450;1811;1833;2249;2398' +
+    ';2454;2651;2728;2845;3480;3643;4128;4337;4635;4966;5265;5343' +
+    ';5424;5433;5511;5764;5780;6028;6034;6092;6209;6844;7007;7146' +
+    ';7212;7524;7849;8259;8307;8519;8876;8920;9382;9398;9646;9652' +
+    ';9658;9747;10847;11083;11495;11587;12193;12345;12645;12705;1' +
+    '3148;13443;13731;13737;14406;14429;14526;14617;14724;14868;1' +
+    '5046;15127;15274;15371;15389;15693;16105;17434;17504;18874;1' +
+    '9228;21115;21172;21280;21316;22210;22390;22717;23799;24555;2' +
+    '4591;24899;24905;25020;25097;25305;25343;26059;26241;26531;2' +
+    '6593;26735;27267;27282;27494;27539;27700;27711;28968;29429;3' +
+    '0105;30110;30141;30393;30544;31013;31352;31367;31492;31812;3' +
+    '1969;32482;33092;33279;33348;33438;33584;33654;33710;34296;3' +
+    '4888;35305;35459;35521;35637;35949;36156;36485;36572;38387;3' +
+    '8530;38629;38639;39033;39152;40157;40842;40947;41172;41544;4' +
+    '1774;41797;41933;41970;42010;42582;43028;43389;44042;44050;4' +
+    '4216;44544;45208;45426;45448;45727;47110;47797;48055;48062;4' +
+    '8776;48952;50138;50283;50470;50597;50626;51096;51204;51303;5' +
+    '1440;52098;52174;52626;52914;52922;53150;53543;53558;53565;5' +
+    '3579;54277;54888;54921;55432;55735;56057;56274;56303;56368;5' +
+    '6503;56533;56775;56860;56913;57158;57872;58255;58552;58634;5' +
+    '9924;59933;60478;61278;61573;61603;62622;62950;63069;63648;6' +
+    '3672;64525;64649;64701;65664;66158;66457;66484;66772;66943;6' +
+    '7106;67510;67964;68425;68438;69262;69989;70318;70422;70585;7' +
+    '0601;70634;71474;72060;72284;72324;72772;73356;73629;73891;7' +
+    '3944;73991;74021;74089;74108;74168;74175;74841;75006;75012;7' +
+    '5678;75716;75728;75872;75926;75949;76025;76063;76259;76342;7' +
+    '6558;76715;77169;77268;77328;77413;77823;78049;78229;78316;7' +
+    '8323;78430;78489;78590;78651;78708;79007;79234;79406;79560;7' +
+    '9675;79683;79808;79850;79982;80024;80117;80228;80547;80577;8' +
+    '0619;80634;80935;80939;81030;81318;81404;81731;81800;81950;8' +
+    '2077;82092;82303;82341;82362;82590;82608;82683;82693;82873;8' +
+    '3056;83364;83419;83533;83672;83687;83729;83789;83887;84133;8' +
+    '4138;84371;84626;84756;85453;85489;85686;85787;85985;86020;8' +
+    '6143;86357;86380;86391;86401;86408;86884;87128;88220;88367;8' +
+    '9100;89211;89310;89516;89808;89988;90779;91226;91271;91280;9' +
+    '1979;92057;92388;92485;92583;92741;92793;93413;93420;93513;9' +
+    '3567;93592;93647"],' +
+    '["BglI","GCCNNNN^NGGC",0,22,";3615,11;6979,11;7226,11;7917,' +
+    '11;8192,11;30874,11;73463,11;74783,11;75685,11;76114,11;7643' +
+    '9,11;76488,11;76957,11;77198,11;79991,11;81542,11;81884,11;8' +
+    '2440,11;87517,11;88135,11;91640,11;91804,11","N",";3621;6985' +
+    ';7232;7923;8198;30880;73469;74789;75691;76120;76445;76494;76' +
+    '963;77204;79997;81548;81890;82446;87523;88141;91646;91810"],' +
+    '["BglII","A^GATCT",0,20,";1134,6;1207,6;9747,6;24899,6;2726' +
+    '7,6;35305,6;38387,6;45208,6;47797,6;48062,6;48952,6;52914,6;' +
+    '61278,6;70634,6;76259,6;78049,6;79406,6;79675,6;89100,6;9258' +
+    '3,6","N",";1134;1207;9747;24899;27267;35305;38387;45208;4779' +
+    '7;48062;48952;52914;61278;70634;76259;78049;79406;79675;8910' +
+    '0;92583"],' +
+    '["BlnI","C^CTAGG",0,5,";14997,6;35532,6;61025,6;61569,6;784' +
+    '07,6","N",";14997;35532;61025;61569;78407"],' +
+    '["BlpI","GC^TNAGC",0,15,";7111,7;9809,7;20696,7;35258,7;363' +
+    '46,7;41249,7;50032,7;57937,7;65371,7;72757,7;77189,7;77762,7' +
+    ';81167,7;82762,7;91336,7","N",";7112;9810;20697;35259;36347;' +
+    '41250;50033;57938;65372;72758;77190;77763;81168;82763;91337"' +
+    '],' +
+    '["BmgBI","CACGTC(-3/-3)",0,12,";3359,6;6723,6;8321,6;26754,' +
+    '6;38726,6;68951,6;76491,6;79241,6;79907,6;81126,6;86427,6;92' +
+    '696,6","N",";3361;6725;8323;26756;38728;68953;76493;79243;79' +
+    '909;81128;86429;92698"],' +
+    '["BmrI","ACTGGG(5/4)",0,15,";933,6;5033,6;13510,6;19001,6;2' +
+    '9268,6;31673,6;38331,6;50026,6;59525,6;71470,6;76575,6;82417' +
+    ',6;82441,6;82537,6;83345,6","N",";943;5043;13505;18996;29263' +
+    ';31683;38341;50036;59520;71480;76570;82427;82436;82532;83355' +
+    '"],' +
+    '["BmtI","GCTAG^C",0,16,";12209,6;12213,6;20611,6;26566,6;36' +
+    '798,6;49515,6;58136,6;59104,6;67199,6;72622,6;77383,6;77876,' +
+    '6;78116,6;86556,6;87682,6;91613,6","N",";12213;12217;20615;2' +
+    '6570;36802;49519;58140;59108;67203;72626;77387;77880;78120;8' +
+    '6560;87686;91617"],' +
+    '["BpmI","CTGGAG(16/14)",0,32,";2748,6;4591,6;4933,6;6112,6;' +
+    '7385,6;8651,6;9166,6;15065,6;30455,6;36384,6;36999,6;37598,6' +
+    ';38034,6;51660,6;54968,6;71264,6;77615,6;78644,6;79214,6;804' +
+    '47,6;81349,6;82840,6;86460,6;86481,6;86802,6;87141,6;87484,6' +
+    ';87556,6;87593,6;87624,6;89683,6;91831,6","N",";2733;4612;49' +
+    '54;6097;7406;8672;9151;15086;30440;36405;36984;37619;38055;5' +
+    '1645;54953;71249;77600;78665;79235;80432;81334;82825;86481;8' +
+    '6502;86823;87162;87505;87577;87578;87609;89668;91852"],' +
+    '["Bpu10I","CCTNAGC(-5/-2)",0,31,";1590,7;4208,7;8108,7;1039' +
+    '8,7;20750,7;35806,7;36919,7;41421,7;42543,7;43738,7;48297,7;' +
+    '51187,7;54094,7;55130,7;55986,7;59132,7;60414,7;70531,7;7862' +
+    '5,7;78668,7;79259,7;79623,7;80524,7;83762,7;83865,7;83956,7;' +
+    '84606,7;91264,7;92227,7;92798,7;93464,7","N",";1591;4209;810' +
+    '9;10399;20751;35807;36920;41422;42544;43739;48298;51188;5409' +
+    '5;55131;55987;59133;60415;70532;78626;78669;79260;79624;8052' +
+    '5;83763;83866;83957;84607;91265;92228;92799;93465"],' +
+    '["BpuEI","CTTGAG(16/14)",0,41,";2841,6;5485,6;6205,6;8335,6' +
+    ';11858,6;12443,6;14598,6;18793,6;20299,6;20955,6;26359,6;267' +
+    '44,6;26950,6;28960,6;29859,6;29888,6;33265,6;33658,6;35109,6' +
+    ';37401,6;37684,6;41825,6;42246,6;43297,6;44159,6;44519,6;453' +
+    '92,6;45681,6;49622,6;49835,6;53713,6;54258,6;61533,6;66688,6' +
+    ';68714,6;75017,6;75178,6;80556,6;80593,6;82229,6;93509,6","N' +
+    '",";2826;5470;6190;8356;11879;12428;14583;18778;20284;20940;' +
+    '26380;26729;26935;28981;29880;29873;33250;33679;35130;37386;' +
+    '37705;41846;42231;43318;44180;44504;45413;45666;49643;49856;' +
+    '53698;54279;61554;66709;68699;75002;75199;80577;80614;82250;' +
+    '93494"],' +
+    '["BsaI","GGTCTC(1/5)",0,16,";2715,6;6079,6;8273,6;15702,6;2' +
+    '0211,6;29283,6;31582,6;44532,6;45359,6;50634,6;54630,6;54825' +
+    ',6;55098,6;55314,6;70928,6;70985,6","C",";2721;6085;8267;157' +
+    '08;20217;29277;31576;44538;45353;50640;54636;54831;55104;553' +
+    '08;70922;70979"],' +
+    '["BsaAI","YAC^GTR",0,20,";541,6;907,6;1626,6;4548,6;5396,6;' +
+    '12304,6;15483,6;15487,6;25639,6;28416,6;31667,6;33876,6;3552' +
+    '5,6;36371,6;36522,6;40054,6;59307,6;66039,6;82316,6;90506,6"' +
+    ',"N",";543;909;1628;4550;5398;12306;15485;15489;25641;28418;' +
+    '31669;33878;35527;36373;36524;40056;59309;66041;82318;90508"' +
+    '],' +
+    '["BsaBI","GATNN^NNATC",0,19,";147,10;366,10;1214,10;4546,10' +
+    ';5840,10;9458,10;17658,10;20108,10;21852,10;24321,10;26034,1' +
+    '0;26434,10;29929,10;39509,10;50861,10;56186,10;76322,10;8824' +
+    '4,10;92473,10","A",";151;370;1218;4550;5844;9462;17662;20112' +
+    ';21856;24325;26038;26438;29933;39513;50865;56190;76326;88248' +
+    ';92477"],' +
+    '["BsaHI","GR^CGYC",0,49,";1753,6;2640,6;5093,6;7442,6;7883,' +
+    '6;8093,6;8405,6;8748,6;9753,6;9828,6;13256,6;13574,6;14298,6' +
+    ';25327,6;30962,6;33504,6;35480,6;48414,6;59063,6;74046,6;747' +
+    '03,6;75295,6;75360,6;75463,6;75777,6;75789,6;75800,6;75958,6' +
+    ';76383,6;76688,6;76954,6;76995,6;78698,6;79619,6;79717,6;797' +
+    '73,6;81773,6;81961,6;82024,6;82251,6;83018,6;83518,6;83619,6' +
+    ';85706,6;87565,6;88683,6;89456,6;93154,6;93746,6","N",";1754' +
+    ';2641;5094;7443;7884;8094;8406;8749;9754;9829;13257;13575;14' +
+    '299;25328;30963;33505;35481;48415;59064;74047;74704;75296;75' +
+    '361;75464;75778;75790;75801;75959;76384;76689;76955;76996;78' +
+    '699;79620;79718;79774;81774;81962;82025;82252;83019;83519;83' +
+    '620;85707;87566;88684;89457;93155;93747"],' +
+    '["BsaJI","C^CNNGG",0,162,";104,6;105,6;169,6;470,6;702,6;79' +
+    '8,6;858,6;915,6;951,6;975,6;1125,6;1917,6;2482,6;2895,6;2953' +
+    ',6;3173,6;3683,6;4120,6;4292,6;4379,6;4427,6;4639,6;5257,6;5' +
+    '526,6;6259,6;6317,6;6537,6;7047,6;7059,6;7726,6;8401,6;8637,' +
+    '6;8667,6;8865,6;8866,6;12858,6;13318,6;13336,6;14677,6;14997' +
+    ',6;16447,6;18495,6;18820,6;19494,6;20161,6;20439,6;22202,6;2' +
+    '5628,6;26065,6;28493,6;28695,6;29142,6;29394,6;31638,6;34256' +
+    ',6;34753,6;35532,6;35784,6;36626,6;37005,6;38052,6;39459,6;4' +
+    '0408,6;40962,6;41061,6;41427,6;41565,6;41736,6;41763,6;43801' +
+    ',6;44212,6;46055,6;48000,6;50290,6;50630,6;53658,6;54610,6;5' +
+    '6783,6;57106,6;57514,6;58995,6;59024,6;59058,6;60106,6;60636' +
+    ',6;60646,6;61025,6;61569,6;62783,6;64289,6;64513,6;65136,6;6' +
+    '6345,6;66431,6;67537,6;68117,6;70487,6;70679,6;70781,6;71383' +
+    ',6;71384,6;71709,6;71710,6;73458,6;73801,6;73896,6;74784,6;7' +
+    '4853,6;75135,6;75602,6;75686,6;75773,6;75848,6;76600,6;77067' +
+    ',6;77073,6;77815,6;78032,6;78033,6;78369,6;78407,6;78619,6;7' +
+    '8984,6;79101,6;79383,6;79421,6;79440,6;79468,6;79488,6;80213' +
+    ',6;80738,6;81214,6;81777,6;81837,6;81885,6;82029,6;82297,6;8' +
+    '2639,6;82778,6;82842,6;83149,6;83180,6;83537,6;83553,6;83624' +
+    ',6;84039,6;84100,6;84347,6;84751,6;84752,6;86818,6;88506,6;8' +
+    '8708,6;89053,6;89831,6;90216,6;91513,6;91641,6;91932,6;92601' +
+    ',6;93257,6;93341,6","N",";104;105;169;470;702;798;858;915;95' +
+    '1;975;1125;1917;2482;2895;2953;3173;3683;4120;4292;4379;4427' +
+    ';4639;5257;5526;6259;6317;6537;7047;7059;7726;8401;8637;8667' +
+    ';8865;8866;12858;13318;13336;14677;14997;16447;18495;18820;1' +
+    '9494;20161;20439;22202;25628;26065;28493;28695;29142;29394;3' +
+    '1638;34256;34753;35532;35784;36626;37005;38052;39459;40408;4' +
+    '0962;41061;41427;41565;41736;41763;43801;44212;46055;48000;5' +
+    '0290;50630;53658;54610;56783;57106;57514;58995;59024;59058;6' +
+    '0106;60636;60646;61025;61569;62783;64289;64513;65136;66345;6' +
+    '6431;67537;68117;70487;70679;70781;71383;71384;71709;71710;7' +
+    '3458;73801;73896;74784;74853;75135;75602;75686;75773;75848;7' +
+    '6600;77067;77073;77815;78032;78033;78369;78407;78619;78984;7' +
+    '9101;79383;79421;79440;79468;79488;80213;80738;81214;81777;8' +
+    '1837;81885;82029;82297;82639;82778;82842;83149;83180;83537;8' +
+    '3553;83624;84039;84100;84347;84751;84752;86818;88506;88708;8' +
+    '9053;89831;90216;91513;91641;91932;92601;93257;93341"],' +
+    '["BsaWI","W^CCGGW",0,41,";2389,6;3162,6;4489,6;4863,6;5125,' +
+    '6;6526,6;8516,6;11622,6;17114,6;20598,6;20661,6;24552,6;2563' +
+    '4,6;28040,6;28355,6;29008,6;30693,6;30914,6;34671,6;40565,6;' +
+    '45669,6;59015,6;59803,6;70701,6;73503,6;75051,6;76181,6;7727' +
+    '4,6;77634,6;77971,6;79960,6;82605,6;84485,6;86844,6;89700,6;' +
+    '90618,6;90831,6;91747,6;91987,6;92294,6;92514,6","N",";2389;' +
+    '3162;4489;4863;5125;6526;8516;11622;17114;20598;20661;24552;' +
+    '25634;28040;28355;29008;30693;30914;34671;40565;45669;59015;' +
+    '59803;70701;73503;75051;76181;77274;77634;77971;79960;82605;' +
+    '84485;86844;89700;90618;90831;91747;91987;92294;92514"],' +
+    '["BsaXI","(9/12)ACNNNNNCTCC(10/7)",0,32,";517,11;535,11;591' +
+    ',11;733,11;8374,11;12369,11;12720,11;14253,11;15477,11;21302' +
+    ',11;21872,11;25039,11;28040,11;28086,11;29649,11;31884,11;32' +
+    '106,11;35892,11;37863,11;37868,11;41112,11;55234,11;58467,11' +
+    ';59592,11;61317,11;63314,11;65738,11;70206,11;79753,11;81453' +
+    ',11;84035,11;87586,11","N",";539;509;557;527;581;611;755;725' +
+    ';8396;8366;12359;12389;12742;12712;14275;14245;15499;15469;2' +
+    '1324;21294;21894;21864;25061;25031;28030;28060;28076;28106;2' +
+    '9639;29669;31906;31876;32128;32098;35882;35912;37885;37855;3' +
+    '7890;37860;41102;41132;55256;55226;58457;58487;59582;59612;6' +
+    '1307;61337;63336;63306;65728;65758;70196;70226;79743;79773;8' +
+    '1443;81473;84057;84027;87576;87606"],' +
+    '["BseRI","GAGGAG(10/8)",0,54,";791,6;1115,6;3171,6;3326,6;6' +
+    '535,6;6690,6;8992,6;9061,6;13941,6;14227,6;14872,6;14875,6;1' +
+    '5255,6;15278,6;15281,6;15284,6;15287,6;15475,6;20273,6;20276' +
+    ',6;21300,6;25062,6;25232,6;26527,6;28093,6;32997,6;33247,6;3' +
+    '7398,6;37866,6;37929,6;37975,6;38008,6;38143,6;39954,6;43423' +
+    ',6;45497,6;51154,6;55166,6;69513,6;70210,6;70608,6;71038,6;7' +
+    '5846,6;78830,6;79373,6;79577,6;79792,6;81043,6;81460,6;81871' +
+    ',6;81887,6;88479,6;89110,6;90238,6","N",";806;1130;3162;3341' +
+    ';6526;6705;8983;9052;13932;14218;14863;14866;15246;15269;152' +
+    '72;15275;15278;15490;20288;20291;21315;25077;25247;26542;280' +
+    '84;32988;33238;37389;37881;37944;37990;38023;38158;39945;434' +
+    '14;45512;51169;55181;69528;70201;70599;71053;75837;78845;793' +
+    '88;79592;79783;81058;81451;81862;81902;88494;89125;90229"],' +
+    '["BseYI","CCCAGC(-5/-1)",0,18,";696,6;3188,6;3947,6;4650,6;' +
+    '5598,6;6552,6;28867,6;29909,6;30948,6;50722,6;60087,6;66820,' +
+    '6;71542,6;75320,6;77923,6;85394,6;86797,6;90422,6","N",";696' +
+    ';3188;3947;4650;5598;6552;28867;29909;30948;50722;60087;6682' +
+    '0;71542;75320;77923;85394;86797;90422"],' +
+    '["BsgI","GTGCAG(16/14)",0,25,";562,6;12976,6;14106,6;14816,' +
+    '6;15638,6;20756,6;34471,6;39116,6;43458,6;44121,6;51907,6;52' +
+    '807,6;54670,6;64545,6;65332,6;67137,6;70361,6;75032,6;76020,' +
+    '6;79367,6;86700,6;87235,6;88435,6;89728,6;90503,6","N",";547' +
+    ';12961;14091;14837;15659;20741;34492;39137;43443;44106;51892' +
+    ';52828;54691;64530;65317;67158;70382;75017;76041;79388;86721' +
+    ';87220;88420;89749;90488"],' +
+    '["BsiEI","CGRY^CG",0,47,";134,6;430,6;1180,6;1800,6;1833,6;' +
+    '4308,6;5000,6;5780,6;9398,6;9658,6;13367,6;25434,6;28556,6;3' +
+    '1812,6;48181,6;49651,6;54840,6;56303,6;59055,6;69914,6;73957' +
+    ',6;73991,6;74041,6;74850,6;75553,6;75926,6;76101,6;76192,6;7' +
+    '6342,6;76437,6;76486,6;77413,6;78316,6;78366,6;78780,6;79158' +
+    ',6;79164,6;80228,6;80935,6;81834,6;81882,6;82693,6;83818,6;8' +
+    '4626,6;89211,6;93420,6;93804,6","N",";137;433;1183;1803;1836' +
+    ';4311;5003;5783;9401;9661;13370;25437;28559;31815;48184;4965' +
+    '4;54843;56306;59058;69917;73960;73994;74044;74853;75556;7592' +
+    '9;76104;76195;76345;76440;76489;77416;78319;78369;78783;7916' +
+    '1;79167;80231;80938;81837;81885;82696;83821;84629;89214;9342' +
+    '3;93807"],' +
+    '["BsiHKAI","GWGCW^C",0,39,";1523,6;3072,6;5203,6;5393,6;643' +
+    '6,6;7424,6;12721,6;19530,6;20042,6;28359,6;29041,6;32994,6;3' +
+    '6200,6;44096,6;44524,6;47855,6;48300,6;48513,6;58504,6;60284' +
+    ',6;62723,6;63569,6;65114,6;76710,6;78068,6;78265,6;78387,6;7' +
+    '9626,6;79731,6;79953,6;80665,6;81046,6;82796,6;88315,6;89678' +
+    ',6;89696,6;90575,6;91339,6;91924,6","N",";1527;3076;5207;539' +
+    '7;6440;7428;12725;19534;20046;28363;29045;32998;36204;44100;' +
+    '44528;47859;48304;48517;58508;60288;62727;63573;65118;76714;' +
+    '78072;78269;78391;79630;79735;79957;80669;81050;82800;88319;' +
+    '89682;89700;90579;91343;91928"],' +
+    '["BsiWI","C^GTACG",0,3,";15485,6;80342,6;80726,6","N",";154' +
+    '85;80342;80726"],' +
+    '["BslI","CCNNNNN^NNGG",0,155,";382,11;603,11;662,11;697,11;' +
+    '728,11;952,11;1007,11;1008,11;2684,11;3303,11;4150,11;4422,1' +
+    '1;4442,11;4701,11;5069,11;5613,11;5823,11;6048,11;6667,11;77' +
+    '93,11;7813,11;8190,11;8420,11;8632,11;8865,11;9071,11;9441,1' +
+    '1;11765,11;12532,11;13511,11;14831,11;15292,11;17512,11;1881' +
+    '5,11;19093,11;20216,11;20514,11;20583,11;24896,11;25628,11;2' +
+    '6908,11;28167,11;28356,11;28552,11;28959,11;29031,11;29226,1' +
+    '1;30633,11;30677,11;30831,11;30912,11;31003,11;33753,11;3471' +
+    '1,11;36013,11;36066,11;36179,11;36637,11;36973,11;38415,11;4' +
+    '0272,11;40566,11;40805,11;41163,11;41718,11;42543,11;43802,1' +
+    '1;45439,11;45906,11;48438,11;49205,11;49430,11;50351,11;5073' +
+    '8,11;51147,11;52119,11;53187,11;54605,11;54708,11;58996,11;5' +
+    '9013,11;59829,11;60106,11;60414,11;61564,11;65130,11;65254,1' +
+    '1;65718,11;69707,11;70932,11;72585,11;73040,11;73458,11;7350' +
+    '1,11;73595,11;73785,11;73850,11;73865,11;73949,11;74129,11;7' +
+    '4298,11;75225,11;75319,11;75320,11;75414,11;75514,11;75811,1' +
+    '1;75843,11;76124,11;76425,11;77137,11;77840,11;77890,11;7824' +
+    '4,11;78458,11;78500,11;78823,11;79213,11;79307,11;79390,11;7' +
+    '9777,11;79869,11;80174,11;80413,11;80608,11;81061,11;81214,1' +
+    '1;81303,11;81777,11;81837,11;82057,11;82493,11;83497,11;8355' +
+    '3,11;83652,11;84100,11;84358,11;84375,11;84710,11;86201,11;8' +
+    '6230,11;88892,11;89146,11;89401,11;89645,11;90642,11;91210,1' +
+    '1;91703,11;91889,11;92386,11;92683,11;92921,11;93257,11;9333' +
+    '6,11;93725,11","N",";388;609;668;703;734;958;1013;1014;2690;' +
+    '3309;4156;4428;4448;4707;5075;5619;5829;6054;6673;7799;7819;' +
+    '8196;8426;8638;8871;9077;9447;11771;12538;13517;14837;15298;' +
+    '17518;18821;19099;20222;20520;20589;24902;25634;26914;28173;' +
+    '28362;28558;28965;29037;29232;30639;30683;30837;30918;31009;' +
+    '33759;34717;36019;36072;36185;36643;36979;38421;40278;40572;' +
+    '40811;41169;41724;42549;43808;45445;45912;48444;49211;49436;' +
+    '50357;50744;51153;52125;53193;54611;54714;59002;59019;59835;' +
+    '60112;60420;61570;65136;65260;65724;69713;70938;72591;73046;' +
+    '73464;73507;73601;73791;73856;73871;73955;74135;74304;75231;' +
+    '75325;75326;75420;75520;75817;75849;76130;76431;77143;77846;' +
+    '77896;78250;78464;78506;78829;79219;79313;79396;79783;79875;' +
+    '80180;80419;80614;81067;81220;81309;81783;81843;82063;82499;' +
+    '83503;83559;83658;84106;84364;84381;84716;86207;86236;88898;' +
+    '89152;89407;89651;90648;91216;91709;91895;92392;92689;92927;' +
+    '93263;93342;93731"],' +
+    '["BsmI","GAATGC(1/-1)",0,41,";2675,6;4031,6;7734,6;15075,6;' +
+    '17781,6;19836,6;20089,6;24194,6;25272,6;29670,6;31738,6;3264' +
+    '5,6;33555,6;34267,6;35988,6;37209,6;43812,6;52999,6;53469,6;' +
+    '54865,6;60890,6;61812,6;70056,6;71414,6;72907,6;73816,6;7388' +
+    '0,6;74664,6;74678,6;75456,6;77185,6;77423,6;77977,6;78979,6;' +
+    '79001,6;84662,6;84739,6;87824,6;87961,6;89576,6;92432,6","N"' +
+    ',";2681;4031;7740;15075;17781;19842;20089;24200;25278;29676;' +
+    '31744;32645;33561;34273;35988;37215;43812;53005;53475;54865;' +
+    '60896;61812;70056;71420;72913;73816;73880;74664;74678;75462;' +
+    '77191;77423;77983;78985;79001;84668;84745;87830;87967;89576;' +
+    '92432"],' +
+    '["BsmAI","GTCTC(1/5)",0,118,";2182,5;2716,5;2919,5;3025,5;3' +
+    '114,5;3138,5;4313,5;6080,5;6283,5;6389,5;6478,5;6502,5;7497,' +
+    '5;7757,5;8096,5;8273,5;8567,5;8947,5;8990,5;10363,5;10391,5;' +
+    '13285,5;13572,5;15703,5;16015,5;16025,5;16113,5;17063,5;1771' +
+    '1,5;20212,5;20338,5;20849,5;20883,5;21142,5;21512,5;22871,5;' +
+    '24966,5;24988,5;26387,5;27745,5;28917,5;28949,5;29283,5;2957' +
+    '8,5;30015,5;30765,5;31582,5;32037,5;33507,5;34097,5;34803,5;' +
+    '36387,5;37137,5;37143,5;38456,5;38462,5;38468,5;38644,5;4085' +
+    '0,5;40879,5;41817,5;42055,5;42707,5;42856,5;43300,5;43450,5;' +
+    '44162,5;44533,5;45042,5;45359,5;45622,5;45770,5;45821,5;4820' +
+    '6,5;48461,5;49450,5;49612,5;50635,5;51056,5;51143,5;51658,5;' +
+    '53846,5;54631,5;54826,5;55099,5;55314,5;56009,5;57853,5;5957' +
+    '9,5;62596,5;64339,5;66537,5;66691,5;67314,5;67996,5;70499,5;' +
+    '70928,5;70985,5;71041,5;71287,5;71975,5;75055,5;75780,5;7579' +
+    '8,5;75961,5;76829,5;77058,5;77356,5;77649,5;78767,5;79750,5;' +
+    '84613,5;85152,5;85508,5;89658,5;91237,5;91397,5;91778,5","N"' +
+    ',";2187;2721;2924;3030;3119;3132;4318;6085;6288;6394;6483;64' +
+    '96;7491;7751;8101;8267;8572;8952;8995;10357;10385;13290;1356' +
+    '6;15708;16009;16019;16118;17068;17705;20217;20332;20854;2087' +
+    '7;21136;21517;22876;24960;24982;26392;27739;28922;28943;2927' +
+    '7;29572;30020;30759;31576;32042;33512;34102;34797;36381;3713' +
+    '1;37137;38461;38467;38473;38649;40855;40884;41811;42049;4270' +
+    '1;42850;43294;43455;44156;44538;45036;45353;45627;45775;4582' +
+    '6;48200;48455;49444;49606;50640;51050;51148;51663;53840;5463' +
+    '6;54831;55104;55308;56003;57858;59584;62601;64333;66542;6668' +
+    '5;67319;67990;70493;70922;70979;71035;71292;71969;75049;7578' +
+    '5;75792;75966;76834;77052;77361;77643;78772;79744;84607;8514' +
+    '6;85502;89663;91231;91402;91783"],' +
+    '["BsmBI","CGTCTC(1/5)",0,21,";4312,6;8095,6;13572,6;24966,6' +
+    ';33506,6;37143,6;38643,6;40849,6;45042,6;45769,6;48206,6;595' +
+    '78,6;67996,6;75055,6;75779,6;75798,6;75960,6;77058,6;84613,6' +
+    ';85508,6;91237,6","N",";4318;8101;13566;24960;33512;37137;38' +
+    '649;40855;45036;45775;48200;59584;67990;75049;75785;75792;75' +
+    '966;77052;84607;85502;91231"],' +
+    '["BsmFI","GGGAC(10/14)",0,68,";274,5;939,5;949,5;1923,5;247' +
+    '9,5;3301,5;5231,5;5937,5;6665,5;7751,5;8408,5;9555,5;13334,5' +
+    ';13508,5;13840,5;14686,5;17914,5;18125,5;18798,5;20512,5;207' +
+    '94,5;21846,5;22174,5;23653,5;25631,5;28804,5;29266,5;31677,5' +
+    ';32525,5;32870,5;33861,5;36690,5;37964,5;38402,5;38507,5;386' +
+    '62,5;38694,5;43623,5;47203,5;49187,5;50814,5;51233,5;51709,5' +
+    ';53886,5;64511,5;65141,5;68954,5;69033,5;70845,5;71350,5;751' +
+    '39,5;76039,5;76086,5;77463,5;77968,5;78128,5;78938,5;79438,5' +
+    ';79485,5;81184,5;82066,5;82501,5;83524,5;83661,5;84184,5;875' +
+    '63,5;92005,5;93752,5","N",";288;953;934;1908;2464;3286;5245;' +
+    '5922;6650;7736;8393;9540;13319;13493;13854;14671;17928;18110' +
+    ';18812;20497;20779;21860;22159;23667;25645;28818;29251;31691' +
+    ';32510;32884;33846;36675;37978;38416;38521;38647;38679;43608' +
+    ';47217;49172;50828;51218;51694;53900;64496;65155;68939;69018' +
+    ';70830;71335;75153;76053;76071;77477;77982;78142;78923;79423' +
+    ';79470;81169;82080;82515;83509;83675;84169;87577;91990;93737' +
+    '"],' +
+    '["BsoBI","C^YCGRG",0,35,";104,6;128,6;859,6;2735,6;6099,6;8' +
+    '666,6;28980,6;30899,6;34114,6;40069,6;40407,6;41736,6;51901,' +
+    '6;52326,6;55101,6;56262,6;73488,6;73802,6;74622,6;74784,6;76' +
+    '315,6;76599,6;77816,6;78032,6;78071,6;78827,6;79410,6;80662,' +
+    '6;83179,6;83537,6;83547,6;83553,6;84751,6;85025,6;88072,6","' +
+    'N",";104;128;859;2735;6099;8666;28980;30899;34114;40069;4040' +
+    '7;41736;51901;52326;55101;56262;73488;73802;74622;74784;7631' +
+    '5;76599;77816;78032;78071;78827;79410;80662;83179;83537;8354' +
+    '7;83553;84751;85025;88072"],' +
+    '["Bsp1286I","GDGCH^C",0,70,";173,6;1064,6;1523,6;3072,6;503' +
+    '6,6;5129,6;5203,6;5393,6;5455,6;6436,6;7399,6;7424,6;8140,6;' +
+    '12721,6;14254,6;19530,6;20042,6;28176,6;28359,6;29041,6;2925' +
+    '0,6;30908,6;32994,6;36200,6;36816,6;41739,6;42159,6;44096,6;' +
+    '44524,6;47855,6;48300,6;48513,6;52391,6;58504,6;58992,6;5925' +
+    '1,6;60284,6;62723,6;63569,6;65114,6;69246,6;71647,6;73497,6;' +
+    '74781,6;76050,6;76710,6;76793,6;78068,6;78265,6;78387,6;7962' +
+    '6,6;79731,6;79953,6;80665,6;81046,6;81757,6;81766,6;81913,6;' +
+    '82796,6;83354,6;83550,6;84972,6;87214,6;88315,6;89678,6;8969' +
+    '6,6;90575,6;91339,6;91924,6;93304,6","N",";177;1068;1527;307' +
+    '6;5040;5133;5207;5397;5459;6440;7403;7428;8144;12725;14258;1' +
+    '9534;20046;28180;28363;29045;29254;30912;32998;36204;36820;4' +
+    '1743;42163;44100;44528;47859;48304;48517;52395;58508;58996;5' +
+    '9255;60288;62727;63573;65118;69250;71651;73501;74785;76054;7' +
+    '6714;76797;78072;78269;78391;79630;79735;79957;80669;81050;8' +
+    '1761;81770;81917;82800;83358;83554;84976;87218;88319;89682;8' +
+    '9700;90579;91343;91928;93308"],' +
+    '["BspCNI","CTCAG(9/7)",0,118,";1160,5;2609,5;3116,5;3607,5;' +
+    '4151,5;5757,5;6480,5;6971,5;7907,5;9064,5;13287,5;13592,5;15' +
+    '368,5;15943,5;16591,5;17078,5;17128,5;18509,5;18783,5;18832,' +
+    '5;20040,5;20151,5;20697,5;29183,5;30800,5;31343,5;31976,5;32' +
+    '263,5;32479,5;32840,5;35807,5;35838,5;35984,5;36884,5;36920,' +
+    '5;38083,5;38160,5;38464,5;38470,5;40957,5;41412,5;42544,5;44' +
+    '015,5;44170,5;45405,5;46031,5;47801,5;48298,5;48405,5;48949,' +
+    '5;50033,5;51092,5;51152,5;51368,5;52336,5;52849,5;52926,5;54' +
+    '095,5;54885,5;55131,5;55720,5;56005,5;56172,5;56683,5;57868,' +
+    '5;59098,5;59447,5;60415,5;61239,5;61670,5;63450,5;64769,5;65' +
+    '377,5;66033,5;66123,5;66551,5;69259,5;70133,5;70546,5;70977,' +
+    '5;71036,5;71289,5;71962,5;71979,5;72109,5;74245,5;74418,5;74' +
+    '753,5;75796,5;76750,5;77190,5;78626,5;78669,5;78848,5;79260,' +
+    '5;79624,5;79986,5;80525,5;80870,5;81762,5;81918,5;83763,5;83' +
+    '866,5;83957,5;84149,5;84607,5;85665,5;87572,5;88789,5;89108,' +
+    '5;89660,5;91223,5;91265,5;91337,5;92228,5;93274,5;93456,5;93' +
+    '465,5","N",";1173;2622;3129;3620;4164;5749;6493;6984;7920;90' +
+    '77;13300;13584;15381;15935;16583;17091;17141;18501;18775;188' +
+    '24;20032;20143;20710;29175;30792;31356;31989;32255;32471;328' +
+    '32;35820;35851;35997;36897;36912;38075;38152;38477;38483;409' +
+    '49;41425;42536;44007;44183;45418;46023;47814;48290;48397;489' +
+    '62;50025;51105;51144;51360;52328;52862;52918;54108;54898;551' +
+    '44;55733;55997;56164;56696;57860;59111;59460;60428;61252;616' +
+    '62;63463;64782;65390;66025;66115;66543;69272;70125;70538;709' +
+    '90;71028;71302;71975;71971;72122;74237;74410;74745;75788;767' +
+    '42;77203;78639;78682;78861;79273;79616;79999;80538;80862;817' +
+    '75;81910;83755;83879;83949;84162;84599;85678;87585;88781;891' +
+    '00;89673;91215;91257;91329;92220;93266;93469;93478"],' +
+    '["BspDI","AT^CGAT",0,10,";4951,6;16393,6;23710,6;24511,6;26' +
+    '431,6;27486,6;48528,6;59510,6;70743,6;84933,6","A",";4952;16' +
+    '394;23711;24512;26432;27487;48529;59511;70744;84934"],' +
+    '["BspEI","T^CCGGA",0,9,";3162,6;6526,6;30914,6;59015,6;7350' +
+    '3,6;77274,6;79960,6;89700,6;90618,6","A",";3162;6526;30914;5' +
+    '9015;73503;77274;79960;89700;90618"],' +
+    '["BspHI","T^CATGA",0,20,";7446,6;7653,6;10564,6;10760,6;150' +
+    '52,6;15411,6;25985,6;25995,6;26720,6;31161,6;35079,6;42270,6' +
+    ';44312,6;46507,6;47558,6;62727,6;85105,6;87014,6;91400,6;931' +
+    '92,6","A",";7446;7653;10564;10760;15052;15411;25985;25995;26' +
+    '720;31161;35079;42270;44312;46507;47558;62727;85105;87014;91' +
+    '400;93192"],' +
+    '["BspMI","ACCTGC(4/8)",0,31,";2712,6;4990,6;5353,6;6076,6;7' +
+    '484,6;8901,6;9013,6;13517,6;22263,6;24677,6;34280,6;44761,6;' +
+    '47718,6;48848,6;50737,6;51281,6;61444,6;65348,6;65466,6;6945' +
+    '0,6;71651,6;73210,6;74870,6;75111,6;77401,6;82715,6;89223,6;' +
+    '90877,6;91156,6;91629,6;91761,6","N",";2703;4981;5362;6067;7' +
+    '475;8910;9004;13508;22272;24668;34289;44770;47709;48857;5074' +
+    '6;51290;61453;65357;65475;69441;71660;73219;74879;75102;7739' +
+    '2;82724;89214;90868;91165;91620;91770"],' +
+    '["BspQI","GCTCTTC(1/4)",0,17,";1520,7;5443,7;5653,7;8137,7;' +
+    '9085,7;14341,7;19590,7;20381,7;43272,7;54470,7;61589,7;77378' +
+    ',7;78552,7;79511,7;88144,7;88467,7;88637,7","N",";1515;5438;' +
+    '5648;8132;9080;14348;19597;20388;43267;54477;61584;77373;785' +
+    '47;79506;88151;88462;88632"],' +
+    '["BsrI","ACTGG(1/-1)",0,105,";140,5;927,5;933,5;1766,5;2862' +
+    ',5;3003,5;3908,5;4701,5;5033,5;5234,5;6226,5;6367,5;7236,5;7' +
+    '384,5;7766,5;9168,5;9177,5;9379,5;9766,5;13511,5;13929,5;144' +
+    '20,5;14707,5;15787,5;19002,5;19093,5;19556,5;19845,5;19894,5' +
+    ';21050,5;24606,5;24734,5;25210,5;29269,5;29287,5;30457,5;316' +
+    '73,5;33073,5;34735,5;34835,5;35360,5;35956,5;36079,5;37239,5' +
+    ';38331,5;43303,5;43842,5;46972,5;48252,5;48452,5;50026,5;516' +
+    '62,5;51938,5;52748,5;54084,5;54581,5;57476,5;59380,5;59526,5' +
+    ';59563,5;61580,5;64522,5;66850,5;70235,5;71470,5;71633,5;718' +
+    '55,5;71904,5;72600,5;72921,5;73335,5;74056,5;74500,5;74523,5' +
+    ';75414,5;76576,5;76661,5;77092,5;77514,5;78643,5;79820,5;816' +
+    '72,5;82417,5;82442,5;82538,5;83280,5;83345,5;84071,5;84211,5' +
+    ';84838,5;85358,5;85621,5;86350,5;86936,5;87090,5;87663,5;880' +
+    '49,5;89242,5;90579,5;90846,5;90945,5;92355,5;92402,5;93150,5' +
+    ';93301,5","N",";140;932;938;1771;2862;3008;3913;4701;5038;52' +
+    '39;6226;6372;7236;7389;7771;9168;9182;9384;9766;13511;13929;' +
+    '14420;14712;15792;19002;19093;19556;19850;19894;21055;24611;' +
+    '24734;25215;29269;29287;30457;31678;33073;34740;34835;35360;' +
+    '35956;36084;37239;38336;43308;43842;46977;48252;48452;50031;' +
+    '51662;51938;52753;54089;54581;57476;59385;59526;59563;61580;' +
+    '64527;66850;70235;71475;71638;71855;71909;72600;72921;73340;' +
+    '74056;74500;74528;75414;76576;76666;77092;77519;78648;79825;' +
+    '81677;82422;82442;82538;83280;83350;84071;84211;84838;85363;' +
+    '85626;86355;86936;87095;87663;88054;89247;90584;90846;90945;' +
+    '92355;92407;93155;93301"],' +
+    '["BsrBI","CCGCTC(-3/-3)",0,27,";131,6;5705,6;5759,6;8079,6;' +
+    '28908,6;67958,6;72065,6;73622,6;75833,6;75843,6;75954,6;7618' +
+    '9,6;76420,6;77502,6;77863,6;79777,6;79804,6;79854,6;81224,6;' +
+    '81346,6;82018,6;83613,6;90548,6;91259,6;91404,6;91562,6;9326' +
+    '2,6","N",";133;5707;5761;8081;28910;67960;72067;73624;75835;' +
+    '75845;75956;76191;76422;77504;77865;79779;79806;79856;81226;' +
+    '81348;82020;83615;90550;91261;91406;91564;93264"],' +
+    '["BsrDI","GCAATG(2/0)",0,46,";3183,6;3252,6;4090,6;4432,6;4' +
+    '788,6;5320,6;6547,6;6616,6;7308,6;12470,6;12922,6;20102,6;20' +
+    '323,6;24012,6;24742,6;24982,6;26535,6;26612,6;31309,6;34758,' +
+    '6;38236,6;39655,6;40421,6;43408,6;44745,6;47314,6;49580,6;49' +
+    '666,6;50134,6;55196,6;61634,6;62788,6;71914,6;75424,6;77963,' +
+    '6;82436,6;82729,6;85130,6;86083,6;88308,6;88573,6;89564,6;92' +
+    '069,6;92329,6;92960,6;93883,6","N",";3182;3251;4097;4439;478' +
+    '7;5327;6546;6615;7307;12469;12921;20109;20322;24019;24749;24' +
+    '989;26534;26619;31316;34765;38235;39662;40428;43407;44752;47' +
+    '313;49587;49673;50141;55195;61641;62795;71921;75431;77970;82' +
+    '435;82728;85137;86090;88315;88580;89563;92076;92336;92959;93' +
+    '882"],' +
+    '["BsrFI","R^CCGGY",0,52,";10,6;381,6;1735,6;4824,6;4911,6;5' +
+    '413,6;5594,6;5829,6;9447,6;11622,6;13293,6;13369,6;18187,6;2' +
+    '0582,6;20598,6;20661,6;21632,6;25634,6;25866,6;28525,6;28558' +
+    ',6;29008,6;30693,6;30879,6;30922,6;30986,6;32621,6;37157,6;7' +
+    '3468,6;74861,6;76150,6;76484,6;77634,6;78364,6;78532,6;79327' +
+    ',6;80369,6;81547,6;81898,6;81964,6;82240,6;82422,6;82475,6;8' +
+    '4669,6;86309,6;86322,6;86844,6;91987,6;92104,6;92514,6;93031' +
+    ',6;93802,6","N",";10;381;1735;4824;4911;5413;5594;5829;9447;' +
+    '11622;13293;13369;18187;20582;20598;20661;21632;25634;25866;' +
+    '28525;28558;29008;30693;30879;30922;30986;32621;37157;73468;' +
+    '74861;76150;76484;77634;78364;78532;79327;80369;81547;81898;' +
+    '81964;82240;82422;82475;84669;86309;86322;86844;91987;92104;' +
+    '92514;93031;93802"],' +
+    '["BsrGI","T^GTACA",0,20,";10066,6;18927,6;21802,6;22038,6;3' +
+    '0937,6;37441,6;42994,6;44509,6;48799,6;52698,6;54801,6;56612' +
+    ',6;59042,6;61314,6;63901,6;71162,6;72608,6;72797,6;87832,6;9' +
+    '0938,6","N",";10066;18927;21802;22038;30937;37441;42994;4450' +
+    '9;48799;52698;54801;56612;59042;61314;63901;71162;72608;7279' +
+    '7;87832;90938"],' +
+    '["BssHII","G^CGCGC",0,24,";205,6;229,6;1120,6;4403,6;5491,6' +
+    ';5981,6;6005,6;9599,6;9623,6;18810,6;30926,6;40282,6;59138,6' +
+    ';73590,6;74283,6;75212,6;76281,6;77335,6;78880,6;81699,6;819' +
+    '02,6;82072,6;82347,6;83667,6","N",";205;229;1120;4403;5491;5' +
+    '981;6005;9599;9623;18810;30926;40282;59138;73590;74283;75212' +
+    ';76281;77335;78880;81699;81902;82072;82347;83667"],' +
+    '["BssSI","CACGAG(-5/-1)",0,22,";1048,6;1581,6;1726,6;2282,6' +
+    ';3323,6;5686,6;6687,6;7427,6;8082,6;15937,6;17789,6;23931,6;' +
+    '26556,6;30719,6;42071,6;52085,6;77252,6;81062,6;83968,6;9027' +
+    '0,6;92027,6;93223,6","N",";1048;1581;1726;2282;3323;5686;668' +
+    '7;7427;8082;15937;17789;23931;26556;30719;42071;52085;77252;' +
+    '81062;83968;90270;92027;93223"],' +
+    '["BstAPI","GCANNNN^NTGC",0,27,";4671,11;8226,11;12625,11;12' +
+    '969,11;15949,11;19711,11;27455,11;31300,11;47848,11;56554,11' +
+    ';61812,11;62716,11;69464,11;70880,11;73816,11;75346,11;81906' +
+    ',11;83484,11;84504,11;87819,11;88304,11;88308,11;88428,11;89' +
+    '689,11;90427,11;91836,11;93712,11","N",";4677;8232;12631;129' +
+    '75;15955;19717;27461;31306;47854;56560;61818;62722;69470;708' +
+    '86;73822;75352;81912;83490;84510;87825;88310;88314;88434;896' +
+    '95;90433;91842;93718"],' +
+    '["BstBI","TT^CGAA",0,22,";7703,6;9111,6;10938,6;17121,6;190' +
+    '51,6;25660,6;30485,6;32192,6;39581,6;53652,6;56423,6;58950,6' +
+    ';59262,6;59475,6;61701,6;62856,6;74681,6;75508,6;75640,6;803' +
+    '29,6;87152,6;91021,6","N",";7704;9112;10939;17122;19052;2566' +
+    '1;30486;32193;39582;53653;56424;58951;59263;59476;61702;6285' +
+    '7;74682;75509;75641;80330;87153;91022"],' +
+    '["BstEII","G^GTNACC",0,9,";808,7;979,7;3722,7;33615,7;41487' +
+    ',7;74215,7;75172,7;79472,7;82910,7","N",";808;979;3722;33615' +
+    ';41487;74215;75172;79472;82910"],' +
+    '["BstNI","CC^WGG",0,97,";603,5;798,5;952,5;2264,5;2750,5;37' +
+    '27,5;3822,5;3876,5;4293,5;4380,5;5480,5;6114,5;8349,5;8789,5' +
+    ';8809,5;8866,5;12572,5;12670,5;13386,5;14986,5;20287,5;23437' +
+    ',5;25628,5;26197,5;29296,5;30875,5;31327,5;32930,5;33002,5;3' +
+    '3352,5;34256,5;34754,5;35784,5;36190,5;37597,5;39744,5;40553' +
+    ',5;41548,5;42417,5;43257,5;50467,5;51255,5;52132,5;54610,5;5' +
+    '7239,5;58996,5;60067,5;61910,5;63960,5;64514,5;65136,5;66099' +
+    ',5;66235,5;66346,5;66392,5;66742,5;66935,5;67538,5;71384,5;7' +
+    '1710,5;71869,5;73464,5;74051,5;75169,5;76425,5;77617,5;79213' +
+    ',5;79499,5;79770,5;79863,5;80214,5;80882,5;80996,5;81351,5;8' +
+    '1990,5;82105,5;82842,5;83585,5;83996,5;84375,5;84735,5;85543' +
+    ',5;85982,5;87314,5;88028,5;88506,5;88898,5;89250,5;89286,5;8' +
+    '9334,5;89511,5;89685,5;91514,5;91809,5;91932,5;91955,5;93124' +
+    ',5","N",";604;799;953;2265;2751;3728;3823;3877;4294;4381;548' +
+    '1;6115;8350;8790;8810;8867;12573;12671;13387;14987;20288;234' +
+    '38;25629;26198;29297;30876;31328;32931;33003;33353;34257;347' +
+    '55;35785;36191;37598;39745;40554;41549;42418;43258;50468;512' +
+    '56;52133;54611;57240;58997;60068;61911;63961;64515;65137;661' +
+    '00;66236;66347;66393;66743;66936;67539;71385;71711;71870;734' +
+    '65;74052;75170;76426;77618;79214;79500;79771;79864;80215;808' +
+    '83;80997;81352;81991;82106;82843;83586;83997;84376;84736;855' +
+    '44;85983;87315;88029;88507;88899;89251;89287;89335;89512;896' +
+    '86;91515;91810;91933;91956;93125"],' +
+    '["BstUI","CG^CG",0,178,";204,4;206,4;208,4;230,4;252,4;666,' +
+    '4;840,4;1121,4;3994,4;4116,4;4355,4;4404,4;4406,4;4564,4;457' +
+    '4,4;4576,4;4882,4;5159,4;5460,4;5492,4;5960,4;5982,4;6004,4;' +
+    '6006,4;6008,4;9578,4;9600,4;9622,4;9624,4;9626,4;9656,4;9824' +
+    ',4;12503,4;14752,4;18811,4;20485,4;23358,4;25438,4;26759,4;2' +
+    '6966,4;28571,4;28680,4;29023,4;30927,4;30958,4;32600,4;33435' +
+    ',4;34765,4;40283,4;43713,4;45056,4;46171,4;46908,4;46910,4;4' +
+    '8185,4;50357,4;59025,4;59059,4;59139,4;60726,4;62698,4;67901' +
+    ',4;68306,4;69498,4;69918,4;71681,4;73459,4;73591,4;73955,4;7' +
+    '3961,4;74066,4;74097,4;74284,4;74507,4;74748,4;74854,4;74955' +
+    ',4;74983,4;75211,4;75213,4;75282,4;75603,4;75665,4;75870,4;7' +
+    '6158,4;76200,4;76254,4;76282,4;76334,4;76588,4;76814,4;76839' +
+    ',4;77062,4;77068,4;77224,4;77336,4;77338,4;77368,4;77370,4;7' +
+    '7564,4;77953,4;78383,4;78620,4;78881,4;78892,4;78960,4;78998' +
+    ',4;79162,4;79357,4;79422,4;79600,4;79687,4;80085,4;80241,4;8' +
+    '0628,4;81038,4;81274,4;81436,4;81534,4;81567,4;81576,4;81601' +
+    ',4;81620,4;81663,4;81700,4;81824,4;81903,4;82071,4;82073,4;8' +
+    '2075,4;82348,4;82350,4;82466,4;82759,4;82822,4;82887,4;83160' +
+    ',4;83415,4;83666,4;83668,4;83670,4;83807,4;84624,4;84969,4;8' +
+    '5019,4;85159,4;86422,4;86449,4;86900,4;87060,4;87186,4;87296' +
+    ',4;87298,4;87755,4;88013,4;88200,4;89042,4;89044,4;89054,4;8' +
+    '9675,4;90007,4;90367,4;90477,4;90479,4;90614,4;90774,4;90839' +
+    ',4;91332,4;91454,4;91704,4;91879,4;92162,4;92170,4;92344,4;9' +
+    '2392,4;92501,4;92886,4;93643,4","N",";205;207;209;231;253;66' +
+    '7;841;1122;3995;4117;4356;4405;4407;4565;4575;4577;4883;5160' +
+    ';5461;5493;5961;5983;6005;6007;6009;9579;9601;9623;9625;9627' +
+    ';9657;9825;12504;14753;18812;20486;23359;25439;26760;26967;2' +
+    '8572;28681;29024;30928;30959;32601;33436;34766;40284;43714;4' +
+    '5057;46172;46909;46911;48186;50358;59026;59060;59140;60727;6' +
+    '2699;67902;68307;69499;69919;71682;73460;73592;73956;73962;7' +
+    '4067;74098;74285;74508;74749;74855;74956;74984;75212;75214;7' +
+    '5283;75604;75666;75871;76159;76201;76255;76283;76335;76589;7' +
+    '6815;76840;77063;77069;77225;77337;77339;77369;77371;77565;7' +
+    '7954;78384;78621;78882;78893;78961;78999;79163;79358;79423;7' +
+    '9601;79688;80086;80242;80629;81039;81275;81437;81535;81568;8' +
+    '1577;81602;81621;81664;81701;81825;81904;82072;82074;82076;8' +
+    '2349;82351;82467;82760;82823;82888;83161;83416;83667;83669;8' +
+    '3671;83808;84625;84970;85020;85160;86423;86450;86901;87061;8' +
+    '7187;87297;87299;87756;88014;88201;89043;89045;89055;89676;9' +
+    '0008;90368;90478;90480;90615;90775;90840;91333;91455;91705;9' +
+    '1880;92163;92171;92345;92393;92502;92887;93644"],' +
+    '["BstXI","CCANNNNN^NTGG",0,16,";140,12;579,12;4508,12;12852' +
+    ',12;22671,12;23819,12;23946,12;26399,12;29351,12;32874,12;33' +
+    '321,12;52188,12;62783,12;77247,12;79031,12;79763,12","N",";1' +
+    '47;586;4515;12859;22678;23826;23953;26406;29358;32881;33328;' +
+    '52195;62790;77254;79038;79770"],' +
+    '["BstYI","R^GATCY",0,86,";109,6;442,6;642,6;1134,6;1207,6;1' +
+    '811,6;2249,6;3480,6;3643,6;4966,6;5265,6;5764,6;6034,6;6844,' +
+    '6;7007,6;8519,6;9382,6;9747,6;12645,6;14526,6;14724,6;15371,' +
+    '6;16105,6;17434,6;17504,6;22210,6;22390,6;24899,6;27267,6;27' +
+    '700,6;31352,6;33438,6;33654,6;33710,6;35305,6;38387,6;38530,' +
+    '6;40947,6;41544,6;41970,6;44050,6;45208,6;45426,6;47797,6;48' +
+    '062,6;48952,6;50283,6;50470,6;51096,6;51440,6;52914,6;53558,' +
+    '6;54277,6;54888,6;55432,6;56533,6;59924,6;61278,6;61573,6;63' +
+    '069,6;63648,6;63672,6;64525,6;69262,6;70422,6;70585,6;70634,' +
+    '6;73891,6;74108,6;76259,6;78049,6;78489,6;79234,6;79406,6;79' +
+    '675,6;82590,6;84371,6;85489,6;85985,6;86357,6;86380,6;86391,' +
+    '6;86401,6;89100,6;92583,6;93567,6","N",";109;442;642;1134;12' +
+    '07;1811;2249;3480;3643;4966;5265;5764;6034;6844;7007;8519;93' +
+    '82;9747;12645;14526;14724;15371;16105;17434;17504;22210;2239' +
+    '0;24899;27267;27700;31352;33438;33654;33710;35305;38387;3853' +
+    '0;40947;41544;41970;44050;45208;45426;47797;48062;48952;5028' +
+    '3;50470;51096;51440;52914;53558;54277;54888;55432;56533;5992' +
+    '4;61278;61573;63069;63648;63672;64525;69262;70422;70585;7063' +
+    '4;73891;74108;76259;78049;78489;79234;79406;79675;82590;8437' +
+    '1;85489;85985;86357;86380;86391;86401;89100;92583;93567"],' +
+    '["BstZ17I","GTA^TAC",0,14,";4455,6;10407,6;17342,6;22736,6;' +
+    '22784,6;33731,6;34406,6;47224,6;51740,6;58292,6;59213,6;7000' +
+    '9,6;71334,6;93027,6","N",";4457;10409;17344;22738;22786;3373' +
+    '3;34408;47226;51742;58294;59215;70011;71336;93029"],' +
+    '["Bsu36I","CC^TNAGG",0,7,";4150,7;9071,7;32839,7;45404,7;51' +
+    '151,7;71035,7;74417,7","N",";4151;9072;32840;45405;51152;710' +
+    '36;74418"],' +
+    '["BtgI","C^CRYGG",0,53,";702,6;1125,6;1917,6;2953,6;3683,6;' +
+    '4120,6;4427,6;4639,6;5526,6;6317,6;7047,6;8401,6;12858,6;222' +
+    '02,6;26065,6;28695,6;29142,6;29394,6;31638,6;36626,6;39459,6' +
+    ';40962,6;41061,6;41763,6;44212,6;46055,6;48000,6;56783,6;575' +
+    '14,6;59024,6;59058,6;60636,6;62783,6;64289,6;70487,6;70781,6' +
+    ';73458,6;74853,6;75602,6;77067,6;77073,6;78619,6;79421,6;820' +
+    '29,6;82778,6;83149,6;83624,6;84039,6;84100,6;89053,6;91641,6' +
+    ';93257,6;93341,6","N",";702;1125;1917;2953;3683;4120;4427;46' +
+    '39;5526;6317;7047;8401;12858;22202;26065;28695;29142;29394;3' +
+    '1638;36626;39459;40962;41061;41763;44212;46055;48000;56783;5' +
+    '7514;59024;59058;60636;62783;64289;70487;70781;73458;74853;7' +
+    '5602;77067;77073;78619;79421;82029;82778;83149;83624;84039;8' +
+    '4100;89053;91641;93257;93341"],' +
+    '["BtgZI","GCGATG(10/14)",0,34,";372,6;5380,6;5507,6;5531,6;' +
+    '5724,6;5838,6;9456,6;25571,6;26963,6;38542,6;45258,6;57817,6' +
+    ';62695,6;62699,6;71189,6;72070,6;75694,6;76293,6;76328,6;763' +
+    '35,6;77242,6;77387,6;77990,6;79700,6;80198,6;80238,6;82528,6' +
+    ';86241,6;86450,6;88161,6;88197,6;88762,6;90703,6;90775,6","N' +
+    '",";357;5365;5522;5546;5709;5853;9471;25556;26948;38527;4524' +
+    '3;57832;62680;62714;71174;72085;75709;76278;76313;76350;7722' +
+    '7;77402;78005;79685;80183;80223;82513;86256;86465;88176;8818' +
+    '2;88747;90718;90790"],' +
+    '["BtsI","GCAGTG(2/0)",0,32,";1928,6;8557,6;8646,6;8765,6;14' +
+    '104,6;15070,6;18923,6;28468,6;33559,6;33610,6;48076,6;48165,' +
+    '6;52363,6;53508,6;54946,6;61298,6;62989,6;66335,6;70527,6;70' +
+    '908,6;71500,6;75910,6;75978,6;78390,6;80336,6;82961,6;83238,' +
+    '6;84682,6;84761,6;85771,6;90432,6;92118,6","N",";1927;8556;8' +
+    '645;8772;14103;15077;18930;28475;33566;33617;48075;48172;523' +
+    '62;53515;54953;61305;62988;66342;70526;70907;71507;75909;759' +
+    '85;78389;80343;82960;83237;84681;84768;85778;90431;92125"],' +
+    '["BtsIMutI","CAGTG(2/0)",0,121,";92,5;141,5;1928,5;2034,5;2' +
+    '939,5;3296,5;3395,5;4327,5;5217,5;6303,5;6660,5;6759,5;7066,' +
+    '5;7815,5;8557,5;8646,5;8766,5;9739,5;9767,5;10879,5;13103,5;' +
+    '13930,5;14104,5;14294,5;15071,5;18924,5;19820,5;19895,5;2023' +
+    '4,5;20790,5;22491,5;24735,5;25209,5;26003,5;28469,5;29288,5;' +
+    '29582,5;30647,5;30761,5;31978,5;32470,5;32699,5;33345,5;3356' +
+    '0,5;33593,5;33611,5;33687,5;35570,5;36205,5;36406,5;42039,5;' +
+    '42424,5;46391,5;48076,5;48166,5;49159,5;52363,5;52747,5;5350' +
+    '9,5;54156,5;54481,5;54709,5;54947,5;55046,5;55178,5;55215,5;' +
+    '55327,5;55722,5;59449,5;60810,5;61299,5;62719,5;62989,5;6335' +
+    '0,5;63503,5;64521,5;65563,5;66336,5;66419,5;69029,5;70236,5;' +
+    '70527,5;70908,5;71166,5;71469,5;71501,5;72468,5;72922,5;7366' +
+    '7,5;74522,5;75725,5;75910,5;75979,5;78390,5;80315,5;80337,5;' +
+    '80946,5;81328,5;81671,5;82936,5;82961,5;83238,5;83344,5;8421' +
+    '2,5;84682,5;84762,5;85772,5;85969,5;86122,5;86349,5;86696,5;' +
+    '88048,5;88985,5;90432,5;90578,5;91149,5;91221,5;92119,5;9235' +
+    '6,5;93137,5;93302,5","N",";98;147;1927;2040;2938;3302;3394;4' +
+    '326;5216;6302;6666;6758;7065;7814;8556;8645;8772;9745;9773;1' +
+    '0878;13102;13936;14103;14293;15077;18930;19819;19901;20240;2' +
+    '0789;22490;24741;25208;26009;28475;29294;29588;30653;30767;3' +
+    '1984;32469;32698;33344;33566;33592;33617;33686;35569;36204;3' +
+    '6405;42045;42430;46390;48075;48172;49158;52362;52746;53515;5' +
+    '4155;54487;54708;54953;55052;55177;55221;55333;55728;59455;6' +
+    '0816;61305;62725;62988;63356;63509;64520;65569;66342;66425;6' +
+    '9028;70242;70526;70907;71165;71468;71507;72474;72928;73673;7' +
+    '4521;75724;75909;75985;78389;80321;80343;80952;81334;81670;8' +
+    '2935;82960;83237;83343;84218;84681;84768;85778;85968;86121;8' +
+    '6348;86695;88047;88984;90431;90577;91148;91220;92125;92362;9' +
+    '3136;93308"],' +
+    '["BtsCI","GGATG(2/0)",0,182,";888,5;945,5;1274,5;3407,5;382' +
+    '5,5;4065,5;5405,5;5430,5;6771,5;7390,5;8812,5;8844,5;12141,5' +
+    ';12224,5;12385,5;12499,5;14131,5;14913,5;15094,5;15100,5;153' +
+    '45,5;16551,5;18003,5;18879,5;19688,5;20070,5;20107,5;20238,5' +
+    ';20354,5;20711,5;20961,5;21095,5;21119,5;21682,5;22789,5;237' +
+    '50,5;23871,5;25284,5;25565,5;25751,5;26245,5;26396,5;26409,5' +
+    ';26683,5;26946,5;27867,5;29139,5;29376,5;29574,5;30917,5;312' +
+    '34,5;31264,5;31371,5;31644,5;33865,5;34240,5;34782,5;35159,5' +
+    ';35803,5;35953,5;37009,5;37081,5;37375,5;37538,5;37971,5;395' +
+    '15,5;41526,5;42385,5;42406,5;42552,5;43278,5;44011,5;45742,5' +
+    ';47319,5;47814,5;49214,5;49574,5;50070,5;50345,5;50483,5;508' +
+    '40,5;51401,5;51522,5;52348,5;52751,5;53459,5;53534,5;53995,5' +
+    ';54179,5;54318,5;55452,5;55585,5;56192,5;56779,5;57518,5;580' +
+    '73,5;58143,5;59018,5;59593,5;60524,5;60730,5;60741,5;60814,5' +
+    ';62994,5;63829,5;63905,5;64020,5;65385,5;65438,5;66632,5;671' +
+    '27,5;67310,5;67835,5;68027,5;68180,5;68929,5;69660,5;69875,5' +
+    ';70118,5;70536,5;70590,5;70904,5;71380,5;71547,5;72402,5;729' +
+    '18,5;73131,5;73506,5;74086,5;74211,5;75382,5;75396,5;75485,5' +
+    ';75770,5;75992,5;76107,5;77214,5;77314,5;77430,5;77610,5;778' +
+    '20,5;78168,5;78226,5;78241,5;78820,5;79830,5;79958,5;80012,5' +
+    ';80217,5;80434,5;80784,5;80800,5;80984,5;81694,5;82456,5;829' +
+    '57,5;83174,5;83423,5;83862,5;83904,5;84016,5;84363,5;84999,5' +
+    ';85756,5;86536,5;86933,5;86990,5;87611,5;87774,5;87903,5;880' +
+    '01,5;88552,5;88598,5;88811,5;89445,5;89621,5;90077,5;90687,5' +
+    ';91851,5;92526,5;92692,5;93651,5","N",";894;951;1280;3413;38' +
+    '31;4071;5411;5436;6777;7396;8818;8850;12147;12230;12384;1249' +
+    '8;14130;14919;15100;15106;15344;16557;18002;18878;19687;2007' +
+    '6;20113;20244;20360;20710;20967;21101;21118;21688;22788;2375' +
+    '6;23877;25290;25564;25750;26244;26395;26415;26689;26945;2786' +
+    '6;29138;29375;29580;30923;31233;31263;31370;31643;33864;3423' +
+    '9;34781;35165;35802;35952;37015;37080;37374;37544;37977;3951' +
+    '4;41532;42384;42405;42558;43277;44010;45748;47318;47820;4922' +
+    '0;49580;50076;50344;50482;50839;51407;51521;52354;52757;5346' +
+    '5;53533;53994;54185;54324;55458;55584;56191;56778;57524;5807' +
+    '2;58142;59024;59592;60523;60736;60747;60820;62993;63835;6390' +
+    '4;64019;65384;65437;66638;67133;67316;67841;68033;68179;6892' +
+    '8;69666;69881;70124;70542;70589;70903;71379;71553;72408;7291' +
+    '7;73130;73512;74092;74217;75381;75402;75491;75769;75998;7610' +
+    '6;77220;77320;77436;77616;77826;78174;78232;78240;78819;7982' +
+    '9;79957;80011;80223;80433;80790;80799;80990;81700;82455;8295' +
+    '6;83180;83422;83861;83910;84015;84369;84998;85762;86542;8693' +
+    '2;86996;87610;87780;87909;88007;88551;88597;88817;89451;8962' +
+    '7;90083;90693;91857;92525;92698;93650"],' +
+    '["Cac8I","GCN^NGC",0,224,";10,6;123,6;205,6;229,6;657,6;112' +
+    '0,6;1735,6;2881,6;3923,6;4403,6;4417,6;4475,6;4824,6;4900,6;' +
+    '4986,6;5172,6;5391,6;5457,6;5463,6;5491,6;5495,6;5536,6;5540' +
+    ',6;5594,6;5981,6;6005,6;6245,6;7107,6;7192,6;7368,6;7917,6;8' +
+    '004,6;8201,6;8235,6;8386,6;8390,6;8551,6;9599,6;9623,6;10871' +
+    ',6;11749,6;12209,6;12213,6;12474,6;12478,6;12690,6;12815,6;1' +
+    '2941,6;13297,6;13810,6;14108,6;14507,6;15564,6;15640,6;16608' +
+    ',6;18357,6;18372,6;18457,6;18810,6;20578,6;20611,6;21632,6;2' +
+    '5666,6;26566,6;26777,6;27081,6;27148,6;28132,6;28389,6;28521' +
+    ',6;29026,6;30879,6;30922,6;30926,6;30986,6;32045,6;32621,6;3' +
+    '2761,6;32914,6;33025,6;35483,6;36753,6;36798,6;37117,6;39669' +
+    ',6;40282,6;41616,6;41741,6;41922,6;46911,6;49469,6;49515,6;5' +
+    '0515,6;52451,6;54847,6;55826,6;58136,6;59031,6;59104,6;59138' +
+    ',6;60782,6;67199,6;68245,6;71243,6;72622,6;73468,6;73590,6;7' +
+    '3780,6;74283,6;74482,6;74792,6;74891,6;75022,6;75212,6;75460' +
+    ',6;75616,6;75806,6;76114,6;76150,6;76281,6;76724,6;76912,6;7' +
+    '6981,6;77008,6;77194,6;77219,6;77335,6;77383,6;77518,6;77575' +
+    ',6;77688,6;77793,6;77834,6;77876,6;77880,6;77996,6;78010,6;7' +
+    '8066,6;78116,6;78120,6;78263,6;78338,6;78364,6;78437,6;78532' +
+    ',6;78581,6;78677,6;78880,6;79141,6;79396,6;79516,6;79635,6;7' +
+    '9653,6;79884,6;79947,6;79951,6;80369,6;81302,6;81547,6;81557' +
+    ',6;81609,6;81688,6;81699,6;81902,6;81964,6;81994,6;82072,6;8' +
+    '2151,6;82240,6;82347,6;82422,6;82426,6;82532,6;82701,6;82881' +
+    ',6;82986,6;83163,6;83589,6;83667,6;84540,6;84686,6;84970,6;8' +
+    '5162,6;85187,6;85196,6;85426,6;85644,6;85793,6;85977,6;86014' +
+    ',6;86416,6;86522,6;86556,6;87031,6;87212,6;87337,6;87649,6;8' +
+    '7682,6;87815,6;87928,6;88140,6;88304,6;88313,6;88523,6;88739' +
+    ',6;88779,6;88828,6;88832,6;89676,6;90427,6;90480,6;90973,6;9' +
+    '1613,6;91617,6;91621,6;91625,6;91671,6;91687,6;91891,6;92209' +
+    ',6;92276,6;93264,6;93350,6;93821,6","N",";12;125;207;231;659' +
+    ';1122;1737;2883;3925;4405;4419;4477;4826;4902;4988;5174;5393' +
+    ';5459;5465;5493;5497;5538;5542;5596;5983;6007;6247;7109;7194' +
+    ';7370;7919;8006;8203;8237;8388;8392;8553;9601;9625;10873;117' +
+    '51;12211;12215;12476;12480;12692;12817;12943;13299;13812;141' +
+    '10;14509;15566;15642;16610;18359;18374;18459;18812;20580;206' +
+    '13;21634;25668;26568;26779;27083;27150;28134;28391;28523;290' +
+    '28;30881;30924;30928;30988;32047;32623;32763;32916;33027;354' +
+    '85;36755;36800;37119;39671;40284;41618;41743;41924;46913;494' +
+    '71;49517;50517;52453;54849;55828;58138;59033;59106;59140;607' +
+    '84;67201;68247;71245;72624;73470;73592;73782;74285;74484;747' +
+    '94;74893;75024;75214;75462;75618;75808;76116;76152;76283;767' +
+    '26;76914;76983;77010;77196;77221;77337;77385;77520;77577;776' +
+    '90;77795;77836;77878;77882;77998;78012;78068;78118;78122;782' +
+    '65;78340;78366;78439;78534;78583;78679;78882;79143;79398;795' +
+    '18;79637;79655;79886;79949;79953;80371;81304;81549;81559;816' +
+    '11;81690;81701;81904;81966;81996;82074;82153;82242;82349;824' +
+    '24;82428;82534;82703;82883;82988;83165;83591;83669;84542;846' +
+    '88;84972;85164;85189;85198;85428;85646;85795;85979;86016;864' +
+    '18;86524;86558;87033;87214;87339;87651;87684;87817;87930;881' +
+    '42;88306;88315;88525;88741;88781;88830;88834;89678;90429;904' +
+    '82;90975;91615;91619;91623;91627;91673;91689;91893;92211;922' +
+    '78;93266;93352;93823"],' +
+    '["CfoI","GCG^C",0,212,";205,4;207,4;229,4;231,4;477,4;679,4' +
+    ';841,4;1075,4;1087,4;1120,4;1122,4;3776,4;3787,4;3957,4;3995' +
+    ',4;4081,4;4117,4;4297,4;4356,4;4384,4;4403,4;4405,4;4575,4;4' +
+    '757,4;4805,4;4846,4;4851,4;5086,4;5094,4;5158,4;5195,4;5461,' +
+    '4;5491,4;5493,4;5721,4;5981,4;5983,4;6005,4;6007,4;7291,4;74' +
+    '74,4;8473,4;9599,4;9601,4;9623,4;9625,4;15838,4;16606,4;1881' +
+    '0,4;18812,4;20367,4;24945,4;25328,4;25439,4;28860,4;29024,4;' +
+    '29631,4;30926,4;30928,4;30957,4;32071,4;32599,4;34017,4;3548' +
+    '1,4;35667,4;40282,4;40284,4;40874,4;41247,4;45091,4;46909,4;' +
+    '46915,4;48186,4;50249,4;51715,4;54106,4;58140,4;59138,4;5914' +
+    '0,4;62017,4;62163,4;63096,4;68305,4;69919,4;71682,4;71833,4;' +
+    '72542,4;73590,4;73592,4;73971,4;73976,4;74067,4;74096,4;7428' +
+    '3,4;74285,4;74473,4;74569,4;74865,4;74956,4;74965,4;74982,4;' +
+    '75089,4;75212,4;75214,4;75464,4;75489,4;75666,4;75869,4;7615' +
+    '9,4;76253,4;76281,4;76283,4;76527,4;76587,4;76728,4;76838,4;' +
+    '76884,4;76985,4;76996,4;77006,4;77120,4;77207,4;77223,4;7728' +
+    '6,4;77319,4;77335,4;77337,4;77369,4;77565,4;77760,4;78104,4;' +
+    '78684,4;78880,4;78882,4;78961,4;78999,4;79015,4;79358,4;7937' +
+    '8,4;79552,4;79601,4;79620,4;79691,4;79718,4;79774,4;80084,4;' +
+    '80242,4;80392,4;80627,4;81037,4;81165,4;81229,4;81385,4;8143' +
+    '5,4;81566,4;81575,4;81600,4;81686,4;81699,4;81701,4;81823,4;' +
+    '81902,4;81904,4;81930,4;82054,4;82072,4;82074,4;82347,4;8234' +
+    '9,4;82430,4;82465,4;82485,4;82579,4;82733,4;82760,4;82821,4;' +
+    '83009,4;83161,4;83242,4;83649,4;83667,4;83669,4;83954,4;8460' +
+    '3,4;84673,4;84690,4;84912,4;85160,4;85200,4;85380,4;86423,4;' +
+    '86720,4;87059,4;87297,4;87311,4;87553,4;88302,4;89043,4;8953' +
+    '3,4;89898,4;90006,4;90436,4;90478,4;91207,4;91455,4;92171,4;' +
+    '92310,4;92502,4;92561,4;92885,4;93405,4;93450,4","N",";207;2' +
+    '09;231;233;479;681;843;1077;1089;1122;1124;3778;3789;3959;39' +
+    '97;4083;4119;4299;4358;4386;4405;4407;4577;4759;4807;4848;48' +
+    '53;5088;5096;5160;5197;5463;5493;5495;5723;5983;5985;6007;60' +
+    '09;7293;7476;8475;9601;9603;9625;9627;15840;16608;18812;1881' +
+    '4;20369;24947;25330;25441;28862;29026;29633;30928;30930;3095' +
+    '9;32073;32601;34019;35483;35669;40284;40286;40876;41249;4509' +
+    '3;46911;46917;48188;50251;51717;54108;58142;59140;59142;6201' +
+    '9;62165;63098;68307;69921;71684;71835;72544;73592;73594;7397' +
+    '3;73978;74069;74098;74285;74287;74475;74571;74867;74958;7496' +
+    '7;74984;75091;75214;75216;75466;75491;75668;75871;76161;7625' +
+    '5;76283;76285;76529;76589;76730;76840;76886;76987;76998;7700' +
+    '8;77122;77209;77225;77288;77321;77337;77339;77371;77567;7776' +
+    '2;78106;78686;78882;78884;78963;79001;79017;79360;79380;7955' +
+    '4;79603;79622;79693;79720;79776;80086;80244;80394;80629;8103' +
+    '9;81167;81231;81387;81437;81568;81577;81602;81688;81701;8170' +
+    '3;81825;81904;81906;81932;82056;82074;82076;82349;82351;8243' +
+    '2;82467;82487;82581;82735;82762;82823;83011;83163;83244;8365' +
+    '1;83669;83671;83956;84605;84675;84692;84914;85162;85202;8538' +
+    '2;86425;86722;87061;87299;87313;87555;88304;89045;89535;8990' +
+    '0;90008;90438;90480;91209;91457;92173;92312;92504;92563;9288' +
+    '7;93407;93452"],' +
+    '["ClaI","AT^CGAT",0,10,";4951,6;16393,6;23710,6;24511,6;264' +
+    '31,6;27486,6;48528,6;59510,6;70743,6;84933,6","A",";4952;163' +
+    '94;23711;24512;26432;27487;48529;59511;70744;84934"],' +
+    '["CviAII","C^ATG",0,423,";124,4;312,4;321,4;335,4;580,4;703' +
+    ',4;1072,4;1090,4;1126,4;2954,4;3065,4;3684,4;3976,4;3998,4;4' +
+    '039,4;4051,4;4390,4;4398,4;4693,4;5310,4;5496,4;5527,4;5553,' +
+    '4;5877,4;5891,4;5900,4;6318,4;6429,4;7048,4;7210,4;7447,4;74' +
+    '71,4;7654,4;8009,4;8122,4;8465,4;8737,4;8841,4;8854,4;8959,4' +
+    ';8980,4;9217,4;9221,4;9277,4;9495,4;9509,4;9518,4;9853,4;102' +
+    '00,4;10297,4;10352,4;10395,4;10528,4;10565,4;10687,4;10724,4' +
+    ';10761,4;10872,4;11062,4;11280,4;11771,4;11973,4;12357,4;126' +
+    '91,4;12695,4;12703,4;12751,4;12802,4;12859,4;13066,4;13174,4' +
+    ';13447,4;13623,4;13700,4;13735,4;13741,4;13793,4;13801,4;139' +
+    '79,4;13987,4;14135,4;14259,4;14479,4;14543,4;14683,4;14762,4' +
+    ';14783,4;14793,4;15053,4;15171,4;15201,4;15407,4;15412,4;159' +
+    '55,4;15982,4;16958,4;17952,4;18094,4;18380,4;19106,4;19456,4' +
+    ';19932,4;19968,4;20191,4;20217,4;20333,4;20570,4;20618,4;210' +
+    '92,4;21357,4;22203,4;22225,4;22651,4;22672,4;22843,4;23014,4' +
+    ';23037,4;23122,4;23233,4;23803,4;23833,4;23947,4;24236,4;243' +
+    '33,4;24799,4;24871,4;25014,4;25076,4;25132,4;25154,4;25341,4' +
+    ';25459,4;25577,4;25667,4;25802,4;25986,4;25996,4;26066,4;263' +
+    '01,4;26576,4;26597,4;26637,4;26721,4;26800,4;27149,4;27626,4' +
+    ';27742,4;27812,4;27817,4;28082,4;28246,4;28390,4;28654,4;286' +
+    '74,4;28753,4;28887,4;28924,4;28941,4;29079,4;29227,4;29380,4' +
+    ';29395,4;29650,4;30422,4;30542,4;30845,4;31079,4;31162,4;312' +
+    '18,4;31639,4;32034,4;32230,4;32369,4;32385,4;32762,4;32766,4' +
+    ';33313,4;33443,4;33588,4;33817,4;34011,4;35080,4;35332,4;354' +
+    '57,4;35581,4;36233,4;36317,4;36606,4;36695,4;37018,4;37103,4' +
+    ';37118,4;37229,4;38517,4;38526,4;38757,4;38777,4;39460,4;395' +
+    '54,4;40131,4;40139,4;40339,4;40469,4;40572,4;40822,4;40963,4' +
+    ';41031,4;41062,4;41104,4;41176,4;41484,4;41764,4;41923,4;419' +
+    '50,4;42271,4;42549,4;42646,4;42967,4;43330,4;44213,4;44258,4' +
+    ';44313,4;44870,4;44961,4;45153,4;45163,4;46056,4;46508,4;472' +
+    '60,4;47559,4;47886,4;47950,4;47976,4;48001,4;48041,4;48393,4' +
+    ';48817,4;49183,4;49319,4;49384,4;49710,4;50310,4;50373,4;503' +
+    '77,4;50447,4;50520,4;50594,4;50777,4;50782,4;50800,4;50857,4' +
+    ';51197,4;51814,4;51889,4;52073,4;52141,4;52172,4;52542,4;525' +
+    '95,4;52656,4;52888,4;53818,4;53878,4;53932,4;54016,4;54596,4' +
+    ';55112,4;55340,4;55805,4;55827,4;55876,4;56135,4;56560,4;567' +
+    '84,4;56794,4;57035,4;57515,4;57658,4;57730,4;58103,4;58412,4' +
+    ';58711,4;60195,4;60396,4;60476,4;60544,4;60637,4;60783,4;611' +
+    '54,4;61164,4;61690,4;61747,4;62480,4;62626,4;62728,4;62784,4' +
+    ';62810,4;62851,4;62959,4;63014,4;63516,4;63654,4;63667,4;637' +
+    '24,4;63857,4;64235,4;64315,4;64815,4;65102,4;65546,4;65673,4' +
+    ';65876,4;65886,4;65924,4;65959,4;66064,4;66167,4;66566,4;665' +
+    '98,4;66803,4;66815,4;67080,4;67508,4;67955,4;68011,4;68477,4' +
+    ';69052,4;69063,4;69412,4;69852,4;69872,4;69890,4;70047,4;701' +
+    '15,4;70193,4;70488,4;70689,4;70758,4;70782,4;70877,4;70881,4' +
+    ';70933,4;71069,4;72031,4;72141,4;72288,4;72397,4;72421,4;725' +
+    '39,4;72709,4;72851,4;72897,4;73004,4;73360,4;73453,4;73549,4' +
+    ';73627,4;73781,4;74341,4;74608,4;74778,4;74821,4;75740,4;757' +
+    '55,4;75839,4;76607,4;76719,4;77074,4;77210,4;77248,4;77835,4' +
+    ';77893,4;78212,4;78311,4;78348,4;78375,4;79665,4;79881,4;805' +
+    '87,4;80611,4;81262,4;81525,4;82002,4;82111,4;82115,4;83072,4' +
+    ';83208,4;83226,4;83403,4;83479,4;83597,4;83793,4;84468,4;847' +
+    '76,4;84891,4;85003,4;85106,4;85300,4;85404,4;86057,4;86093,4' +
+    ';86264,4;87015,4;87785,4;87816,4;88305,4;88602,4;89127,4;906' +
+    '84,4;90921,4;91401,4;91599,4;91622,4;91663,4;92661,4;92790,4' +
+    ';92855,4;92965,4;93073,4;93102,4;93193,4;93631,4;93707,4","N' +
+    '",";124;312;321;335;580;703;1072;1090;1126;2954;3065;3684;39' +
+    '76;3998;4039;4051;4390;4398;4693;5310;5496;5527;5553;5877;58' +
+    '91;5900;6318;6429;7048;7210;7447;7471;7654;8009;8122;8465;87' +
+    '37;8841;8854;8959;8980;9217;9221;9277;9495;9509;9518;9853;10' +
+    '200;10297;10352;10395;10528;10565;10687;10724;10761;10872;11' +
+    '062;11280;11771;11973;12357;12691;12695;12703;12751;12802;12' +
+    '859;13066;13174;13447;13623;13700;13735;13741;13793;13801;13' +
+    '979;13987;14135;14259;14479;14543;14683;14762;14783;14793;15' +
+    '053;15171;15201;15407;15412;15955;15982;16958;17952;18094;18' +
+    '380;19106;19456;19932;19968;20191;20217;20333;20570;20618;21' +
+    '092;21357;22203;22225;22651;22672;22843;23014;23037;23122;23' +
+    '233;23803;23833;23947;24236;24333;24799;24871;25014;25076;25' +
+    '132;25154;25341;25459;25577;25667;25802;25986;25996;26066;26' +
+    '301;26576;26597;26637;26721;26800;27149;27626;27742;27812;27' +
+    '817;28082;28246;28390;28654;28674;28753;28887;28924;28941;29' +
+    '079;29227;29380;29395;29650;30422;30542;30845;31079;31162;31' +
+    '218;31639;32034;32230;32369;32385;32762;32766;33313;33443;33' +
+    '588;33817;34011;35080;35332;35457;35581;36233;36317;36606;36' +
+    '695;37018;37103;37118;37229;38517;38526;38757;38777;39460;39' +
+    '554;40131;40139;40339;40469;40572;40822;40963;41031;41062;41' +
+    '104;41176;41484;41764;41923;41950;42271;42549;42646;42967;43' +
+    '330;44213;44258;44313;44870;44961;45153;45163;46056;46508;47' +
+    '260;47559;47886;47950;47976;48001;48041;48393;48817;49183;49' +
+    '319;49384;49710;50310;50373;50377;50447;50520;50594;50777;50' +
+    '782;50800;50857;51197;51814;51889;52073;52141;52172;52542;52' +
+    '595;52656;52888;53818;53878;53932;54016;54596;55112;55340;55' +
+    '805;55827;55876;56135;56560;56784;56794;57035;57515;57658;57' +
+    '730;58103;58412;58711;60195;60396;60476;60544;60637;60783;61' +
+    '154;61164;61690;61747;62480;62626;62728;62784;62810;62851;62' +
+    '959;63014;63516;63654;63667;63724;63857;64235;64315;64815;65' +
+    '102;65546;65673;65876;65886;65924;65959;66064;66167;66566;66' +
+    '598;66803;66815;67080;67508;67955;68011;68477;69052;69063;69' +
+    '412;69852;69872;69890;70047;70115;70193;70488;70689;70758;70' +
+    '782;70877;70881;70933;71069;72031;72141;72288;72397;72421;72' +
+    '539;72709;72851;72897;73004;73360;73453;73549;73627;73781;74' +
+    '341;74608;74778;74821;75740;75755;75839;76607;76719;77074;77' +
+    '210;77248;77835;77893;78212;78311;78348;78375;79665;79881;80' +
+    '587;80611;81262;81525;82002;82111;82115;83072;83208;83226;83' +
+    '403;83479;83597;83793;84468;84776;84891;85003;85106;85300;85' +
+    '404;86057;86093;86264;87015;87785;87816;88305;88602;89127;90' +
+    '684;90921;91401;91599;91622;91663;92661;92790;92855;92965;93' +
+    '073;93102;93193;93631;93707"],' +
+    '["CviQI","G^TAC",0,165,";101,4;483,4;673,4;910,4;925,4;2854' +
+    ',4;4046,4;4867,4;4879,4;5399,4;6218,4;7285,4;7315,4;7348,4;7' +
+    '770,4;8836,4;10045,4;10067,4;10669,4;10883,4;11296,4;11620,4' +
+    ';11626,4;11646,4;12303,4;13465,4;14423,4;14885,4;14928,4;154' +
+    '86,4;15502,4;15985,4;15991,4;16080,4;16444,4;17523,4;17893,4' +
+    ';18928,4;19499,4;19615,4;19872,4;20968,4;20980,4;21048,4;213' +
+    '60,4;21693,4;21769,4;21803,4;21894,4;22039,4;23397,4;24340,4' +
+    ';24868,4;25138,4;25625,4;25638,4;25917,4;26617,4;26749,4;269' +
+    '55,4;28419,4;28536,4;30733,4;30848,4;30938,4;32962,4;34520,4' +
+    ';34640,4;35552,4;36058,4;37015,4;37372,4;37442,4;37725,4;383' +
+    '22,4;38329,4;38355,4;39429,4;40057,4;42243,4;42973,4;42995,4' +
+    ';43614,4;43989,4;44249,4;44510,4;44700,4;45150,4;45970,4;463' +
+    '05,4;47292,4;47447,4;47791,4;48052,4;48396,4;48562,4;48800,4' +
+    ';48846,4;50538,4;50735,4;51853,4;51893,4;52438,4;52699,4;542' +
+    '07,4;54802,4;56125,4;56613,4;57303,4;57796,4;58427,4;59043,4' +
+    ';59632,4;59732,4;60062,4;61104,4;61130,4;61315,4;62196,4;627' +
+    '70,4;63124,4;63836,4;63902,4;65728,4;66555,4;67399,4;67645,4' +
+    ';67659,4;69724,4;69954,4;69983,4;71163,4;71726,4;71852,4;723' +
+    '76,4;72609,4;72798,4;73050,4;74970,4;76742,4;78256,4;78510,4' +
+    ';79939,4;80343,4;80727,4;82490,4;82973,4;82981,4;83194,4;837' +
+    '25,4;84791,4;86088,4;86233,4;87833,4;87987,4;88503,4;90446,4' +
+    ';90821,4;90939,4;91036,4;91348,4;91683,4;92512,4;93346,4;939' +
+    '02,4","N",";101;483;673;910;925;2854;4046;4867;4879;5399;621' +
+    '8;7285;7315;7348;7770;8836;10045;10067;10669;10883;11296;116' +
+    '20;11626;11646;12303;13465;14423;14885;14928;15486;15502;159' +
+    '85;15991;16080;16444;17523;17893;18928;19499;19615;19872;209' +
+    '68;20980;21048;21360;21693;21769;21803;21894;22039;23397;243' +
+    '40;24868;25138;25625;25638;25917;26617;26749;26955;28419;285' +
+    '36;30733;30848;30938;32962;34520;34640;35552;36058;37015;373' +
+    '72;37442;37725;38322;38329;38355;39429;40057;42243;42973;429' +
+    '95;43614;43989;44249;44510;44700;45150;45970;46305;47292;474' +
+    '47;47791;48052;48396;48562;48800;48846;50538;50735;51853;518' +
+    '93;52438;52699;54207;54802;56125;56613;57303;57796;58427;590' +
+    '43;59632;59732;60062;61104;61130;61315;62196;62770;63124;638' +
+    '36;63902;65728;66555;67399;67645;67659;69724;69954;69983;711' +
+    '63;71726;71852;72376;72609;72798;73050;74970;76742;78256;785' +
+    '10;79939;80343;80727;82490;82973;82981;83194;83725;84791;860' +
+    '88;86233;87833;87987;88503;90446;90821;90939;91036;91348;916' +
+    '83;92512;93346;93902"],' +
+    '["DdeI","C^TNAG",0,235,";1160,5;1348,5;1591,5;2609,5;3116,5' +
+    ';3496,5;3607,5;4151,5;4209,5;5757,5;6480,5;6860,5;6971,5;711' +
+    '2,5;7143,5;7761,5;7907,5;7947,5;8109,5;9064,5;9072,5;9810,5;' +
+    '10356,5;10367,5;10399,5;10944,5;11371,5;12635,5;13287,5;1359' +
+    '2,5;15368,5;15943,5;16591,5;17078,5;17128,5;18509,5;18783,5;' +
+    '18832,5;19222,5;20040,5;20151,5;20697,5;20751,5;20887,5;2535' +
+    '4,5;26124,5;26852,5;27029,5;28370,5;28986,5;29183,5;30800,5;' +
+    '31343,5;31578,5;31976,5;32174,5;32263,5;32479,5;32615,5;3284' +
+    '0,5;33721,5;34495,5;35041,5;35259,5;35625,5;35807,5;35838,5;' +
+    '35984,5;36347,5;36352,5;36412,5;36565,5;36589,5;36884,5;3692' +
+    '0,5;36964,5;37053,5;38083,5;38160,5;38464,5;38470,5;40777,5;' +
+    '40868,5;40957,5;41250,5;41412,5;41422,5;42544,5;42845,5;4294' +
+    '7,5;42976,5;42982,5;43035,5;43739,5;44015,5;44081,5;44170,5;' +
+    '44222,5;45375,5;45405,5;45910,5;46031,5;46089,5;46463,5;4670' +
+    '7,5;47503,5;47801,5;48298,5;48405,5;48693,5;48949,5;50033,5;' +
+    '51092,5;51152,5;51188,5;51368,5;51461,5;51483,5;51867,5;5233' +
+    '6,5;52849,5;52911,5;52926,5;53555,5;53646,5;54095,5;54231,5;' +
+    '54562,5;54796,5;54885,5;54905,5;55131,5;55413,5;55601,5;5572' +
+    '0,5;55938,5;55987,5;56005,5;56172,5;56683,5;57123,5;57868,5;' +
+    '57938,5;59098,5;59133,5;59447,5;60170,5;60415,5;60981,5;6112' +
+    '3,5;61239,5;61294,5;61397,5;61670,5;62238,5;63029,5;63152,5;' +
+    '63450,5;63458,5;64769,5;65078,5;65161,5;65372,5;65377,5;6562' +
+    '2,5;66006,5;66033,5;66123,5;66551,5;67367,5;69259,5;70133,5;' +
+    '70471,5;70532,5;70546,5;70977,5;71036,5;71289,5;71962,5;7197' +
+    '9,5;72109,5;72525,5;72758,5;72903,5;73699,5;74245,5;74368,5;' +
+    '74418,5;74753,5;75796,5;75933,5;76750,5;77190,5;77763,5;7862' +
+    '6,5;78669,5;78848,5;79260,5;79624,5;79986,5;80525,5;80623,5;' +
+    '80808,5;80870,5;81168,5;81762,5;81918,5;82212,5;82763,5;8344' +
+    '6,5;83763,5;83866,5;83957,5;84149,5;84607,5;85665,5;86436,5;' +
+    '87572,5;88789,5;89108,5;89475,5;89660,5;90094,5;91223,5;9126' +
+    '5,5;91337,5;92228,5;92622,5;92799,5;93175,5;93274,5;93456,5;' +
+    '93465,5;93674,5;93864,5","N",";1160;1348;1591;2609;3116;3496' +
+    ';3607;4151;4209;5757;6480;6860;6971;7112;7143;7761;7907;7947' +
+    ';8109;9064;9072;9810;10356;10367;10399;10944;11371;12635;132' +
+    '87;13592;15368;15943;16591;17078;17128;18509;18783;18832;192' +
+    '22;20040;20151;20697;20751;20887;25354;26124;26852;27029;283' +
+    '70;28986;29183;30800;31343;31578;31976;32174;32263;32479;326' +
+    '15;32840;33721;34495;35041;35259;35625;35807;35838;35984;363' +
+    '47;36352;36412;36565;36589;36884;36920;36964;37053;38083;381' +
+    '60;38464;38470;40777;40868;40957;41250;41412;41422;42544;428' +
+    '45;42947;42976;42982;43035;43739;44015;44081;44170;44222;453' +
+    '75;45405;45910;46031;46089;46463;46707;47503;47801;48298;484' +
+    '05;48693;48949;50033;51092;51152;51188;51368;51461;51483;518' +
+    '67;52336;52849;52911;52926;53555;53646;54095;54231;54562;547' +
+    '96;54885;54905;55131;55413;55601;55720;55938;55987;56005;561' +
+    '72;56683;57123;57868;57938;59098;59133;59447;60170;60415;609' +
+    '81;61123;61239;61294;61397;61670;62238;63029;63152;63450;634' +
+    '58;64769;65078;65161;65372;65377;65622;66006;66033;66123;665' +
+    '51;67367;69259;70133;70471;70532;70546;70977;71036;71289;719' +
+    '62;71979;72109;72525;72758;72903;73699;74245;74368;74418;747' +
+    '53;75796;75933;76750;77190;77763;78626;78669;78848;79260;796' +
+    '24;79986;80525;80623;80808;80870;81168;81762;81918;82212;827' +
+    '63;83446;83763;83866;83957;84149;84607;85665;86436;87572;887' +
+    '89;89108;89475;89660;90094;91223;91265;91337;92228;92622;927' +
+    '99;93175;93274;93456;93465;93674;93864"],' +
+    '["DpnI","GA^TC",0,376,";110,4;182,4;431,4;443,4;643,4;1039,' +
+    '4;1135,4;1181,4;1208,4;1321,4;1345,4;1392,4;1451,4;1812,4;18' +
+    '34,4;2250,4;2399,4;2455,4;2652,4;2729,4;2846,4;3481,4;3644,4' +
+    ';4129,4;4338,4;4636,4;4967,4;5266,4;5344,4;5425,4;5434,4;551' +
+    '2,4;5765,4;5781,4;6029,4;6035,4;6093,4;6210,4;6845,4;7008,4;' +
+    '7147,4;7213,4;7525,4;7850,4;8260,4;8308,4;8520,4;8877,4;8921' +
+    ',4;9383,4;9399,4;9647,4;9653,4;9659,4;9748,4;10848,4;11084,4' +
+    ';11496,4;11588,4;12194,4;12346,4;12646,4;12706,4;13149,4;134' +
+    '44,4;13732,4;13738,4;14407,4;14430,4;14527,4;14618,4;14725,4' +
+    ';14869,4;15047,4;15128,4;15275,4;15372,4;15390,4;15694,4;161' +
+    '06,4;17435,4;17505,4;18875,4;19229,4;21116,4;21173,4;21281,4' +
+    ';21317,4;22211,4;22391,4;22718,4;23800,4;24556,4;24592,4;249' +
+    '00,4;24906,4;25021,4;25098,4;25306,4;25344,4;26060,4;26242,4' +
+    ';26532,4;26594,4;26736,4;27268,4;27283,4;27495,4;27540,4;277' +
+    '01,4;27712,4;28969,4;29430,4;30106,4;30111,4;30142,4;30394,4' +
+    ';30545,4;31014,4;31353,4;31368,4;31493,4;31813,4;31970,4;324' +
+    '83,4;33093,4;33280,4;33349,4;33439,4;33585,4;33655,4;33711,4' +
+    ';34297,4;34889,4;35306,4;35460,4;35522,4;35638,4;35950,4;361' +
+    '57,4;36486,4;36573,4;38388,4;38531,4;38630,4;38640,4;39034,4' +
+    ';39153,4;40158,4;40843,4;40948,4;41173,4;41545,4;41775,4;417' +
+    '98,4;41934,4;41971,4;42011,4;42583,4;43029,4;43390,4;44043,4' +
+    ';44051,4;44217,4;44545,4;45209,4;45427,4;45449,4;45728,4;471' +
+    '11,4;47798,4;48056,4;48063,4;48777,4;48953,4;50139,4;50284,4' +
+    ';50471,4;50598,4;50627,4;51097,4;51205,4;51304,4;51441,4;520' +
+    '99,4;52175,4;52627,4;52915,4;52923,4;53151,4;53544,4;53559,4' +
+    ';53566,4;53580,4;54278,4;54889,4;54922,4;55433,4;55736,4;560' +
+    '58,4;56275,4;56304,4;56369,4;56504,4;56534,4;56776,4;56861,4' +
+    ';56914,4;57159,4;57873,4;58256,4;58553,4;58635,4;59925,4;599' +
+    '34,4;60479,4;61279,4;61574,4;61604,4;62623,4;62951,4;63070,4' +
+    ';63649,4;63673,4;64526,4;64650,4;64702,4;65665,4;66159,4;664' +
+    '58,4;66485,4;66773,4;66944,4;67107,4;67511,4;67965,4;68426,4' +
+    ';68439,4;69263,4;69990,4;70319,4;70423,4;70586,4;70602,4;706' +
+    '35,4;71475,4;72061,4;72285,4;72325,4;72773,4;73357,4;73630,4' +
+    ';73892,4;73945,4;73992,4;74022,4;74090,4;74109,4;74169,4;741' +
+    '76,4;74842,4;75007,4;75013,4;75679,4;75717,4;75729,4;75873,4' +
+    ';75927,4;75950,4;76026,4;76064,4;76260,4;76343,4;76559,4;767' +
+    '16,4;77170,4;77269,4;77329,4;77414,4;77824,4;78050,4;78230,4' +
+    ';78317,4;78324,4;78431,4;78490,4;78591,4;78652,4;78709,4;790' +
+    '08,4;79235,4;79407,4;79561,4;79676,4;79684,4;79809,4;79851,4' +
+    ';79983,4;80025,4;80118,4;80229,4;80548,4;80578,4;80620,4;806' +
+    '35,4;80936,4;80940,4;81031,4;81319,4;81405,4;81732,4;81801,4' +
+    ';81951,4;82078,4;82093,4;82304,4;82342,4;82363,4;82591,4;826' +
+    '09,4;82684,4;82694,4;82874,4;83057,4;83365,4;83420,4;83534,4' +
+    ';83673,4;83688,4;83730,4;83790,4;83888,4;84134,4;84139,4;843' +
+    '72,4;84627,4;84757,4;85454,4;85490,4;85687,4;85788,4;85986,4' +
+    ';86021,4;86144,4;86358,4;86381,4;86392,4;86402,4;86409,4;868' +
+    '85,4;87129,4;88221,4;88368,4;89101,4;89212,4;89311,4;89517,4' +
+    ';89809,4;89989,4;90780,4;91227,4;91272,4;91281,4;91980,4;920' +
+    '58,4;92389,4;92486,4;92584,4;92742,4;92794,4;93414,4;93421,4' +
+    ';93514,4;93568,4;93593,4;93648,4","N",";111;183;432;444;644;' +
+    '1040;1136;1182;1209;1322;1346;1393;1452;1813;1835;2251;2400;' +
+    '2456;2653;2730;2847;3482;3645;4130;4339;4637;4968;5267;5345;' +
+    '5426;5435;5513;5766;5782;6030;6036;6094;6211;6846;7009;7148;' +
+    '7214;7526;7851;8261;8309;8521;8878;8922;9384;9400;9648;9654;' +
+    '9660;9749;10849;11085;11497;11589;12195;12347;12647;12707;13' +
+    '150;13445;13733;13739;14408;14431;14528;14619;14726;14870;15' +
+    '048;15129;15276;15373;15391;15695;16107;17436;17506;18876;19' +
+    '230;21117;21174;21282;21318;22212;22392;22719;23801;24557;24' +
+    '593;24901;24907;25022;25099;25307;25345;26061;26243;26533;26' +
+    '595;26737;27269;27284;27496;27541;27702;27713;28970;29431;30' +
+    '107;30112;30143;30395;30546;31015;31354;31369;31494;31814;31' +
+    '971;32484;33094;33281;33350;33440;33586;33656;33712;34298;34' +
+    '890;35307;35461;35523;35639;35951;36158;36487;36574;38389;38' +
+    '532;38631;38641;39035;39154;40159;40844;40949;41174;41546;41' +
+    '776;41799;41935;41972;42012;42584;43030;43391;44044;44052;44' +
+    '218;44546;45210;45428;45450;45729;47112;47799;48057;48064;48' +
+    '778;48954;50140;50285;50472;50599;50628;51098;51206;51305;51' +
+    '442;52100;52176;52628;52916;52924;53152;53545;53560;53567;53' +
+    '581;54279;54890;54923;55434;55737;56059;56276;56305;56370;56' +
+    '505;56535;56777;56862;56915;57160;57874;58257;58554;58636;59' +
+    '926;59935;60480;61280;61575;61605;62624;62952;63071;63650;63' +
+    '674;64527;64651;64703;65666;66160;66459;66486;66774;66945;67' +
+    '108;67512;67966;68427;68440;69264;69991;70320;70424;70587;70' +
+    '603;70636;71476;72062;72286;72326;72774;73358;73631;73893;73' +
+    '946;73993;74023;74091;74110;74170;74177;74843;75008;75014;75' +
+    '680;75718;75730;75874;75928;75951;76027;76065;76261;76344;76' +
+    '560;76717;77171;77270;77330;77415;77825;78051;78231;78318;78' +
+    '325;78432;78491;78592;78653;78710;79009;79236;79408;79562;79' +
+    '677;79685;79810;79852;79984;80026;80119;80230;80549;80579;80' +
+    '621;80636;80937;80941;81032;81320;81406;81733;81802;81952;82' +
+    '079;82094;82305;82343;82364;82592;82610;82685;82695;82875;83' +
+    '058;83366;83421;83535;83674;83689;83731;83791;83889;84135;84' +
+    '140;84373;84628;84758;85455;85491;85688;85789;85987;86022;86' +
+    '145;86359;86382;86393;86403;86410;86886;87130;88222;88369;89' +
+    '102;89213;89312;89518;89810;89990;90781;91228;91273;91282;91' +
+    '981;92059;92390;92487;92585;92743;92795;93415;93422;93515;93' +
+    '569;93594;93649"],' +
+    '["DpnII","^GATC",0,0,"","A",""],' +
+    '["DraI","TTT^AAA",0,82,";1876,6;9992,6;10228,6;10816,6;1120' +
+    '6,6;11544,6;13014,6;16145,6;16729,6;17028,6;17055,6;17210,6;' +
+    '17660,6;18013,6;18046,6;19006,6;21732,6;22356,6;23506,6;2388' +
+    '8,6;25174,6;25931,6;26694,6;26882,6;28334,6;29684,6;31148,6;' +
+    '31474,6;31530,6;31869,6;33231,6;35311,6;37660,6;38269,6;3971' +
+    '0,6;39771,6;40242,6;40519,6;42794,6;43086,6;43120,6;43731,6;' +
+    '44789,6;45128,6;45292,6;49962,6;50112,6;50915,6;52764,6;5326' +
+    '8,6;53498,6;53799,6;54186,6;55703,6;55856,6;56113,6;56326,6;' +
+    '56824,6;57458,6;57563,6;57998,6;58346,6;60079,6;64158,6;6478' +
+    '3,6;65046,6;65094,6;66205,6;67741,6;68527,6;68751,6;68849,6;' +
+    '68916,6;69537,6;69589,6;72731,6;73578,6;73657,6;73735,6;8007' +
+    '4,6;86032,6;90167,6","N",";1878;9994;10230;10818;11208;11546' +
+    ';13016;16147;16731;17030;17057;17212;17662;18015;18048;19008' +
+    ';21734;22358;23508;23890;25176;25933;26696;26884;28336;29686' +
+    ';31150;31476;31532;31871;33233;35313;37662;38271;39712;39773' +
+    ';40244;40521;42796;43088;43122;43733;44791;45130;45294;49964' +
+    ';50114;50917;52766;53270;53500;53801;54188;55705;55858;56115' +
+    ';56328;56826;57460;57565;58000;58348;60081;64160;64785;65048' +
+    ';65096;66207;67743;68529;68753;68851;68918;69539;69591;72733' +
+    ';73580;73659;73737;80076;86034;90169"],' +
+    '["DraIII","CACNNN^GTG",0,7,";34743,9;45054,9;62717,9;69037,' +
+    '9;81272,9;82316,9;82936,9","N",";34748;45059;62722;69042;812' +
+    '77;82321;82941"],' +
+    '["DrdI","GACNNNN^NNGTC",0,18,";1570,12;3078,12;5115,12;6442' +
+    ',12;7253,12;20340,12;20840,12;21503,12;26357,12;36095,12;384' +
+    '04,12;55316,12;57470,12;62876,12;75295,12;82000,12;83595,12;' +
+    '93330,12","N",";1576;3084;5121;6448;7259;20346;20846;21509;2' +
+    '6363;36101;38410;55322;57476;62882;75301;82006;83601;93336"]' +
+    ',' +
+    '["EaeI","Y^GGCCR",0,65,";134,6;576,6;611,6;1052,6;5000,6;51' +
+    '74,6;5565,6;5592,6;7224,6;7233,6;9763,6;13470,6;15203,6;1828' +
+    '8,6;19184,6;20319,6;25434,6;26425,6;28556,6;28730,6;30920,6;' +
+    '30984,6;36021,6;37155,6;38789,6;46405,6;48181,6;48331,6;4965' +
+    '1,6;50379,6;51935,6;52240,6;59021,6;59055,6;68991,6;69914,6;' +
+    '70778,6;72597,6;73509,6;74041,6;74850,6;74999,6;76142,6;7643' +
+    '7,6;76486,6;76609,6;76970,6;77010,6;77070,6;77409,6;77433,6;' +
+    '78366,6;78780,6;79164,6;79877,6;80103,6;81245,6;81834,6;8188' +
+    '2,6;82984,6;83809,6;86320,6;88711,6;89867,6;93355,6","C",";1' +
+    '34;576;611;1052;5000;5174;5565;5592;7224;7233;9763;13470;152' +
+    '03;18288;19184;20319;25434;26425;28556;28730;30920;30984;360' +
+    '21;37155;38789;46405;48181;48331;49651;50379;51935;52240;590' +
+    '21;59055;68991;69914;70778;72597;73509;74041;74850;74999;761' +
+    '42;76437;76486;76609;76970;77010;77070;77409;77433;78366;787' +
+    '80;79164;79877;80103;81245;81834;81882;82984;83809;86320;887' +
+    '11;89867;93355"],' +
+    '["EagI","C^GGCCG",0,17,";134,6;5000,6;25434,6;28556,6;48181' +
+    ',6;49651,6;59055,6;69914,6;74041,6;74850,6;76437,6;76486,6;7' +
+    '8366,6;78780,6;79164,6;81834,6;81882,6","N",";134;5000;25434' +
+    ';28556;48181;49651;59055;69914;74041;74850;76437;76486;78366' +
+    ';78780;79164;81834;81882"],' +
+    '["EarI","CTCTTC(1/4)",0,84,";1231,6;1520,6;3733,6;4195,6;54' +
+    '43,6;5653,6;7321,6;8137,6;9026,6;9085,6;10360,6;14342,6;1472' +
+    '0,6;15016,6;15442,6;19591,6;19880,6;20173,6;20242,6;20382,6;' +
+    '21262,6;24132,6;27970,6;28096,6;29519,6;32039,6;32225,6;3364' +
+    '1,6;35063,6;37359,6;37526,6;37905,6;38441,6;39285,6;39298,6;' +
+    '39328,6;39957,6;39984,6;40014,6;41123,6;42052,6;42300,6;4231' +
+    '9,6;42835,6;43272,6;44032,6;45459,6;52123,6;54021,6;54471,6;' +
+    '54828,6;59289,6;59360,6;59585,6;59603,6;61589,6;63523,6;6396' +
+    '4,6;64336,6;64764,6;65246,6;65909,6;70620,6;71818,6;75945,6;' +
+    '77378,6;77495,6;77600,6;77621,6;78485,6;78552,6;78745,6;7918' +
+    '3,6;79511,6;84816,6;86105,6;88145,6;88467,6;88637,6;89266,6;' +
+    '90304,6;90345,6;91948,6;92587,6","N",";1226;1515;3728;4190;5' +
+    '438;5648;7327;8132;9021;9080;10355;14348;14715;15022;15437;1' +
+    '9597;19886;20168;20237;20388;21257;24138;27976;28102;29514;3' +
+    '2045;32231;33636;35058;37365;37532;37900;38447;39280;39293;3' +
+    '9323;39963;39990;40020;41129;42047;42295;42314;42841;43267;4' +
+    '4038;45465;52118;54016;54477;54834;59284;59355;59591;59609;6' +
+    '1584;63518;63959;64331;64770;65252;65904;70626;71813;75940;7' +
+    '7373;77490;77595;77616;78480;78547;78740;79178;79506;84811;8' +
+    '6100;88151;88462;88632;89261;90310;90340;91954;92593"],' +
+    '["EciI","GGCGGA(11/9)",0,12,";5607,6;13314,6;26007,6;60738,' +
+    '6;69833,6;74240,6;74488,6;78060,6;78499,6;79531,6;81691,6;82' +
+    '623,6","A",";5623;13304;26023;60754;69849;74230;74504;78076;' +
+    '78489;79547;81707;82613"],' +
+    '["Eco47III","AGC^GCT",0,8,";7290,6;15837,6;41246,6;62016,6;' +
+    '76526,6;76727,6;81164,6;83953,6","N",";7292;15839;41248;6201' +
+    '8;76528;76729;81166;83955"],' +
+    '["EcoNI","CCTNN^NNNAGG",0,16,";4150,11;7793,11;9071,11;1483' +
+    '1,11;30831,11;36179,11;36637,11;41163,11;51147,11;79213,11;8' +
+    '1061,11;81303,11;81777,11;84710,11;86230,11;89401,11","N",";' +
+    '4154;7797;9075;14835;30835;36183;36641;41167;51151;79217;810' +
+    '65;81307;81781;84714;86234;89405"],' +
+    '["EcoO109I","RG^GNCCY",0,27,";173,7;632,7;1921,7;2260,7;297' +
+    '7,7;6341,7;17301,7;18798,7;30447,7;30907,7;30908,7;35780,7;4' +
+    '3016,7;49471,7;58991,7;61770,7;71348,7;73496,7;73497,7;78305' +
+    ',7;78936,7;79275,7;80210,7;80998,7;81756,7;81757,7;93227,7",' +
+    '"N",";174;633;1922;2261;2978;6342;17302;18799;30448;30908;30' +
+    '909;35781;43017;49472;58992;61771;71349;73497;73498;78306;78' +
+    '937;79276;80211;80999;81757;81758;93228"],' +
+    '["EcoP15I","CAGCAG(25/27)",0,53,";2710,6;6074,6;7461,6;8610' +
+    ',6;8648,6;8763,6;12231,6;12234,6;12237,6;12240,6;13451,6;134' +
+    '54,6;13457,6;13865,6;13918,6;13921,6;13960,6;14742,6;14832,6' +
+    ';15042,6;15062,6;18261,6;24675,6;32415,6;32418,6;33023,6;336' +
+    '08,6;34194,6;50225,6;51209,6;54673,6;54676,6;66884,6;68317,6' +
+    ';71282,6;71498,6;73933,6;74462,6;76914,6;77399,6;77985,6;785' +
+    '13,6;78516,6;81925,6;83105,6;85656,6;87096,6;88138,6;90722,6' +
+    ';90902,6;91133,6;92116,6;92155,6","N",";2740;6104;7433;8582;' +
+    '8620;8793;12203;12206;12209;12212;13423;13426;13429;13837;13' +
+    '948;13951;13990;14714;14804;15014;15034;18291;24705;32387;32' +
+    '390;32995;33638;34224;50197;51239;54703;54706;66914;68347;71' +
+    '312;71528;73905;74492;76886;77429;78015;78485;78488;81955;83' +
+    '077;85628;87068;88110;90752;90874;91105;92146;92127"],' +
+    '["EcoRI","G^AATTC",0,27,";161,6;1959,6;2658,6;10653,6;13475' +
+    ',6;13532,6;16057,6;30890,6;33802,6;36704,6;42350,6;43292,6;5' +
+    '0158,6;52740,6;53122,6;55491,6;55545,6;57086,6;58947,6;73479' +
+    ',6;77556,6;77704,6;86952,6;91867,6;91973,6;92457,6;93907,6",' +
+    '"N",";161;1959;2658;10653;13475;13532;16057;30890;33802;3670' +
+    '4;42350;43292;50158;52740;53122;55491;55545;57086;58947;7347' +
+    '9;77556;77704;86952;91867;91973;92457;93907"],' +
+    '["EcoRV","GAT^ATC",0,27,";151,6;1278,6;1311,6;3387,6;6751,6' +
+    ';10718,6;15398,6;18518,6;28657,6;31721,6;34582,6;39087,6;410' +
+    '34,6;42428,6;50450,6;54038,6;58445,6;66639,6;71931,6;74815,6' +
+    ';74987,6;75277,6;76126,6;77015,6;80950,6;90391,6;92935,6","N' +
+    '",";153;1280;1313;3389;6753;10720;15400;18520;28659;31723;34' +
+    '584;39089;41036;42430;50452;54040;58447;66641;71933;74817;74' +
+    '989;75279;76128;77017;80952;90393;92937"],' +
+    '["Eco53kI","GAG^CTC",0,8,";1523,6;12721,6;19530,6;32994,6;4' +
+    '4096,6;78068,6;79953,6;81046,6","N",";1525;12723;19532;32996' +
+    ';44098;78070;79955;81048"],' +
+    '["FatI","^CATG",0,423,";124,4;312,4;321,4;335,4;580,4;703,4' +
+    ';1072,4;1090,4;1126,4;2954,4;3065,4;3684,4;3976,4;3998,4;403' +
+    '9,4;4051,4;4390,4;4398,4;4693,4;5310,4;5496,4;5527,4;5553,4;' +
+    '5877,4;5891,4;5900,4;6318,4;6429,4;7048,4;7210,4;7447,4;7471' +
+    ',4;7654,4;8009,4;8122,4;8465,4;8737,4;8841,4;8854,4;8959,4;8' +
+    '980,4;9217,4;9221,4;9277,4;9495,4;9509,4;9518,4;9853,4;10200' +
+    ',4;10297,4;10352,4;10395,4;10528,4;10565,4;10687,4;10724,4;1' +
+    '0761,4;10872,4;11062,4;11280,4;11771,4;11973,4;12357,4;12691' +
+    ',4;12695,4;12703,4;12751,4;12802,4;12859,4;13066,4;13174,4;1' +
+    '3447,4;13623,4;13700,4;13735,4;13741,4;13793,4;13801,4;13979' +
+    ',4;13987,4;14135,4;14259,4;14479,4;14543,4;14683,4;14762,4;1' +
+    '4783,4;14793,4;15053,4;15171,4;15201,4;15407,4;15412,4;15955' +
+    ',4;15982,4;16958,4;17952,4;18094,4;18380,4;19106,4;19456,4;1' +
+    '9932,4;19968,4;20191,4;20217,4;20333,4;20570,4;20618,4;21092' +
+    ',4;21357,4;22203,4;22225,4;22651,4;22672,4;22843,4;23014,4;2' +
+    '3037,4;23122,4;23233,4;23803,4;23833,4;23947,4;24236,4;24333' +
+    ',4;24799,4;24871,4;25014,4;25076,4;25132,4;25154,4;25341,4;2' +
+    '5459,4;25577,4;25667,4;25802,4;25986,4;25996,4;26066,4;26301' +
+    ',4;26576,4;26597,4;26637,4;26721,4;26800,4;27149,4;27626,4;2' +
+    '7742,4;27812,4;27817,4;28082,4;28246,4;28390,4;28654,4;28674' +
+    ',4;28753,4;28887,4;28924,4;28941,4;29079,4;29227,4;29380,4;2' +
+    '9395,4;29650,4;30422,4;30542,4;30845,4;31079,4;31162,4;31218' +
+    ',4;31639,4;32034,4;32230,4;32369,4;32385,4;32762,4;32766,4;3' +
+    '3313,4;33443,4;33588,4;33817,4;34011,4;35080,4;35332,4;35457' +
+    ',4;35581,4;36233,4;36317,4;36606,4;36695,4;37018,4;37103,4;3' +
+    '7118,4;37229,4;38517,4;38526,4;38757,4;38777,4;39460,4;39554' +
+    ',4;40131,4;40139,4;40339,4;40469,4;40572,4;40822,4;40963,4;4' +
+    '1031,4;41062,4;41104,4;41176,4;41484,4;41764,4;41923,4;41950' +
+    ',4;42271,4;42549,4;42646,4;42967,4;43330,4;44213,4;44258,4;4' +
+    '4313,4;44870,4;44961,4;45153,4;45163,4;46056,4;46508,4;47260' +
+    ',4;47559,4;47886,4;47950,4;47976,4;48001,4;48041,4;48393,4;4' +
+    '8817,4;49183,4;49319,4;49384,4;49710,4;50310,4;50373,4;50377' +
+    ',4;50447,4;50520,4;50594,4;50777,4;50782,4;50800,4;50857,4;5' +
+    '1197,4;51814,4;51889,4;52073,4;52141,4;52172,4;52542,4;52595' +
+    ',4;52656,4;52888,4;53818,4;53878,4;53932,4;54016,4;54596,4;5' +
+    '5112,4;55340,4;55805,4;55827,4;55876,4;56135,4;56560,4;56784' +
+    ',4;56794,4;57035,4;57515,4;57658,4;57730,4;58103,4;58412,4;5' +
+    '8711,4;60195,4;60396,4;60476,4;60544,4;60637,4;60783,4;61154' +
+    ',4;61164,4;61690,4;61747,4;62480,4;62626,4;62728,4;62784,4;6' +
+    '2810,4;62851,4;62959,4;63014,4;63516,4;63654,4;63667,4;63724' +
+    ',4;63857,4;64235,4;64315,4;64815,4;65102,4;65546,4;65673,4;6' +
+    '5876,4;65886,4;65924,4;65959,4;66064,4;66167,4;66566,4;66598' +
+    ',4;66803,4;66815,4;67080,4;67508,4;67955,4;68011,4;68477,4;6' +
+    '9052,4;69063,4;69412,4;69852,4;69872,4;69890,4;70047,4;70115' +
+    ',4;70193,4;70488,4;70689,4;70758,4;70782,4;70877,4;70881,4;7' +
+    '0933,4;71069,4;72031,4;72141,4;72288,4;72397,4;72421,4;72539' +
+    ',4;72709,4;72851,4;72897,4;73004,4;73360,4;73453,4;73549,4;7' +
+    '3627,4;73781,4;74341,4;74608,4;74778,4;74821,4;75740,4;75755' +
+    ',4;75839,4;76607,4;76719,4;77074,4;77210,4;77248,4;77835,4;7' +
+    '7893,4;78212,4;78311,4;78348,4;78375,4;79665,4;79881,4;80587' +
+    ',4;80611,4;81262,4;81525,4;82002,4;82111,4;82115,4;83072,4;8' +
+    '3208,4;83226,4;83403,4;83479,4;83597,4;83793,4;84468,4;84776' +
+    ',4;84891,4;85003,4;85106,4;85300,4;85404,4;86057,4;86093,4;8' +
+    '6264,4;87015,4;87785,4;87816,4;88305,4;88602,4;89127,4;90684' +
+    ',4;90921,4;91401,4;91599,4;91622,4;91663,4;92661,4;92790,4;9' +
+    '2855,4;92965,4;93073,4;93102,4;93193,4;93631,4;93707,4","N",' +
+    '";123;311;320;334;579;702;1071;1089;1125;2953;3064;3683;3975' +
+    ';3997;4038;4050;4389;4397;4692;5309;5495;5526;5552;5876;5890' +
+    ';5899;6317;6428;7047;7209;7446;7470;7653;8008;8121;8464;8736' +
+    ';8840;8853;8958;8979;9216;9220;9276;9494;9508;9517;9852;1019' +
+    '9;10296;10351;10394;10527;10564;10686;10723;10760;10871;1106' +
+    '1;11279;11770;11972;12356;12690;12694;12702;12750;12801;1285' +
+    '8;13065;13173;13446;13622;13699;13734;13740;13792;13800;1397' +
+    '8;13986;14134;14258;14478;14542;14682;14761;14782;14792;1505' +
+    '2;15170;15200;15406;15411;15954;15981;16957;17951;18093;1837' +
+    '9;19105;19455;19931;19967;20190;20216;20332;20569;20617;2109' +
+    '1;21356;22202;22224;22650;22671;22842;23013;23036;23121;2323' +
+    '2;23802;23832;23946;24235;24332;24798;24870;25013;25075;2513' +
+    '1;25153;25340;25458;25576;25666;25801;25985;25995;26065;2630' +
+    '0;26575;26596;26636;26720;26799;27148;27625;27741;27811;2781' +
+    '6;28081;28245;28389;28653;28673;28752;28886;28923;28940;2907' +
+    '8;29226;29379;29394;29649;30421;30541;30844;31078;31161;3121' +
+    '7;31638;32033;32229;32368;32384;32761;32765;33312;33442;3358' +
+    '7;33816;34010;35079;35331;35456;35580;36232;36316;36605;3669' +
+    '4;37017;37102;37117;37228;38516;38525;38756;38776;39459;3955' +
+    '3;40130;40138;40338;40468;40571;40821;40962;41030;41061;4110' +
+    '3;41175;41483;41763;41922;41949;42270;42548;42645;42966;4332' +
+    '9;44212;44257;44312;44869;44960;45152;45162;46055;46507;4725' +
+    '9;47558;47885;47949;47975;48000;48040;48392;48816;49182;4931' +
+    '8;49383;49709;50309;50372;50376;50446;50519;50593;50776;5078' +
+    '1;50799;50856;51196;51813;51888;52072;52140;52171;52541;5259' +
+    '4;52655;52887;53817;53877;53931;54015;54595;55111;55339;5580' +
+    '4;55826;55875;56134;56559;56783;56793;57034;57514;57657;5772' +
+    '9;58102;58411;58710;60194;60395;60475;60543;60636;60782;6115' +
+    '3;61163;61689;61746;62479;62625;62727;62783;62809;62850;6295' +
+    '8;63013;63515;63653;63666;63723;63856;64234;64314;64814;6510' +
+    '1;65545;65672;65875;65885;65923;65958;66063;66166;66565;6659' +
+    '7;66802;66814;67079;67507;67954;68010;68476;69051;69062;6941' +
+    '1;69851;69871;69889;70046;70114;70192;70487;70688;70757;7078' +
+    '1;70876;70880;70932;71068;72030;72140;72287;72396;72420;7253' +
+    '8;72708;72850;72896;73003;73359;73452;73548;73626;73780;7434' +
+    '0;74607;74777;74820;75739;75754;75838;76606;76718;77073;7720' +
+    '9;77247;77834;77892;78211;78310;78347;78374;79664;79880;8058' +
+    '6;80610;81261;81524;82001;82110;82114;83071;83207;83225;8340' +
+    '2;83478;83596;83792;84467;84775;84890;85002;85105;85299;8540' +
+    '3;86056;86092;86263;87014;87784;87815;88304;88601;89126;9068' +
+    '3;90920;91400;91598;91621;91662;92660;92789;92854;92964;9307' +
+    '2;93101;93192;93630;93706"],' +
+    '["FauI","CCCGC(4/6)",0,44,";272,5;667,5;896,5;4512,5;5224,5' +
+    ';5761,5;5939,5;9557,5;18357,5;37125,5;60727,5;63519,5;67960,' +
+    '5;73646,5;73689,5;74135,5;74658,5;74855,5;75807,5;78120,5;78' +
+    '582,5;78618,5;79390,5;79653,5;79885,5;81072,5;81613,5;81804,' +
+    '5;81994,5;82499,5;83512,5;83589,5;85631,5;86526,5;88780,5;89' +
+    '493,5;90526,5;90674,5;91275,5;91702,5;91895,5;92931,5;93264,' +
+    '5;93740,5","N",";265;660;889;4520;5217;5754;5947;9565;18350;' +
+    '37133;60720;63512;67953;73654;73682;74128;74666;74848;75815;' +
+    '78113;78590;78626;79398;79646;79893;81065;81606;81812;81987;' +
+    '82492;83520;83582;85624;86519;88788;89486;90519;90682;91283;' +
+    '91710;91888;92924;93257;93748"],' +
+    '["Fnu4HI","GC^NGC",0,277,";133,5;136,5;465,5;558,5;561,5;61' +
+    '3,5;775,5;817,5;970,5;1018,5;1739,5;2709,5;3612,5;4275,5;437' +
+    '5,5;4565,5;4668,5;4677,5;4689,5;4792,5;4848,5;4883,5;4886,5;' +
+    '4938,5;5002,5;5054,5;5065,5;5155,5;5160,5;5197,5;5238,5;5325' +
+    ',5;5328,5;5331,5;5567,5;5663,5;5704,5;5718,5;6073,5;6976,5;7' +
+    '622,5;8078,5;8340,5;8394,5;8459,5;8612,5;8762,5;10425,5;1075' +
+    '1,5;12054,5;12233,5;12236,5;12239,5;12448,5;12655,5;13254,5;' +
+    '13450,5;13453,5;13456,5;13459,5;13920,5;13962,5;14174,5;1432' +
+    '8,5;14741,5;15061,5;15197,5;15561,5;15781,5;15835,5;15900,5;' +
+    '19789,5;19920,5;20575,5;20755,5;20806,5;20986,5;23367,5;2457' +
+    '4,5;25433,5;25436,5;28502,5;28681,5;28775,5;28910,5;30342,5;' +
+    '30352,5;30571,5;30871,5;31243,5;32251,5;32414,5;32417,5;3269' +
+    '4,5;33607,5;34122,5;34196,5;35886,5;36503,5;36802,5;38042,5;' +
+    '38577,5;39612,5;42342,5;42576,5;44117,5;44120,5;45613,5;4818' +
+    '0,5;48183,5;49641,5;49650,5;50246,5;51906,5;52168,5;53368,5;' +
+    '54672,5;54675,5;59009,5;59023,5;59054,5;59057,5;60502,5;6275' +
+    '1,5;65331,5;66883,5;68167,5;68319,5;69913,5;69916,5;69921,5;' +
+    '71328,5;71418,5;71497,5;72045,5;72067,5;72941,5;73460,5;7387' +
+    '7,5;73932,5;73973,5;74162,5;74486,5;74566,5;74661,5;74712,5;' +
+    '74852,5;74888,5;74895,5;74953,5;75355,5;75842,5;75956,5;7633' +
+    '2,5;76419,5;76529,5;76966,5;76969,5;76993,5;77069,5;77420,5;' +
+    '77486,5;77678,5;77692,5;77900,5;77981,5;77984,5;77987,5;7835' +
+    '1,5;78515,5;78518,5;78536,5;78621,5;78681,5;78752,5;78844,5;' +
+    '78925,5;79163,5;79195,5;79229,5;79247,5;79355,5;79393,5;7949' +
+    '5,5;79520,5;79688,5;79720,5;79776,5;79997,5;80019,5;80697,5;' +
+    '81056,5;81226,5;81551,5;81554,5;81618,5;81807,5;81810,5;8190' +
+    '6,5;81927,5;81968,5;82017,5;82249,5;82449,5;82546,5;82626,5;' +
+    '82735,5;82885,5;82952,5;83107,5;83123,5;83167,5;83256,5;8337' +
+    '3,5;83442,5;83493,5;83563,5;83612,5;83808,5;84178,5;84504,5;' +
+    '85020,5;85208,5;85250,5;85352,5;85628,5;86148,5;86420,5;8670' +
+    '2,5;87079,5;87234,5;87284,5;87514,5;87641,5;87691,5;87866,5;' +
+    '88044,5;88736,5;88819,5;88966,5;88969,5;89052,5;89568,5;8964' +
+    '1,5;89689,5;90475,5;90484,5;90502,5;90592,5;90595,5;90612,5;' +
+    '90721,5;90802,5;90901,5;90956,5;91106,5;91132,5;91258,5;9133' +
+    '3,5;91354,5;91646,5;91649,5;91801,5;92154,5;92163,5;92345,5;' +
+    '92393,5;92594,5;92879,5;92882,5;93354,5;93469,5;93601,5;9367' +
+    '0,5;93721,5;93767,5;93799,5","N",";134;137;466;559;562;614;7' +
+    '76;818;971;1019;1740;2710;3613;4276;4376;4566;4669;4678;4690' +
+    ';4793;4849;4884;4887;4939;5003;5055;5066;5156;5161;5198;5239' +
+    ';5326;5329;5332;5568;5664;5705;5719;6074;6977;7623;8079;8341' +
+    ';8395;8460;8613;8763;10426;10752;12055;12234;12237;12240;124' +
+    '49;12656;13255;13451;13454;13457;13460;13921;13963;14175;143' +
+    '29;14742;15062;15198;15562;15782;15836;15901;19790;19921;205' +
+    '76;20756;20807;20987;23368;24575;25434;25437;28503;28682;287' +
+    '76;28911;30343;30353;30572;30872;31244;32252;32415;32418;326' +
+    '95;33608;34123;34197;35887;36504;36803;38043;38578;39613;423' +
+    '43;42577;44118;44121;45614;48181;48184;49642;49651;50247;519' +
+    '07;52169;53369;54673;54676;59010;59024;59055;59058;60503;627' +
+    '52;65332;66884;68168;68320;69914;69917;69922;71329;71419;714' +
+    '98;72046;72068;72942;73461;73878;73933;73974;74163;74487;745' +
+    '67;74662;74713;74853;74889;74896;74954;75356;75843;75957;763' +
+    '33;76420;76530;76967;76970;76994;77070;77421;77487;77679;776' +
+    '93;77901;77982;77985;77988;78352;78516;78519;78537;78622;786' +
+    '82;78753;78845;78926;79164;79196;79230;79248;79356;79394;794' +
+    '96;79521;79689;79721;79777;79998;80020;80698;81057;81227;815' +
+    '52;81555;81619;81808;81811;81907;81928;81969;82018;82250;824' +
+    '50;82547;82627;82736;82886;82953;83108;83124;83168;83257;833' +
+    '74;83443;83494;83564;83613;83809;84179;84505;85021;85209;852' +
+    '51;85353;85629;86149;86421;86703;87080;87235;87285;87515;876' +
+    '42;87692;87867;88045;88737;88820;88967;88970;89053;89569;896' +
+    '42;89690;90476;90485;90503;90593;90596;90613;90722;90803;909' +
+    '02;90957;91107;91133;91259;91334;91355;91647;91650;91802;921' +
+    '55;92164;92346;92394;92595;92880;92883;93355;93470;93602;936' +
+    '71;93722;93768;93800"],' +
+    '["FokI","GGATG(9/13)",0,182,";888,5;945,5;1274,5;3407,5;382' +
+    '5,5;4065,5;5405,5;5430,5;6771,5;7390,5;8812,5;8844,5;12141,5' +
+    ';12224,5;12385,5;12499,5;14131,5;14913,5;15094,5;15100,5;153' +
+    '45,5;16551,5;18003,5;18879,5;19688,5;20070,5;20107,5;20238,5' +
+    ';20354,5;20711,5;20961,5;21095,5;21119,5;21682,5;22789,5;237' +
+    '50,5;23871,5;25284,5;25565,5;25751,5;26245,5;26396,5;26409,5' +
+    ';26683,5;26946,5;27867,5;29139,5;29376,5;29574,5;30917,5;312' +
+    '34,5;31264,5;31371,5;31644,5;33865,5;34240,5;34782,5;35159,5' +
+    ';35803,5;35953,5;37009,5;37081,5;37375,5;37538,5;37971,5;395' +
+    '15,5;41526,5;42385,5;42406,5;42552,5;43278,5;44011,5;45742,5' +
+    ';47319,5;47814,5;49214,5;49574,5;50070,5;50345,5;50483,5;508' +
+    '40,5;51401,5;51522,5;52348,5;52751,5;53459,5;53534,5;53995,5' +
+    ';54179,5;54318,5;55452,5;55585,5;56192,5;56779,5;57518,5;580' +
+    '73,5;58143,5;59018,5;59593,5;60524,5;60730,5;60741,5;60814,5' +
+    ';62994,5;63829,5;63905,5;64020,5;65385,5;65438,5;66632,5;671' +
+    '27,5;67310,5;67835,5;68027,5;68180,5;68929,5;69660,5;69875,5' +
+    ';70118,5;70536,5;70590,5;70904,5;71380,5;71547,5;72402,5;729' +
+    '18,5;73131,5;73506,5;74086,5;74211,5;75382,5;75396,5;75485,5' +
+    ';75770,5;75992,5;76107,5;77214,5;77314,5;77430,5;77610,5;778' +
+    '20,5;78168,5;78226,5;78241,5;78820,5;79830,5;79958,5;80012,5' +
+    ';80217,5;80434,5;80784,5;80800,5;80984,5;81694,5;82456,5;829' +
+    '57,5;83174,5;83423,5;83862,5;83904,5;84016,5;84363,5;84999,5' +
+    ';85756,5;86536,5;86933,5;86990,5;87611,5;87774,5;87903,5;880' +
+    '01,5;88552,5;88598,5;88811,5;89445,5;89621,5;90077,5;90687,5' +
+    ';91851,5;92526,5;92692,5;93651,5","N",";901;958;1287;3420;38' +
+    '38;4078;5418;5443;6784;7403;8825;8857;12154;12237;12371;1248' +
+    '5;14117;14926;15107;15113;15331;16564;17989;18865;19674;2008' +
+    '3;20120;20251;20367;20697;20974;21108;21105;21695;22775;2376' +
+    '3;23884;25297;25551;25737;26231;26382;26422;26696;26932;2785' +
+    '3;29125;29362;29587;30930;31220;31250;31357;31630;33851;3422' +
+    '6;34768;35172;35789;35939;37022;37067;37361;37551;37984;3950' +
+    '1;41539;42371;42392;42565;43264;43997;45755;47305;47827;4922' +
+    '7;49587;50083;50331;50469;50826;51414;51508;52361;52764;5347' +
+    '2;53520;53981;54192;54331;55465;55571;56178;56765;57531;5805' +
+    '9;58129;59031;59579;60510;60743;60754;60827;62980;63842;6389' +
+    '1;64006;65371;65424;66645;67140;67323;67848;68040;68166;6891' +
+    '5;69673;69888;70131;70549;70576;70890;71366;71560;72415;7290' +
+    '4;73117;73519;74099;74224;75368;75409;75498;75756;76005;7609' +
+    '3;77227;77327;77443;77623;77833;78181;78239;78227;78806;7981' +
+    '6;79944;79998;80230;80420;80797;80786;80997;81707;82442;8294' +
+    '3;83187;83409;83848;83917;84002;84376;84985;85769;86549;8691' +
+    '9;87003;87597;87787;87916;88014;88538;88584;88824;89458;8963' +
+    '4;90090;90700;91864;92512;92705;93637"],' +
+    '["FseI","GGCCGG^CC",0,4,";9,8;30878,8;30985,8;73467,8","N",' +
+    '";14;30883;30990;73472"],' +
+    '["FspI","TGC^GCA",0,12,";1074,6;3786,6;5194,6;7473,6;20366,' +
+    '6;28859,6;34016,6;46914,6;54105,6;72541,6;85379,6;90435,6","' +
+    'N",";1076;3788;5196;7475;20368;28861;34018;46916;54107;72543' +
+    ';85381;90437"],' +
+    '["HaeII","RGCGC^Y",0,44,";678,6;3775,6;4804,6;5093,6;7290,6' +
+    ';15837,6;25327,6;35480,6;41246,6;45090,6;50248,6;62016,6;739' +
+    '75,6;74472,6;74568,6;74864,6;75088,6;75463,6;76526,6;76727,6' +
+    ';76883,6;76995,6;77005,6;77285,6;77318,6;77759,6;78103,6;795' +
+    '51,6;79619,6;79690,6;79717,6;79773,6;80391,6;81164,6;81228,6' +
+    ';81929,6;82429,6;82578,6;83008,6;83953,6;87310,6;91206,6;923' +
+    '09,6;93449,6","N",";682;3779;4808;5097;7294;15841;25331;3548' +
+    '4;41250;45094;50252;62020;73979;74476;74572;74868;75092;7546' +
+    '7;76530;76731;76887;76999;77009;77289;77322;77763;78107;7955' +
+    '5;79623;79694;79721;79777;80395;81168;81232;81933;82433;8258' +
+    '2;83012;83957;87314;91210;92313;93453"],' +
+    '["HaeIII","GG^CC",0,195,";9,4;13,4;135,4;174,4;467,4;577,4;' +
+    '612,4;634,4;691,4;726,4;969,4;1005,4;1020,4;1053,4;2262,4;29' +
+    '51,4;3269,4;3951,4;4732,4;5001,4;5175,4;5566,4;5593,4;6315,4' +
+    ';6633,4;7225,4;7234,4;7621,4;7645,4;8053,4;9764,4;10903,4;12' +
+    '575,4;13024,4;13050,4;13471,4;15001,4;15204,4;15790,4;18289,' +
+    '4;18360,4;18749,4;19185,4;20304,4;20320,4;20748,4;25435,4;26' +
+    '049,4;26262,4;26426,4;27342,4;28122,4;28145,4;28177,4;28557,' +
+    '4;28636,4;28693,4;28731,4;30873,4;30878,4;30882,4;30909,4;30' +
+    '921,4;30985,4;30989,4;32928,4;34261,4;35782,4;35964,4;36022,' +
+    '4;36188,4;36895,4;37156,4;38790,4;41716,4;42182,4;43017,4;43' +
+    '818,4;46406,4;47080,4;47185,4;48182,4;48211,4;48313,4;48332,' +
+    '4;49472,4;49652,4;50380,4;51451,4;51936,4;52241,4;55106,4;56' +
+    '158,4;56787,4;57237,4;58993,4;59011,4;59022,4;59056,4;61023,' +
+    '4;61771,4;62743,4;63026,4;64517,4;65213,4;65460,4;66349,4;68' +
+    '992,4;69327,4;69915,4;70779,4;70803,4;71157,4;71867,4;72044,' +
+    '4;72598,4;73462,4;73467,4;73471,4;73498,4;73510,4;74042,4;74' +
+    '054,4;74127,4;74592,4;74693,4;74851,4;75000,4;75067,4;75619,' +
+    '4;75655,4;75749,4;76122,4;76143,4;76438,4;76487,4;76610,4;76' +
+    '655,4;76971,4;77011,4;77071,4;77410,4;77434,4;77859,4;78089,' +
+    '4;78306,4;78367,4;78623,4;78781,4;78927,4;79105,4;79151,4;79' +
+    '165,4;79277,4;79387,4;79638,4;79861,4;79878,4;79990,4;80104,' +
+    '4;80211,4;80999,4;81246,4;81617,4;81758,4;81835,4;81846,4;81' +
+    '883,4;82355,4;82421,4;82951,4;82985,4;83810,4;83999,4;84539,' +
+    '4;85022,4;85186,4;86321,4;86419,4;87417,4;88706,4;88712,4;89' +
+    '253,4;89868,4;90016,4;90630,4;91027,4;91639,4;91930,4;91936,' +
+    '4;92275,4;92536,4;93228,4;93356,4;93392,4","N",";10;14;136;1' +
+    '75;468;578;613;635;692;727;970;1006;1021;1054;2263;2952;3270' +
+    ';3952;4733;5002;5176;5567;5594;6316;6634;7226;7235;7622;7646' +
+    ';8054;9765;10904;12576;13025;13051;13472;15002;15205;15791;1' +
+    '8290;18361;18750;19186;20305;20321;20749;25436;26050;26263;2' +
+    '6427;27343;28123;28146;28178;28558;28637;28694;28732;30874;3' +
+    '0879;30883;30910;30922;30986;30990;32929;34262;35783;35965;3' +
+    '6023;36189;36896;37157;38791;41717;42183;43018;43819;46407;4' +
+    '7081;47186;48183;48212;48314;48333;49473;49653;50381;51452;5' +
+    '1937;52242;55107;56159;56788;57238;58994;59012;59023;59057;6' +
+    '1024;61772;62744;63027;64518;65214;65461;66350;68993;69328;6' +
+    '9916;70780;70804;71158;71868;72045;72599;73463;73468;73472;7' +
+    '3499;73511;74043;74055;74128;74593;74694;74852;75001;75068;7' +
+    '5620;75656;75750;76123;76144;76439;76488;76611;76656;76972;7' +
+    '7012;77072;77411;77435;77860;78090;78307;78368;78624;78782;7' +
+    '8928;79106;79152;79166;79278;79388;79639;79862;79879;79991;8' +
+    '0105;80212;81000;81247;81618;81759;81836;81847;81884;82356;8' +
+    '2422;82952;82986;83811;84000;84540;85023;85187;86322;86420;8' +
+    '7418;88707;88713;89254;89869;90017;90631;91028;91640;91931;9' +
+    '1937;92276;92537;93229;93357;93393"],' +
+    '["HgaI","GACGC(5/10)",0,64,";1753,5;3411,5;6775,5;7883,5;80' +
+    '94,5;8406,5;8749,5;13257,5;13574,5;14284,5;14298,5;14750,5;1' +
+    '5654,5;26227,5;28678,5;34763,5;37188,5;38478,5;40912,5;71679' +
+    ',5;74004,5;74604,5;74704,5;74749,5;75613,5;75778,5;75789,5;7' +
+    '5959,5;76383,5;76643,5;76688,5;76954,5;76978,5;77060,5;77063' +
+    ',5;77152,5;77572,5;77951,5;78698,5;78958,5;80086,5;80360,5;8' +
+    '0826,5;81532,5;81773,5;81825,5;81961,5;82252,5;83018,5;83518' +
+    ',5;85706,5;87028,5;87565,5;87756,5;88527,5;88683,5;89457,5;9' +
+    '0615,5;90645,5;90756,5;93154,5;93320,5;93746,5;93860,5","N",' +
+    '";1762;3420;6784;7892;8083;8395;8738;13246;13583;14273;14307' +
+    ';14759;15643;26216;28687;34772;37177;38467;40901;71688;74013' +
+    ';74593;74693;74738;75622;75767;75798;75948;76392;76652;76697' +
+    ';76963;76987;77069;77052;77141;77581;77960;78707;78967;80075' +
+    ';80369;80835;81541;81782;81814;81970;82241;83027;83527;85715' +
+    ';87037;87574;87745;88516;88692;89446;90604;90654;90745;93163' +
+    ';93309;93755;93869"],' +
+    '["HhaI","GCG^C",0,212,";205,4;207,4;229,4;231,4;477,4;679,4' +
+    ';841,4;1075,4;1087,4;1120,4;1122,4;3776,4;3787,4;3957,4;3995' +
+    ',4;4081,4;4117,4;4297,4;4356,4;4384,4;4403,4;4405,4;4575,4;4' +
+    '757,4;4805,4;4846,4;4851,4;5086,4;5094,4;5158,4;5195,4;5461,' +
+    '4;5491,4;5493,4;5721,4;5981,4;5983,4;6005,4;6007,4;7291,4;74' +
+    '74,4;8473,4;9599,4;9601,4;9623,4;9625,4;15838,4;16606,4;1881' +
+    '0,4;18812,4;20367,4;24945,4;25328,4;25439,4;28860,4;29024,4;' +
+    '29631,4;30926,4;30928,4;30957,4;32071,4;32599,4;34017,4;3548' +
+    '1,4;35667,4;40282,4;40284,4;40874,4;41247,4;45091,4;46909,4;' +
+    '46915,4;48186,4;50249,4;51715,4;54106,4;58140,4;59138,4;5914' +
+    '0,4;62017,4;62163,4;63096,4;68305,4;69919,4;71682,4;71833,4;' +
+    '72542,4;73590,4;73592,4;73971,4;73976,4;74067,4;74096,4;7428' +
+    '3,4;74285,4;74473,4;74569,4;74865,4;74956,4;74965,4;74982,4;' +
+    '75089,4;75212,4;75214,4;75464,4;75489,4;75666,4;75869,4;7615' +
+    '9,4;76253,4;76281,4;76283,4;76527,4;76587,4;76728,4;76838,4;' +
+    '76884,4;76985,4;76996,4;77006,4;77120,4;77207,4;77223,4;7728' +
+    '6,4;77319,4;77335,4;77337,4;77369,4;77565,4;77760,4;78104,4;' +
+    '78684,4;78880,4;78882,4;78961,4;78999,4;79015,4;79358,4;7937' +
+    '8,4;79552,4;79601,4;79620,4;79691,4;79718,4;79774,4;80084,4;' +
+    '80242,4;80392,4;80627,4;81037,4;81165,4;81229,4;81385,4;8143' +
+    '5,4;81566,4;81575,4;81600,4;81686,4;81699,4;81701,4;81823,4;' +
+    '81902,4;81904,4;81930,4;82054,4;82072,4;82074,4;82347,4;8234' +
+    '9,4;82430,4;82465,4;82485,4;82579,4;82733,4;82760,4;82821,4;' +
+    '83009,4;83161,4;83242,4;83649,4;83667,4;83669,4;83954,4;8460' +
+    '3,4;84673,4;84690,4;84912,4;85160,4;85200,4;85380,4;86423,4;' +
+    '86720,4;87059,4;87297,4;87311,4;87553,4;88302,4;89043,4;8953' +
+    '3,4;89898,4;90006,4;90436,4;90478,4;91207,4;91455,4;92171,4;' +
+    '92310,4;92502,4;92561,4;92885,4;93405,4;93450,4","N",";207;2' +
+    '09;231;233;479;681;843;1077;1089;1122;1124;3778;3789;3959;39' +
+    '97;4083;4119;4299;4358;4386;4405;4407;4577;4759;4807;4848;48' +
+    '53;5088;5096;5160;5197;5463;5493;5495;5723;5983;5985;6007;60' +
+    '09;7293;7476;8475;9601;9603;9625;9627;15840;16608;18812;1881' +
+    '4;20369;24947;25330;25441;28862;29026;29633;30928;30930;3095' +
+    '9;32073;32601;34019;35483;35669;40284;40286;40876;41249;4509' +
+    '3;46911;46917;48188;50251;51717;54108;58142;59140;59142;6201' +
+    '9;62165;63098;68307;69921;71684;71835;72544;73592;73594;7397' +
+    '3;73978;74069;74098;74285;74287;74475;74571;74867;74958;7496' +
+    '7;74984;75091;75214;75216;75466;75491;75668;75871;76161;7625' +
+    '5;76283;76285;76529;76589;76730;76840;76886;76987;76998;7700' +
+    '8;77122;77209;77225;77288;77321;77337;77339;77371;77567;7776' +
+    '2;78106;78686;78882;78884;78963;79001;79017;79360;79380;7955' +
+    '4;79603;79622;79693;79720;79776;80086;80244;80394;80629;8103' +
+    '9;81167;81231;81387;81437;81568;81577;81602;81688;81701;8170' +
+    '3;81825;81904;81906;81932;82056;82074;82076;82349;82351;8243' +
+    '2;82467;82487;82581;82735;82762;82823;83011;83163;83244;8365' +
+    '1;83669;83671;83956;84605;84675;84692;84914;85162;85202;8538' +
+    '2;86425;86722;87061;87299;87313;87555;88304;89045;89535;8990' +
+    '0;90008;90438;90480;91209;91457;92173;92312;92504;92563;9288' +
+    '7;93407;93452"],' +
+    '["HinP1I","G^CGC",0,212,";205,4;207,4;229,4;231,4;477,4;679' +
+    ',4;841,4;1075,4;1087,4;1120,4;1122,4;3776,4;3787,4;3957,4;39' +
+    '95,4;4081,4;4117,4;4297,4;4356,4;4384,4;4403,4;4405,4;4575,4' +
+    ';4757,4;4805,4;4846,4;4851,4;5086,4;5094,4;5158,4;5195,4;546' +
+    '1,4;5491,4;5493,4;5721,4;5981,4;5983,4;6005,4;6007,4;7291,4;' +
+    '7474,4;8473,4;9599,4;9601,4;9623,4;9625,4;15838,4;16606,4;18' +
+    '810,4;18812,4;20367,4;24945,4;25328,4;25439,4;28860,4;29024,' +
+    '4;29631,4;30926,4;30928,4;30957,4;32071,4;32599,4;34017,4;35' +
+    '481,4;35667,4;40282,4;40284,4;40874,4;41247,4;45091,4;46909,' +
+    '4;46915,4;48186,4;50249,4;51715,4;54106,4;58140,4;59138,4;59' +
+    '140,4;62017,4;62163,4;63096,4;68305,4;69919,4;71682,4;71833,' +
+    '4;72542,4;73590,4;73592,4;73971,4;73976,4;74067,4;74096,4;74' +
+    '283,4;74285,4;74473,4;74569,4;74865,4;74956,4;74965,4;74982,' +
+    '4;75089,4;75212,4;75214,4;75464,4;75489,4;75666,4;75869,4;76' +
+    '159,4;76253,4;76281,4;76283,4;76527,4;76587,4;76728,4;76838,' +
+    '4;76884,4;76985,4;76996,4;77006,4;77120,4;77207,4;77223,4;77' +
+    '286,4;77319,4;77335,4;77337,4;77369,4;77565,4;77760,4;78104,' +
+    '4;78684,4;78880,4;78882,4;78961,4;78999,4;79015,4;79358,4;79' +
+    '378,4;79552,4;79601,4;79620,4;79691,4;79718,4;79774,4;80084,' +
+    '4;80242,4;80392,4;80627,4;81037,4;81165,4;81229,4;81385,4;81' +
+    '435,4;81566,4;81575,4;81600,4;81686,4;81699,4;81701,4;81823,' +
+    '4;81902,4;81904,4;81930,4;82054,4;82072,4;82074,4;82347,4;82' +
+    '349,4;82430,4;82465,4;82485,4;82579,4;82733,4;82760,4;82821,' +
+    '4;83009,4;83161,4;83242,4;83649,4;83667,4;83669,4;83954,4;84' +
+    '603,4;84673,4;84690,4;84912,4;85160,4;85200,4;85380,4;86423,' +
+    '4;86720,4;87059,4;87297,4;87311,4;87553,4;88302,4;89043,4;89' +
+    '533,4;89898,4;90006,4;90436,4;90478,4;91207,4;91455,4;92171,' +
+    '4;92310,4;92502,4;92561,4;92885,4;93405,4;93450,4","N",";205' +
+    ';207;229;231;477;679;841;1075;1087;1120;1122;3776;3787;3957;' +
+    '3995;4081;4117;4297;4356;4384;4403;4405;4575;4757;4805;4846;' +
+    '4851;5086;5094;5158;5195;5461;5491;5493;5721;5981;5983;6005;' +
+    '6007;7291;7474;8473;9599;9601;9623;9625;15838;16606;18810;18' +
+    '812;20367;24945;25328;25439;28860;29024;29631;30926;30928;30' +
+    '957;32071;32599;34017;35481;35667;40282;40284;40874;41247;45' +
+    '091;46909;46915;48186;50249;51715;54106;58140;59138;59140;62' +
+    '017;62163;63096;68305;69919;71682;71833;72542;73590;73592;73' +
+    '971;73976;74067;74096;74283;74285;74473;74569;74865;74956;74' +
+    '965;74982;75089;75212;75214;75464;75489;75666;75869;76159;76' +
+    '253;76281;76283;76527;76587;76728;76838;76884;76985;76996;77' +
+    '006;77120;77207;77223;77286;77319;77335;77337;77369;77565;77' +
+    '760;78104;78684;78880;78882;78961;78999;79015;79358;79378;79' +
+    '552;79601;79620;79691;79718;79774;80084;80242;80392;80627;81' +
+    '037;81165;81229;81385;81435;81566;81575;81600;81686;81699;81' +
+    '701;81823;81902;81904;81930;82054;82072;82074;82347;82349;82' +
+    '430;82465;82485;82579;82733;82760;82821;83009;83161;83242;83' +
+    '649;83667;83669;83954;84603;84673;84690;84912;85160;85200;85' +
+    '380;86423;86720;87059;87297;87311;87553;88302;89043;89533;89' +
+    '898;90006;90436;90478;91207;91455;92171;92310;92502;92561;92' +
+    '885;93405;93450"],' +
+    '["HincII","GTY^RAC",0,67,";3060,6;6424,6;8213,6;9831,6;1027' +
+    '0,6;12004,6;18827,6;19166,6;20076,6;20291,6;21533,6;22682,6;' +
+    '23320,6;23876,6;23962,6;24141,6;24776,6;26551,6;27394,6;2742' +
+    '0,6;27686,6;29272,6;32052,6;33479,6;33841,6;37952,6;38681,6;' +
+    '38714,6;38735,6;42641,6;42830,6;43333,6;43468,6;46362,6;4985' +
+    '5,6;51493,6;51836,6;53947,6;54430,6;55191,6;57757,6;58495,6;' +
+    '67142,6;67215,6;67713,6;67796,6;69940,6;72021,6;72170,6;7247' +
+    '2,6;74426,6;74437,6;74586,6;75706,6;76380,6;78420,6;78797,6;' +
+    '82100,6;82234,6;83542,6;85719,6;86544,6;88083,6;88512,6;9027' +
+    '9,6;91069,6;93425,6","N",";3062;6426;8215;9833;10272;12006;1' +
+    '8829;19168;20078;20293;21535;22684;23322;23878;23964;24143;2' +
+    '4778;26553;27396;27422;27688;29274;32054;33481;33843;37954;3' +
+    '8683;38716;38737;42643;42832;43335;43470;46364;49857;51495;5' +
+    '1838;53949;54432;55193;57759;58497;67144;67217;67715;67798;6' +
+    '9942;72023;72172;72474;74428;74439;74588;75708;76382;78422;7' +
+    '8799;82102;82236;83544;85721;86546;88085;88514;90281;91071;9' +
+    '3427"],' +
+    '["HindII","GTY^RAC",0,67,";3060,6;6424,6;8213,6;9831,6;1027' +
+    '0,6;12004,6;18827,6;19166,6;20076,6;20291,6;21533,6;22682,6;' +
+    '23320,6;23876,6;23962,6;24141,6;24776,6;26551,6;27394,6;2742' +
+    '0,6;27686,6;29272,6;32052,6;33479,6;33841,6;37952,6;38681,6;' +
+    '38714,6;38735,6;42641,6;42830,6;43333,6;43468,6;46362,6;4985' +
+    '5,6;51493,6;51836,6;53947,6;54430,6;55191,6;57757,6;58495,6;' +
+    '67142,6;67215,6;67713,6;67796,6;69940,6;72021,6;72170,6;7247' +
+    '2,6;74426,6;74437,6;74586,6;75706,6;76380,6;78420,6;78797,6;' +
+    '82100,6;82234,6;83542,6;85719,6;86544,6;88083,6;88512,6;9027' +
+    '9,6;91069,6;93425,6","N",";3062;6426;8215;9833;10272;12006;1' +
+    '8829;19168;20078;20293;21535;22684;23322;23878;23964;24143;2' +
+    '4778;26553;27396;27422;27688;29274;32054;33481;33843;37954;3' +
+    '8683;38716;38737;42643;42832;43335;43470;46364;49857;51495;5' +
+    '1838;53949;54432;55193;57759;58497;67144;67217;67715;67798;6' +
+    '9942;72023;72172;72474;74428;74439;74588;75708;76382;78422;7' +
+    '8799;82102;82236;83544;85721;86546;88085;88514;90281;91071;9' +
+    '3427"],' +
+    '["HindIII","A^AGCTT",0,31,";9203,6;11398,6;12277,6;13299,6;' +
+    '13822,6;20118,6;25417,6;26080,6;28306,6;28423,6;30855,6;3097' +
+    '5,6;32018,6;33420,6;34079,6;34156,6;40079,6;41501,6;44147,6;' +
+    '44861,6;51842,6;52246,6;59130,6;62537,6;63455,6;65603,6;6601' +
+    '4,6;66104,6;71720,6;72840,6;73574,6","N",";9203;11398;12277;' +
+    '13299;13822;20118;25417;26080;28306;28423;30855;30975;32018;' +
+    '33420;34079;34156;40079;41501;44147;44861;51842;52246;59130;' +
+    '62537;63455;65603;66014;66104;71720;72840;73574"],' +
+    '["HinfI","G^ANTC",0,285,";276,5;392,5;536,5;794,5;1360,5;17' +
+    '24,5;2211,5;2797,5;2873,5;2917,5;2943,5;2958,5;2966,5;3023,5' +
+    ';3034,5;3178,5;3750,5;3912,5;4233,5;4270,5;4409,5;4594,5;557' +
+    '9,5;5713,5;5819,5;5935,5;6161,5;6237,5;6281,5;6307,5;6322,5;' +
+    '6330,5;6387,5;6398,5;6542,5;7319,5;7563,5;7829,5;7938,5;7975' +
+    ',5;8545,5;8565,5;8705,5;9109,5;9212,5;9235,5;9437,5;9553,5;9' +
+    '857,5;10300,5;10317,5;10467,5;10518,5;12060,5;12293,5;12990,' +
+    '5;13392,5;14120,5;14157,5;14801,5;14827,5;15445,5;16646,5;17' +
+    '132,5;17163,5;17615,5;18386,5;18836,5;19277,5;19312,5;19852,' +
+    '5;19890,5;20018,5;20166,5;20297,5;20340,5;20481,5;20648,5;20' +
+    '840,5;21068,5;21074,5;21563,5;22256,5;23175,5;23655,5;23879,' +
+    '5;23965,5;24475,5;24610,5;24692,5;25763,5;25808,5;25999,5;26' +
+    '039,5;26554,5;26633,5;27397,5;27423,5;27881,5;28211,5;28241,' +
+    '5;28314,5;28352,5;28457,5;29063,5;29566,5;30226,5;30629,5;30' +
+    '744,5;30778,5;31075,5;31097,5;31158,5;31339,5;31732,5;31925,' +
+    '5;31982,5;32107,5;32205,5;32449,5;32654,5;32769,5;33383,5;33' +
+    '661,5;33679,5;33691,5;33776,5;34088,5;34110,5;34451,5;34878,' +
+    '5;34920,5;35032,5;35049,5;35070,5;35105,5;35134,5;35147,5;36' +
+    '209,5;37059,5;37148,5;37635,5;38221,5;38229,5;38299,5;38599,' +
+    '5;40413,5;41512,5;41768,5;42067,5;42778,5;42841,5;43189,5;44' +
+    '341,5;45266,5;45502,5;46360,5;46564,5;49706,5;50045,5;50221,' +
+    '5;50830,5;50938,5;51926,5;52272,5;52812,5;53522,5;53650,5;54' +
+    '587,5;55260,5;55512,5;55680,5;56035,5;56548,5;56679,5;57030,' +
+    '5;57666,5;58576,5;59326,5;59807,5;59939,5;60347,5;60384,5;60' +
+    '520,5;60826,5;60869,5;60985,5;61085,5;61222,5;61543,5;61753,' +
+    '5;61779,5;62876,5;62889,5;63177,5;63756,5;63842,5;64760,5;65' +
+    '074,5;65743,5;65984,5;65997,5;66089,5;66615,5;66796,5;66926,' +
+    '5;67022,5;68098,5;68299,5;68513,5;69103,5;69938,5;70816,5;71' +
+    '170,5;71618,5;72019,5;72107,5;72212,5;72408,5;72428,5;72497,' +
+    '5;72807,5;74222,5;74237,5;74247,5;74467,5;74728,5;74826,5;74' +
+    '993,5;75128,5;75165,5;75633,5;76546,5;76847,5;76862,5;77088,' +
+    '5;77258,5;77588,5;77717,5;78246,5;78423,5;78496,5;78775,5;78' +
+    '915,5;79173,5;80423,5;80596,5;81342,5;81500,5;82828,5;83041,' +
+    '5;83545,5;83988,5;84004,5;84391,5;84397,5;84482,5;84657,5;84' +
+    '713,5;85223,5;85559,5;85682,5;85844,5;86297,5;86618,5;86854,' +
+    '5;87018,5;87150,5;87301,5;87722,5;87921,5;88070,5;88349,5;88' +
+    '974,5;89216,5;89625,5;90044,5;90318,5;90378,5;90667,5;90712,' +
+    '5;91776,5;92094,5;93039,5;93366,5","N",";276;392;536;794;136' +
+    '0;1724;2211;2797;2873;2917;2943;2958;2966;3023;3034;3178;375' +
+    '0;3912;4233;4270;4409;4594;5579;5713;5819;5935;6161;6237;628' +
+    '1;6307;6322;6330;6387;6398;6542;7319;7563;7829;7938;7975;854' +
+    '5;8565;8705;9109;9212;9235;9437;9553;9857;10300;10317;10467;' +
+    '10518;12060;12293;12990;13392;14120;14157;14801;14827;15445;' +
+    '16646;17132;17163;17615;18386;18836;19277;19312;19852;19890;' +
+    '20018;20166;20297;20340;20481;20648;20840;21068;21074;21563;' +
+    '22256;23175;23655;23879;23965;24475;24610;24692;25763;25808;' +
+    '25999;26039;26554;26633;27397;27423;27881;28211;28241;28314;' +
+    '28352;28457;29063;29566;30226;30629;30744;30778;31075;31097;' +
+    '31158;31339;31732;31925;31982;32107;32205;32449;32654;32769;' +
+    '33383;33661;33679;33691;33776;34088;34110;34451;34878;34920;' +
+    '35032;35049;35070;35105;35134;35147;36209;37059;37148;37635;' +
+    '38221;38229;38299;38599;40413;41512;41768;42067;42778;42841;' +
+    '43189;44341;45266;45502;46360;46564;49706;50045;50221;50830;' +
+    '50938;51926;52272;52812;53522;53650;54587;55260;55512;55680;' +
+    '56035;56548;56679;57030;57666;58576;59326;59807;59939;60347;' +
+    '60384;60520;60826;60869;60985;61085;61222;61543;61753;61779;' +
+    '62876;62889;63177;63756;63842;64760;65074;65743;65984;65997;' +
+    '66089;66615;66796;66926;67022;68098;68299;68513;69103;69938;' +
+    '70816;71170;71618;72019;72107;72212;72408;72428;72497;72807;' +
+    '74222;74237;74247;74467;74728;74826;74993;75128;75165;75633;' +
+    '76546;76847;76862;77088;77258;77588;77717;78246;78423;78496;' +
+    '78775;78915;79173;80423;80596;81342;81500;82828;83041;83545;' +
+    '83988;84004;84391;84397;84482;84657;84713;85223;85559;85682;' +
+    '85844;86297;86618;86854;87018;87150;87301;87722;87921;88070;' +
+    '88349;88974;89216;89625;90044;90318;90378;90667;90712;91776;' +
+    '92094;93039;93366"],' +
+    '["HpaI","GTT^AAC",0,18,";10270,6;12004,6;19166,6;21533,6;24' +
+    '776,6;38714,6;38735,6;42641,6;42830,6;43468,6;53947,6;67713,' +
+    '6;72170,6;74426,6;74437,6;82234,6;85719,6;91069,6","N",";102' +
+    '72;12006;19168;21535;24778;38716;38737;42643;42832;43470;539' +
+    '49;67715;72172;74428;74439;82236;85721;91071"],' +
+    '["HpaII","C^CGG",0,160,";11,4;105,4;382,4;554,4;1736,4;2390' +
+    ',4;3163,4;3720,4;3794,4;3896,4;3920,4;4490,4;4598,4;4796,4;4' +
+    '825,4;4864,4;4912,4;4999,4;5076,4;5098,4;5126,4;5257,4;5347,' +
+    '4;5414,4;5595,4;5830,4;6527,4;8517,4;9448,4;11623,4;13272,4;' +
+    '13294,4;13338,4;13370,4;17115,4;17912,4;18188,4;18917,4;2058' +
+    '3,4;20599,4;20662,4;21633,4;24553,4;25635,4;25867,4;28041,4;' +
+    '28120,4;28174,4;28180,4;28356,4;28526,4;28555,4;28559,4;2896' +
+    '6,4;29009,4;30694,4;30880,4;30915,4;30923,4;30987,4;32622,4;' +
+    '34147,4;34672,4;37158,4;40566,4;41737,4;41746,4;43803,4;4567' +
+    '0,4;59016,4;59804,4;65595,4;70702,4;71353,4;71830,4;72665,4;' +
+    '73469,4;73504,4;74124,4;74182,4;74785,4;74862,4;75052,4;7576' +
+    '1,4;75876,4;76067,4;76119,4;76151,4;76182,4;76485,4;77138,4;' +
+    '77275,4;77635,4;77782,4;77972,4;78033,4;78251,4;78365,4;7850' +
+    '3,4;78533,4;78779,4;79283,4;79328,4;79442,4;79961,4;80266,4;' +
+    '80370,4;81214,4;81548,4;81562,4;81709,4;81899,4;81965,4;8205' +
+    '7,4;82241,4;82423,4;82476,4;82606,4;83439,4;83527,4;83538,4;' +
+    '83554,4;83560,4;83652,4;83902,4;84486,4;84670,4;84752,4;8567' +
+    '8,4;86042,4;86310,4;86323,4;86845,4;87419,4;87518,4;87645,4;' +
+    '88217,4;88587,4;89004,4;89454,4;89701,4;89833,4;90517,4;9061' +
+    '9,4;90832,4;91103,4;91210,4;91536,4;91748,4;91988,4;92105,4;' +
+    '92295,4;92313,4;92515,4;92751,4;92760,4;93032,4;93667,4;9375' +
+    '5,4;93803,4","N",";11;105;382;554;1736;2390;3163;3720;3794;3' +
+    '896;3920;4490;4598;4796;4825;4864;4912;4999;5076;5098;5126;5' +
+    '257;5347;5414;5595;5830;6527;8517;9448;11623;13272;13294;133' +
+    '38;13370;17115;17912;18188;18917;20583;20599;20662;21633;245' +
+    '53;25635;25867;28041;28120;28174;28180;28356;28526;28555;285' +
+    '59;28966;29009;30694;30880;30915;30923;30987;32622;34147;346' +
+    '72;37158;40566;41737;41746;43803;45670;59016;59804;65595;707' +
+    '02;71353;71830;72665;73469;73504;74124;74182;74785;74862;750' +
+    '52;75761;75876;76067;76119;76151;76182;76485;77138;77275;776' +
+    '35;77782;77972;78033;78251;78365;78503;78533;78779;79283;793' +
+    '28;79442;79961;80266;80370;81214;81548;81562;81709;81899;819' +
+    '65;82057;82241;82423;82476;82606;83439;83527;83538;83554;835' +
+    '60;83652;83902;84486;84670;84752;85678;86042;86310;86323;868' +
+    '45;87419;87518;87645;88217;88587;89004;89454;89701;89833;905' +
+    '17;90619;90832;91103;91210;91536;91748;91988;92105;92295;923' +
+    '13;92515;92751;92760;93032;93667;93755;93803"],' +
+    '["HphI","GGTGA(8/7)",0,162,";520,5;759,5;810,5;981,5;1598,5' +
+    ';2173,5;2208,5;3873,5;4180,5;4412,5;4745,5;4893,5;5280,5;713' +
+    '2,5;8187,5;8628,5;8656,5;10109,5;12903,5;13398,5;13724,5;139' +
+    '90,5;14095,5;14139,5;14323,5;17284,5;17708,5;18326,5;18704,5' +
+    ';19440,5;19952,5;20185,5;20596,5;24974,5;25423,5;28038,5;280' +
+    '64,5;28100,5;28374,5;28748,5;28816,5;28842,5;28900,5;29069,5' +
+    ';29170,5;29235,5;29335,5;29495,5;29544,5;29906,5;30046,5;302' +
+    '57,5;30840,5;30861,5;31072,5;31415,5;31909,5;32533,5;32836,5' +
+    ';34149,5;34190,5;34708,5;35630,5;35829,5;36441,5;36462,5;378' +
+    '95,5;39311,5;39546,5;40761,5;41047,5;42849,5;43254,5;44201,5' +
+    ';44279,5;45059,5;45409,5;45664,5;46059,5;46561,5;48134,5;481' +
+    '70,5;49605,5;50014,5;50886,5;52421,5;53662,5;55136,5;56086,5' +
+    ';57779,5;58999,5;59801,5;61756,5;61794,5;61881,5;62936,5;630' +
+    '04,5;63851,5;64238,5;64286,5;65126,5;65650,5;65920,5;66580,5' +
+    ';67068,5;67371,5;67897,5;68706,5;68981,5;69150,5;69191,5;693' +
+    '04,5;69390,5;69717,5;69903,5;70060,5;70124,5;70704,5;71057,5' +
+    ';71785,5;72016,5;74215,5;74257,5;76482,5;76640,5;76894,5;769' +
+    '23,5;77134,5;77404,5;79304,5;79786,5;80206,5;80958,5;81211,5' +
+    ';81240,5;82808,5;82912,5;83716,5;83831,5;83845,5;84077,5;843' +
+    '44,5;84464,5;84488,5;84707,5;84766,5;86573,5;86842,5;87660,5' +
+    ';87712,5;88319,5;88676,5;88796,5;90195,5;90213,5;90907,5;911' +
+    '38,5;91952,5;91990,5;92039,5;92380,5;93783,5","A",";532;751;' +
+    '802;973;1610;2185;2220;3865;4192;4404;4737;4905;5272;7124;81' +
+    '79;8620;8668;10121;12895;13390;13736;14002;14107;14131;14315' +
+    ';17276;17720;18338;18696;19452;19944;20177;20588;24986;25435' +
+    ';28030;28056;28092;28386;28760;28828;28854;28912;29061;29182' +
+    ';29247;29347;29507;29556;29898;30058;30249;30852;30873;31084' +
+    ';31427;31921;32525;32828;34161;34182;34700;35622;35821;36433' +
+    ';36474;37907;39323;39538;40753;41039;42861;43246;44193;44271' +
+    ';45071;45421;45656;46071;46573;48126;48182;49597;50006;50878' +
+    ';52413;53674;55148;56078;57771;59011;59793;61748;61786;61873' +
+    ';62948;62996;63863;64250;64278;65118;65662;65912;66572;67080' +
+    ';67383;67889;68698;68973;69142;69183;69296;69382;69729;69915' +
+    ';70052;70116;70716;71049;71777;72028;74227;74269;76474;76652' +
+    ';76906;76935;77126;77416;79296;79798;80218;80970;81203;81252' +
+    ';82820;82904;83708;83823;83837;84089;84336;84456;84500;84699' +
+    ';84778;86565;86834;87652;87704;88311;88668;88808;90207;90205' +
+    ';90919;91150;91944;92002;92031;92372;93795"],' +
+    '["Hpy99I","CGWCG^",0,78,";663,5;729,5;2639,5;4140,5;4320,5;' +
+    '4561,5;5180,5;5208,5;5502,5;5517,5;7519,5;7567,5;7933,5;9760' +
+    ',5;9817,5;9830,5;11404,5;20293,5;26756,5;29316,5;32775,5;420' +
+    '07,5;48413,5;68090,5;70005,5;71222,5;73855,5;73870,5;74003,5' +
+    ';74045,5;74172,5;74278,5;74881,5;75297,5;75359,5;75519,5;757' +
+    '11,5;75802,5;76379,5;76382,5;76490,5;76687,5;76805,5;76811,5' +
+    ';76953,5;77181,5;77459,5;77571,5;77937,5;79069,5;79072,5;791' +
+    '68,5;79478,5;79541,5;79607,5;80359,5;80706,5;81483,5;81531,5' +
+    ';82023,5;82253,5;82792,5;82994,5;83618,5;83720,5;83735,5;857' +
+    '05,5;86000,5;88288,5;88528,5;89458,5;89778,5;90930,5;90952,5' +
+    ';92422,5;92498,5;93329,5;93417,5","N",";667;733;2643;4144;43' +
+    '24;4565;5184;5212;5506;5521;7523;7571;7937;9764;9821;9834;11' +
+    '408;20297;26760;29320;32779;42011;48417;68094;70009;71226;73' +
+    '859;73874;74007;74049;74176;74282;74885;75301;75363;75523;75' +
+    '715;75806;76383;76386;76494;76691;76809;76815;76957;77185;77' +
+    '463;77575;77941;79073;79076;79172;79482;79545;79611;80363;80' +
+    '710;81487;81535;82027;82257;82796;82998;83622;83724;83739;85' +
+    '709;86004;88292;88532;89462;89782;90934;90956;92426;92502;93' +
+    '333;93421"],' +
+    '["Hpy166II","GTN^NAC",0,213,";87,6;538,6;742,6;910,6;1057,6' +
+    ';1643,6;2174,6;3060,6;3087,6;4324,6;4455,6;6424,6;6451,6;742' +
+    '4,6;7466,6;7781,6;8213,6;8973,6;9734,6;9831,6;10152,6;10195,' +
+    '6;10270,6;10407,6;11156,6;11296,6;11626,6;11644,6;12004,6;13' +
+    '934,6;14321,6;14627,6;14926,6;17342,6;17675,6;18827,6;18926,' +
+    '6;18928,6;18960,6;19166,6;20076,6;20282,6;20291,6;21483,6;21' +
+    '533,6;22682,6;22736,6;22784,6;23320,6;23448,6;23876,6;23962,' +
+    '6;24141,6;24776,6;26551,6;27394,6;27420,6;27530,6;27686,6;28' +
+    '359,6;28596,6;29041,6;29272,6;30659,6;30731,6;32052,6;32362,' +
+    '6;33479,6;33501,6;33731,6;33841,6;34150,6;34188,6;34406,6;34' +
+    '533,6;35355,6;36661,6;37952,6;37988,6;38353,6;38681,6;38714,' +
+    '6;38735,6;41335,6;42027,6;42641,6;42830,6;42850,6;42929,6;43' +
+    '333,6;43468,6;43508,6;43614,6;44130,6;44466,6;44508,6;45454,' +
+    '6;45662,6;46362,6;47224,6;47855,6;48560,6;48675,6;48798,6;49' +
+    '114,6;49855,6;51083,6;51493,6;51551,6;51740,6;51799,6;51836,' +
+    '6;52399,6;52472,6;52882,6;53322,6;53947,6;54153,6;54306,6;54' +
+    '430,6;54800,6;54802,6;55191,6;55757,6;57177,6;57757,6;58177,' +
+    '6;58292,6;58495,6;58504,6;58714,6;59213,6;60198,6;60284,6;60' +
+    '721,6;61074,6;61750,6;61923,6;61984,6;63713,6;63852,6;64267,' +
+    '6;65415,6;65966,6;66845,6;67075,6;67142,6;67215,6;67234,6;67' +
+    '643,6;67703,6;67713,6;67796,6;67922,6;68449,6;68948,6;69722,' +
+    '6;69940,6;70009,6;70122,6;71163,6;71334,6;72021,6;72170,6;72' +
+    '374,6;72472,6;72511,6;73693,6;74426,6;74437,6;74586,6;75660,' +
+    '6;75706,6;76380,6;76591,6;76775,6;78420,6;78797,6;79787,6;80' +
+    '650,6;82027,6;82100,6;82234,6;82322,6;82796,6;83341,6;83542,' +
+    '6;83622,6;84066,6;85719,6;86544,6;88083,6;88422,6;88512,6;88' +
+    '724,6;90279,6;90575,6;90669,6;90819,6;90937,6;91069,6;91122,' +
+    '6;91720,6;91991,6;92447,6;92493,6;92518,6;92972,6;93027,6;93' +
+    '339,6;93425,6;93431,6;93849,6","N",";89;540;744;912;1059;164' +
+    '5;2176;3062;3089;4326;4457;6426;6453;7426;7468;7783;8215;897' +
+    '5;9736;9833;10154;10197;10272;10409;11158;11298;11628;11646;' +
+    '12006;13936;14323;14629;14928;17344;17677;18829;18928;18930;' +
+    '18962;19168;20078;20284;20293;21485;21535;22684;22738;22786;' +
+    '23322;23450;23878;23964;24143;24778;26553;27396;27422;27532;' +
+    '27688;28361;28598;29043;29274;30661;30733;32054;32364;33481;' +
+    '33503;33733;33843;34152;34190;34408;34535;35357;36663;37954;' +
+    '37990;38355;38683;38716;38737;41337;42029;42643;42832;42852;' +
+    '42931;43335;43470;43510;43616;44132;44468;44510;45456;45664;' +
+    '46364;47226;47857;48562;48677;48800;49116;49857;51085;51495;' +
+    '51553;51742;51801;51838;52401;52474;52884;53324;53949;54155;' +
+    '54308;54432;54802;54804;55193;55759;57179;57759;58179;58294;' +
+    '58497;58506;58716;59215;60200;60286;60723;61076;61752;61925;' +
+    '61986;63715;63854;64269;65417;65968;66847;67077;67144;67217;' +
+    '67236;67645;67705;67715;67798;67924;68451;68950;69724;69942;' +
+    '70011;70124;71165;71336;72023;72172;72376;72474;72513;73695;' +
+    '74428;74439;74588;75662;75708;76382;76593;76777;78422;78799;' +
+    '79789;80652;82029;82102;82236;82324;82798;83343;83544;83624;' +
+    '84068;85721;86546;88085;88424;88514;88726;90281;90577;90671;' +
+    '90821;90939;91071;91124;91722;91993;92449;92495;92520;92974;' +
+    '93029;93341;93427;93433;93851"],' +
+    '["Hpy188I","TCN^GA",0,277,";731,5;1151,5;1161,5;1272,5;1504' +
+    ',5;1777,5;2610,5;2668,5;3117,5;3175,5;4063,5;5059,5;5403,5;5' +
+    '756,5;6481,5;6539,5;7097,5;7240,5;7569,5;7955,5;8264,5;8582,' +
+    '5;8796,5;8996,5;9082,5;9172,5;9322,5;12188,5;12521,5;12808,5' +
+    ';13087,5;13134,5;13288,5;13479,5;13591,5;13683,5;14007,5;148' +
+    '94,5;16449,5;16590,5;16702,5;16709,5;17129,5;17637,5;17835,5' +
+    ';18907,5;19076,5;19292,5;19327,5;19985,5;20065,5;20651,5;208' +
+    '34,5;20923,5;21071,5;22711,5;24401,5;24446,5;26207,5;26367,5' +
+    ';27667,5;27878,5;27884,5;28191,5;28454,5;28492,5;28587,5;293' +
+    '18,5;29569,5;30602,5;31735,5;32149,5;32666,5;32896,5;33416,5' +
+    ';33552,5;33664,5;33779,5;34250,5;34923,5;34963,5;35102,5;358' +
+    '39,5;37071,5;37083,5;38082,5;38159,5;38218,5;38414,5;38761,5' +
+    ';39084,5;39137,5;39692,5;39808,5;40804,5;40906,5;43143,5;434' +
+    '33,5;43544,5;43601,5;43859,5;45805,5;46012,5;46030,5;47136,5' +
+    ';47266,5;47369,5;47387,5;47402,5;47802,5;47915,5;48478,5;487' +
+    '07,5;48876,5;49059,5;49105,5;49509,5;49522,5;49567,5;50084,5' +
+    ';50317,5;50712,5;50935,5;50941,5;50958,5;50979,5;51063,5;512' +
+    '91,5;51469,5;51524,5;51828,5;51988,5;52192,5;52820,5;54696,5' +
+    ';55041,5;55615,5;56171,5;56488,5;56993,5;57083,5;57867,5;590' +
+    '99,5;59283,5;59500,5;59614,5;59668,5;59679,5;59704,5;59789,5' +
+    ';59814,5;59828,5;59885,5;59991,5;60009,5;60040,5;60054,5;603' +
+    '44,5;60872,5;61456,5;61804,5;62879,5;62886,5;62922,5;63297,5' +
+    ';63451,5;64797,5;64915,5;64976,5;65378,5;65576,5;65628,5;657' +
+    '56,5;66032,5;66092,5;66122,5;66130,5;66700,5;66785,5;66906,5' +
+    ';66983,5;67434,5;68146,5;68577,5;70109,5;70132,5;70241,5;707' +
+    '18,5;71312,5;71609,5;71944,5;71963,5;72110,5;72205,5;72494,5' +
+    ';72815,5;73419,5;73728,5;73857,5;74001,5;74155,5;74668,5;746' +
+    '98,5;74752,5;74829,5;75134,5;75495,5;75585,5;75610,5;76109,5' +
+    ';76167,5;76174,5;76186,5;76395,5;76512,5;76568,5;77375,5;774' +
+    '46,5;77470,5;77657,5;77744,5;78045,5;78243,5;78269,5;78727,5' +
+    ';78849,5;78869,5;79402,5;79546,5;79747,5;80056,5;80093,5;811' +
+    '93,5;81497,5;81763,5;81858,5;82010,5;83031,5;83461,5;83605,5' +
+    ';84236,5;84394,5;84813,5;84847,5;84897,5;85141,5;85372,5;855' +
+    '62,5;85612,5;85904,5;86065,5;86602,5;86634,5;87086,5;87221,5' +
+    ';87974,5;88172,5;88554,5;88592,5;88809,5;89280,5;89369,5;895' +
+    '56,5;89628,5;89734,5;89749,5;90308,5;90535,5;90742,5;90850,5' +
+    ';90979,5;91043,5;91164,5;91182,5;93042,5;93311,5;93689,5","A' +
+    '",";733;1153;1163;1274;1506;1779;2612;2670;3119;3177;4065;50' +
+    '61;5405;5758;6483;6541;7099;7242;7571;7957;8266;8584;8798;89' +
+    '98;9084;9174;9324;12190;12523;12810;13089;13136;13290;13481;' +
+    '13593;13685;14009;14896;16451;16592;16704;16711;17131;17639;' +
+    '17837;18909;19078;19294;19329;19987;20067;20653;20836;20925;' +
+    '21073;22713;24403;24448;26209;26369;27669;27880;27886;28193;' +
+    '28456;28494;28589;29320;29571;30604;31737;32151;32668;32898;' +
+    '33418;33554;33666;33781;34252;34925;34965;35104;35841;37073;' +
+    '37085;38084;38161;38220;38416;38763;39086;39139;39694;39810;' +
+    '40806;40908;43145;43435;43546;43603;43861;45807;46014;46032;' +
+    '47138;47268;47371;47389;47404;47804;47917;48480;48709;48878;' +
+    '49061;49107;49511;49524;49569;50086;50319;50714;50937;50943;' +
+    '50960;50981;51065;51293;51471;51526;51830;51990;52194;52822;' +
+    '54698;55043;55617;56173;56490;56995;57085;57869;59101;59285;' +
+    '59502;59616;59670;59681;59706;59791;59816;59830;59887;59993;' +
+    '60011;60042;60056;60346;60874;61458;61806;62881;62888;62924;' +
+    '63299;63453;64799;64917;64978;65380;65578;65630;65758;66034;' +
+    '66094;66124;66132;66702;66787;66908;66985;67436;68148;68579;' +
+    '70111;70134;70243;70720;71314;71611;71946;71965;72112;72207;' +
+    '72496;72817;73421;73730;73859;74003;74157;74670;74700;74754;' +
+    '74831;75136;75497;75587;75612;76111;76169;76176;76188;76397;' +
+    '76514;76570;77377;77448;77472;77659;77746;78047;78245;78271;' +
+    '78729;78851;78871;79404;79548;79749;80058;80095;81195;81499;' +
+    '81765;81860;82012;83033;83463;83607;84238;84396;84815;84849;' +
+    '84899;85143;85374;85564;85614;85906;86067;86604;86636;87088;' +
+    '87223;87976;88174;88556;88594;88811;89282;89371;89558;89630;' +
+    '89736;89751;90310;90537;90744;90852;90981;91045;91166;91184;' +
+    '93044;93313;93691"],' +
+    '["Hpy188III","TC^NNGA",0,238,";116,6;1297,6;1580,6;1955,6;2' +
+    '722,6;2800,6;2815,6;3162,6;3547,6;4152,6;4620,6;4932,6;5111,' +
+    '6;5519,6;5575,6;5619,6;5709,6;5742,6;6086,6;6164,6;6179,6;65' +
+    '26,6;6911,6;7278,6;7446,6;7653,6;7695,6;7714,6;7825,6;7908,6' +
+    ';8083,6;8133,6;8271,6;8334,6;8701,6;9208,6;9255,6;9757,6;101' +
+    '93,6;10389,6;10564,6;10760,6;13043,6;13548,6;13878,6;14575,6' +
+    ';14599,6;15052,6;15411,6;18732,6;19884,6;20005,6;20169,6;203' +
+    '08,6;20800,6;21064,6;21163,6;21664,6;21679,6;22428,6;22723,6' +
+    ';23093,6;23357,6;23747,6;23972,6;25985,6;25995,6;26402,6;265' +
+    '57,6;26720,6;26965,6;27925,6;28757,6;29350,6;29778,6;30368,6' +
+    ';30475,6;30781,6;30898,6;30900,6;30914,6;31161,6;31344,6;317' +
+    '25,6;31928,6;32352,6;32728,6;32772,6;33266,6;33508,6;33628,6' +
+    ';33772,6;34113,6;34223,6;35079,6;35108,6;35345,6;35506,6;358' +
+    '56,6;35916,6;36383,6;36863,6;36918,6;37402,6;37431,6;38033,6' +
+    ';40068,6;41751,6;42070,6;42270,6;42315,6;42941,6;43296,6;440' +
+    '01,6;44013,6;44312,6;44494,6;44520,6;44921,6;45682,6;46507,6' +
+    ';46920,6;47085,6;47101,6;47190,6;47558,6;47701,6;48770,6;492' +
+    '95,6;49494,6;50054,6;50401,6;50673,6;51150,6;51413,6;52373,6' +
+    ';52385,6;53173,6;53380,6;53525,6;53536,6;55060,6;55100,6;552' +
+    '56,6;55676,6;56003,6;56675,6;57740,6;58579,6;59015,6;59977,6' +
+    ';60317,6;60829,6;62697,6;62727,6;62757,6;64448,6;64562,6;663' +
+    '07,6;66959,6;67973,6;68715,6;69427,6;70497,6;70819,6;70953,6' +
+    ';71265,6;71509,6;73487,6;73489,6;73503,6;73803,6;74506,6;746' +
+    '21,6;75150,6;75452,6;76199,6;76238,6;76314,6;76316,6;76598,6' +
+    ';76669,6;76871,6;77155,6;77274,6;77427,6;77596,6;77817,6;780' +
+    '72,6;78108,6;79960,6;80436,6;80555,6;80685,6;80856,6;81063,6' +
+    ';81148,6;81944,6;82599,6;83001,6;83274,6;83969,6;84120,6;842' +
+    '87,6;84522,6;84595,6;84716,6;84785,6;84968,6;85105,6;85219,6' +
+    ';85231,6;85288,6;86448,6;86948,6;86987,6;87014,6;87392,6;886' +
+    '09,6;88690,6;88787,6;89526,6;89580,6;89700,6;90242,6;90269,6' +
+    ';90618,6;90773,6;90915,6;91007,6;91263,6;91400,6;92090,6;922' +
+    '26,6;92689,6;93192,6;93222,6;93241,6","A",";117;1298;1581;19' +
+    '56;2723;2801;2816;3163;3548;4153;4621;4933;5112;5520;5576;56' +
+    '20;5710;5743;6087;6165;6180;6527;6912;7279;7447;7654;7696;77' +
+    '15;7826;7909;8084;8134;8272;8335;8702;9209;9256;9758;10194;1' +
+    '0390;10565;10761;13044;13549;13879;14576;14600;15053;15412;1' +
+    '8733;19885;20006;20170;20309;20801;21065;21164;21665;21680;2' +
+    '2429;22724;23094;23358;23748;23973;25986;25996;26403;26558;2' +
+    '6721;26966;27926;28758;29351;29779;30369;30476;30782;30899;3' +
+    '0901;30915;31162;31345;31726;31929;32353;32729;32773;33267;3' +
+    '3509;33629;33773;34114;34224;35080;35109;35346;35507;35857;3' +
+    '5917;36384;36864;36919;37403;37432;38034;40069;41752;42071;4' +
+    '2271;42316;42942;43297;44002;44014;44313;44495;44521;44922;4' +
+    '5683;46508;46921;47086;47102;47191;47559;47702;48771;49296;4' +
+    '9495;50055;50402;50674;51151;51414;52374;52386;53174;53381;5' +
+    '3526;53537;55061;55101;55257;55677;56004;56676;57741;58580;5' +
+    '9016;59978;60318;60830;62698;62728;62758;64449;64563;66308;6' +
+    '6960;67974;68716;69428;70498;70820;70954;71266;71510;73488;7' +
+    '3490;73504;73804;74507;74622;75151;75453;76200;76239;76315;7' +
+    '6317;76599;76670;76872;77156;77275;77428;77597;77818;78073;7' +
+    '8109;79961;80437;80556;80686;80857;81064;81149;81945;82600;8' +
+    '3002;83275;83970;84121;84288;84523;84596;84717;84786;84969;8' +
+    '5106;85220;85232;85289;86449;86949;86988;87015;87393;88610;8' +
+    '8691;88788;89527;89581;89701;90243;90270;90619;90774;90916;9' +
+    '1008;91264;91401;92091;92227;92690;93193;93223;93242"],' +
+    '["HpyAV","CCTTC(6/5)",0,210,";621,5;651,5;865,5;958,5;984,5' +
+    ';2377,5;2597,5;2765,5;2774,5;3228,5;3429,5;3441,5;3934,5;414' +
+    '5,5;4156,5;4286,5;4393,5;5228,5;5729,5;5739,5;6129,5;6138,5;' +
+    '6592,5;6793,5;6805,5;7123,5;7129,5;7650,5;7701,5;8090,5;8147' +
+    ',5;8163,5;8366,5;9077,5;9158,5;12378,5;12514,5;12698,5;13030' +
+    ',5;13047,5;13552,5;13695,5;13721,5;13894,5;14018,5;14060,5;1' +
+    '4837,5;15241,5;15438,5;15879,5;16559,5;18008,5;18249,5;19324' +
+    ',5;19798,5;19982,5;20360,5;20797,5;21151,5;21253,5;21831,5;2' +
+    '4209,5;24843,5;25426,5;25447,5;26129,5;26996,5;27704,5;28087' +
+    ',5;28436,5;28649,5;28874,5;28890,5;29562,5;30518,5;30864,5;3' +
+    '2899,5;33238,5;36637,5;37066,5;37164,5;37911,5;38004,5;38061' +
+    ',5;38172,5;39978,5;40292,5;40383,5;40445,5;41115,5;42884,5;4' +
+    '4596,5;45906,5;46247,5;47194,5;47405,5;47443,5;48173,5;48661' +
+    ',5;49015,5;50242,5;51147,5;52418,5;53079,5;54244,5;54549,5;5' +
+    '5220,5;56181,5;56198,5;56404,5;57481,5;57504,5;59002,5;59148' +
+    ',5;59265,5;59356,5;60373,5;60472,5;60516,5;61740,5;63727,5;6' +
+    '3791,5;63826,5;63869,5;64437,5;65165,5;65254,5;65303,5;66782' +
+    ',5;69906,5;70345,5;70649,5;70698,5;70823,5;71078,5;71113,5;7' +
+    '1146,5;71201,5;71318,5;71427,5;71440,5;71486,5;71644,5;71885' +
+    ',5;72010,5;72691,5;72865,5;73149,5;73650,5;73919,5;74116,5;7' +
+    '4431,5;74673,5;75863,5;75969,5;76138,5;76267,5;76682,5;76705' +
+    ',5;76823,5;77047,5;77200,5;77278,5;78112,5;78303,5;78330,5;7' +
+    '8694,5;79219,5;79279,5;79833,5;80415,5;80419,5;80569,5;80689' +
+    ',5;80845,5;81067,5;81324,5;81754,5;81941,5;82459,5;83848,5;8' +
+    '3858,5;83881,5;83976,5;84142,5;84332,5;85339,5;86135,5;86302' +
+    ',5;87101,5;87218,5;87266,5;87522,5;88494,5;88687,5;88784,5;8' +
+    '8815,5;89170,5;89631,5;89650,5;89667,5;90228,5;90824,5;91004' +
+    ',5;91024,5;91636,5;91716,5;92538,5;93308,5;93552,5","N",";63' +
+    '1;661;859;952;994;2371;2591;2775;2768;3222;3439;3451;3928;41' +
+    '55;4150;4296;4387;5222;5739;5749;6139;6132;6586;6803;6815;71' +
+    '33;7139;7660;7711;8084;8157;8173;8360;9071;9152;12388;12524;' +
+    '12692;13040;13041;13546;13689;13715;13888;14012;14054;14831;' +
+    '15251;15432;15889;16553;18018;18243;19334;19808;19992;20354;' +
+    '20807;21161;21247;21841;24219;24853;25420;25457;26139;27006;' +
+    '27714;28097;28430;28659;28884;28884;29556;30528;30858;32893;' +
+    '33232;36647;37076;37174;37905;37998;38055;38166;39988;40302;' +
+    '40393;40439;41125;42878;44606;45916;46241;47188;47399;47437;' +
+    '48167;48655;49009;50236;51157;52428;53089;54238;54543;55214;' +
+    '56175;56208;56414;57491;57514;58996;59158;59259;59350;60383;' +
+    '60482;60510;61734;63721;63801;63820;63879;64447;65159;65264;' +
+    '65297;66792;69900;70355;70659;70708;70817;71088;71123;71156;' +
+    '71211;71328;71437;71434;71480;71638;71895;72004;72685;72875;' +
+    '73159;73660;73913;74126;74441;74667;75857;75963;76148;76277;' +
+    '76676;76715;76833;77041;77210;77272;78106;78297;78324;78688;' +
+    '79213;79289;79843;80409;80413;80563;80683;80839;81061;81334;' +
+    '81748;81951;82469;83858;83868;83891;83970;84152;84326;85333;' +
+    '86129;86312;87095;87228;87276;87516;88504;88697;88794;88809;' +
+    '89180;89625;89644;89661;90238;90834;91014;91018;91630;91710;' +
+    '92548;93318;93546"],' +
+    '["HpyCH4III","ACN^GT",0,233,";91,5;806,5;995,5;1061,5;1455,' +
+    '5;1799,5;1885,5;1916,5;3011,5;3111,5;3295,5;3540,5;4178,5;43' +
+    '10,5;4328,5;4369,5;4924,5;5472,5;5588,5;5696,5;6375,5;6475,5' +
+    ';6659,5;6904,5;7334,5;7659,5;7816,5;8064,5;8833,5;9184,5;973' +
+    '8,5;10541,5;10796,5;10880,5;11984,5;12579,5;13104,5;14163,5;' +
+    '14631,5;15315,5;16861,5;18643,5;19080,5;19821,5;19827,5;2025' +
+    '7,5;20733,5;20791,5;21574,5;21695,5;21800,5;22492,5;22733,5;' +
+    '23324,5;23897,5;24272,5;24600,5;24648,5;25740,5;26187,5;2700' +
+    '1,5;27551,5;28363,5;28538,5;28600,5;28993,5;29198,5;29581,5;' +
+    '30280,5;30640,5;30751,5;31002,5;31454,5;31896,5;32079,5;3234' +
+    '3,5;32681,5;32700,5;33274,5;33567,5;33735,5;33768,5;33871,5;' +
+    '34369,5;34396,5;34522,5;34642,5;35016,5;35057,5;35295,5;3549' +
+    '5,5;35571,5;35905,5;36055,5;36096,5;36244,5;38718,5;38732,5;' +
+    '39548,5;39756,5;41758,5;42038,5;43337,5;43348,5;43724,5;4455' +
+    '0,5;45074,5;45184,5;45192,5;45607,5;46392,5;48105,5;48752,5;' +
+    '48843,5;51140,5;51340,5;51555,5;51580,5;51597,5;51996,5;5204' +
+    '0,5;52112,5;52440,5;52476,5;52824,5;53222,5;53326,5;53630,5;' +
+    '53849,5;54054,5;54150,5;54157,5;54209,5;54345,5;54480,5;5484' +
+    '2,5;54954,5;55045,5;55179,5;55214,5;56377,5;57536,5;57699,5;' +
+    '57761,5;57781,5;58094,5;58210,5;58429,5;59783,5;59859,5;6043' +
+    '3,5;60809,5;61187,5;62423,5;62582,5;62718,5;63320,5;63349,5;' +
+    '63502,5;64288,5;64346,5;66418,5;66490,5;66591,5;66789,5;6715' +
+    '3,5;67192,5;67919,5;68258,5;69030,5;71019,5;71462,5;71514,5;' +
+    '72508,5;72795,5;74395,5;75376,5;76010,5;77100,5;78507,5;7947' +
+    '6,5;79539,5;79728,5;79936,5;80861,5;80945,5;81202,5;81238,5;' +
+    '81453,5;81646,5;82031,5;82908,5;82914,5;82937,5;83191,5;8362' +
+    '6,5;83718,5;83817,5;84041,5;84107,5;84583,5;85075,5;85092,5;' +
+    '85255,5;85916,5;85970,5;85998,5;86679,5;86697,5;87346,5;8739' +
+    '7,5;87989,5;88281,5;88290,5;88721,5;88746,5;88954,5;88986,5;' +
+    '89083,5;90161,5;90746,5;91073,5;91097,5;91150,5;91345,5;9205' +
+    '3,5;92420,5;92490,5;92969,5;93138,5;93256,5;93343,5;93529,5"' +
+    ',"N",";93;808;997;1063;1457;1801;1887;1918;3013;3113;3297;35' +
+    '42;4180;4312;4330;4371;4926;5474;5590;5698;6377;6477;6661;69' +
+    '06;7336;7661;7818;8066;8835;9186;9740;10543;10798;10882;1198' +
+    '6;12581;13106;14165;14633;15317;16863;18645;19082;19823;1982' +
+    '9;20259;20735;20793;21576;21697;21802;22494;22735;23326;2389' +
+    '9;24274;24602;24650;25742;26189;27003;27553;28365;28540;2860' +
+    '2;28995;29200;29583;30282;30642;30753;31004;31456;31898;3208' +
+    '1;32345;32683;32702;33276;33569;33737;33770;33873;34371;3439' +
+    '8;34524;34644;35018;35059;35297;35497;35573;35907;36057;3609' +
+    '8;36246;38720;38734;39550;39758;41760;42040;43339;43350;4372' +
+    '6;44552;45076;45186;45194;45609;46394;48107;48754;48845;5114' +
+    '2;51342;51557;51582;51599;51998;52042;52114;52442;52478;5282' +
+    '6;53224;53328;53632;53851;54056;54152;54159;54211;54347;5448' +
+    '2;54844;54956;55047;55181;55216;56379;57538;57701;57763;5778' +
+    '3;58096;58212;58431;59785;59861;60435;60811;61189;62425;6258' +
+    '4;62720;63322;63351;63504;64290;64348;66420;66492;66593;6679' +
+    '1;67155;67194;67921;68260;69032;71021;71464;71516;72510;7279' +
+    '7;74397;75378;76012;77102;78509;79478;79541;79730;79938;8086' +
+    '3;80947;81204;81240;81455;81648;82033;82910;82916;82939;8319' +
+    '3;83628;83720;83819;84043;84109;84585;85077;85094;85257;8591' +
+    '8;85972;86000;86681;86699;87348;87399;87991;88283;88292;8872' +
+    '3;88748;88956;88988;89085;90163;90748;91075;91099;91152;9134' +
+    '7;92055;92422;92492;92971;93140;93258;93345;93531"],' +
+    '["HpyCH4IV","A^CGT",0,153,";69,4;85,4;308,4;343,4;542,4;908' +
+    ',4;1106,4;1627,4;2641,4;3349,4;3360,4;3400,4;4322,4;4539,4;4' +
+    '549,4;4560,4;4607,4;4765,4;4869,4;4962,4;5210,4;5397,4;5869,' +
+    '4;5904,4;6713,4;6724,4;6764,4;7254,4;7443,4;7804,4;8322,4;85' +
+    '00,4;9487,4;9522,4;9716,4;9732,4;9754,4;9819,4;9829,4;10474,' +
+    '4;12305,4;14788,4;14905,4;15484,4;15488,4;16514,4;18278,4;21' +
+    '980,4;22133,4;25640,4;26755,4;27254,4;27528,4;27922,4;28299,' +
+    '4;28320,4;28417,4;28742,4;30963,4;31668,4;31795,4;33505,4;33' +
+    '877,4;35526,4;36219,4;36372,4;36523,4;38727,4;38975,4;39737,' +
+    '4;40055,4;40767,4;40998,4;41311,4;42933,4;44134,4;44825,4;45' +
+    '754,4;48415,4;48656,4;50753,4;51231,4;51251,4;57794,4;58821,' +
+    '4;59064,4;59113,4;59308,4;61974,4;63443,4;66040,4;67099,4;68' +
+    '952,4;69099,4;70007,4;70359,4;71236,4;71375,4;72089,4;73854,' +
+    '4;73966,4;74047,4;75062,4;75296,4;75361,4;75801,4;76492,4;76' +
+    '804,4;77466,4;78131,4;78418,4;79115,4;79242,4;79456,4;79908,' +
+    '4;80275,4;80725,4;81025,4;81127,4;81475,4;81863,4;82025,4;82' +
+    '317,4;82507,4;82993,4;83620,4;85035,4;85316,4;85411,4;85471,' +
+    '4;85852,4;86316,4;86428,4;86880,4;86984,4;87741,4;88081,4;88' +
+    '516,4;88774,4;89010,4;89483,4;89552,4;90507,4;90872,4;90951,' +
+    '4;91067,4;92003,4;92181,4;92497,4;92697,4;93331,4;93429,4;93' +
+    '891,4","N",";69;85;308;343;542;908;1106;1627;2641;3349;3360;' +
+    '3400;4322;4539;4549;4560;4607;4765;4869;4962;5210;5397;5869;' +
+    '5904;6713;6724;6764;7254;7443;7804;8322;8500;9487;9522;9716;' +
+    '9732;9754;9819;9829;10474;12305;14788;14905;15484;15488;1651' +
+    '4;18278;21980;22133;25640;26755;27254;27528;27922;28299;2832' +
+    '0;28417;28742;30963;31668;31795;33505;33877;35526;36219;3637' +
+    '2;36523;38727;38975;39737;40055;40767;40998;41311;42933;4413' +
+    '4;44825;45754;48415;48656;50753;51231;51251;57794;58821;5906' +
+    '4;59113;59308;61974;63443;66040;67099;68952;69099;70007;7035' +
+    '9;71236;71375;72089;73854;73966;74047;75062;75296;75361;7580' +
+    '1;76492;76804;77466;78131;78418;79115;79242;79456;79908;8027' +
+    '5;80725;81025;81127;81475;81863;82025;82317;82507;82993;8362' +
+    '0;85035;85316;85411;85471;85852;86316;86428;86880;86984;8774' +
+    '1;88081;88516;88774;89010;89483;89552;90507;90872;90951;9106' +
+    '7;92003;92181;92497;92697;93331;93429;93891"],' +
+    '["HpyCH4V","TG^CA",0,428,";122,4;157,4;314,4;563,4;716,4;78' +
+    '5,4;1139,4;1741,4;1931,4;2014,4;2143,4;2580,4;2786,4;2811,4;' +
+    '3758,4;4068,4;4133,4;4277,4;4436,4;4532,4;4670,4;4679,4;4691' +
+    ',4;4775,4;4985,4;5144,4;5319,4;5333,4;5898,4;6150,4;6175,4;7' +
+    '311,4;7425,4;7664,4;7796,4;8124,4;8385,4;8560,4;8614,4;8680,' +
+    '4;8761,4;8957,4;9012,4;9219,4;9516,4;10291,4;10753,4;10874,4' +
+    ';10929,4;11029,4;11215,4;11222,4;11851,4;12324,4;12437,4;124' +
+    '50,4;12477,4;12654,4;12689,4;12693,4;12800,4;12814,4;12920,4' +
+    ';12977,4;13075,4;13461,4;13516,4;13610,4;13661,4;13803,4;138' +
+    '09,4;14107,4;14173,4;14207,4;14290,4;14510,4;14817,4;15074,4' +
+    ';15199,4;15563,4;15639,4;15726,4;15957,4;16320,4;16457,4;171' +
+    '07,4;18181,4;18755,4;18767,4;18845,4;18922,4;19238,4;19686,4' +
+    ';19710,4;19788,4;19919,4;20029,4;20101,4;20131,4;20326,4;204' +
+    '99,4;20577,4;20641,4;20757,4;20808,4;21758,4;22250,4;22266,4' +
+    ';22401,4;23413,4;24083,4;24197,4;24203,4;24335,4;24534,4;247' +
+    '41,4;24805,4;24919,4;25025,4;25152,4;25188,4;25207,4;25555,4' +
+    ';25607,4;25800,4;26141,4;26303,4;26310,4;26377,4;26611,4;266' +
+    '39,4;26671,4;26903,4;27109,4;27161,4;27257,4;27363,4;27454,4' +
+    ';28030,4;28135,4;28187,4;28360,4;28392,4;28432,4;28467,4;290' +
+    '42,4;29301,4;29673,4;30167,4;30351,4;30380,4;30469,4;30995,4' +
+    ';31308,4;31665,4;32126,4;32764,4;33061,4;33428,4;33558,4;336' +
+    '99,4;33819,4;34034,4;34283,4;34472,4;35389,4;35885,4;35912,4' +
+    ';36147,4;36183,4;36237,4;36375,4;36429,4;36490,4;36520,4;367' +
+    '16,4;36752,4;36822,4;36880,4;37289,4;37301,4;37313,4;37505,4' +
+    ';37669,4;37754,4;38624,4;38827,4;39117,4;39179,4;39218,4;402' +
+    '55,4;40366,4;40570,4;40724,4;41092,4;41201,4;41615,4;41703,4' +
+    ';41866,4;41925,4;42336,4;42535,4;42575,4;43444,4;43459,4;435' +
+    '17,4;44009,4;44116,4;44122,4;44140,4;44764,4;45612,4;45642,4' +
+    ';46100,4;46501,4;47048,4;47161,4;47254,4;47317,4;47356,4;478' +
+    '56,4;47884,4;48014,4;48428,4;48717,4;48740,4;48851,4;48915,4' +
+    ';48934,4;49468,4;49635,4;49971,4;49990,4;50322,4;50375,4;504' +
+    '45,4;50518,4;50740,4;51110,4;51182,4;51404,4;51860,4;51908,4' +
+    ';52170,4;52300,4;52540,4;52808,4;52939,4;53002,4;53209,4;532' +
+    '88,4;53367,4;53813,4;53820,4;53930,4;54284,4;54321,4;54671,4' +
+    ';54850,4;55367,4;55373,4;55725,4;55807,4;55825,4;55829,4;558' +
+    '83,4;56474,4;56901,4;57253,4;57309,4;57521,4;57584,4;57656,4' +
+    ';57732,4;57821,4;58505,4;58542,4;59867,4;60153,4;60285,4;606' +
+    '79,4;60781,4;60893,4;60990,4;61156,4;61162,4;61335,4;61342,4' +
+    ';61633,4;61638,4;61660,4;61820,4;61853,4;61900,4;62558,4;626' +
+    '45,4;62684,4;62753,4;62849,4;62992,4;63016,4;63645,4;63677,4' +
+    ';63931,4;63945,4;64208,4;64317,4;64372,4;64546,4;65312,4;653' +
+    '33,4;65477,4;65957,4;66303,4;66324,4;66334,4;66504,4;66706,4' +
+    ';66869,4;67138,4;67268,4;67911,4;68111,4;68142,4;68166,4;683' +
+    '31,4;68360,4;68374,4;68723,4;68864,4;69463,4;69472,4;69753,4' +
+    ';69850,4;70157,4;70311,4;70362,4;70520,4;70879,4;70888,4;710' +
+    '83,4;71183,4;71364,4;71378,4;71496,4;71550,4;71654,4;71766,4' +
+    ';71892,4;71913,4;72096,4;72390,4;72707,4;72725,4;72899,4;732' +
+    '13,4;73289,4;73296,4;73362,4;73779,4;75033,4;76021,4;76634,4' +
+    ';76935,4;77999,4;79140,4;79231,4;79368,4;79462,4;79742,4;801' +
+    '62,4;80193,4;80456,4;80516,4;80922,4;81005,4;81295,4;81527,4' +
+    ';82113,4;82150,4;82217,4;82718,4;82752,4;82797,4;83308,4;839' +
+    '43,4;84272,4;84512,4;84665,4;84778,4;85129,4;85402,4;85742,4' +
+    ';86048,4;86150,4;86415,4;86701,4;87196,4;87236,4;87322,4;878' +
+    '18,4;87865,4;87994,4;88307,4;88436,4;88450,4;88550,4;88572,4' +
+    ';89030,4;89403,4;89567,4;89640,4;89729,4;89997,4;90021,4;903' +
+    '87,4;90504,4;90576,4;90923,4;91620,4;91628,4;91854,4;92335,4' +
+    ';92431,4;92963,4;93075,4;93167,4;93297,4","N",";123;158;315;' +
+    '564;717;786;1140;1742;1932;2015;2144;2581;2787;2812;3759;406' +
+    '9;4134;4278;4437;4533;4671;4680;4692;4776;4986;5145;5320;533' +
+    '4;5899;6151;6176;7312;7426;7665;7797;8125;8386;8561;8615;868' +
+    '1;8762;8958;9013;9220;9517;10292;10754;10875;10930;11030;112' +
+    '16;11223;11852;12325;12438;12451;12478;12655;12690;12694;128' +
+    '01;12815;12921;12978;13076;13462;13517;13611;13662;13804;138' +
+    '10;14108;14174;14208;14291;14511;14818;15075;15200;15564;156' +
+    '40;15727;15958;16321;16458;17108;18182;18756;18768;18846;189' +
+    '23;19239;19687;19711;19789;19920;20030;20102;20132;20327;205' +
+    '00;20578;20642;20758;20809;21759;22251;22267;22402;23414;240' +
+    '84;24198;24204;24336;24535;24742;24806;24920;25026;25153;251' +
+    '89;25208;25556;25608;25801;26142;26304;26311;26378;26612;266' +
+    '40;26672;26904;27110;27162;27258;27364;27455;28031;28136;281' +
+    '88;28361;28393;28433;28468;29043;29302;29674;30168;30352;303' +
+    '81;30470;30996;31309;31666;32127;32765;33062;33429;33559;337' +
+    '00;33820;34035;34284;34473;35390;35886;35913;36148;36184;362' +
+    '38;36376;36430;36491;36521;36717;36753;36823;36881;37290;373' +
+    '02;37314;37506;37670;37755;38625;38828;39118;39180;39219;402' +
+    '56;40367;40571;40725;41093;41202;41616;41704;41867;41926;423' +
+    '37;42536;42576;43445;43460;43518;44010;44117;44123;44141;447' +
+    '65;45613;45643;46101;46502;47049;47162;47255;47318;47357;478' +
+    '57;47885;48015;48429;48718;48741;48852;48916;48935;49469;496' +
+    '36;49972;49991;50323;50376;50446;50519;50741;51111;51183;514' +
+    '05;51861;51909;52171;52301;52541;52809;52940;53003;53210;532' +
+    '89;53368;53814;53821;53931;54285;54322;54672;54851;55368;553' +
+    '74;55726;55808;55826;55830;55884;56475;56902;57254;57310;575' +
+    '22;57585;57657;57733;57822;58506;58543;59868;60154;60286;606' +
+    '80;60782;60894;60991;61157;61163;61336;61343;61634;61639;616' +
+    '61;61821;61854;61901;62559;62646;62685;62754;62850;62993;630' +
+    '17;63646;63678;63932;63946;64209;64318;64373;64547;65313;653' +
+    '34;65478;65958;66304;66325;66335;66505;66707;66870;67139;672' +
+    '69;67912;68112;68143;68167;68332;68361;68375;68724;68865;694' +
+    '64;69473;69754;69851;70158;70312;70363;70521;70880;70889;710' +
+    '84;71184;71365;71379;71497;71551;71655;71767;71893;71914;720' +
+    '97;72391;72708;72726;72900;73214;73290;73297;73363;73780;750' +
+    '34;76022;76635;76936;78000;79141;79232;79369;79463;79743;801' +
+    '63;80194;80457;80517;80923;81006;81296;81528;82114;82151;822' +
+    '18;82719;82753;82798;83309;83944;84273;84513;84666;84779;851' +
+    '30;85403;85743;86049;86151;86416;86702;87197;87237;87323;878' +
+    '19;87866;87995;88308;88437;88451;88551;88573;89031;89404;895' +
+    '68;89641;89730;89998;90022;90388;90505;90577;90924;91621;916' +
+    '29;91855;92336;92432;92964;93076;93168;93298"],' +
+    '["KasI","G^GCGCC",0,8,";5093,6;25327,6;35480,6;75463,6;7699' +
+    '5,6;79619,6;79717,6;79773,6","N",";5093;25327;35480;75463;76' +
+    '995;79619;79717;79773"],' +
+    '["KpnI","GGTAC^C",0,7,";100,6;14884,6;17522,6;19498,6;58426' +
+    ',6;69982,6;71851,6","N",";104;14888;17526;19502;58430;69986;' +
+    '71855"],' +
+    '["KspI","CCGC^GG",0,9,";59024,6;59058,6;73458,6;74853,6;756' +
+    '02,6;77067,6;78619,6;79421,6;89053,6","N",";59027;59061;7346' +
+    '1;74856;75605;77070;78622;79424;89056"],' +
+    '["MaeI","C^TAG",0,190,";117,4;185,4;222,4;1192,4;1211,4;157' +
+    '5,4;1956,4;2396,4;2647,4;3618,4;5990,4;6982,4;7596,4;7866,4;' +
+    '9134,4;9608,4;10326,4;11034,4;11767,4;12210,4;12214,4;12218,' +
+    '4;12538,4;12840,4;14717,4;14998,4;15768,4;15988,4;16093,4;16' +
+    '226,4;17174,4;17408,4;17885,4;18945,4;20309,4;20390,4;20612,' +
+    '4;20983,4;21353,4;21397,4;21497,4;21629,4;22164,4;22804,4;23' +
+    '138,4;23883,4;24046,4;24076,4;25471,4;26540,4;26567,4;27345,' +
+    '4;27838,4;28142,4;28878,4;29046,4;30276,4;30390,4;30782,4;30' +
+    '817,4;31648,4;31726,4;31875,4;31879,4;32529,4;32691,4;33152,' +
+    '4;33206,4;33306,4;33366,4;33374,4;33380,4;33650,4;34026,4;34' +
+    '455,4;35074,4;35144,4;35533,4;35753,4;36001,4;36278,4;36293,' +
+    '4;36799,4;38581,4;39834,4;40092,4;40932,4;41521,4;41635,4;42' +
+    '049,4;42657,4;43126,4;43139,4;43851,4;44108,4;44529,4;44541,' +
+    '4;44808,4;45147,4;45263,4;45883,4;46004,4;47102,4;47210,4;47' +
+    '237,4;47360,4;47876,4;48268,4;48420,4;48473,4;48902,4;49211,' +
+    '4;49516,4;49912,4;50402,4;50818,4;51930,4;52054,4;52386,4;52' +
+    '736,4;53999,4;55424,4;55677,4;56122,4;56269,4;56288,4;56645,' +
+    '4;56707,4;57265,4;57957,4;58137,4;58939,4;59068,4;59105,4;59' +
+    '396,4;60303,4;61026,4;61328,4;61435,4;61570,4;62156,4;62758,' +
+    '4;62778,4;63638,4;64443,4;64487,4;64505,4;64553,4;64586,4;65' +
+    '287,4;65340,4;65344,4;65443,4;65948,4;66572,4;66770,4;66922,' +
+    '4;67200,4;67204,4;67299,4;67387,4;70275,4;71789,4;72623,4;73' +
+    '190,4;73376,4;73916,4;76564,4;76835,4;77384,4;77877,4;78117,' +
+    '4;78145,4;78408,4;78543,4;78922,4;79705,4;80121,4;80384,4;80' +
+    '839,4;81432,4;81849,4;82272,4;82276,4;82392,4;86557,4;87683,' +
+    '4;91614,4;93093,4;93410,4","N",";117;185;222;1192;1211;1575;' +
+    '1956;2396;2647;3618;5990;6982;7596;7866;9134;9608;10326;1103' +
+    '4;11767;12210;12214;12218;12538;12840;14717;14998;15768;1598' +
+    '8;16093;16226;17174;17408;17885;18945;20309;20390;20612;2098' +
+    '3;21353;21397;21497;21629;22164;22804;23138;23883;24046;2407' +
+    '6;25471;26540;26567;27345;27838;28142;28878;29046;30276;3039' +
+    '0;30782;30817;31648;31726;31875;31879;32529;32691;33152;3320' +
+    '6;33306;33366;33374;33380;33650;34026;34455;35074;35144;3553' +
+    '3;35753;36001;36278;36293;36799;38581;39834;40092;40932;4152' +
+    '1;41635;42049;42657;43126;43139;43851;44108;44529;44541;4480' +
+    '8;45147;45263;45883;46004;47102;47210;47237;47360;47876;4826' +
+    '8;48420;48473;48902;49211;49516;49912;50402;50818;51930;5205' +
+    '4;52386;52736;53999;55424;55677;56122;56269;56288;56645;5670' +
+    '7;57265;57957;58137;58939;59068;59105;59396;60303;61026;6132' +
+    '8;61435;61570;62156;62758;62778;63638;64443;64487;64505;6455' +
+    '3;64586;65287;65340;65344;65443;65948;66572;66770;66922;6720' +
+    '0;67204;67299;67387;70275;71789;72623;73190;73376;73916;7656' +
+    '4;76835;77384;77877;78117;78145;78408;78543;78922;79705;8012' +
+    '1;80384;80839;81432;81849;82272;82276;82392;86557;87683;9161' +
+    '4;93093;93410"],' +
+    '["MaeII","A^CGT",0,153,";69,4;85,4;308,4;343,4;542,4;908,4;' +
+    '1106,4;1627,4;2641,4;3349,4;3360,4;3400,4;4322,4;4539,4;4549' +
+    ',4;4560,4;4607,4;4765,4;4869,4;4962,4;5210,4;5397,4;5869,4;5' +
+    '904,4;6713,4;6724,4;6764,4;7254,4;7443,4;7804,4;8322,4;8500,' +
+    '4;9487,4;9522,4;9716,4;9732,4;9754,4;9819,4;9829,4;10474,4;1' +
+    '2305,4;14788,4;14905,4;15484,4;15488,4;16514,4;18278,4;21980' +
+    ',4;22133,4;25640,4;26755,4;27254,4;27528,4;27922,4;28299,4;2' +
+    '8320,4;28417,4;28742,4;30963,4;31668,4;31795,4;33505,4;33877' +
+    ',4;35526,4;36219,4;36372,4;36523,4;38727,4;38975,4;39737,4;4' +
+    '0055,4;40767,4;40998,4;41311,4;42933,4;44134,4;44825,4;45754' +
+    ',4;48415,4;48656,4;50753,4;51231,4;51251,4;57794,4;58821,4;5' +
+    '9064,4;59113,4;59308,4;61974,4;63443,4;66040,4;67099,4;68952' +
+    ',4;69099,4;70007,4;70359,4;71236,4;71375,4;72089,4;73854,4;7' +
+    '3966,4;74047,4;75062,4;75296,4;75361,4;75801,4;76492,4;76804' +
+    ',4;77466,4;78131,4;78418,4;79115,4;79242,4;79456,4;79908,4;8' +
+    '0275,4;80725,4;81025,4;81127,4;81475,4;81863,4;82025,4;82317' +
+    ',4;82507,4;82993,4;83620,4;85035,4;85316,4;85411,4;85471,4;8' +
+    '5852,4;86316,4;86428,4;86880,4;86984,4;87741,4;88081,4;88516' +
+    ',4;88774,4;89010,4;89483,4;89552,4;90507,4;90872,4;90951,4;9' +
+    '1067,4;92003,4;92181,4;92497,4;92697,4;93331,4;93429,4;93891' +
+    ',4","N",";69;85;308;343;542;908;1106;1627;2641;3349;3360;340' +
+    '0;4322;4539;4549;4560;4607;4765;4869;4962;5210;5397;5869;590' +
+    '4;6713;6724;6764;7254;7443;7804;8322;8500;9487;9522;9716;973' +
+    '2;9754;9819;9829;10474;12305;14788;14905;15484;15488;16514;1' +
+    '8278;21980;22133;25640;26755;27254;27528;27922;28299;28320;2' +
+    '8417;28742;30963;31668;31795;33505;33877;35526;36219;36372;3' +
+    '6523;38727;38975;39737;40055;40767;40998;41311;42933;44134;4' +
+    '4825;45754;48415;48656;50753;51231;51251;57794;58821;59064;5' +
+    '9113;59308;61974;63443;66040;67099;68952;69099;70007;70359;7' +
+    '1236;71375;72089;73854;73966;74047;75062;75296;75361;75801;7' +
+    '6492;76804;77466;78131;78418;79115;79242;79456;79908;80275;8' +
+    '0725;81025;81127;81475;81863;82025;82317;82507;82993;83620;8' +
+    '5035;85316;85411;85471;85852;86316;86428;86880;86984;87741;8' +
+    '8081;88516;88774;89010;89483;89552;90507;90872;90951;91067;9' +
+    '2003;92181;92497;92697;93331;93429;93891"],' +
+    '["MaeIII","^GTNAC",0,233,";188,5;803,5;809,5;980,5;1579,5;1' +
+    '838,5;2053,5;2209,5;2329,5;2643,5;3199,5;3528,5;3723,5;4203,' +
+    '5;4411,5;4619,5;5215,5;5521,5;6023,5;6563,5;6892,5;7506,5;80' +
+    '12,5;8118,5;8289,5;8644,5;9641,5;9756,5;11050,5;11058,5;1198' +
+    '1,5;12843,5;13231,5;13524,5;13703,5;13877,5;14138,5;14485,5;' +
+    '14585,5;14940,5;16096,5;16858,5;17411,5;17746,5;17810,5;1885' +
+    '8,5;18981,5;19824,5;20730,5;20736,5;21054,5;21099,5;21403,5;' +
+    '22455,5;22730,5;24603,5;25684,5;25698,5;26184,5;27677,5;2830' +
+    '1,5;28366,5;28749,5;28990,5;29639,5;29816,5;30841,5;31670,5;' +
+    '31893,5;32133,5;32203,5;32532,5;32568,5;32605,5;33616,5;3387' +
+    '4,5;34377,5;34645,5;34749,5;35194,5;35475,5;35629,5;36076,5;' +
+    '36093,5;36440,5;36463,5;36995,5;37242,5;37385,5;37550,5;3814' +
+    '8,5;38729,5;38767,5;38798,5;38972,5;39235,5;39374,5;40474,5;' +
+    '41046,5;41081,5;41376,5;41488,5;42363,5;43700,5;43962,5;4490' +
+    '2,5;46457,5;46562,5;48689,5;48938,5;50195,5;50786,5;50796,5;' +
+    '50885,5;51536,5;52115,5;52950,5;52990,5;53017,5;53350,5;5374' +
+    '8,5;53870,5;54121,5;54235,5;54951,5;55174,5;55977,5;56085,5;' +
+    '56296,5;56592,5;56978,5;57067,5;57702,5;57726,5;58062,5;5881' +
+    '8,5;60701,5;60756,5;60911,5;61478,5;62315,5;62971,5;63585,5;' +
+    '63611,5;64239,5;64349,5;65290,5;65355,5;65714,5;65872,5;6603' +
+    '7,5;66421,5;66594,5;66972,5;67020,5;67052,5;67189,5;67258,5;' +
+    '68797,5;68814,5;69121,5;69627,5;69886,5;70043,5;70293,5;7037' +
+    '5,5;71467,5;71845,5;71901,5;71992,5;74080,5;74216,5;74258,5;' +
+    '74309,5;75173,5;75373,5;75855,5;75904,5;76641,5;76949,5;7730' +
+    '1,5;77886,5;79317,5;79473,5;79843,5;80254,5;80959,5;81241,5;' +
+    '81456,5;81637,5;81865,5;82479,5;82809,5;82911,5;82917,5;8311' +
+    '2,5;83156,5;83247,5;83288,5;83297,5;83392,5;83475,5;83695,5;' +
+    '84216,5;84473,5;84771,5;84863,5;85135,5;85258,5;85882,5;8591' +
+    '3,5;86824,5;87037,5;87791,5;88867,5;89330,5;89503,5;89671,5;' +
+    '89959,5;90057,5;90268,5;90287,5;90359,5;90835,5;90842,5;9094' +
+    '8,5;91153,5;92219,5;92285,5;92719,5;93526,5;93620,5;93703,5"' +
+    ',"N",";187;802;808;979;1578;1837;2052;2208;2328;2642;3198;35' +
+    '27;3722;4202;4410;4618;5214;5520;6022;6562;6891;7505;8011;81' +
+    '17;8288;8643;9640;9755;11049;11057;11980;12842;13230;13523;1' +
+    '3702;13876;14137;14484;14584;14939;16095;16857;17410;17745;1' +
+    '7809;18857;18980;19823;20729;20735;21053;21098;21402;22454;2' +
+    '2729;24602;25683;25697;26183;27676;28300;28365;28748;28989;2' +
+    '9638;29815;30840;31669;31892;32132;32202;32531;32567;32604;3' +
+    '3615;33873;34376;34644;34748;35193;35474;35628;36075;36092;3' +
+    '6439;36462;36994;37241;37384;37549;38147;38728;38766;38797;3' +
+    '8971;39234;39373;40473;41045;41080;41375;41487;42362;43699;4' +
+    '3961;44901;46456;46561;48688;48937;50194;50785;50795;50884;5' +
+    '1535;52114;52949;52989;53016;53349;53747;53869;54120;54234;5' +
+    '4950;55173;55976;56084;56295;56591;56977;57066;57701;57725;5' +
+    '8061;58817;60700;60755;60910;61477;62314;62970;63584;63610;6' +
+    '4238;64348;65289;65354;65713;65871;66036;66420;66593;66971;6' +
+    '7019;67051;67188;67257;68796;68813;69120;69626;69885;70042;7' +
+    '0292;70374;71466;71844;71900;71991;74079;74215;74257;74308;7' +
+    '5172;75372;75854;75903;76640;76948;77300;77885;79316;79472;7' +
+    '9842;80253;80958;81240;81455;81636;81864;82478;82808;82910;8' +
+    '2916;83111;83155;83246;83287;83296;83391;83474;83694;84215;8' +
+    '4472;84770;84862;85134;85257;85881;85912;86823;87036;87790;8' +
+    '8866;89329;89502;89670;89958;90056;90267;90286;90358;90834;9' +
+    '0841;90947;91152;92218;92284;92718;93525;93619;93702"],' +
+    '["MboI","^GATC",0,0,"","A",""],' +
+    '["MboII","GAAGA(8/7)",0,346,";708,5;711,5;1231,5;1340,5;141' +
+    '2,5;1514,5;1517,5;1520,5;1547,5;1550,5;1553,5;1556,5;1963,5;' +
+    '2374,5;2460,5;2505,5;2575,5;3047,5;3055,5;3120,5;3212,5;3279' +
+    ',5;3345,5;3363,5;3733,5;4195,5;4631,5;5443,5;5653,5;5753,5;6' +
+    '411,5;6419,5;6484,5;6576,5;6643,5;6709,5;6727,5;7322,5;7681,' +
+    '5;7788,5;7880,5;8137,5;9026,5;9085,5;9914,5;10212,5;10360,5;' +
+    '10767,5;11339,5;12262,5;12339,5;12555,5;13309,5;13325,5;1335' +
+    '6,5;13359,5;13362,5;13395,5;13692,5;13752,5;14343,5;14579,5;' +
+    '14720,5;15017,5;15395,5;15442,5;15622,5;15882,5;16531,5;1655' +
+    '6,5;19425,5;19592,5;19624,5;19881,5;20173,5;20242,5;20383,5;' +
+    '20399,5;20478,5;20533,5;20539,5;20564,5;20896,5;20912,5;2102' +
+    '2,5;21239,5;21242,5;21262,5;21450,5;21600,5;21742,5;23161,5;' +
+    '23245,5;23272,5;23385,5;23744,5;24133,5;24265,5;24546,5;2454' +
+    '9,5;24885,5;25067,5;25070,5;25582,5;25894,5;26317,5;26712,5;' +
+    '27887,5;27890,5;27971,5;28097,5;28286,5;28289,5;28590,5;2912' +
+    '6,5;29129,5;29132,5;29519,5;29559,5;30229,5;30667,5;31094,5;' +
+    '31202,5;31251,5;31254,5;31287,5;31381,5;31384,5;31390,5;3194' +
+    '7,5;32040,5;32059,5;32226,5;32657,5;32825,5;33290,5;33641,5;' +
+    '33741,5;33782,5;34067,5;34070,5;34107,5;35035,5;35063,5;3536' +
+    '5,5;35501,5;35872,5;36559,5;37360,5;37423,5;37527,5;37856,5;' +
+    '37905,5;37921,5;38024,5;38188,5;38191,5;38232,5;38259,5;3844' +
+    '2,5;38848,5;38866,5;38883,5;38955,5;38979,5;39140,5;39285,5;' +
+    '39298,5;39328,5;39884,5;39899,5;39958,5;39969,5;39985,5;4001' +
+    '5,5;40691,5;40707,5;40893,5;41124,5;41268,5;41318,5;42052,5;' +
+    '42300,5;42319,5;42439,5;42836,5;43272,5;43998,5;44033,5;4408' +
+    '6,5;44302,5;44605,5;45460,5;45946,5;45949,5;46084,5;46713,5;' +
+    '47043,5;47126,5;47301,5;48239,5;48581,5;49221,5;49630,5;5067' +
+    '7,5;50833,5;50836,5;50969,5;51268,5;51383,5;52123,5;52501,5;' +
+    '53345,5;53665,5;54021,5;54271,5;54472,5;54683,5;54693,5;5482' +
+    '9,5;56146,5;56320,5;56757,5;56905,5;57080,5;57199,5;57279,5;' +
+    '57487,5;57490,5;57500,5;58245,5;58660,5;59286,5;59289,5;5936' +
+    '0,5;59586,5;59604,5;59988,5;60043,5;60387,5;60818,5;60833,5;' +
+    '60884,5;61219,5;61589,5;61624,5;61801,5;62604,5;62629,5;6325' +
+    '3,5;63523,5;63538,5;63759,5;63911,5;63964,5;64336,5;64573,5;' +
+    '64765,5;64829,5;64903,5;65247,5;65250,5;65257,5;65909,5;6623' +
+    '1,5;67560,5;67944,5;68417,5;69301,5;69613,5;70393,5;70411,5;' +
+    '70621,5;70737,5;70957,5;71408,5;71437,5;71818,5;71966,5;7213' +
+    '2,5;74812,5;75274,5;75945,5;76479,5;77175,5;77378,5;77495,5;' +
+    '77600,5;77621,5;78485,5;78552,5;78745,5;79035,5;79183,5;7951' +
+    '1,5;79712,5;80149,5;80758,5;81410,5;81746,5;82048,5;82332,5;' +
+    '82368,5;82709,5;83458,5;83643,5;83828,5;83973,5;84124,5;8472' +
+    '5,5;84816,5;85285,5;85295,5;85841,5;86105,5;86126,5;86168,5;' +
+    '86269,5;87224,5;87410,5;87746,5;88107,5;88146,5;88328,5;8837' +
+    '7,5;88467,5;88637,5;88936,5;89036,5;89058,5;89197,5;89266,5;' +
+    '89704,5;89860,5;89872,5;90064,5;90305,5;90345,5;91015,5;9129' +
+    '6,5;91751,5;91949,5;92588,5;92905,5;93238,5;93686,5","A",";7' +
+    '00;703;1243;1332;1424;1526;1529;1532;1559;1562;1565;1568;195' +
+    '5;2386;2472;2517;2587;3059;3047;3132;3224;3291;3357;3355;374' +
+    '5;4207;4623;5455;5665;5745;6423;6411;6496;6588;6655;6721;671' +
+    '9;7314;7693;7780;7892;8149;9038;9097;9906;10224;10372;10779;' +
+    '11351;12274;12331;12567;13301;13317;13368;13371;13374;13387;' +
+    '13704;13764;14335;14591;14732;15009;15407;15454;15634;15874;' +
+    '16543;16568;19437;19584;19616;19873;20185;20254;20375;20411;' +
+    '20490;20545;20551;20576;20888;20904;21034;21251;21254;21274;' +
+    '21462;21612;21754;23153;23237;23264;23377;23736;24125;24277;' +
+    '24538;24541;24877;25079;25082;25574;25886;26309;26724;27899;' +
+    '27902;27963;28089;28278;28281;28602;29118;29121;29124;29531;' +
+    '29571;30221;30679;31106;31214;31263;31266;31299;31393;31396;' +
+    '31402;31959;32032;32051;32218;32649;32817;33282;33653;33753;' +
+    '33794;34079;34082;34119;35027;35075;35357;35493;35864;36571;' +
+    '37352;37435;37519;37868;37917;37933;38016;38180;38183;38224;' +
+    '38251;38434;38840;38858;38875;38947;38971;39152;39297;39310;' +
+    '39340;39876;39911;39950;39981;39977;40007;40683;40699;40885;' +
+    '41116;41280;41310;42064;42312;42331;42451;42828;43284;43990;' +
+    '44025;44098;44314;44597;45452;45938;45941;46096;46725;47035;' +
+    '47138;47293;48231;48573;49213;49642;50689;50825;50828;50961;' +
+    '51280;51395;52135;52513;53337;53677;54033;54283;54464;54675;' +
+    '54685;54821;56138;56332;56749;56917;57072;57211;57291;57479;' +
+    '57482;57492;58257;58652;59298;59301;59372;59578;59596;59980;' +
+    '60055;60379;60830;60845;60896;61231;61601;61616;61793;62616;' +
+    '62641;63245;63535;63530;63751;63903;63976;64348;64585;64757;' +
+    '64841;64915;65239;65242;65249;65921;66223;67552;67936;68429;' +
+    '69293;69625;70385;70423;70613;70749;70969;71420;71449;71830;' +
+    '71978;72144;74824;75286;75957;76471;77167;77390;77507;77612;' +
+    '77633;78497;78564;78757;79027;79195;79523;79704;80161;80770;' +
+    '81402;81758;82060;82324;82360;82721;83450;83655;83820;83985;' +
+    '84136;84717;84828;85277;85307;85853;86117;86138;86160;86261;' +
+    '87236;87422;87758;88119;88138;88320;88369;88479;88649;88928;' +
+    '89048;89070;89189;89278;89716;89872;89884;90076;90297;90357;' +
+    '91027;91308;91763;91941;92580;92917;93230;93678"],' +
+    '["MfeI","C^AATTG",0,31,";3133,6;6497,6;16482,6;19682,6;2286' +
+    '6,6;23660,6;23981,6;24099,6;25184,6;29842,6;33189,6;38818,6;' +
+    '40368,6;41892,6;44112,6;48505,6;49645,6;50267,6;52679,6;6154' +
+    '7,6;63356,6;64224,6;65706,6;65979,6;66084,6;72875,6;74807,6;' +
+    '80903,6;81157,6;89150,6;91232,6","N",";3133;6497;16482;19682' +
+    ';22866;23660;23981;24099;25184;29842;33189;38818;40368;41892' +
+    ';44112;48505;49645;50267;52679;61547;63356;64224;65706;65979' +
+    ';66084;72875;74807;80903;81157;89150;91232"],' +
+    '["MluI","A^CGCGT",0,8,";46170,6;77061,6;77952,6;81662,6;868' +
+    '99,6;89674,6;90838,6;91878,6","N",";46170;77061;77952;81662;' +
+    '86899;89674;90838;91878"],' +
+    '["MluCI","^AATT",0,898,";3,4;37,4;162,4;214,4;268,4;327,4;3' +
+    '47,4;358,4;438,4;1176,4;1238,4;1257,4;1302,4;1386,4;1441,4;1' +
+    '466,4;1496,4;1508,4;1669,4;1789,4;1900,4;1910,4;1960,4;2039,' +
+    '4;2083,4;2100,4;2234,4;2540,4;2659,4;3134,4;3639,4;3661,4;37' +
+    '08,4;4247,4;4738,4;4771,4;5772,4;5854,4;5865,4;5885,4;5944,4' +
+    ';5998,4;6498,4;7003,4;7025,4;7072,4;7081,4;7229,4;8069,4;871' +
+    '9,4;9000,4;9390,4;9472,4;9483,4;9503,4;9562,4;9616,4;9684,4;' +
+    '9772,4;9801,4;10494,4;10499,4;10505,4;10573,4;10588,4;10599,' +
+    '4;10604,4;10609,4;10654,4;10682,4;10701,4;10742,4;10802,4;10' +
+    '814,4;10862,4;11183,4;11287,4;11312,4;11349,4;11378,4;11383,' +
+    '4;11415,4;11420,4;11430,4;11483,4;11595,4;11636,4;11712,4;11' +
+    '757,4;11871,4;11923,4;12019,4;12039,4;12078,4;12136,4;12559,' +
+    '4;12630,4;12789,4;13116,4;13127,4;13192,4;13196,4;13200,4;13' +
+    '204,4;13216,4;13221,4;13432,4;13476,4;13533,4;13728,4;13756,' +
+    '4;13902,4;14278,4;14356,4;14387,4;14452,4;14566,4;14571,4;14' +
+    '636,4;14859,4;15261,4;15354,4;15450,4;15458,4;15509,4;15537,' +
+    '4;15591,4;15672,4;15729,4;15735,4;15830,4;15846,4;16058,4;16' +
+    '063,4;16161,4;16180,4;16185,4;16196,4;16241,4;16290,4;16302,' +
+    '4;16371,4;16376,4;16483,4;16723,4;16734,4;16756,4;16770,4;16' +
+    '842,4;16866,4;16916,4;17023,4;17059,4;17101,4;17181,4;17214,' +
+    '4;17389,4;17766,4;17924,4;17994,4;18105,4;18395,4;18434,4;18' +
+    '627,4;18632,4;18701,4;18938,4;19234,4;19306,4;19363,4;19371,' +
+    '4;19643,4;19683,4;20372,4;21026,4;21042,4;21248,4;21391,4;21' +
+    '417,4;21425,4;21588,4;21653,4;21661,4;21722,4;21736,4;21780,' +
+    '4;21785,4;21795,4;21838,4;21864,4;21925,4;21960,4;21993,4;22' +
+    '007,4;22043,4;22151,4;22325,4;22413,4;22423,4;22438,4;22589,' +
+    '4;22702,4;22770,4;22867,4;22915,4;22941,4;23029,4;23048,4;23' +
+    '062,4;23077,4;23118,4;23286,4;23376,4;23493,4;23530,4;23559,' +
+    '4;23622,4;23628,4;23661,4;23674,4;23692,4;23756,4;23941,4;23' +
+    '982,4;23999,4;24020,4;24037,4;24052,4;24100,4;24112,4;24147,' +
+    '4;24183,4;24252,4;24439,4;24521,4;24790,4;24937,4;25050,4;25' +
+    '185,4;25223,4;25374,4;25520,4;25587,4;25601,4;25651,4;25678,' +
+    '4;25708,4;25828,4;25852,4;25873,4;25905,4;25935,4;26155,4;26' +
+    '509,4;26606,4;26716,4;26845,4;26880,4;27060,4;27076,4;27121,' +
+    '4;27142,4;27337,4;27514,4;27617,4;27621,4;27634,4;27694,4;27' +
+    '761,4;27799,4;27824,4;27857,4;28138,4;28383,4;28736,4;28955,' +
+    '4;29403,4;29677,4;29734,4;29797,4;29832,4;29843,4;29984,4;30' +
+    '115,4;30151,4;30163,4;30235,4;30327,4;30334,4;30373,4;30465,' +
+    '4;30525,4;30891,4;30981,4;31040,4;31102,4;31131,4;31146,4;31' +
+    '206,4;31275,4;31404,4;31498,4;31528,4;31557,4;31571,4;31606,' +
+    '4;31621,4;31629,4;31662,4;31747,4;32030,4;32316,4;32611,4;32' +
+    '663,4;33069,4;33179,4;33185,4;33190,4;33260,4;33391,4;33400,' +
+    '4;33406,4;33787,4;33803,4;33937,4;33969,4;34330,4;34657,4;34' +
+    '846,4;34951,4;34989,4;35010,4;35233,4;35272,4;35379,4;35442,' +
+    '4;35451,4;35712,4;35848,4;35927,4;36136,4;36393,4;36705,4;36' +
+    '915,4;36930,4;36936,4;36941,4;36990,4;37133,4;37408,4;37412,' +
+    '4;37568,4;37611,4;37616,4;37658,4;37767,4;38117,4;38418,4;38' +
+    '620,4;38651,4;38657,4;38669,4;38688,4;38705,4;38785,4;38806,' +
+    '4;38819,4;38901,4;38913,4;38951,4;38964,4;38987,4;39010,4;39' +
+    '030,4;39074,4;39093,4;39446,4;39465,4;39481,4;39486,4;39490,' +
+    '4;39494,4;39538,4;39569,4;39586,4;39631,4;39635,4;39708,4;39' +
+    '730,4;39780,4;39852,4;39993,4;40111,4;40182,4;40344,4;40369,' +
+    '4;40536,4;40625,4;40704,4;40754,4;40830,4;41151,4;41208,4;41' +
+    '223,4;41278,4;41315,4;41395,4;41434,4;41507,4;41580,4;41612,' +
+    '4;41646,4;41654,4;41677,4;41700,4;41710,4;41893,4;41909,4;41' +
+    '986,4;42085,4;42351,4;42411,4;42467,4;42517,4;42521,4;42686,' +
+    '4;42715,4;42739,4;42770,4;42810,4;42874,4;42910,4;43050,4;43' +
+    '090,4;43161,4;43184,4;43251,4;43293,4;43628,4;43663,4;43669,' +
+    '4;43748,4;43768,4;43826,4;43881,4;43902,4;43940,4;43973,4;44' +
+    '026,4;44069,4;44113,4;44393,4;44434,4;44572,4;44591,4;44623,' +
+    '4;44664,4;44772,4;44786,4;45004,4;45034,4;45119,4;45126,4;45' +
+    '197,4;45290,4;45530,4;46008,4;46191,4;46289,4;46294,4;46411,' +
+    '4;46417,4;46475,4;46553,4;46591,4;46718,4;46827,4;46863,4;46' +
+    '956,4;46992,4;47068,4;47297,4;47364,4;47463,4;47474,4;47570,' +
+    '4;47617,4;47628,4;47675,4;47901,4;47965,4;48083,4;48125,4;48' +
+    '341,4;48506,4;48650,4;48737,4;48764,4;48808,4;48897,4;49044,' +
+    '4;49056,4;49084,4;49148,4;49166,4;49257,4;49292,4;49390,4;49' +
+    '460,4;49480,4;49490,4;49646,4;49700,4;49733,4;49756,4;49843,' +
+    '4;49923,4;49966,4;50003,4;50159,4;50268,4;50478,4;50568,4;50' +
+    '669,4;50718,4;50769,4;50851,4;50921,4;51508,4;51772,4;51809,' +
+    '4;51848,4;51979,4;51984,4;51992,4;52025,4;52091,4;52218,4;52' +
+    '253,4;52322,4;52531,4;52680,4;52741,4;53090,4;53123,4;53245,' +
+    '4;53609,4;53639,4;53674,4;54029,4;54221,4;54249,4;54352,4;54' +
+    '757,4;54777,4;54785,4;54985,4;55292,4;55492,4;55497,4;55526,' +
+    '4;55546,4;55633,4;55707,4;55772,4;55845,4;55880,4;55886,4;56' +
+    '164,4;56250,4;56281,4;56324,4;56387,4;56419,4;56457,4;56543,' +
+    '4;56603,4;56619,4;56641,4;56668,4;56770,4;56800,4;56871,4;57' +
+    '077,4;57087,4;57298,4;57465,4;57560,4;57776,4;57836,4;57848,' +
+    '4;57946,4;58002,4;58017,4;58130,4;58185,4;58234,4;58271,4;58' +
+    '344,4;58538,4;58590,4;58849,4;58868,4;58877,4;58910,4;58921,' +
+    '4;58928,4;58935,4;58948,4;59074,4;59177,4;59318,4;59431,4;59' +
+    '521,4;59543,4;59554,4;59776,4;59832,4;60184,4;60328,4;60335,' +
+    '4;60352,4;60403,4;60535,4;60597,4;60822,4;60925,4;61008,4;61' +
+    '050,4;61193,4;61388,4;61494,4;61505,4;61509,4;61521,4;61548,' +
+    '4;61697,4;61706,4;61716,4;61791,4;61966,4;61995,4;62049,4;62' +
+    '083,4;62617,4;62828,4;62864,4;62894,4;62926,4;62930,4;62947,' +
+    '4;63140,4;63185,4;63194,4;63241,4;63278,4;63288,4;63357,4;63' +
+    '604,4;63683,4;63886,4;63918,4;63942,4;64089,4;64156,4;64225,' +
+    '4;64277,4;64367,4;64405,4;64608,4;64659,4;64697,4;64745,4;64' +
+    '781,4;64805,4;64884,4;64930,4;64971,4;64998,4;65027,4;65109,' +
+    '4;65176,4;65235,4;65451,4;65569,4;65587,4;65591,4;65632,4;65' +
+    '644,4;65707,4;65791,4;65857,4;65916,4;65980,4;66002,4;66044,' +
+    '4;66085,4;66203,4;66269,4;66413,4;66500,4;66651,4;66917,4;66' +
+    '989,4;67086,4;67280,4;67293,4;67326,4;67341,4;67363,4;67383,' +
+    '4;67405,4;67409,4;67440,4;67499,4;67588,4;67633,4;67719,4;67' +
+    '726,4;67730,4;67738,4;67748,4;67848,4;68221,4;68228,4;68335,' +
+    '4;68357,4;68363,4;68412,4;68467,4;68506,4;68541,4;68557,4;68' +
+    '571,4;68620,4;68655,4;68666,4;68670,4;68677,4;68791,4;68809,' +
+    '4;68830,4;68837,4;68847,4;68857,4;68886,4;68899,4;68909,4;68' +
+    '914,4;69146,4;69283,4;69339,4;69348,4;69380,4;69385,4;69468,' +
+    '4;69481,4;69541,4;69560,4;69573,4;69587,4;69603,4;69634,4;69' +
+    '695,4;69773,4;69805,4;69822,4;69842,4;69994,4;70160,4;70178,' +
+    '4;70231,4;70323,4;70340,4;70479,4;70523,4;70580,4;70790,4;71' +
+    '088,4;71481,4;71738,4;72300,4;72310,4;72719,4;72728,4;72812,' +
+    '4;72858,4;72876,4;72952,4;72967,4;73060,4;73101,4;73111,4;73' +
+    '200,4;73231,4;73259,4;73293,4;73341,4;73434,4;73480,4;73607,' +
+    '4;73616,4;74478,4;74808,4;74920,4;75270,4;75481,4;75580,4;76' +
+    '356,4;76631,4;77479,4;77557,4;77593,4;77644,4;77654,4;77705,' +
+    '4;77852,4;78026,4;78149,4;78876,4;78992,4;79065,4;80351,4;80' +
+    '487,4;80713,4;80904,4;81083,4;81158,4;81447,4;81583,4;81628,' +
+    '4;82130,4;82203,4;82267,4;82329,4;82749,4;83361,4;84225,4;84' +
+    '233,4;84275,4;84425,4;84645,4;84827,4;85011,4;85239,4;85279,' +
+    '4;85441,4;85695,4;85957,4;86226,4;86387,4;86599,4;86685,4;86' +
+    '953,4;87534,4;87877,4;87882,4;88057,4;88169,4;89048,4;89092,' +
+    '4;89151,4;89393,4;89433,4;89439,4;89539,4;89708,4;89738,4;89' +
+    '797,4;89966,4;89975,4;90144,4;90176,4;90187,4;90260,4;90353,' +
+    '4;90458,4;90624,4;91233,4;91556,4;91573,4;91667,4;91868,4;91' +
+    '974,4;92271,4;92458,4;92577,4;92642,4;92781,4;93055,4;93064,' +
+    '4;93170,4;93246,4;93288,4;93361,4;93562,4;93856,4;93908,4","' +
+    'N",";2;36;161;213;267;326;346;357;437;1175;1237;1256;1301;13' +
+    '85;1440;1465;1495;1507;1668;1788;1899;1909;1959;2038;2082;20' +
+    '99;2233;2539;2658;3133;3638;3660;3707;4246;4737;4770;5771;58' +
+    '53;5864;5884;5943;5997;6497;7002;7024;7071;7080;7228;8068;87' +
+    '18;8999;9389;9471;9482;9502;9561;9615;9683;9771;9800;10493;1' +
+    '0498;10504;10572;10587;10598;10603;10608;10653;10681;10700;1' +
+    '0741;10801;10813;10861;11182;11286;11311;11348;11377;11382;1' +
+    '1414;11419;11429;11482;11594;11635;11711;11756;11870;11922;1' +
+    '2018;12038;12077;12135;12558;12629;12788;13115;13126;13191;1' +
+    '3195;13199;13203;13215;13220;13431;13475;13532;13727;13755;1' +
+    '3901;14277;14355;14386;14451;14565;14570;14635;14858;15260;1' +
+    '5353;15449;15457;15508;15536;15590;15671;15728;15734;15829;1' +
+    '5845;16057;16062;16160;16179;16184;16195;16240;16289;16301;1' +
+    '6370;16375;16482;16722;16733;16755;16769;16841;16865;16915;1' +
+    '7022;17058;17100;17180;17213;17388;17765;17923;17993;18104;1' +
+    '8394;18433;18626;18631;18700;18937;19233;19305;19362;19370;1' +
+    '9642;19682;20371;21025;21041;21247;21390;21416;21424;21587;2' +
+    '1652;21660;21721;21735;21779;21784;21794;21837;21863;21924;2' +
+    '1959;21992;22006;22042;22150;22324;22412;22422;22437;22588;2' +
+    '2701;22769;22866;22914;22940;23028;23047;23061;23076;23117;2' +
+    '3285;23375;23492;23529;23558;23621;23627;23660;23673;23691;2' +
+    '3755;23940;23981;23998;24019;24036;24051;24099;24111;24146;2' +
+    '4182;24251;24438;24520;24789;24936;25049;25184;25222;25373;2' +
+    '5519;25586;25600;25650;25677;25707;25827;25851;25872;25904;2' +
+    '5934;26154;26508;26605;26715;26844;26879;27059;27075;27120;2' +
+    '7141;27336;27513;27616;27620;27633;27693;27760;27798;27823;2' +
+    '7856;28137;28382;28735;28954;29402;29676;29733;29796;29831;2' +
+    '9842;29983;30114;30150;30162;30234;30326;30333;30372;30464;3' +
+    '0524;30890;30980;31039;31101;31130;31145;31205;31274;31403;3' +
+    '1497;31527;31556;31570;31605;31620;31628;31661;31746;32029;3' +
+    '2315;32610;32662;33068;33178;33184;33189;33259;33390;33399;3' +
+    '3405;33786;33802;33936;33968;34329;34656;34845;34950;34988;3' +
+    '5009;35232;35271;35378;35441;35450;35711;35847;35926;36135;3' +
+    '6392;36704;36914;36929;36935;36940;36989;37132;37407;37411;3' +
+    '7567;37610;37615;37657;37766;38116;38417;38619;38650;38656;3' +
+    '8668;38687;38704;38784;38805;38818;38900;38912;38950;38963;3' +
+    '8986;39009;39029;39073;39092;39445;39464;39480;39485;39489;3' +
+    '9493;39537;39568;39585;39630;39634;39707;39729;39779;39851;3' +
+    '9992;40110;40181;40343;40368;40535;40624;40703;40753;40829;4' +
+    '1150;41207;41222;41277;41314;41394;41433;41506;41579;41611;4' +
+    '1645;41653;41676;41699;41709;41892;41908;41985;42084;42350;4' +
+    '2410;42466;42516;42520;42685;42714;42738;42769;42809;42873;4' +
+    '2909;43049;43089;43160;43183;43250;43292;43627;43662;43668;4' +
+    '3747;43767;43825;43880;43901;43939;43972;44025;44068;44112;4' +
+    '4392;44433;44571;44590;44622;44663;44771;44785;45003;45033;4' +
+    '5118;45125;45196;45289;45529;46007;46190;46288;46293;46410;4' +
+    '6416;46474;46552;46590;46717;46826;46862;46955;46991;47067;4' +
+    '7296;47363;47462;47473;47569;47616;47627;47674;47900;47964;4' +
+    '8082;48124;48340;48505;48649;48736;48763;48807;48896;49043;4' +
+    '9055;49083;49147;49165;49256;49291;49389;49459;49479;49489;4' +
+    '9645;49699;49732;49755;49842;49922;49965;50002;50158;50267;5' +
+    '0477;50567;50668;50717;50768;50850;50920;51507;51771;51808;5' +
+    '1847;51978;51983;51991;52024;52090;52217;52252;52321;52530;5' +
+    '2679;52740;53089;53122;53244;53608;53638;53673;54028;54220;5' +
+    '4248;54351;54756;54776;54784;54984;55291;55491;55496;55525;5' +
+    '5545;55632;55706;55771;55844;55879;55885;56163;56249;56280;5' +
+    '6323;56386;56418;56456;56542;56602;56618;56640;56667;56769;5' +
+    '6799;56870;57076;57086;57297;57464;57559;57775;57835;57847;5' +
+    '7945;58001;58016;58129;58184;58233;58270;58343;58537;58589;5' +
+    '8848;58867;58876;58909;58920;58927;58934;58947;59073;59176;5' +
+    '9317;59430;59520;59542;59553;59775;59831;60183;60327;60334;6' +
+    '0351;60402;60534;60596;60821;60924;61007;61049;61192;61387;6' +
+    '1493;61504;61508;61520;61547;61696;61705;61715;61790;61965;6' +
+    '1994;62048;62082;62616;62827;62863;62893;62925;62929;62946;6' +
+    '3139;63184;63193;63240;63277;63287;63356;63603;63682;63885;6' +
+    '3917;63941;64088;64155;64224;64276;64366;64404;64607;64658;6' +
+    '4696;64744;64780;64804;64883;64929;64970;64997;65026;65108;6' +
+    '5175;65234;65450;65568;65586;65590;65631;65643;65706;65790;6' +
+    '5856;65915;65979;66001;66043;66084;66202;66268;66412;66499;6' +
+    '6650;66916;66988;67085;67279;67292;67325;67340;67362;67382;6' +
+    '7404;67408;67439;67498;67587;67632;67718;67725;67729;67737;6' +
+    '7747;67847;68220;68227;68334;68356;68362;68411;68466;68505;6' +
+    '8540;68556;68570;68619;68654;68665;68669;68676;68790;68808;6' +
+    '8829;68836;68846;68856;68885;68898;68908;68913;69145;69282;6' +
+    '9338;69347;69379;69384;69467;69480;69540;69559;69572;69586;6' +
+    '9602;69633;69694;69772;69804;69821;69841;69993;70159;70177;7' +
+    '0230;70322;70339;70478;70522;70579;70789;71087;71480;71737;7' +
+    '2299;72309;72718;72727;72811;72857;72875;72951;72966;73059;7' +
+    '3100;73110;73199;73230;73258;73292;73340;73433;73479;73606;7' +
+    '3615;74477;74807;74919;75269;75480;75579;76355;76630;77478;7' +
+    '7556;77592;77643;77653;77704;77851;78025;78148;78875;78991;7' +
+    '9064;80350;80486;80712;80903;81082;81157;81446;81582;81627;8' +
+    '2129;82202;82266;82328;82748;83360;84224;84232;84274;84424;8' +
+    '4644;84826;85010;85238;85278;85440;85694;85956;86225;86386;8' +
+    '6598;86684;86952;87533;87876;87881;88056;88168;89047;89091;8' +
+    '9150;89392;89432;89438;89538;89707;89737;89796;89965;89974;9' +
+    '0143;90175;90186;90259;90352;90457;90623;91232;91555;91572;9' +
+    '1666;91867;91973;92270;92457;92576;92641;92780;93054;93063;9' +
+    '3169;93245;93287;93360;93561;93855;93907"],' +
+    '["MluNI","TGG^CCA",0,21,";576,6;5174,6;7224,6;7233,6;15203,' +
+    '6;18288,6;20319,6;32927,6;36021,6;46405,6;48331,6;51935,6;52' +
+    '240,6;70778,6;73509,6;74053,6;74999,6;76609,6;77433,6;79860,' +
+    '6;80103,6","N",";578;5176;7226;7235;15205;18290;20321;32929;' +
+    '36023;46407;48333;51937;52242;70780;73511;74055;75001;76611;' +
+    '77435;79862;80105"],' +
+    '["MlyI","GAGTC(5/5)",0,90,";276,5;536,5;794,5;1724,5;2211,5' +
+    ';2917,5;2958,5;3023,5;3034,5;4270,5;4409,5;4594,5;5935,5;628' +
+    '1,5;6322,5;6387,5;6398,5;7319,5;8565,5;9212,5;9553,5;12293,5' +
+    ';14827,5;15445,5;16646,5;17163,5;20166,5;20297,5;20340,5;208' +
+    '40,5;23655,5;23879,5;23965,5;25763,5;26554,5;27397,5;27423,5' +
+    ';28241,5;28457,5;30226,5;30744,5;32107,5;32205,5;33661,5;336' +
+    '79,5;33691,5;34110,5;34451,5;41512,5;46360,5;46564,5;51926,5' +
+    ';61085,5;61753,5;62876,5;65074,5;65743,5;66615,5;66926,5;670' +
+    '22,5;69938,5;70816,5;72019,5;72107,5;72428,5;74247,5;74728,5' +
+    ';74993,5;75128,5;75633,5;77258,5;77588,5;78423,5;79173,5;805' +
+    '96,5;83041,5;83545,5;83988,5;84397,5;85682,5;86297,5;86854,5' +
+    ';88070,5;88974,5;89216,5;89625,5;90044,5;90667,5;91776,5;920' +
+    '94,5","N",";270;545;803;1718;2205;2926;2967;3032;3028;4279;4' +
+    '418;4603;5944;6290;6331;6396;6392;7313;8574;9206;9562;12302;' +
+    '14821;15454;16640;17172;20175;20291;20334;20834;23649;23873;' +
+    '23959;25772;26548;27391;27417;28250;28466;30235;30738;32116;' +
+    '32199;33670;33688;33685;34104;34460;41506;46369;46558;51935;' +
+    '61079;61747;62870;65068;65737;66624;66920;67016;69947;70825;' +
+    '72028;72101;72437;74256;74737;75002;75137;75627;77267;77597;' +
+    '78417;79182;80605;83050;83539;83982;84391;85691;86291;86848;' +
+    '88064;88983;89225;89634;90038;90676;91785;92088"],' +
+    '["MmeI","TCCRAC(20/18)",0,78,";730,6;1777,6;3353,6;6717,6;7' +
+    '097,6;7568,6;8030,6;8264,6;8495,6;8871,6;9848,6;13158,6;1491' +
+    '0,6;14980,6;15165,6;15758,6;17625,6;18338,6;21181,6;21277,6;' +
+    '22635,6;22751,6;23796,6;26256,6;27938,6;28609,6;28767,6;2892' +
+    '7,6;29317,6;29762,6;31450,6;32148,6;32339,6;33551,6;33867,6;' +
+    '37642,6;38368,6;41437,6;42435,6;42785,6;44053,6;44998,6;4920' +
+    '4,6;50280,6;50350,6;50988,6;52551,6;53126,6;54639,6;55231,6;' +
+    '58781,6;59614,6;60706,6;63657,6;65067,6;69208,6;73856,6;7400' +
+    '1,6;75989,6;76431,6;76511,6;77096,6;77638,6;78822,6;79868,6;' +
+    '80027,6;82009,6;82335,6;83604,6;83786,6;84394,6;84403,6;8481' +
+    '2,6;85006,6;86065,6;86305,6;89733,6;90850,6","N",";711;1802;' +
+    '3378;6742;7122;7549;8055;8289;8476;8852;9873;13139;14891;149' +
+    '61;15146;15739;17650;18319;21162;21258;22660;22776;23777;262' +
+    '81;27963;28590;28748;28908;29298;29787;31475;32129;32364;335' +
+    '32;33892;37667;38349;41462;42416;42810;44078;44979;49229;502' +
+    '61;50375;51013;52532;53151;54664;55212;58762;59639;60731;636' +
+    '38;65092;69189;73837;74026;75970;76412;76492;77121;77619;788' +
+    '47;79893;80052;81990;82360;83585;83767;84419;84428;84793;849' +
+    '87;86090;86330;89714;90875"],' +
+    '["MnlI","CCTC(7/6)",0,537,";114,4;470,4;506,4;518,4;689,4;6' +
+    '93,4;734,4;791,4;825,4;858,4;1008,4;1023,4;1029,4;1035,4;106' +
+    '8,4;1115,4;1567,4;1689,4;2418,4;2470,4;2496,4;2535,4;2554,4;' +
+    '2605,4;2700,4;2976,4;3170,4;3173,4;3286,4;3326,4;3445,4;3476' +
+    ',4;3621,4;3736,4;4150,4;4198,4;4460,4;5016,4;5152,4;5685,4;6' +
+    '064,4;6340,4;6534,4;6537,4;6650,4;6690,4;6809,4;6840,4;6985,' +
+    '4;7175,4;7197,4;7388,4;7481,4;7585,4;7837,4;8051,4;8059,4;80' +
+    '87,4;8514,4;8654,4;8669,4;8994,4;9063,4;9224,4;9894,4;10170,' +
+    '4;10914,4;11681,4;11798,4;12222,4;12271,4;12592,4;12649,4;12' +
+    '822,4;12973,4;13495,4;13499,4;13537,4;13597,4;13943,4;14226,' +
+    '4;14229,4;14597,4;14643,4;14695,4;14874,4;14877,4;15092,4;15' +
+    '098,4;15134,4;15257,4;15280,4;15283,4;15286,4;15289,4;15375,' +
+    '4;15475,4;16447,4;17127,4;17438,4;17635,4;17786,4;17833,4;18' +
+    '332,4;18511,4;19675,4;19691,4;19793,4;19863,4;19972,4;20068,' +
+    '4;20245,4;20273,4;20276,4;20279,4;20306,4;20608,4;20870,4;21' +
+    '265,4;21300,4;21303,4;21381,4;21412,4;21506,4;21844,4;21933,' +
+    '4;22016,4;22483,4;22617,4;22693,4;22756,4;22777,4;23806,4;24' +
+    '131,4;24979,4;25062,4;25232,4;25244,4;25248,4;25366,4;25656,' +
+    '4;25754,4;26121,4;26488,4;26527,4;26743,4;26857,4;26949,4;26' +
+    '969,4;27026,4;27072,4;27498,4;27522,4;27778,4;27969,4;28062,' +
+    '4;28095,4;28159,4;28203,4;28377,4;28410,4;28495,4;28511,4;28' +
+    '552,4;28634,4;28819,4;29136,4;29194,4;29211,4;29230,4;29313,' +
+    '4;29338,4;29362,4;29498,4;29522,4;29542,4;29572,4;29655,4;29' +
+    '887,4;30201,4;30446,4;30555,4;30820,4;30912,4;31032,4;31441,' +
+    '4;31470,4;31975,4;32507,4;32779,4;32842,4;32999,4;33136,4;33' +
+    '246,4;33249,4;33264,4;33546,4;33683,4;33718,4;33882,4;34117,' +
+    '4;34143,4;34207,4;34721,4;34875,4;35127,4;35166,4;35188,4;35' +
+    '285,4;35770,4;35779,4;35806,4;35877,4;36010,4;36332,4;36398,' +
+    '4;36736,4;36898,4;36978,4;37378,4;37400,4;37420,4;37525,4;37' +
+    '866,4;37869,4;37902,4;37908,4;37929,4;37932,4;37961,4;37975,' +
+    '4;37978,4;37985,4;37996,4;38008,4;38011,4;38037,4;38112,4;38' +
+    '143,4;38168,4;38547,4;38740,4;38852,4;38945,4;39956,4;40410,' +
+    '4;40442,4;40634,4;40649,4;40759,4;40818,4;40944,4;41107,4;41' +
+    '122,4;41170,4;41828,4;42225,4;42563,4;42629,4;42754,4;43015,' +
+    '4;43281,4;43422,4;43425,4;44031,4;44518,4;44910,4;44939,4;44' +
+    '950,4;45404,4;45497,4;45710,4;45997,4;47139,4;47334,4;47778,' +
+    '4;47892,4;48836,4;49011,4;49026,4;49588,4;49828,4;50189,4;50' +
+    '287,4;50348,4;50441,4;50455,4;50650,4;51117,4;51154,4;51448,' +
+    '4;51564,4;51636,4;51824,4;51900,4;52126,4;52311,4;52415,4;52' +
+    '630,4;54050,4;54065,4;54738,4;54967,4;55104,4;55166,4;55169,' +
+    '4;55188,4;55469,4;55487,4;55506,4;55551,4;55569,4;55582,4;55' +
+    '840,4;56029,4;56160,4;56195,4;56246,4;56261,4;57258,4;57870,' +
+    '4;58390,4;58785,4;58792,4;58826,4;58990,4;59013,4;59095,4;59' +
+    '292,4;59446,4;59584,4;59596,4;59602,4;59836,4;60190,4;60414,' +
+    '4;60553,4;60557,4;60643,4;61238,4;62745,4;63074,4;63526,4;63' +
+    '952,4;64026,4;64131,4;64199,4;64299,4;64361,4;64556,4;64570,' +
+    '4;64601,4;64775,4;64913,4;65150,4;65381,4;65388,4;65457,4;66' +
+    '513,4;67047,4;67178,4;68183,4;68196,4;68429,4;68713,4;69067,' +
+    '4;69239,4;69258,4;69353,4;69489,4;69513,4;69516,4;69640,4;69' +
+    '900,4;70212,4;70467,4;70492,4;70605,4;70610,4;70667,4;71038,' +
+    '4;71099,4;71346,4;71806,4;72014,4;72121,4;72208,4;73154,4;73' +
+    '501,4;73801,4;73949,4;73988,4;74179,4;74290,4;74298,4;74420,' +
+    '4;74619,4;74701,4;74885,4;74973,4;75016,4;75137,4;75156,4;75' +
+    '232,4;75316,4;75576,4;75691,4;75848,4;75997,4;76036,4;76388,' +
+    '4;76393,4;76515,4;76602,4;76799,4;76858,4;76866,4;77159,4;77' +
+    '498,4;77507,4;77528,4;77738,4;77815,4;77890,4;77960,4;78371,' +
+    '4;78465,4;78546,4;78625,4;78830,4;78833,4;78941,4;79313,4;79' +
+    '340,4;79373,4;79488,4;79508,4;79529,4;79555,4;79577,4;79759,' +
+    '4;79794,4;80008,4;80015,4;80111,4;80174,4;80209,4;80491,4;80' +
+    '524,4;80608,4;80749,4;80803,4;80817,4;80911,4;80928,4;80956,' +
+    '4;80982,4;81043,4;81061,4;81111,4;81281,4;81397,4;81462,4;81' +
+    '623,4;81761,4;81839,4;81873,4;81887,4;81890,4;82353,4;82582,' +
+    '4;82621,4;83029,4;83182,4;83332,4;83411,4;83852,4;83865,4;83' +
+    '959,4;83967,4;84032,4;84349,4;84432,4;84819,4;85024,4;85292,' +
+    '4;85805,4;86108,4;86237,4;86463,4;86484,4;86820,4;86850,4;86' +
+    '923,4;86977,4;87144,4;87487,4;87559,4;87571,4;87592,4;87623,' +
+    '4;87772,4;88062,4;88323,4;88338,4;88479,4;88658,4;88674,4;88' +
+    '708,4;88731,4;88940,4;88944,4;89110,4;89204,4;89269,4;89278,' +
+    '4;89918,4;89980,4;90105,4;90232,4;90237,4;90240,4;90632,4;90' +
+    '771,4;92378,4;92679,4;92773,4;92876,4;93045,4;93090,4;93105,' +
+    '4;93132,4;93226,4;93395,4;93464,4;93577,4;93639,4","N",";124' +
+    ';480;516;511;682;703;727;784;835;868;1018;1033;1039;1045;107' +
+    '8;1108;1560;1682;2428;2463;2489;2528;2547;2598;2693;2969;318' +
+    '0;3183;3296;3319;3455;3469;3614;3729;4160;4191;4470;5009;514' +
+    '5;5695;6057;6333;6544;6547;6660;6683;6819;6833;6978;7185;720' +
+    '7;7381;7474;7595;7847;8044;8069;8080;8524;8647;8662;9004;907' +
+    '3;9217;9904;10163;10907;11674;11791;12215;12264;12585;12659;' +
+    '12815;12983;13505;13509;13547;13607;13953;14236;14239;14607;' +
+    '14636;14705;14884;14887;15085;15091;15144;15267;15290;15293;' +
+    '15296;15299;15385;15468;16457;17137;17448;17645;17796;17843;' +
+    '18325;18504;19685;19701;19803;19873;19982;20061;20238;20266;' +
+    '20269;20272;20316;20601;20863;21258;21293;21296;21374;21405;' +
+    '21499;21837;21926;22026;22493;22610;22703;22766;22787;23799;' +
+    '24141;24972;25055;25225;25237;25241;25359;25649;25764;26131;' +
+    '26481;26520;26753;26867;26959;26962;27036;27082;27508;27532;' +
+    '27771;27979;28072;28105;28169;28213;28370;28420;28488;28504;' +
+    '28562;28627;28812;29146;29187;29221;29223;29323;29331;29355;' +
+    '29491;29515;29535;29565;29665;29897;30194;30439;30565;30813;' +
+    '30922;31025;31451;31463;31985;32517;32772;32835;33009;33146;' +
+    '33256;33259;33274;33539;33693;33728;33875;34110;34153;34217;' +
+    '34714;34868;35120;35176;35181;35295;35780;35772;35816;35887;' +
+    '36020;36342;36391;36746;36908;36971;37388;37410;37413;37535;' +
+    '37859;37862;37895;37901;37922;37925;37954;37968;37971;37978;' +
+    '37989;38001;38004;38030;38122;38136;38161;38557;38750;38862;' +
+    '38955;39966;40403;40435;40644;40659;40769;40811;40937;41100;' +
+    '41132;41163;41821;42235;42573;42622;42764;43008;43291;43432;' +
+    '43435;44041;44528;44903;44949;44943;45414;45490;45720;46007;' +
+    '47132;47344;47788;47885;48846;49004;49019;49581;49838;50182;' +
+    '50297;50358;50451;50465;50643;51127;51147;51441;51574;51646;' +
+    '51834;51910;52119;52321;52425;52640;54043;54058;54731;54977;' +
+    '55097;55159;55162;55181;55462;55480;55499;55561;55579;55592;' +
+    '55850;56022;56170;56205;56256;56271;57251;57863;58383;58778;' +
+    '58802;58819;58983;59023;59105;59285;59456;59594;59606;59612;' +
+    '59829;60200;60424;60546;60550;60653;61248;62755;63084;63519;' +
+    '63945;64036;64141;64209;64309;64371;64549;64563;64611;64785;' +
+    '64923;65143;65374;65398;65450;66506;67040;67171;68193;68206;' +
+    '68439;68723;69077;69249;69268;69346;69482;69506;69509;69650;' +
+    '69893;70222;70460;70485;70615;70620;70677;71031;71109;71339;' +
+    '71799;72007;72114;72201;73164;73511;73811;73959;73998;74189;' +
+    '74283;74308;74413;74629;74694;74878;74983;75026;75130;75166;' +
+    '75225;75326;75586;75684;75858;76007;76029;76398;76403;76508;' +
+    '76595;76809;76868;76876;77152;77491;77500;77521;77748;77825;' +
+    '77900;77953;78364;78458;78539;78635;78823;78826;78951;79306;' +
+    '79333;79366;79498;79501;79522;79565;79570;79769;79804;80018;' +
+    '80025;80121;80184;80202;80484;80534;80618;80759;80813;80827;' +
+    '80904;80938;80949;80975;81036;81071;81121;81291;81407;81472;' +
+    '81616;81771;81832;81883;81880;81883;82346;82592;82631;83039;' +
+    '83175;83325;83421;83862;83875;83952;83977;84025;84342;84442;' +
+    '84812;85034;85285;85815;86101;86230;86456;86477;86813;86860;' +
+    '86933;86987;87137;87480;87552;87581;87602;87633;87765;88072;' +
+    '88333;88331;88472;88668;88684;88718;88741;88950;88954;89103;' +
+    '89214;89262;89288;89928;89973;90115;90242;90247;90250;90642;' +
+    '90781;92388;92689;92783;92869;93038;93100;93098;93125;93219;' +
+    '93405;93474;93570;93649"],' +
+    '["MroI","T^CCGGA",0,11,";3162,6;6526,6;8516,6;24552,6;30914' +
+    ',6;59015,6;73503,6;77274,6;79960,6;89700,6;90618,6","N",";31' +
+    '62;6526;8516;24552;30914;59015;73503;77274;79960;89700;90618' +
+    '"],' +
+    '["MscI","TGG^CCA",0,18,";576,6;5174,6;7224,6;7233,6;15203,6' +
+    ';18288,6;20319,6;36021,6;46405,6;48331,6;51935,6;52240,6;707' +
+    '78,6;73509,6;74999,6;76609,6;77433,6;80103,6","C",";578;5176' +
+    ';7226;7235;15205;18290;20321;36023;46407;48333;51937;52242;7' +
+    '0780;73511;75001;76611;77435;80105"],' +
+    '["MseI","T^TAA",0,705,";1,4;5,4;39,4;258,4;325,4;340,4;401,' +
+    '4;1147,4;1166,4;1304,4;1354,4;1482,4;1796,4;1829,4;1877,4;20' +
+    '98,4;2188,4;2232,4;2276,4;2318,4;2438,4;2528,4;2779,4;3582,4' +
+    ';3594,4;3659,4;3713,4;3970,4;4496,4;4580,4;4604,4;4724,4;474' +
+    '1,4;5811,4;5872,4;5887,4;5954,4;6143,4;6946,4;6958,4;7023,4;' +
+    '7083,4;7515,4;7971,4;8355,4;8931,4;9429,4;9490,4;9505,4;9572' +
+    ',4;9686,4;9799,4;9803,4;9877,4;9973,4;9993,4;10010,4;10119,4' +
+    ';10229,4;10236,4;10271,4;10307,4;10507,4;10571,4;10586,4;105' +
+    '97,4;10602,4;10792,4;10800,4;10817,4;10860,4;11005,4;11142,4' +
+    ';11207,4;11243,4;11314,4;11380,4;11418,4;11425,4;11489,4;115' +
+    '45,4;11581,4;11593,4;11731,4;11916,4;12005,4;12021,4;12041,4' +
+    ';12069,4;12080,4;12426,4;12678,4;12762,4;13015,4;13125,4;131' +
+    '90,4;13194,4;13198,4;13202,4;13206,4;14088,4;14564,4;14569,4' +
+    ';14936,4;15356,4;15455,4;15460,4;15465,4;15511,4;15584,4;156' +
+    '18,4;15670,4;15712,4;16065,4;16146,4;16182,4;16239,4;16280,4' +
+    ';16304,4;16374,4;16520,4;16564,4;16634,4;16659,4;16689,4;167' +
+    '30,4;16803,4;16840,4;16845,4;16908,4;17012,4;17021,4;17029,4' +
+    ';17044,4;17056,4;17211,4;17216,4;17240,4;17296,4;17431,4;176' +
+    '20,4;17661,4;17761,4;17922,4;17926,4;18014,4;18047,4;18066,4' +
+    ';18107,4;18284,4;18480,4;18579,4;18588,4;18600,4;18630,4;189' +
+    '36,4;19007,4;19097,4;19155,4;19167,4;19203,4;19365,4;19376,4' +
+    ';19661,4;19946,4;20144,4;20251,4;20845,4;20941,4;21269,4;214' +
+    '77,4;21534,4;21579,4;21709,4;21733,4;21778,4;21783,4;21791,4' +
+    ';21856,4;21866,4;21908,4;21923,4;21950,4;22339,4;22357,4;224' +
+    '15,4;22529,4;22705,4;22817,4;22835,4;22847,4;22882,4;22903,4' +
+    ';22931,4;23019,4;23059,4;23116,4;23166,4;23277,4;23373,4;234' +
+    '58,4;23472,4;23490,4;23507,4;23701,4;23772,4;23837,4;23889,4' +
+    ';23911,4;23916,4;23925,4;24001,4;24064,4;24115,4;24181,4;242' +
+    '20,4;24254,4;24414,4;24424,4;24569,4;24643,4;24777,4;24850,4' +
+    ';24939,4;25175,4;25225,4;25396,4;25711,4;25843,4;25878,4;259' +
+    '03,4;25932,4;25962,4;26466,4;26603,4;26695,4;26883,4;27068,4' +
+    ';27172,4;27198,4;27251,4;27325,4;27413,4;27619,4;27697,4;277' +
+    '38,4;27751,4;27855,4;27859,4;27992,4;28335,4;28428,4;28515,4' +
+    ';28629,4;29013,4;29405,4;29418,4;29611,4;29685,4;29795,4;299' +
+    '82,4;29986,4;30011,4;30161,4;30221,4;30325,4;30332,4;30410,4' +
+    ';30523,4;30527,4;30699,4;30790,4;30973,4;30979,4;31120,4;311' +
+    '29,4;31149,4;31280,4;31322,4;31475,4;31531,4;31540,4;31559,4' +
+    ';31573,4;31598,4;31749,4;31825,4;31836,4;31850,4;31870,4;319' +
+    '01,4;31918,4;32067,4;32323,4;32434,4;32723,4;33031,4;33166,4' +
+    ';33232,4;33471,4;33765,4;33912,4;33995,4;34310,4;34421,4;347' +
+    '03,4;35312,4;35416,4;35575,4;35648,4;35725,4;35895,4;35929,4' +
+    ';36100,4;36326,4;37366,4;37410,4;37661,4;37806,4;38270,4;384' +
+    '20,4;38649,4;38715,4;38736,4;39049,4;39080,4;39265,4;39443,4' +
+    ';39479,4;39488,4;39492,4;39500,4;39511,4;39540,4;39588,4;396' +
+    '33,4;39711,4;39732,4;39772,4;39854,4;40083,4;40114,4;40209,4' +
+    ';40243,4;40314,4;40520,4;40839,4;41190,4;41211,4;41225,4;415' +
+    '05,4;42254,4;42391,4;42465,4;42469,4;42487,4;42519,4;42642,4' +
+    ';42684,4;42691,4;42713,4;42725,4;42795,4;42831,4;42862,4;429' +
+    '12,4;43040,4;43059,4;43087,4;43109,4;43121,4;43225,4;43416,4' +
+    ';43469,4;43490,4;43530,4;43732,4;43879,4;43896,4;43917,4;439' +
+    '43,4;43956,4;44039,4;44144,4;44284,4;44346,4;44374,4;44403,4' +
+    ';44451,4;44474,4;44480,4;44554,4;44790,4;44834,4;44865,4;450' +
+    '32,4;45129,4;45228,4;45293,4;45493,4;46291,4;46296,4;46318,4' +
+    ';46492,4;46589,4;46814,4;47004,4;47199,4;47287,4;47619,4;476' +
+    '30,4;47681,4;47689,4;47903,4;47983,4;48157,4;48766,4;49007,4' +
+    ';49080,4;49125,4;49325,4;49534,4;49742,4;49758,4;49963,4;501' +
+    '13,4;50916,4;50923,4;51068,4;51079,4;51846,4;51981,4;52004,4' +
+    ';52223,4;52251,4;52428,4;52481,4;52765,4;52844,4;52899,4;532' +
+    '69,4;53421,4;53499,4;53784,4;53800,4;53807,4;53948,4;54011,4' +
+    ';54133,4;54187,4;54325,4;54349,4;54763,4;54770,4;54997,4;556' +
+    '11,4;55631,4;55704,4;55744,4;55857,4;56114,4;56279,4;56327,4' +
+    ';56374,4;56600,4;56768,4;56798,4;56802,4;56825,4;56865,4;572' +
+    '14,4;57353,4;57459,4;57564,4;57601,4;57635,4;57651,4;57773,4' +
+    ';57830,4;57948,4;57999,4;58019,4;58132,4;58314,4;58347,4;585' +
+    '25,4;58535,4;58621,4;58834,4;58847,4;58871,4;58912,4;59123,4' +
+    ';59128,4;59163,4;59175,4;59196,4;59226,4;59336,4;59420,4;594' +
+    '94,4;59875,4;59929,4;59944,4;59984,4;60080,4;60253,4;60533,4' +
+    ';60538,4;60669,4;60751,4;60919,4;61052,4;61366,4;61408,4;615' +
+    '07,4;61615,4;61649,4;61997,4;62285,4;62337,4;62419,4;62444,4' +
+    ';62591,4;62826,4;62928,4;63196,4;63259,4;63280,4;63389,4;633' +
+    '96,4;63554,4;63782,4;63815,4;63863,4;63916,4;63970,4;63977,4' +
+    ';64031,4;64048,4;64152,4;64159,4;64671,4;64784,4;64963,4;650' +
+    '05,4;65047,4;65095,4;65508,4;65589,4;65635,4;65642,4;65935,4' +
+    ';66187,4;66206,4;66415,4;66427,4;66439,4;66991,4;67295,4;673' +
+    '21,4;67336,4;67349,4;67403,4;67407,4;67492,4;67497,4;67631,4' +
+    ';67638,4;67666,4;67714,4;67724,4;67728,4;67742,4;67750,4;678' +
+    '46,4;67915,4;67987,4;68066,4;68075,4;68133,4;68241,4;68465,4' +
+    ';68504,4;68528,4;68618,4;68668,4;68684,4;68752,4;68850,4;688' +
+    '60,4;68884,4;68911,4;68917,4;68944,4;69017,4;69158,4;69219,4' +
+    ';69376,4;69538,4;69557,4;69582,4;69590,4;69608,4;69709,4;697' +
+    '35,4;69743,4;69803,4;69809,4;69824,4;70097,4;70162,4;70199,4' +
+    ';70279,4;70356,4;71357,4;72171,4;72312,4;72673,4;72732,4;728' +
+    '56,4;72965,4;72972,4;73092,4;73198,4;73220,4;73233,4;73262,4' +
+    ';73348,4;73383,4;73408,4;73579,4;73614,4;73658,4;73736,4;744' +
+    '27,4;74438,4;74648,4;75479,4;75593,4;77724,4;78473,4;78705,4' +
+    ';79272,4;79593,4;80075,4;80297,4;80306,4;81233,4;82157,4;822' +
+    '35,4;82564,4;83080,4;84227,4;84423,4;84635,4;85014,4;85241,4' +
+    ';85319,4;85464,4;85494,4;85698,4;85720,4;85834,4;85855,4;860' +
+    '33,4;86250,4;86683,4;86836,4;87006,4;87055,4;87355,4;87376,4' +
+    ';87500,4;87875,4;87879,4;88261,4;88344,4;88395,4;88768,4;891' +
+    '65,4;89179,4;89359,4;89381,4;89740,4;89882,4;90038,4;90126,4' +
+    ';90154,4;90168,4;90340,4;90464,4;90869,4;91070,4;91079,4;920' +
+    '45,4;92579,4;92607,4;92640,4;92727,4;92985,4;93200,4;93533,4' +
+    ';93874,4;93897,4","N",";1;5;39;258;325;340;401;1147;1166;130' +
+    '4;1354;1482;1796;1829;1877;2098;2188;2232;2276;2318;2438;252' +
+    '8;2779;3582;3594;3659;3713;3970;4496;4580;4604;4724;4741;581' +
+    '1;5872;5887;5954;6143;6946;6958;7023;7083;7515;7971;8355;893' +
+    '1;9429;9490;9505;9572;9686;9799;9803;9877;9973;9993;10010;10' +
+    '119;10229;10236;10271;10307;10507;10571;10586;10597;10602;10' +
+    '792;10800;10817;10860;11005;11142;11207;11243;11314;11380;11' +
+    '418;11425;11489;11545;11581;11593;11731;11916;12005;12021;12' +
+    '041;12069;12080;12426;12678;12762;13015;13125;13190;13194;13' +
+    '198;13202;13206;14088;14564;14569;14936;15356;15455;15460;15' +
+    '465;15511;15584;15618;15670;15712;16065;16146;16182;16239;16' +
+    '280;16304;16374;16520;16564;16634;16659;16689;16730;16803;16' +
+    '840;16845;16908;17012;17021;17029;17044;17056;17211;17216;17' +
+    '240;17296;17431;17620;17661;17761;17922;17926;18014;18047;18' +
+    '066;18107;18284;18480;18579;18588;18600;18630;18936;19007;19' +
+    '097;19155;19167;19203;19365;19376;19661;19946;20144;20251;20' +
+    '845;20941;21269;21477;21534;21579;21709;21733;21778;21783;21' +
+    '791;21856;21866;21908;21923;21950;22339;22357;22415;22529;22' +
+    '705;22817;22835;22847;22882;22903;22931;23019;23059;23116;23' +
+    '166;23277;23373;23458;23472;23490;23507;23701;23772;23837;23' +
+    '889;23911;23916;23925;24001;24064;24115;24181;24220;24254;24' +
+    '414;24424;24569;24643;24777;24850;24939;25175;25225;25396;25' +
+    '711;25843;25878;25903;25932;25962;26466;26603;26695;26883;27' +
+    '068;27172;27198;27251;27325;27413;27619;27697;27738;27751;27' +
+    '855;27859;27992;28335;28428;28515;28629;29013;29405;29418;29' +
+    '611;29685;29795;29982;29986;30011;30161;30221;30325;30332;30' +
+    '410;30523;30527;30699;30790;30973;30979;31120;31129;31149;31' +
+    '280;31322;31475;31531;31540;31559;31573;31598;31749;31825;31' +
+    '836;31850;31870;31901;31918;32067;32323;32434;32723;33031;33' +
+    '166;33232;33471;33765;33912;33995;34310;34421;34703;35312;35' +
+    '416;35575;35648;35725;35895;35929;36100;36326;37366;37410;37' +
+    '661;37806;38270;38420;38649;38715;38736;39049;39080;39265;39' +
+    '443;39479;39488;39492;39500;39511;39540;39588;39633;39711;39' +
+    '732;39772;39854;40083;40114;40209;40243;40314;40520;40839;41' +
+    '190;41211;41225;41505;42254;42391;42465;42469;42487;42519;42' +
+    '642;42684;42691;42713;42725;42795;42831;42862;42912;43040;43' +
+    '059;43087;43109;43121;43225;43416;43469;43490;43530;43732;43' +
+    '879;43896;43917;43943;43956;44039;44144;44284;44346;44374;44' +
+    '403;44451;44474;44480;44554;44790;44834;44865;45032;45129;45' +
+    '228;45293;45493;46291;46296;46318;46492;46589;46814;47004;47' +
+    '199;47287;47619;47630;47681;47689;47903;47983;48157;48766;49' +
+    '007;49080;49125;49325;49534;49742;49758;49963;50113;50916;50' +
+    '923;51068;51079;51846;51981;52004;52223;52251;52428;52481;52' +
+    '765;52844;52899;53269;53421;53499;53784;53800;53807;53948;54' +
+    '011;54133;54187;54325;54349;54763;54770;54997;55611;55631;55' +
+    '704;55744;55857;56114;56279;56327;56374;56600;56768;56798;56' +
+    '802;56825;56865;57214;57353;57459;57564;57601;57635;57651;57' +
+    '773;57830;57948;57999;58019;58132;58314;58347;58525;58535;58' +
+    '621;58834;58847;58871;58912;59123;59128;59163;59175;59196;59' +
+    '226;59336;59420;59494;59875;59929;59944;59984;60080;60253;60' +
+    '533;60538;60669;60751;60919;61052;61366;61408;61507;61615;61' +
+    '649;61997;62285;62337;62419;62444;62591;62826;62928;63196;63' +
+    '259;63280;63389;63396;63554;63782;63815;63863;63916;63970;63' +
+    '977;64031;64048;64152;64159;64671;64784;64963;65005;65047;65' +
+    '095;65508;65589;65635;65642;65935;66187;66206;66415;66427;66' +
+    '439;66991;67295;67321;67336;67349;67403;67407;67492;67497;67' +
+    '631;67638;67666;67714;67724;67728;67742;67750;67846;67915;67' +
+    '987;68066;68075;68133;68241;68465;68504;68528;68618;68668;68' +
+    '684;68752;68850;68860;68884;68911;68917;68944;69017;69158;69' +
+    '219;69376;69538;69557;69582;69590;69608;69709;69735;69743;69' +
+    '803;69809;69824;70097;70162;70199;70279;70356;71357;72171;72' +
+    '312;72673;72732;72856;72965;72972;73092;73198;73220;73233;73' +
+    '262;73348;73383;73408;73579;73614;73658;73736;74427;74438;74' +
+    '648;75479;75593;77724;78473;78705;79272;79593;80075;80297;80' +
+    '306;81233;82157;82235;82564;83080;84227;84423;84635;85014;85' +
+    '241;85319;85464;85494;85698;85720;85834;85855;86033;86250;86' +
+    '683;86836;87006;87055;87355;87376;87500;87875;87879;88261;88' +
+    '344;88395;88768;89165;89179;89359;89381;89740;89882;90038;90' +
+    '126;90154;90168;90340;90464;90869;91070;91079;92045;92579;92' +
+    '607;92640;92727;92985;93200;93533;93874;93897"],' +
+    '["MslI","CAYNN^NNRTG",0,92,";492,10;580,10;745,10;3976,10;4' +
+    '051,10;4327,10;4428,10;4621,10;5527,10;7216,10;7648,10;8251,' +
+    '10;8311,10;8807,10;11443,10;12185,10;12751,10;12853,10;13623' +
+    ',10;13735,10;13801,10;14259,10;16536,10;18088,10;19434,10;19' +
+    '453,10;21086,10;21201,10;22721,10;23947,10;25172,10;25571,10' +
+    ';26295,10;26400,10;30258,10;30422,10;30591,10;31973,10;32748' +
+    ',10;35080,10;38511,10;38771,10;39109,10;41188,10;41917,10;42' +
+    '100,10;45737,10;46056,10;49814,10;50407,10;51307,10;52618,10' +
+    ';52994,10;53218,10;53737,10;53739,10;54228,10;54313,10;54838' +
+    ',10;55334,10;60133,10;60544,10;60626,10;60681,10;61158,10;61' +
+    '471,10;61973,10;62695,10;62784,10;64477,10;66598,10;67877,10' +
+    ';67949,10;68246,10;68442,10;69057,10;69406,10;70908,10;72141' +
+    ',10;72397,10;73769,10;74608,10;77242,10;77248,10;82799,10;83' +
+    '832,10;85744,10;86152,10;87713,10;90322,10;92200,10;92655,10' +
+    '","N",";496;584;749;3980;4055;4331;4432;4625;5531;7220;7652;' +
+    '8255;8315;8811;11447;12189;12755;12857;13627;13739;13805;142' +
+    '63;16540;18092;19438;19457;21090;21205;22725;23951;25176;255' +
+    '75;26299;26404;30262;30426;30595;31977;32752;35084;38515;387' +
+    '75;39113;41192;41921;42104;45741;46060;49818;50411;51311;526' +
+    '22;52998;53222;53741;53743;54232;54317;54842;55338;60137;605' +
+    '48;60630;60685;61162;61475;61977;62699;62788;64481;66602;678' +
+    '81;67953;68250;68446;69061;69410;70912;72145;72401;73773;746' +
+    '12;77246;77252;82803;83836;85748;86156;87717;90326;92204;926' +
+    '59"],' +
+    '["MspI","C^CGG",0,160,";11,4;105,4;382,4;554,4;1736,4;2390,' +
+    '4;3163,4;3720,4;3794,4;3896,4;3920,4;4490,4;4598,4;4796,4;48' +
+    '25,4;4864,4;4912,4;4999,4;5076,4;5098,4;5126,4;5257,4;5347,4' +
+    ';5414,4;5595,4;5830,4;6527,4;8517,4;9448,4;11623,4;13272,4;1' +
+    '3294,4;13338,4;13370,4;17115,4;17912,4;18188,4;18917,4;20583' +
+    ',4;20599,4;20662,4;21633,4;24553,4;25635,4;25867,4;28041,4;2' +
+    '8120,4;28174,4;28180,4;28356,4;28526,4;28555,4;28559,4;28966' +
+    ',4;29009,4;30694,4;30880,4;30915,4;30923,4;30987,4;32622,4;3' +
+    '4147,4;34672,4;37158,4;40566,4;41737,4;41746,4;43803,4;45670' +
+    ',4;59016,4;59804,4;65595,4;70702,4;71353,4;71830,4;72665,4;7' +
+    '3469,4;73504,4;74124,4;74182,4;74785,4;74862,4;75052,4;75761' +
+    ',4;75876,4;76067,4;76119,4;76151,4;76182,4;76485,4;77138,4;7' +
+    '7275,4;77635,4;77782,4;77972,4;78033,4;78251,4;78365,4;78503' +
+    ',4;78533,4;78779,4;79283,4;79328,4;79442,4;79961,4;80266,4;8' +
+    '0370,4;81214,4;81548,4;81562,4;81709,4;81899,4;81965,4;82057' +
+    ',4;82241,4;82423,4;82476,4;82606,4;83439,4;83527,4;83538,4;8' +
+    '3554,4;83560,4;83652,4;83902,4;84486,4;84670,4;84752,4;85678' +
+    ',4;86042,4;86310,4;86323,4;86845,4;87419,4;87518,4;87645,4;8' +
+    '8217,4;88587,4;89004,4;89454,4;89701,4;89833,4;90517,4;90619' +
+    ',4;90832,4;91103,4;91210,4;91536,4;91748,4;91988,4;92105,4;9' +
+    '2295,4;92313,4;92515,4;92751,4;92760,4;93032,4;93667,4;93755' +
+    ',4;93803,4","N",";11;105;382;554;1736;2390;3163;3720;3794;38' +
+    '96;3920;4490;4598;4796;4825;4864;4912;4999;5076;5098;5126;52' +
+    '57;5347;5414;5595;5830;6527;8517;9448;11623;13272;13294;1333' +
+    '8;13370;17115;17912;18188;18917;20583;20599;20662;21633;2455' +
+    '3;25635;25867;28041;28120;28174;28180;28356;28526;28555;2855' +
+    '9;28966;29009;30694;30880;30915;30923;30987;32622;34147;3467' +
+    '2;37158;40566;41737;41746;43803;45670;59016;59804;65595;7070' +
+    '2;71353;71830;72665;73469;73504;74124;74182;74785;74862;7505' +
+    '2;75761;75876;76067;76119;76151;76182;76485;77138;77275;7763' +
+    '5;77782;77972;78033;78251;78365;78503;78533;78779;79283;7932' +
+    '8;79442;79961;80266;80370;81214;81548;81562;81709;81899;8196' +
+    '5;82057;82241;82423;82476;82606;83439;83527;83538;83554;8356' +
+    '0;83652;83902;84486;84670;84752;85678;86042;86310;86323;8684' +
+    '5;87419;87518;87645;88217;88587;89004;89454;89701;89833;9051' +
+    '7;90619;90832;91103;91210;91536;91748;91988;92105;92295;9231' +
+    '3;92515;92751;92760;93032;93667;93755;93803"],' +
+    '["MspA1I","CMG^CKG",0,48,";559,6;4513,6;4648,6;5198,6;8457,' +
+    '6;12656,6;13747,6;14326,6;28221,6;32047,6;38575,6;44118,6;49' +
+    '639,6;59024,6;59058,6;65329,6;70514,6;71291,6;71540,6;73458,' +
+    '6;74484,6;74853,6;75602,6;77034,6;77067,6;77165,6;78182,6;78' +
+    '619,6;79421,6;79651,6;79721,6;79945,6;80527,6;81552,6;81811,' +
+    '6;82627,6;83254,6;83513,6;85667,6;86799,6;87328,6;89053,6;90' +
+    '809,6;91276,6;91893,6;92592,6;93467,6;93741,6","N",";561;451' +
+    '5;4650;5200;8459;12658;13749;14328;28223;32049;38577;44120;4' +
+    '9641;59026;59060;65331;70516;71293;71542;73460;74486;74855;7' +
+    '5604;77036;77069;77167;78184;78621;79423;79653;79723;79947;8' +
+    '0529;81554;81813;82629;83256;83515;85669;86801;87330;89055;9' +
+    '0811;91278;91895;92594;93469;93743"],' +
+    '["MunI","C^AATTG",0,31,";3133,6;6497,6;16482,6;19682,6;2286' +
+    '6,6;23660,6;23981,6;24099,6;25184,6;29842,6;33189,6;38818,6;' +
+    '40368,6;41892,6;44112,6;48505,6;49645,6;50267,6;52679,6;6154' +
+    '7,6;63356,6;64224,6;65706,6;65979,6;66084,6;72875,6;74807,6;' +
+    '80903,6;81157,6;89150,6;91232,6","N",";3133;6497;16482;19682' +
+    ';22866;23660;23981;24099;25184;29842;33189;38818;40368;41892' +
+    ';44112;48505;49645;50267;52679;61547;63356;64224;65706;65979' +
+    ';66084;72875;74807;80903;81157;89150;91232"],' +
+    '["MvaI","CC^WGG",0,97,";603,5;798,5;952,5;2264,5;2750,5;372' +
+    '7,5;3822,5;3876,5;4293,5;4380,5;5480,5;6114,5;8349,5;8789,5;' +
+    '8809,5;8866,5;12572,5;12670,5;13386,5;14986,5;20287,5;23437,' +
+    '5;25628,5;26197,5;29296,5;30875,5;31327,5;32930,5;33002,5;33' +
+    '352,5;34256,5;34754,5;35784,5;36190,5;37597,5;39744,5;40553,' +
+    '5;41548,5;42417,5;43257,5;50467,5;51255,5;52132,5;54610,5;57' +
+    '239,5;58996,5;60067,5;61910,5;63960,5;64514,5;65136,5;66099,' +
+    '5;66235,5;66346,5;66392,5;66742,5;66935,5;67538,5;71384,5;71' +
+    '710,5;71869,5;73464,5;74051,5;75169,5;76425,5;77617,5;79213,' +
+    '5;79499,5;79770,5;79863,5;80214,5;80882,5;80996,5;81351,5;81' +
+    '990,5;82105,5;82842,5;83585,5;83996,5;84375,5;84735,5;85543,' +
+    '5;85982,5;87314,5;88028,5;88506,5;88898,5;89250,5;89286,5;89' +
+    '334,5;89511,5;89685,5;91514,5;91809,5;91932,5;91955,5;93124,' +
+    '5","N",";604;799;953;2265;2751;3728;3823;3877;4294;4381;5481' +
+    ';6115;8350;8790;8810;8867;12573;12671;13387;14987;20288;2343' +
+    '8;25629;26198;29297;30876;31328;32931;33003;33353;34257;3475' +
+    '5;35785;36191;37598;39745;40554;41549;42418;43258;50468;5125' +
+    '6;52133;54611;57240;58997;60068;61911;63961;64515;65137;6610' +
+    '0;66236;66347;66393;66743;66936;67539;71385;71711;71870;7346' +
+    '5;74052;75170;76426;77618;79214;79500;79771;79864;80215;8088' +
+    '3;80997;81352;81991;82106;82843;83586;83997;84376;84736;8554' +
+    '4;85983;87315;88029;88507;88899;89251;89287;89335;89512;8968' +
+    '6;91515;91810;91933;91956;93125"],' +
+    '["MvnI","CG^CG",0,178,";204,4;206,4;208,4;230,4;252,4;666,4' +
+    ';840,4;1121,4;3994,4;4116,4;4355,4;4404,4;4406,4;4564,4;4574' +
+    ',4;4576,4;4882,4;5159,4;5460,4;5492,4;5960,4;5982,4;6004,4;6' +
+    '006,4;6008,4;9578,4;9600,4;9622,4;9624,4;9626,4;9656,4;9824,' +
+    '4;12503,4;14752,4;18811,4;20485,4;23358,4;25438,4;26759,4;26' +
+    '966,4;28571,4;28680,4;29023,4;30927,4;30958,4;32600,4;33435,' +
+    '4;34765,4;40283,4;43713,4;45056,4;46171,4;46908,4;46910,4;48' +
+    '185,4;50357,4;59025,4;59059,4;59139,4;60726,4;62698,4;67901,' +
+    '4;68306,4;69498,4;69918,4;71681,4;73459,4;73591,4;73955,4;73' +
+    '961,4;74066,4;74097,4;74284,4;74507,4;74748,4;74854,4;74955,' +
+    '4;74983,4;75211,4;75213,4;75282,4;75603,4;75665,4;75870,4;76' +
+    '158,4;76200,4;76254,4;76282,4;76334,4;76588,4;76814,4;76839,' +
+    '4;77062,4;77068,4;77224,4;77336,4;77338,4;77368,4;77370,4;77' +
+    '564,4;77953,4;78383,4;78620,4;78881,4;78892,4;78960,4;78998,' +
+    '4;79162,4;79357,4;79422,4;79600,4;79687,4;80085,4;80241,4;80' +
+    '628,4;81038,4;81274,4;81436,4;81534,4;81567,4;81576,4;81601,' +
+    '4;81620,4;81663,4;81700,4;81824,4;81903,4;82071,4;82073,4;82' +
+    '075,4;82348,4;82350,4;82466,4;82759,4;82822,4;82887,4;83160,' +
+    '4;83415,4;83666,4;83668,4;83670,4;83807,4;84624,4;84969,4;85' +
+    '019,4;85159,4;86422,4;86449,4;86900,4;87060,4;87186,4;87296,' +
+    '4;87298,4;87755,4;88013,4;88200,4;89042,4;89044,4;89054,4;89' +
+    '675,4;90007,4;90367,4;90477,4;90479,4;90614,4;90774,4;90839,' +
+    '4;91332,4;91454,4;91704,4;91879,4;92162,4;92170,4;92344,4;92' +
+    '392,4;92501,4;92886,4;93643,4","N",";205;207;209;231;253;667' +
+    ';841;1122;3995;4117;4356;4405;4407;4565;4575;4577;4883;5160;' +
+    '5461;5493;5961;5983;6005;6007;6009;9579;9601;9623;9625;9627;' +
+    '9657;9825;12504;14753;18812;20486;23359;25439;26760;26967;28' +
+    '572;28681;29024;30928;30959;32601;33436;34766;40284;43714;45' +
+    '057;46172;46909;46911;48186;50358;59026;59060;59140;60727;62' +
+    '699;67902;68307;69499;69919;71682;73460;73592;73956;73962;74' +
+    '067;74098;74285;74508;74749;74855;74956;74984;75212;75214;75' +
+    '283;75604;75666;75871;76159;76201;76255;76283;76335;76589;76' +
+    '815;76840;77063;77069;77225;77337;77339;77369;77371;77565;77' +
+    '954;78384;78621;78882;78893;78961;78999;79163;79358;79423;79' +
+    '601;79688;80086;80242;80629;81039;81275;81437;81535;81568;81' +
+    '577;81602;81621;81664;81701;81825;81904;82072;82074;82076;82' +
+    '349;82351;82467;82760;82823;82888;83161;83416;83667;83669;83' +
+    '671;83808;84625;84970;85020;85160;86423;86450;86901;87061;87' +
+    '187;87297;87299;87756;88014;88201;89043;89045;89055;89676;90' +
+    '008;90368;90478;90480;90615;90775;90840;91333;91455;91705;91' +
+    '880;92163;92171;92345;92393;92502;92887;93644"],' +
+    '["MwoI","GCNNNNN^NNGC",0,290,";127,11;158,11;376,11;468,11;' +
+    '479,11;561,11;1018,11;1066,11;2703,11;3247,11;3615,11;3688,1' +
+    '1;3778,11;3938,11;4008,11;4074,11;4081,11;4375,11;4466,11;45' +
+    '68,11;4668,11;4671,11;4680,11;5079,11;5163,11;5186,11;5325,1' +
+    '1;5331,11;5448,11;5484,11;5531,11;5829,11;6067,11;6611,11;69' +
+    '79,11;7107,11;7226,11;7401,11;7426,11;7917,11;8192,11;8226,1' +
+    '1;8397,11;8450,11;9447,11;11826,11;12233,11;12239,11;12504,1' +
+    '1;12625,11;12878,11;12969,11;13450,11;13453,11;13956,11;1398' +
+    '6,11;14735,11;14744,11;15061,11;15188,11;15640,11;15775,11;1' +
+    '5949,11;18182,11;19711,11;19783,11;20749,11;23767,11;24764,1' +
+    '1;27455,11;28123,11;28712,11;28862,11;30874,11;30948,11;3097' +
+    '7,11;31300,11;33053,11;33296,11;34262,11;37248,11;38042,11;4' +
+    '0961,11;42570,11;43841,11;44111,11;47848,11;49464,11;49506,1' +
+    '1;49627,11;49641,11;49644,11;51183,11;51276,11;51909,11;5435' +
+    '8,11;56439,11;56554,11;56902,11;59026,11;60154,11;61812,11;6' +
+    '2001,11;62010,11;62017,11;62171,11;62716,11;62754,11;63158,1' +
+    '1;63406,11;63998,11;64274,11;65334,11;65343,11;65461,11;6557' +
+    '3,11;69319,11;69464,11;70354,11;70531,11;70786,11;70795,11;7' +
+    '0880,11;71184,11;71247,11;71284,11;71293,11;71542,11;73087,1' +
+    '1;73463,11;73816,11;73932,11;73962,11;74018,11;74034,11;7409' +
+    '6,11;74243,11;74285,11;74455,11;74464,11;74473,11;74783,11;7' +
+    '4865,11;74956,11;74958,11;75207,11;75227,11;75346,11;75685,1' +
+    '1;75694,11;76114,11;76150,11;76281,11;76410,11;76439,11;7648' +
+    '8,11;76497,11;76554,11;76740,11;76957,11;76972,11;76987,11;7' +
+    '7063,11;77189,11;77198,11;77337,11;77362,11;77387,11;77411,1' +
+    '1;77954,11;77981,11;77987,11;78061,11;78342,11;78441,11;7855' +
+    '7,11;78572,11;78621,11;78668,11;78677,11;78847,11;78884,11;7' +
+    '9157,11;79250,11;79360,11;79369,11;79523,11;79879,11;79884,1' +
+    '1;79991,11;80233,11;80383,11;80618,11;81039,11;81387,11;8147' +
+    '3,11;81542,11;81557,11;81566,11;81568,11;81600,11;81609,11;8' +
+    '1692,11;81699,11;81759,11;81884,11;81893,11;81906,11;81968,1' +
+    '1;82142,11;82240,11;82249,11;82347,11;82386,11;82440,11;8275' +
+    '3,11;83055,11;83154,11;83161,11;83484,11;83563,11;83870,11;8' +
+    '4000,11;84498,11;84504,11;84666,11;84880,11;84912,11;85178,1' +
+    '1;85187,11;85191,11;85202,11;85394,11;85571,11;86139,11;8631' +
+    '3,11;86416,11;86450,11;86781,11;86908,11;87167,11;87207,11;8' +
+    '7234,11;87517,11;87644,11;87682,11;87819,11;87945,11;88038,1' +
+    '1;88044,11;88135,11;88304,11;88308,11;88428,11;88542,11;8881' +
+    '9,11;88998,11;89043,11;89595,11;89680,11;89689,11;90008,11;9' +
+    '0388,11;90422,11;90427,11;90475,11;90478,11;90550,11;90583,1' +
+    '1;90802,11;90977,11;91269,11;91357,11;91509,11;91608,11;9164' +
+    '0,11;91804,11;91836,11;92069,11;92124,11;92154,11;92157,11;9' +
+    '2336,11;92543,11;92552,11;92612,11;92981,11;92990,11;93460,1' +
+    '1;93712,11","N",";133;164;382;474;485;567;1024;1072;2709;325' +
+    '3;3621;3694;3784;3944;4014;4080;4087;4381;4472;4574;4674;467' +
+    '7;4686;5085;5169;5192;5331;5337;5454;5490;5537;5835;6073;661' +
+    '7;6985;7113;7232;7407;7432;7923;8198;8232;8403;8456;9453;118' +
+    '32;12239;12245;12510;12631;12884;12975;13456;13459;13962;139' +
+    '92;14741;14750;15067;15194;15646;15781;15955;18188;19717;197' +
+    '89;20755;23773;24770;27461;28129;28718;28868;30880;30954;309' +
+    '83;31306;33059;33302;34268;37254;38048;40967;42576;43847;441' +
+    '17;47854;49470;49512;49633;49647;49650;51189;51282;51915;543' +
+    '64;56445;56560;56908;59032;60160;61818;62007;62016;62023;621' +
+    '77;62722;62760;63164;63412;64004;64280;65340;65349;65467;655' +
+    '79;69325;69470;70360;70537;70792;70801;70886;71190;71253;712' +
+    '90;71299;71548;73093;73469;73822;73938;73968;74024;74040;741' +
+    '02;74249;74291;74461;74470;74479;74789;74871;74962;74964;752' +
+    '13;75233;75352;75691;75700;76120;76156;76287;76416;76445;764' +
+    '94;76503;76560;76746;76963;76978;76993;77069;77195;77204;773' +
+    '43;77368;77393;77417;77960;77987;77993;78067;78348;78447;785' +
+    '63;78578;78627;78674;78683;78853;78890;79163;79256;79366;793' +
+    '75;79529;79885;79890;79997;80239;80389;80624;81045;81393;814' +
+    '79;81548;81563;81572;81574;81606;81615;81698;81705;81765;818' +
+    '90;81899;81912;81974;82148;82246;82255;82353;82392;82446;827' +
+    '59;83061;83160;83167;83490;83569;83876;84006;84504;84510;846' +
+    '72;84886;84918;85184;85193;85197;85208;85400;85577;86145;863' +
+    '19;86422;86456;86787;86914;87173;87213;87240;87523;87650;876' +
+    '88;87825;87951;88044;88050;88141;88310;88314;88434;88548;888' +
+    '25;89004;89049;89601;89686;89695;90014;90394;90428;90433;904' +
+    '81;90484;90556;90589;90808;90983;91275;91363;91515;91614;916' +
+    '46;91810;91842;92075;92130;92160;92163;92342;92549;92558;926' +
+    '18;92987;92996;93466;93718"],' +
+    '["NaeI","GCC^GGC",0,18,";10,6;1735,6;4824,6;5594,6;21632,6;' +
+    '30879,6;30922,6;30986,6;32621,6;73468,6;76150,6;78364,6;7853' +
+    '2,6;80369,6;81547,6;81964,6;82240,6;82422,6","N",";12;1737;4' +
+    '826;5596;21634;30881;30924;30988;32623;73470;76152;78366;785' +
+    '34;80371;81549;81966;82242;82424"],' +
+    '["NarI","GG^CGCC",0,8,";5093,6;25327,6;35480,6;75463,6;7699' +
+    '5,6;79619,6;79717,6;79773,6","N",";5094;25328;35481;75464;76' +
+    '996;79620;79718;79774"],' +
+    '["NciI","CC^SGG",0,55,";104,5;105,5;554,5;3719,5;5097,5;525' +
+    '7,5;13337,5;17912,5;18916,5;28174,5;28179,5;34146,5;41736,5;' +
+    '41737,5;41746,5;43802,5;65595,5;71352,5;74124,5;74784,5;7478' +
+    '5,5;76067,5;76119,5;77137,5;77782,5;78032,5;78033,5;78250,5;' +
+    '79441,5;80265,5;81214,5;81562,5;81709,5;83438,5;83526,5;8353' +
+    '7,5;83538,5;83553,5;83554,5;84751,5;84752,5;85678,5;86041,5;' +
+    '87419,5;87518,5;87645,5;88217,5;88587,5;89003,5;89453,5;8983' +
+    '2,5;90516,5;92313,5;93666,5;93754,5","N",";105;106;555;3720;' +
+    '5098;5258;13338;17913;18917;28175;28180;34147;41737;41738;41' +
+    '747;43803;65596;71353;74125;74785;74786;76068;76120;77138;77' +
+    '783;78033;78034;78251;79442;80266;81215;81563;81710;83439;83' +
+    '527;83538;83539;83554;83555;84752;84753;85679;86042;87420;87' +
+    '519;87646;88218;88588;89004;89454;89833;90517;92314;93667;93' +
+    '755"],' +
+    '["NcoI","C^CATGG",0,26,";702,6;1125,6;2953,6;3683,6;5526,6;' +
+    '6317,6;7047,6;12858,6;22202,6;26065,6;29394,6;31638,6;39459,' +
+    '6;40962,6;41061,6;41763,6;44212,6;46055,6;48000,6;56783,6;57' +
+    '514,6;60636,6;62783,6;70487,6;70781,6;77073,6","N",";702;112' +
+    '5;2953;3683;5526;6317;7047;12858;22202;26065;29394;31638;394' +
+    '59;40962;41061;41763;44212;46055;48000;56783;57514;60636;627' +
+    '83;70487;70781;77073"],' +
+    '["NdeI","CA^TATG",0,34,";4681,6;13604,6;16316,6;24260,6;243' +
+    '65,6;26645,6;30262,6;31301,6;31761,6;34915,6;34937,6;38676,6' +
+    ';40273,6;40747,6;41493,6;42448,6;48335,6;49976,6;50742,6;508' +
+    '90,6;51789,6;51856,6;53012,6;53724,6;54313,6;55949,6;57451,6' +
+    ';60681,6;67030,6;67620,6;70219,6;71996,6;79043,6;80752,6","N' +
+    '",";4682;13605;16317;24261;24366;26646;30263;31302;31762;349' +
+    '16;34938;38677;40274;40748;41494;42449;48336;49977;50743;508' +
+    '91;51790;51857;53013;53725;54314;55950;57452;60682;67031;676' +
+    '21;70220;71997;79044;80753"],' +
+    '["NdeII","^GATC",0,0,"","A",""],' +
+    '["NgoMIV","G^CCGGC",0,18,";10,6;1735,6;4824,6;5594,6;21632,' +
+    '6;30879,6;30922,6;30986,6;32621,6;73468,6;76150,6;78364,6;78' +
+    '532,6;80369,6;81547,6;81964,6;82240,6;82422,6","N",";10;1735' +
+    ';4824;5594;21632;30879;30922;30986;32621;73468;76150;78364;7' +
+    '8532;80369;81547;81964;82240;82422"],' +
+    '["NheI","G^CTAGC",0,16,";12209,6;12213,6;20611,6;26566,6;36' +
+    '798,6;49515,6;58136,6;59104,6;67199,6;72622,6;77383,6;77876,' +
+    '6;78116,6;86556,6;87682,6;91613,6","N",";12209;12213;20611;2' +
+    '6566;36798;49515;58136;59104;67199;72622;77383;77876;78116;8' +
+    '6556;87682;91613"],' +
+    '["NlaIII","CATG^",0,423,";124,4;312,4;321,4;335,4;580,4;703' +
+    ',4;1072,4;1090,4;1126,4;2954,4;3065,4;3684,4;3976,4;3998,4;4' +
+    '039,4;4051,4;4390,4;4398,4;4693,4;5310,4;5496,4;5527,4;5553,' +
+    '4;5877,4;5891,4;5900,4;6318,4;6429,4;7048,4;7210,4;7447,4;74' +
+    '71,4;7654,4;8009,4;8122,4;8465,4;8737,4;8841,4;8854,4;8959,4' +
+    ';8980,4;9217,4;9221,4;9277,4;9495,4;9509,4;9518,4;9853,4;102' +
+    '00,4;10297,4;10352,4;10395,4;10528,4;10565,4;10687,4;10724,4' +
+    ';10761,4;10872,4;11062,4;11280,4;11771,4;11973,4;12357,4;126' +
+    '91,4;12695,4;12703,4;12751,4;12802,4;12859,4;13066,4;13174,4' +
+    ';13447,4;13623,4;13700,4;13735,4;13741,4;13793,4;13801,4;139' +
+    '79,4;13987,4;14135,4;14259,4;14479,4;14543,4;14683,4;14762,4' +
+    ';14783,4;14793,4;15053,4;15171,4;15201,4;15407,4;15412,4;159' +
+    '55,4;15982,4;16958,4;17952,4;18094,4;18380,4;19106,4;19456,4' +
+    ';19932,4;19968,4;20191,4;20217,4;20333,4;20570,4;20618,4;210' +
+    '92,4;21357,4;22203,4;22225,4;22651,4;22672,4;22843,4;23014,4' +
+    ';23037,4;23122,4;23233,4;23803,4;23833,4;23947,4;24236,4;243' +
+    '33,4;24799,4;24871,4;25014,4;25076,4;25132,4;25154,4;25341,4' +
+    ';25459,4;25577,4;25667,4;25802,4;25986,4;25996,4;26066,4;263' +
+    '01,4;26576,4;26597,4;26637,4;26721,4;26800,4;27149,4;27626,4' +
+    ';27742,4;27812,4;27817,4;28082,4;28246,4;28390,4;28654,4;286' +
+    '74,4;28753,4;28887,4;28924,4;28941,4;29079,4;29227,4;29380,4' +
+    ';29395,4;29650,4;30422,4;30542,4;30845,4;31079,4;31162,4;312' +
+    '18,4;31639,4;32034,4;32230,4;32369,4;32385,4;32762,4;32766,4' +
+    ';33313,4;33443,4;33588,4;33817,4;34011,4;35080,4;35332,4;354' +
+    '57,4;35581,4;36233,4;36317,4;36606,4;36695,4;37018,4;37103,4' +
+    ';37118,4;37229,4;38517,4;38526,4;38757,4;38777,4;39460,4;395' +
+    '54,4;40131,4;40139,4;40339,4;40469,4;40572,4;40822,4;40963,4' +
+    ';41031,4;41062,4;41104,4;41176,4;41484,4;41764,4;41923,4;419' +
+    '50,4;42271,4;42549,4;42646,4;42967,4;43330,4;44213,4;44258,4' +
+    ';44313,4;44870,4;44961,4;45153,4;45163,4;46056,4;46508,4;472' +
+    '60,4;47559,4;47886,4;47950,4;47976,4;48001,4;48041,4;48393,4' +
+    ';48817,4;49183,4;49319,4;49384,4;49710,4;50310,4;50373,4;503' +
+    '77,4;50447,4;50520,4;50594,4;50777,4;50782,4;50800,4;50857,4' +
+    ';51197,4;51814,4;51889,4;52073,4;52141,4;52172,4;52542,4;525' +
+    '95,4;52656,4;52888,4;53818,4;53878,4;53932,4;54016,4;54596,4' +
+    ';55112,4;55340,4;55805,4;55827,4;55876,4;56135,4;56560,4;567' +
+    '84,4;56794,4;57035,4;57515,4;57658,4;57730,4;58103,4;58412,4' +
+    ';58711,4;60195,4;60396,4;60476,4;60544,4;60637,4;60783,4;611' +
+    '54,4;61164,4;61690,4;61747,4;62480,4;62626,4;62728,4;62784,4' +
+    ';62810,4;62851,4;62959,4;63014,4;63516,4;63654,4;63667,4;637' +
+    '24,4;63857,4;64235,4;64315,4;64815,4;65102,4;65546,4;65673,4' +
+    ';65876,4;65886,4;65924,4;65959,4;66064,4;66167,4;66566,4;665' +
+    '98,4;66803,4;66815,4;67080,4;67508,4;67955,4;68011,4;68477,4' +
+    ';69052,4;69063,4;69412,4;69852,4;69872,4;69890,4;70047,4;701' +
+    '15,4;70193,4;70488,4;70689,4;70758,4;70782,4;70877,4;70881,4' +
+    ';70933,4;71069,4;72031,4;72141,4;72288,4;72397,4;72421,4;725' +
+    '39,4;72709,4;72851,4;72897,4;73004,4;73360,4;73453,4;73549,4' +
+    ';73627,4;73781,4;74341,4;74608,4;74778,4;74821,4;75740,4;757' +
+    '55,4;75839,4;76607,4;76719,4;77074,4;77210,4;77248,4;77835,4' +
+    ';77893,4;78212,4;78311,4;78348,4;78375,4;79665,4;79881,4;805' +
+    '87,4;80611,4;81262,4;81525,4;82002,4;82111,4;82115,4;83072,4' +
+    ';83208,4;83226,4;83403,4;83479,4;83597,4;83793,4;84468,4;847' +
+    '76,4;84891,4;85003,4;85106,4;85300,4;85404,4;86057,4;86093,4' +
+    ';86264,4;87015,4;87785,4;87816,4;88305,4;88602,4;89127,4;906' +
+    '84,4;90921,4;91401,4;91599,4;91622,4;91663,4;92661,4;92790,4' +
+    ';92855,4;92965,4;93073,4;93102,4;93193,4;93631,4;93707,4","N' +
+    '",";127;315;324;338;583;706;1075;1093;1129;2957;3068;3687;39' +
+    '79;4001;4042;4054;4393;4401;4696;5313;5499;5530;5556;5880;58' +
+    '94;5903;6321;6432;7051;7213;7450;7474;7657;8012;8125;8468;87' +
+    '40;8844;8857;8962;8983;9220;9224;9280;9498;9512;9521;9856;10' +
+    '203;10300;10355;10398;10531;10568;10690;10727;10764;10875;11' +
+    '065;11283;11774;11976;12360;12694;12698;12706;12754;12805;12' +
+    '862;13069;13177;13450;13626;13703;13738;13744;13796;13804;13' +
+    '982;13990;14138;14262;14482;14546;14686;14765;14786;14796;15' +
+    '056;15174;15204;15410;15415;15958;15985;16961;17955;18097;18' +
+    '383;19109;19459;19935;19971;20194;20220;20336;20573;20621;21' +
+    '095;21360;22206;22228;22654;22675;22846;23017;23040;23125;23' +
+    '236;23806;23836;23950;24239;24336;24802;24874;25017;25079;25' +
+    '135;25157;25344;25462;25580;25670;25805;25989;25999;26069;26' +
+    '304;26579;26600;26640;26724;26803;27152;27629;27745;27815;27' +
+    '820;28085;28249;28393;28657;28677;28756;28890;28927;28944;29' +
+    '082;29230;29383;29398;29653;30425;30545;30848;31082;31165;31' +
+    '221;31642;32037;32233;32372;32388;32765;32769;33316;33446;33' +
+    '591;33820;34014;35083;35335;35460;35584;36236;36320;36609;36' +
+    '698;37021;37106;37121;37232;38520;38529;38760;38780;39463;39' +
+    '557;40134;40142;40342;40472;40575;40825;40966;41034;41065;41' +
+    '107;41179;41487;41767;41926;41953;42274;42552;42649;42970;43' +
+    '333;44216;44261;44316;44873;44964;45156;45166;46059;46511;47' +
+    '263;47562;47889;47953;47979;48004;48044;48396;48820;49186;49' +
+    '322;49387;49713;50313;50376;50380;50450;50523;50597;50780;50' +
+    '785;50803;50860;51200;51817;51892;52076;52144;52175;52545;52' +
+    '598;52659;52891;53821;53881;53935;54019;54599;55115;55343;55' +
+    '808;55830;55879;56138;56563;56787;56797;57038;57518;57661;57' +
+    '733;58106;58415;58714;60198;60399;60479;60547;60640;60786;61' +
+    '157;61167;61693;61750;62483;62629;62731;62787;62813;62854;62' +
+    '962;63017;63519;63657;63670;63727;63860;64238;64318;64818;65' +
+    '105;65549;65676;65879;65889;65927;65962;66067;66170;66569;66' +
+    '601;66806;66818;67083;67511;67958;68014;68480;69055;69066;69' +
+    '415;69855;69875;69893;70050;70118;70196;70491;70692;70761;70' +
+    '785;70880;70884;70936;71072;72034;72144;72291;72400;72424;72' +
+    '542;72712;72854;72900;73007;73363;73456;73552;73630;73784;74' +
+    '344;74611;74781;74824;75743;75758;75842;76610;76722;77077;77' +
+    '213;77251;77838;77896;78215;78314;78351;78378;79668;79884;80' +
+    '590;80614;81265;81528;82005;82114;82118;83075;83211;83229;83' +
+    '406;83482;83600;83796;84471;84779;84894;85006;85109;85303;85' +
+    '407;86060;86096;86267;87018;87788;87819;88308;88605;89130;90' +
+    '687;90924;91404;91602;91625;91666;92664;92793;92858;92968;93' +
+    '076;93105;93196;93634;93710"],' +
+    '["NlaIV","GGN^NCC",0,140,";100,6;109,6;173,6;174,6;442,6;72' +
+    '4,6;919,6;967,6;1063,6;1921,6;1922,6;2545,6;3234,6;3300,6;33' +
+    '12,6;3623,6;3861,6;4860,6;5093,6;5128,6;6598,6;6664,6;6676,6' +
+    ';6987,6;12968,6;14253,6;14526,6;14884,6;15761,6;17504,6;1752' +
+    '2,6;18749,6;18798,6;18799,6;19498,6;19963,6;21190,6;22390,6;' +
+    '25213,6;25327,6;26049,6;26262,6;27022,6;28176,6;28561,6;2864' +
+    '4,6;28804,6;28930,6;29251,6;30908,6;31551,6;31677,6;32635,6;' +
+    '32870,6;33438,6;34119,6;35480,6;35731,6;37160,6;38905,6;4058' +
+    '5,6;40947,6;42160,6;43017,6;43928,6;44050,6;44174,6;45833,6;' +
+    '47078,6;47183,6;49186,6;50283,6;50652,6;50985,6;51096,6;5220' +
+    '7,6;52330,6;54099,6;54876,6;54963,6;55283,6;55432,6;57696,6;' +
+    '58426,6;58828,6;59028,6;60632,6;61573,6;63507,6;64525,6;6530' +
+    '6,6;69024,6;69055,6;69982,6;70585,6;70950,6;71106,6;71348,6;' +
+    '71349,6;71648,6;71851,6;72632,6;73497,6;73795,6;74858,6;7504' +
+    '4,6;75463,6;76051,6;76416,6;76623,6;76995,6;77968,6;78306,6;' +
+    '78936,6;78937,6;79285,6;79387,6;79399,6;79437,6;79484,6;7961' +
+    '9,6;79717,6;79963,6;81277,6;81615,6;81757,6;81795,6;82066,6;' +
+    '82602,6;82967,6;83556,6;83661,6;84035,6;85216,6;89449,6;9098' +
+    '5,6;91099,6;91449,6;91508,6;92756,6","C",";102;111;175;176;4' +
+    '44;726;921;969;1065;1923;1924;2547;3236;3302;3314;3625;3863;' +
+    '4862;5095;5130;6600;6666;6678;6989;12970;14255;14528;14886;1' +
+    '5763;17506;17524;18751;18800;18801;19500;19965;21192;22392;2' +
+    '5215;25329;26051;26264;27024;28178;28563;28646;28806;28932;2' +
+    '9253;30910;31553;31679;32637;32872;33440;34121;35482;35733;3' +
+    '7162;38907;40587;40949;42162;43019;43930;44052;44176;45835;4' +
+    '7080;47185;49188;50285;50654;50987;51098;52209;52332;54101;5' +
+    '4878;54965;55285;55434;57698;58428;58830;59030;60634;61575;6' +
+    '3509;64527;65308;69026;69057;69984;70587;70952;71108;71350;7' +
+    '1351;71650;71853;72634;73499;73797;74860;75046;75465;76053;7' +
+    '6418;76625;76997;77970;78308;78938;78939;79287;79389;79401;7' +
+    '9439;79486;79621;79719;79965;81279;81617;81759;81797;82068;8' +
+    '2604;82969;83558;83663;84037;85218;89451;90987;91101;91451;9' +
+    '1510;92758"],' +
+    '["NmeAIII","GCCGAG(21/19)",0,21,";3952,6;5293,6;8303,6;2642' +
+    '3,6;62773,6;74716,6;75849,6;76439,6;76458,6;77767,6;77860,6;' +
+    '78368,6;78809,6;79928,6;81832,6;81836,6;81884,6;86817,6;8870' +
+    '9,6;91927,6;93794,6","N",";3978;5319;8329;26403;62753;74696;' +
+    '75829;76465;76484;77793;77886;78394;78789;79908;81812;81862;' +
+    '81910;86843;88689;91907;93820"],' +
+    '["NotI","GC^GGCCGC",0,5,";133,8;25433,8;48180,8;59054,8;699' +
+    '13,8","N",";134;25434;48181;59055;69914"],' +
+    '["NruI","TCG^CGA",0,8,";23357,6;26965,6;62697,6;74506,6;761' +
+    '99,6;84968,6;86448,6;90773,6","A",";23359;26967;62699;74508;' +
+    '76201;84970;86450;90775"],' +
+    '["NsiI","ATGCA^T",0,45,";121,6;313,6;5897,6;9218,6;9515,6;1' +
+    '1214,6;12688,6;12692,6;15956,6;18180,6;18766,6;25151,6;32763' +
+    ',6;34033,6;36146,6;41924,6;44008,6;46500,6;50321,6;50374,6;5' +
+    '1403,6;52299,6;53287,6;53812,6;54320,6;55806,6;55828,6;57308' +
+    ',6;57520,6;60678,6;60780,6;61155,6;61659,6;61852,6;68863,6;6' +
+    '9752,6;69849,6;70878,6;72706,6;80192,6;82112,6;84511,6;84777' +
+    ',6;89029,6;93074,6","N",";125;317;5901;9222;9519;11218;12692' +
+    ';12696;15960;18184;18770;25155;32767;34037;36150;41928;44012' +
+    ';46504;50325;50378;51407;52303;53291;53816;54324;55810;55832' +
+    ';57312;57524;60682;60784;61159;61663;61856;68867;69756;69853' +
+    ';70882;72710;80196;82116;84515;84781;89033;93078"],' +
+    '["NspI","RCATG^Y",0,113,";123,6;320,6;334,6;4038,6;4692,6;5' +
+    '495,6;5876,6;5890,6;7470,6;8008,6;8121,6;8736,6;8958,6;8979,' +
+    '6;9494,6;9508,6;10394,6;10871,6;11061,6;12690,6;13699,6;1380' +
+    '0,6;13978,6;14682,6;15170,6;15954,6;15981,6;21356,6;22842,6;' +
+    '24235,6;24332,6;24870,6;25666,6;27148,6;28389,6;28752,6;2894' +
+    '0,6;30844,6;32368,6;32761,6;33816,6;35331,6;36316,6;37117,6;' +
+    '40130,6;40338,6;40821,6;41922,6;42645,6;43329,6;44257,6;4486' +
+    '9,6;44960,6;45152,6;45162,6;47885,6;47949,6;48040,6;49318,6;' +
+    '50799,6;51196,6;52541,6;52594,6;53931,6;54595,6;55826,6;5655' +
+    '9,6;57657,6;57729,6;58710,6;60782,6;61153,6;61689,6;61746,6;' +
+    '62479,6;62850,6;62958,6;63515,6;63856,6;64314,6;64814,6;6554' +
+    '5,6;65672,6;65875,6;65958,6;66063,6;66565,6;66814,6;67079,6;' +
+    '68476,6;69411,6;69851,6;70192,6;70880,6;72896,6;73780,6;7783' +
+    '4,6;78347,6;78374,6;81261,6;81524,6;82001,6;83207,6;83402,6;' +
+    '83596,6;85299,6;86056,6;87784,6;87815,6;88304,6;90920,6;9162' +
+    '1,6;93630,6","N",";127;324;338;4042;4696;5499;5880;5894;7474' +
+    ';8012;8125;8740;8962;8983;9498;9512;10398;10875;11065;12694;' +
+    '13703;13804;13982;14686;15174;15958;15985;21360;22846;24239;' +
+    '24336;24874;25670;27152;28393;28756;28944;30848;32372;32765;' +
+    '33820;35335;36320;37121;40134;40342;40825;41926;42649;43333;' +
+    '44261;44873;44964;45156;45166;47889;47953;48044;49322;50803;' +
+    '51200;52545;52598;53935;54599;55830;56563;57661;57733;58714;' +
+    '60786;61157;61693;61750;62483;62854;62962;63519;63860;64318;' +
+    '64818;65549;65676;65879;65962;66067;66569;66818;67083;68480;' +
+    '69415;69855;70196;70884;72900;73784;77838;78351;78378;81265;' +
+    '81528;82005;83211;83406;83600;85303;86060;87788;87819;88308;' +
+    '90924;91625;93634"],' +
+    '["PacI","TTAAT^TAA",0,16,";1,8;9799,8;13190,8;13194,8;13198' +
+    ',8;13202,8;17922,8;27855,8;29982,8;30523,8;39488,8;42465,8;5' +
+    '6798,8;67403,8;67724,8;87875,8","N",";5;9803;13194;13198;132' +
+    '02;13206;17926;27859;29986;30527;39492;42469;56802;67407;677' +
+    '28;87879"],' +
+    '["PaeR7I","C^TCGAG",0,17,";128,6;28980,6;30899,6;34114,6;40' +
+    '069,6;51901,6;55101,6;56262,6;73488,6;74622,6;76315,6;78827,' +
+    '6;79410,6;80662,6;83547,6;85025,6;88072,6","N",";128;28980;3' +
+    '0899;34114;40069;51901;55101;56262;73488;74622;76315;78827;7' +
+    '9410;80662;83547;85025;88072"],' +
+    '["PciI","A^CATGT",0,32,";320,6;5890,6;8736,6;9508,6;11061,6' +
+    ';13978,6;15170,6;15981,6;22842,6;24870,6;28752,6;30844,6;323' +
+    '68,6;35331,6;40338,6;42645,6;44257,6;44960,6;45152,6;45162,6' +
+    ';49318,6;50799,6;54595,6;58710,6;61689,6;63856,6;64814,6;670' +
+    '79,6;70192,6;81261,6;83207,6;85299,6","N",";320;5890;8736;95' +
+    '08;11061;13978;15170;15981;22842;24870;28752;30844;32368;353' +
+    '31;40338;42645;44257;44960;45152;45162;49318;50799;54595;587' +
+    '10;61689;63856;64814;67079;70192;81261;83207;85299"],' +
+    '["PflFI","GACN^NNGTC",0,13,";1573,9;1770,9;5209,9;13487,9;3' +
+    '0639,9;35623,9;55176,9;74004,9;74745,9;79169,9;82103,9;83518' +
+    ',9;93746,9","N",";1576;1773;5212;13490;30642;35626;55179;740' +
+    '07;74748;79172;82106;83521;93749"],' +
+    '["PflMI","CCANNNN^NTGG",0,12,";697,11;4701,11;8420,11;17512' +
+    ',11;20216,11;29226,11;41718,11;53187,11;75414,11;84358,11;89' +
+    '146,11;90642,11","C",";703;4707;8426;17518;20222;29232;41724' +
+    ';53193;75420;84364;89152;90648"],' +
+    '["PleI","GAGTC(4/5)",0,90,";276,5;536,5;794,5;1724,5;2211,5' +
+    ';2917,5;2958,5;3023,5;3034,5;4270,5;4409,5;4594,5;5935,5;628' +
+    '1,5;6322,5;6387,5;6398,5;7319,5;8565,5;9212,5;9553,5;12293,5' +
+    ';14827,5;15445,5;16646,5;17163,5;20166,5;20297,5;20340,5;208' +
+    '40,5;23655,5;23879,5;23965,5;25763,5;26554,5;27397,5;27423,5' +
+    ';28241,5;28457,5;30226,5;30744,5;32107,5;32205,5;33661,5;336' +
+    '79,5;33691,5;34110,5;34451,5;41512,5;46360,5;46564,5;51926,5' +
+    ';61085,5;61753,5;62876,5;65074,5;65743,5;66615,5;66926,5;670' +
+    '22,5;69938,5;70816,5;72019,5;72107,5;72428,5;74247,5;74728,5' +
+    ';74993,5;75128,5;75633,5;77258,5;77588,5;78423,5;79173,5;805' +
+    '96,5;83041,5;83545,5;83988,5;84397,5;85682,5;86297,5;86854,5' +
+    ';88070,5;88974,5;89216,5;89625,5;90044,5;90667,5;91776,5;920' +
+    '94,5","N",";270;544;802;1718;2205;2925;2966;3031;3028;4278;4' +
+    '417;4602;5943;6289;6330;6395;6392;7313;8573;9206;9561;12301;' +
+    '14821;15453;16640;17171;20174;20291;20334;20834;23649;23873;' +
+    '23959;25771;26548;27391;27417;28249;28465;30234;30738;32115;' +
+    '32199;33669;33687;33685;34104;34459;41506;46368;46558;51934;' +
+    '61079;61747;62870;65068;65737;66623;66920;67016;69946;70824;' +
+    '72027;72101;72436;74255;74736;75001;75136;75627;77266;77596;' +
+    '78417;79181;80604;83049;83539;83982;84391;85690;86291;86848;' +
+    '88064;88982;89224;89633;90038;90675;91784;92088"],' +
+    '["PluTI","GGCGC^C",0,8,";5093,6;25327,6;35480,6;75463,6;769' +
+    '95,6;79619,6;79717,6;79773,6","N",";5097;25331;35484;75467;7' +
+    '6999;79623;79721;79777"],' +
+    '["PmeI","GTTT^AAAC",0,3,";33230,8;43119,8;73656,8","N",";33' +
+    '233;43122;73659"],' +
+    '["PmlI","CAC^GTG",0,4,";1626,6;31667,6;36371,6;36522,6","N"' +
+    ',";1628;31669;36373;36524"],' +
+    '["PpuMI","RG^GWCCY",0,8,";1921,7;2977,7;6341,7;17301,7;1879' +
+    '8,7;30447,7;71348,7;78936,7","C",";1922;2978;6342;17302;1879' +
+    '9;30448;71349;78937"],' +
+    '["PshAI","GACNN^NNGTC",0,10,";3294,10;6658,10;7089,10;27670' +
+    ',10;31847,10;40557,10;52377,10;53094,10;79110,10;93418,10","' +
+    'N",";3298;6662;7093;27674;31851;40561;52381;53098;79114;9342' +
+    '2"],' +
+    '["PsiI","TTA^TAA",0,53,";2025,6;10260,6;11501,6;15350,6;167' +
+    '66,6;18171,6;18621,6;18709,6;21364,6;21975,6;22157,6;22496,6' +
+    ';22602,6;22981,6;24793,6;26151,6;26814,6;27014,6;29527,6;297' +
+    '10,6;30461,6;30620,6;32547,6;32685,6;33402,6;37799,6;38653,6' +
+    ';40347,6;41443,6;41557,6;44388,6;46900,6;47377,6;52856,6;530' +
+    '28,6;54396,6;55768,6;56389,6;58150,6;58461,6;58863,6;58924,6' +
+    ';59517,6;60693,6;60928,6;63142,6;64717,6;68651,6;68779,6;727' +
+    '15,6;86580,6;93066,6;93250,6","N",";2027;10262;11503;15352;1' +
+    '6768;18173;18623;18711;21366;21977;22159;22498;22604;22983;2' +
+    '4795;26153;26816;27016;29529;29712;30463;30622;32549;32687;3' +
+    '3404;37801;38655;40349;41445;41559;44390;46902;47379;52858;5' +
+    '3030;54398;55770;56391;58152;58463;58865;58926;59519;60695;6' +
+    '0930;63144;64719;68653;68781;72717;86582;93068;93252"],' +
+    '["PspGI","^CCWGG",0,0,"","C",""],' +
+    '["PspOMI","G^GGCCC",0,5,";173,6;28176,6;30908,6;73497,6;817' +
+    '57,6","C",";173;28176;30908;73497;81757"],' +
+    '["PspXI","VC^TCGAGB",0,9,";127,8;28979,8;51900,8;56261,8;78' +
+    '826,8;80661,8;83546,8;85024,8;88071,8","N",";128;28980;51901' +
+    ';56262;78827;80662;83547;85025;88072"],' +
+    '["PstI","CTGCA^G",0,28,";156,6;784,6;3757,6;5143,6;8559,6;1' +
+    '2653,6;13460,6;15562,6;19918,6;20130,6;28466,6;35884,6;36821' +
+    ',6;48850,6;49467,6;51109,6;54283,6;54849,6;57252,6;63676,6;6' +
+    '6333,6;68165,6;71082,6;71363,6;71653,6;79230,6;79461,6;91627' +
+    ',6","N",";160;788;3761;5147;8563;12657;13464;15566;19922;201' +
+    '34;28470;35888;36825;48854;49471;51113;54287;54853;57256;636' +
+    '80;66337;68169;71086;71367;71657;79234;79465;91631"],' +
+    '["PvuI","CGAT^CG",0,19,";430,6;1180,6;1833,6;5780,6;9398,6;' +
+    '9658,6;31812,6;56303,6;73991,6;75926,6;76342,6;77413,6;78316' +
+    ',6;80228,6;80935,6;82693,6;84626,6;89211,6;93420,6","N",";43' +
+    '3;1183;1836;5783;9401;9661;31815;56306;73994;75929;76345;774' +
+    '16;78319;80231;80938;82696;84629;89214;93423"],' +
+    '["PvuII","CAG^CTG",0,15,";559,6;5198,6;12656,6;13747,6;3204' +
+    '7,6;38575,6;44118,6;65329,6;70514,6;71291,6;77165,6;78182,6;' +
+    '79945,6;86799,6;87328,6","N",";561;5200;12658;13749;32049;38' +
+    '577;44120;65331;70516;71293;77167;78184;79947;86801;87330"],' +
+    '["RsaI","GT^AC",0,165,";101,4;483,4;673,4;910,4;925,4;2854,' +
+    '4;4046,4;4867,4;4879,4;5399,4;6218,4;7285,4;7315,4;7348,4;77' +
+    '70,4;8836,4;10045,4;10067,4;10669,4;10883,4;11296,4;11620,4;' +
+    '11626,4;11646,4;12303,4;13465,4;14423,4;14885,4;14928,4;1548' +
+    '6,4;15502,4;15985,4;15991,4;16080,4;16444,4;17523,4;17893,4;' +
+    '18928,4;19499,4;19615,4;19872,4;20968,4;20980,4;21048,4;2136' +
+    '0,4;21693,4;21769,4;21803,4;21894,4;22039,4;23397,4;24340,4;' +
+    '24868,4;25138,4;25625,4;25638,4;25917,4;26617,4;26749,4;2695' +
+    '5,4;28419,4;28536,4;30733,4;30848,4;30938,4;32962,4;34520,4;' +
+    '34640,4;35552,4;36058,4;37015,4;37372,4;37442,4;37725,4;3832' +
+    '2,4;38329,4;38355,4;39429,4;40057,4;42243,4;42973,4;42995,4;' +
+    '43614,4;43989,4;44249,4;44510,4;44700,4;45150,4;45970,4;4630' +
+    '5,4;47292,4;47447,4;47791,4;48052,4;48396,4;48562,4;48800,4;' +
+    '48846,4;50538,4;50735,4;51853,4;51893,4;52438,4;52699,4;5420' +
+    '7,4;54802,4;56125,4;56613,4;57303,4;57796,4;58427,4;59043,4;' +
+    '59632,4;59732,4;60062,4;61104,4;61130,4;61315,4;62196,4;6277' +
+    '0,4;63124,4;63836,4;63902,4;65728,4;66555,4;67399,4;67645,4;' +
+    '67659,4;69724,4;69954,4;69983,4;71163,4;71726,4;71852,4;7237' +
+    '6,4;72609,4;72798,4;73050,4;74970,4;76742,4;78256,4;78510,4;' +
+    '79939,4;80343,4;80727,4;82490,4;82973,4;82981,4;83194,4;8372' +
+    '5,4;84791,4;86088,4;86233,4;87833,4;87987,4;88503,4;90446,4;' +
+    '90821,4;90939,4;91036,4;91348,4;91683,4;92512,4;93346,4;9390' +
+    '2,4","N",";102;484;674;911;926;2855;4047;4868;4880;5400;6219' +
+    ';7286;7316;7349;7771;8837;10046;10068;10670;10884;11297;1162' +
+    '1;11627;11647;12304;13466;14424;14886;14929;15487;15503;1598' +
+    '6;15992;16081;16445;17524;17894;18929;19500;19616;19873;2096' +
+    '9;20981;21049;21361;21694;21770;21804;21895;22040;23398;2434' +
+    '1;24869;25139;25626;25639;25918;26618;26750;26956;28420;2853' +
+    '7;30734;30849;30939;32963;34521;34641;35553;36059;37016;3737' +
+    '3;37443;37726;38323;38330;38356;39430;40058;42244;42974;4299' +
+    '6;43615;43990;44250;44511;44701;45151;45971;46306;47293;4744' +
+    '8;47792;48053;48397;48563;48801;48847;50539;50736;51854;5189' +
+    '4;52439;52700;54208;54803;56126;56614;57304;57797;58428;5904' +
+    '4;59633;59733;60063;61105;61131;61316;62197;62771;63125;6383' +
+    '7;63903;65729;66556;67400;67646;67660;69725;69955;69984;7116' +
+    '4;71727;71853;72377;72610;72799;73051;74971;76743;78257;7851' +
+    '1;79940;80344;80728;82491;82974;82982;83195;83726;84792;8608' +
+    '9;86234;87834;87988;88504;90447;90822;90940;91037;91349;9168' +
+    '4;92513;93347;93903"],' +
+    '["RsrII","CG^GWCCG",0,2,";5609,7;77372,7","N",";5610;77373"' +
+    '],' +
+    '["SacI","GAGCT^C",0,8,";1523,6;12721,6;19530,6;32994,6;4409' +
+    '6,6;78068,6;79953,6;81046,6","N",";1527;12725;19534;32998;44' +
+    '100;78072;79957;81050"],' +
+    '["SacII","CCGC^GG",0,9,";59024,6;59058,6;73458,6;74853,6;75' +
+    '602,6;77067,6;78619,6;79421,6;89053,6","N",";59027;59061;734' +
+    '61;74856;75605;77070;78622;79424;89056"],' +
+    '["SalI","G^TCGAC",0,8,";9831,6;20291,6;26551,6;33841,6;5183' +
+    '6,6;76380,6;82100,6;83542,6","N",";9831;20291;26551;33841;51' +
+    '836;76380;82100;83542"],' +
+    '["SapI","GCTCTTC(1/4)",0,17,";1520,7;5443,7;5653,7;8137,7;9' +
+    '085,7;14341,7;19590,7;20381,7;43272,7;54470,7;61589,7;77378,' +
+    '7;78552,7;79511,7;88144,7;88467,7;88637,7","N",";1515;5438;5' +
+    '648;8132;9080;14348;19597;20388;43267;54477;61584;77373;7854' +
+    '7;79506;88151;88462;88632"],' +
+    '["Sau96I","G^GNCC",0,115,";173,5;174,5;467,5;633,5;725,5;96' +
+    '8,5;1005,5;1020,5;1922,5;2392,5;2978,5;3300,5;3312,5;3950,5;' +
+    '5610,5;6342,5;6664,5;6676,5;7582,5;7845,5;7985,5;13024,5;150' +
+    '01,5;15301,5;15761,5;17112,5;17302,5;18359,5;18749,5;18799,5' +
+    ';19082,5;20194,5;20281,5;21828,5;23524,5;25632,5;26049,5;262' +
+    '62,5;28122,5;28145,5;28176,5;28177,5;28598,5;28636,5;28644,5' +
+    ';28692,5;28805,5;30448,5;30661,5;30908,5;30909,5;31678,5;323' +
+    '37,5;32871,5;34260,5;35731,5;36895,5;41715,5;42181,5;43017,5' +
+    ';44175,5;44397,5;47079,5;47184,5;47546,5;49186,5;49472,5;514' +
+    '50,5;54877,5;54963,5;58992,5;60640,5;61771,5;65212,5;65459,5' +
+    ';71349,5;72043,5;73497,5;73498,5;74126,5;74692,5;75067,5;753' +
+    '78,5;75523,5;75749,5;76121,5;77373,5;77858,5;77969,5;78089,5' +
+    ';78306,5;78937,5;79105,5;79150,5;79276,5;79387,5;79437,5;794' +
+    '84,5;79638,5;79963,5;81616,5;81757,5;81758,5;82067,5;82420,5' +
+    ';82632,5;83277,5;83557,5;83662,5;84068,5;86371,5;86847,5;886' +
+    '71,5;93228,5;93392,5","C",";173;174;467;633;725;968;1005;102' +
+    '0;1922;2392;2978;3300;3312;3950;5610;6342;6664;6676;7582;784' +
+    '5;7985;13024;15001;15301;15761;17112;17302;18359;18749;18799' +
+    ';19082;20194;20281;21828;23524;25632;26049;26262;28122;28145' +
+    ';28176;28177;28598;28636;28644;28692;28805;30448;30661;30908' +
+    ';30909;31678;32337;32871;34260;35731;36895;41715;42181;43017' +
+    ';44175;44397;47079;47184;47546;49186;49472;51450;54877;54963' +
+    ';58992;60640;61771;65212;65459;71349;72043;73497;73498;74126' +
+    ';74692;75067;75378;75523;75749;76121;77373;77858;77969;78089' +
+    ';78306;78937;79105;79150;79276;79387;79437;79484;79638;79963' +
+    ';81616;81757;81758;82067;82420;82632;83277;83557;83662;84068' +
+    ';86371;86847;88671;93228;93392"],' +
+    '["Sau3AI","^GATC",0,376,";110,4;182,4;431,4;443,4;643,4;103' +
+    '9,4;1135,4;1181,4;1208,4;1321,4;1345,4;1392,4;1451,4;1812,4;' +
+    '1834,4;2250,4;2399,4;2455,4;2652,4;2729,4;2846,4;3481,4;3644' +
+    ',4;4129,4;4338,4;4636,4;4967,4;5266,4;5344,4;5425,4;5434,4;5' +
+    '512,4;5765,4;5781,4;6029,4;6035,4;6093,4;6210,4;6845,4;7008,' +
+    '4;7147,4;7213,4;7525,4;7850,4;8260,4;8308,4;8520,4;8877,4;89' +
+    '21,4;9383,4;9399,4;9647,4;9653,4;9659,4;9748,4;10848,4;11084' +
+    ',4;11496,4;11588,4;12194,4;12346,4;12646,4;12706,4;13149,4;1' +
+    '3444,4;13732,4;13738,4;14407,4;14430,4;14527,4;14618,4;14725' +
+    ',4;14869,4;15047,4;15128,4;15275,4;15372,4;15390,4;15694,4;1' +
+    '6106,4;17435,4;17505,4;18875,4;19229,4;21116,4;21173,4;21281' +
+    ',4;21317,4;22211,4;22391,4;22718,4;23800,4;24556,4;24592,4;2' +
+    '4900,4;24906,4;25021,4;25098,4;25306,4;25344,4;26060,4;26242' +
+    ',4;26532,4;26594,4;26736,4;27268,4;27283,4;27495,4;27540,4;2' +
+    '7701,4;27712,4;28969,4;29430,4;30106,4;30111,4;30142,4;30394' +
+    ',4;30545,4;31014,4;31353,4;31368,4;31493,4;31813,4;31970,4;3' +
+    '2483,4;33093,4;33280,4;33349,4;33439,4;33585,4;33655,4;33711' +
+    ',4;34297,4;34889,4;35306,4;35460,4;35522,4;35638,4;35950,4;3' +
+    '6157,4;36486,4;36573,4;38388,4;38531,4;38630,4;38640,4;39034' +
+    ',4;39153,4;40158,4;40843,4;40948,4;41173,4;41545,4;41775,4;4' +
+    '1798,4;41934,4;41971,4;42011,4;42583,4;43029,4;43390,4;44043' +
+    ',4;44051,4;44217,4;44545,4;45209,4;45427,4;45449,4;45728,4;4' +
+    '7111,4;47798,4;48056,4;48063,4;48777,4;48953,4;50139,4;50284' +
+    ',4;50471,4;50598,4;50627,4;51097,4;51205,4;51304,4;51441,4;5' +
+    '2099,4;52175,4;52627,4;52915,4;52923,4;53151,4;53544,4;53559' +
+    ',4;53566,4;53580,4;54278,4;54889,4;54922,4;55433,4;55736,4;5' +
+    '6058,4;56275,4;56304,4;56369,4;56504,4;56534,4;56776,4;56861' +
+    ',4;56914,4;57159,4;57873,4;58256,4;58553,4;58635,4;59925,4;5' +
+    '9934,4;60479,4;61279,4;61574,4;61604,4;62623,4;62951,4;63070' +
+    ',4;63649,4;63673,4;64526,4;64650,4;64702,4;65665,4;66159,4;6' +
+    '6458,4;66485,4;66773,4;66944,4;67107,4;67511,4;67965,4;68426' +
+    ',4;68439,4;69263,4;69990,4;70319,4;70423,4;70586,4;70602,4;7' +
+    '0635,4;71475,4;72061,4;72285,4;72325,4;72773,4;73357,4;73630' +
+    ',4;73892,4;73945,4;73992,4;74022,4;74090,4;74109,4;74169,4;7' +
+    '4176,4;74842,4;75007,4;75013,4;75679,4;75717,4;75729,4;75873' +
+    ',4;75927,4;75950,4;76026,4;76064,4;76260,4;76343,4;76559,4;7' +
+    '6716,4;77170,4;77269,4;77329,4;77414,4;77824,4;78050,4;78230' +
+    ',4;78317,4;78324,4;78431,4;78490,4;78591,4;78652,4;78709,4;7' +
+    '9008,4;79235,4;79407,4;79561,4;79676,4;79684,4;79809,4;79851' +
+    ',4;79983,4;80025,4;80118,4;80229,4;80548,4;80578,4;80620,4;8' +
+    '0635,4;80936,4;80940,4;81031,4;81319,4;81405,4;81732,4;81801' +
+    ',4;81951,4;82078,4;82093,4;82304,4;82342,4;82363,4;82591,4;8' +
+    '2609,4;82684,4;82694,4;82874,4;83057,4;83365,4;83420,4;83534' +
+    ',4;83673,4;83688,4;83730,4;83790,4;83888,4;84134,4;84139,4;8' +
+    '4372,4;84627,4;84757,4;85454,4;85490,4;85687,4;85788,4;85986' +
+    ',4;86021,4;86144,4;86358,4;86381,4;86392,4;86402,4;86409,4;8' +
+    '6885,4;87129,4;88221,4;88368,4;89101,4;89212,4;89311,4;89517' +
+    ',4;89809,4;89989,4;90780,4;91227,4;91272,4;91281,4;91980,4;9' +
+    '2058,4;92389,4;92486,4;92584,4;92742,4;92794,4;93414,4;93421' +
+    ',4;93514,4;93568,4;93593,4;93648,4","N",";109;181;430;442;64' +
+    '2;1038;1134;1180;1207;1320;1344;1391;1450;1811;1833;2249;239' +
+    '8;2454;2651;2728;2845;3480;3643;4128;4337;4635;4966;5265;534' +
+    '3;5424;5433;5511;5764;5780;6028;6034;6092;6209;6844;7007;714' +
+    '6;7212;7524;7849;8259;8307;8519;8876;8920;9382;9398;9646;965' +
+    '2;9658;9747;10847;11083;11495;11587;12193;12345;12645;12705;' +
+    '13148;13443;13731;13737;14406;14429;14526;14617;14724;14868;' +
+    '15046;15127;15274;15371;15389;15693;16105;17434;17504;18874;' +
+    '19228;21115;21172;21280;21316;22210;22390;22717;23799;24555;' +
+    '24591;24899;24905;25020;25097;25305;25343;26059;26241;26531;' +
+    '26593;26735;27267;27282;27494;27539;27700;27711;28968;29429;' +
+    '30105;30110;30141;30393;30544;31013;31352;31367;31492;31812;' +
+    '31969;32482;33092;33279;33348;33438;33584;33654;33710;34296;' +
+    '34888;35305;35459;35521;35637;35949;36156;36485;36572;38387;' +
+    '38530;38629;38639;39033;39152;40157;40842;40947;41172;41544;' +
+    '41774;41797;41933;41970;42010;42582;43028;43389;44042;44050;' +
+    '44216;44544;45208;45426;45448;45727;47110;47797;48055;48062;' +
+    '48776;48952;50138;50283;50470;50597;50626;51096;51204;51303;' +
+    '51440;52098;52174;52626;52914;52922;53150;53543;53558;53565;' +
+    '53579;54277;54888;54921;55432;55735;56057;56274;56303;56368;' +
+    '56503;56533;56775;56860;56913;57158;57872;58255;58552;58634;' +
+    '59924;59933;60478;61278;61573;61603;62622;62950;63069;63648;' +
+    '63672;64525;64649;64701;65664;66158;66457;66484;66772;66943;' +
+    '67106;67510;67964;68425;68438;69262;69989;70318;70422;70585;' +
+    '70601;70634;71474;72060;72284;72324;72772;73356;73629;73891;' +
+    '73944;73991;74021;74089;74108;74168;74175;74841;75006;75012;' +
+    '75678;75716;75728;75872;75926;75949;76025;76063;76259;76342;' +
+    '76558;76715;77169;77268;77328;77413;77823;78049;78229;78316;' +
+    '78323;78430;78489;78590;78651;78708;79007;79234;79406;79560;' +
+    '79675;79683;79808;79850;79982;80024;80117;80228;80547;80577;' +
+    '80619;80634;80935;80939;81030;81318;81404;81731;81800;81950;' +
+    '82077;82092;82303;82341;82362;82590;82608;82683;82693;82873;' +
+    '83056;83364;83419;83533;83672;83687;83729;83789;83887;84133;' +
+    '84138;84371;84626;84756;85453;85489;85686;85787;85985;86020;' +
+    '86143;86357;86380;86391;86401;86408;86884;87128;88220;88367;' +
+    '89100;89211;89310;89516;89808;89988;90779;91226;91271;91280;' +
+    '91979;92057;92388;92485;92583;92741;92793;93413;93420;93513;' +
+    '93567;93592;93647"],' +
+    '["SbfI","CCTGCA^GG",0,3,";783,8;54848,8;91626,8","N",";788;' +
+    '54853;91631"],' +
+    '["ScaI","AGT^ACT",0,12,";2853,6;6217,6;8835,6;13464,6;14422' +
+    ',6;15990,6;19871,6;20979,6;24339,6;34519,6;42242,6;66554,6",' +
+    '"N",";2855;6219;8837;13466;14424;15992;19873;20981;24341;345' +
+    '21;42244;66556"],' +
+    '["ScrFI","CC^NGG",0,55,";104,5;105,5;554,5;3719,5;5097,5;52' +
+    '57,5;13337,5;17912,5;18916,5;28174,5;28179,5;34146,5;41736,5' +
+    ';41737,5;41746,5;43802,5;65595,5;71352,5;74124,5;74784,5;747' +
+    '85,5;76067,5;76119,5;77137,5;77782,5;78032,5;78033,5;78250,5' +
+    ';79441,5;80265,5;81214,5;81562,5;81709,5;83438,5;83526,5;835' +
+    '37,5;83538,5;83553,5;83554,5;84751,5;84752,5;85678,5;86041,5' +
+    ';87419,5;87518,5;87645,5;88217,5;88587,5;89003,5;89453,5;898' +
+    '32,5;90516,5;92313,5;93666,5;93754,5","C",";105;106;555;3720' +
+    ';5098;5258;13338;17913;18917;28175;28180;34147;41737;41738;4' +
+    '1747;43803;65596;71353;74125;74785;74786;76068;76120;77138;7' +
+    '7783;78033;78034;78251;79442;80266;81215;81563;81710;83439;8' +
+    '3527;83538;83539;83554;83555;84752;84753;85679;86042;87420;8' +
+    '7519;87646;88218;88588;89004;89454;89833;90517;92314;93667;9' +
+    '3755"],' +
+    '["SexAI","A^CCWGGT",0,0,"","C",""],' +
+    '["SfaNI","GCATC(5/9)",0,187,";120,5;1140,5;2578,5;2784,5;28' +
+    '12,5;3282,5;3331,5;3784,5;3801,5;3826,5;4066,5;4568,5;4587,5' +
+    ';4843,5;5062,5;5317,5;5384,5;5448,5;5533,5;5723,5;6148,5;617' +
+    '6,5;6646,5;6695,5;7965,5;11996,5;12142,5;12351,5;12687,5;132' +
+    '44,5;13662,5;14205,5;14511,5;19687,5;20027,5;20497,5;20593,5' +
+    ';20809,5;21037,5;23200,5;24084,5;24535,5;24739,5;24920,5;272' +
+    '96,5;27455,5;27866,5;28188,5;29375,5;31643,5;32127,5;33597,5' +
+    ';34559,5;35913,5;36376,5;36924,5;37080,5;37099,5;40256,5;409' +
+    '09,5;42384,5;42553,5;42573,5;43277,5;44010,5;46917,5;47129,5' +
+    ';47318,5;47815,5;48365,5;48697,5;49155,5;49506,5;49633,5;503' +
+    '20,5;50344,5;50463,5;50494,5;51402,5;51405,5;51960,5;53210,5' +
+    ';53289,5;53811,5;53814,5;54319,5;54895,5;55371,5;55726,5;558' +
+    '30,5;55954,5;57519,5;57522,5;57819,5;57953,5;58142,5;59868,5' +
+    ';60677,5;60742,5;61594,5;62754,5;62993,5;63895,5;64857,5;653' +
+    '84,5;66304,5;66679,5;67836,5;68041,5;68143,5;69227,5;69848,5' +
+    ';70312,5;70387,5;70537,5;70754,5;71379,5;71548,5;71893,5;727' +
+    '54,5;73282,5;74614,5;74757,5;74958,5;75257,5;75390,5;75486,5' +
+    ';75588,5;75993,5;76106,5;76367,5;76407,5;76933,5;77117,5;776' +
+    '11,5;78963,5;79632,5;80178,5;80194,5;80224,5;80244,5;80778,5' +
+    ';80799,5;80853,5;80985,5;81680,5;82051,5;82218,5;83175,5;834' +
+    '69,5;83646,5;83767,5;83905,5;83922,5;83944,5;84127,5;84258,5' +
+    ';84572,5;84692,5;84779,5;84914,5;84998,5;85172,5;85757,5;858' +
+    '20,5;86717,5;86778,5;86991,5;87069,5;87117,5;87775,5;87839,5' +
+    ';88539,5;88551,5;88580,5;89028,5;89338,5;89385,5;89601,5;904' +
+    '72,5;90487,5;90688,5;90705,5;90814,5;91852,5;92143,5;93697,5' +
+    '","N",";110;1149;2568;2774;2821;3272;3340;3774;3791;3816;405' +
+    '6;4577;4577;4833;5052;5307;5393;5457;5523;5732;6138;6185;663' +
+    '6;6704;7974;11986;12132;12360;12677;13234;13671;14195;14520;' +
+    '19696;20017;20487;20602;20818;21046;23209;24093;24544;24729;' +
+    '24929;27305;27464;27875;28197;29384;31652;32136;33587;34568;' +
+    '35922;36385;36933;37089;37108;40265;40899;42393;42543;42563;' +
+    '43286;44019;46926;47119;47327;47805;48355;48706;49164;49515;' +
+    '49623;50310;50353;50453;50484;51392;51414;51950;53219;53298;' +
+    '53801;53823;54309;54885;55361;55735;55839;55944;57509;57531;' +
+    '57809;57962;58151;59877;60667;60732;61603;62763;63002;63885;' +
+    '64847;65393;66313;66688;67826;68031;68152;69217;69838;70321;' +
+    '70396;70527;70763;71388;71538;71902;72744;73272;74604;74747;' +
+    '74967;75266;75380;75476;75578;75983;76115;76357;76397;76923;' +
+    '77107;77601;78972;79622;80168;80203;80214;80253;80768;80808;' +
+    '80862;80975;81689;82041;82227;83165;83478;83636;83776;83895;' +
+    '83912;83953;84117;84267;84581;84701;84788;84923;85007;85181;' +
+    '85747;85810;86707;86768;86981;87059;87107;87765;87848;88529;' +
+    '88560;88589;89018;89347;89394;89591;90462;90496;90678;90695;' +
+    '90804;91842;92133;93706"],' +
+    '["SfcI","C^TRYAG",0,62,";156,6;447,6;784,6;3757,6;5143,6;85' +
+    '59,6;8831,6;12653,6;12727,6;13460,6;15562,6;18258,6;18953,6;' +
+    '19918,6;20130,6;20492,6;20672,6;28466,6;30634,6;34677,6;3588' +
+    '4,6;36195,6;36821,6;39640,6;46115,6;48442,6;48850,6;48964,6;' +
+    '49467,6;49889,6;50228,6;51109,6;51341,6;52446,6;52633,6;5295' +
+    '4,6;53631,6;54283,6;54849,6;57194,6;57252,6;57333,6;63676,6;' +
+    '63698,6;64497,6;66333,6;68165,6;71082,6;71363,6;71653,6;7457' +
+    '3,6;78857,6;79230,6;79461,6;80600,6;82816,6;86707,6;88226,6;' +
+    '89423,6;90560,6;91627,6;92466,6","N",";156;447;784;3757;5143' +
+    ';8559;8831;12653;12727;13460;15562;18258;18953;19918;20130;2' +
+    '0492;20672;28466;30634;34677;35884;36195;36821;39640;46115;4' +
+    '8442;48850;48964;49467;49889;50228;51109;51341;52446;52633;5' +
+    '2954;53631;54283;54849;57194;57252;57333;63676;63698;64497;6' +
+    '6333;68165;71082;71363;71653;74573;78857;79230;79461;80600;8' +
+    '2816;86707;88226;89423;90560;91627;92466"],' +
+    '["SfoI","GGC^GCC",0,8,";5093,6;25327,6;35480,6;75463,6;7699' +
+    '5,6;79619,6;79717,6;79773,6","N",";5095;25329;35482;75465;76' +
+    '997;79621;79719;79775"],' +
+    '["SfuI","TT^CGAA",0,22,";7703,6;9111,6;10938,6;17121,6;1905' +
+    '1,6;25660,6;30485,6;32192,6;39581,6;53652,6;56423,6;58950,6;' +
+    '59262,6;59475,6;61701,6;62856,6;74681,6;75508,6;75640,6;8032' +
+    '9,6;87152,6;91021,6","N",";7704;9112;10939;17122;19052;25661' +
+    ';30486;32193;39582;53653;56424;58951;59263;59476;61702;62857' +
+    ';74682;75509;75641;80330;87153;91022"],' +
+    '["SgrAI","CR^CCGGYG",0,2,";81963,8;82239,8","N",";81964;822' +
+    '40"],' +
+    '["SmaI","CCC^GGG",0,7,";104,6;41736,6;74784,6;78032,6;83537' +
+    ',6;83553,6;84751,6","N",";106;41738;74786;78034;83539;83555;' +
+    '84753"],' +
+    '["SmlI","C^TYRAG",0,80,";128,6;400,6;2841,6;5485,6;5810,6;6' +
+    '205,6;8335,6;9428,6;11858,6;12443,6;14598,6;17239,6;18793,6;' +
+    '20299,6;20844,6;20955,6;23771,6;26359,6;26744,6;26950,6;2896' +
+    '0,6;28980,6;29859,6;29888,6;30899,6;31279,6;31849,6;33265,6;' +
+    '33658,6;34114,6;35109,6;36325,6;37401,6;37684,6;40069,6;4031' +
+    '3,6;41825,6;42246,6;43297,6;44159,6;44345,6;44519,6;44864,6;' +
+    '45392,6;45492,6;45681,6;47680,6;49622,6;49835,6;51901,6;5371' +
+    '3,6;54258,6;55101,6;56262,6;57600,6;59127,6;61533,6;66688,6;' +
+    '68714,6;69708,6;69734,6;73091,6;73488,6;74622,6;74647,6;7501' +
+    '7,6;75178,6;76315,6;78827,6;79410,6;79592,6;80296,6;80556,6;' +
+    '80593,6;80662,6;82229,6;83547,6;85025,6;88072,6;93509,6","N"' +
+    ',";128;400;2841;5485;5810;6205;8335;9428;11858;12443;14598;1' +
+    '7239;18793;20299;20844;20955;23771;26359;26744;26950;28960;2' +
+    '8980;29859;29888;30899;31279;31849;33265;33658;34114;35109;3' +
+    '6325;37401;37684;40069;40313;41825;42246;43297;44159;44345;4' +
+    '4519;44864;45392;45492;45681;47680;49622;49835;51901;53713;5' +
+    '4258;55101;56262;57600;59127;61533;66688;68714;69708;69734;7' +
+    '3091;73488;74622;74647;75017;75178;76315;78827;79410;79592;8' +
+    '0296;80556;80593;80662;82229;83547;85025;88072;93509"],' +
+    '["SnaBI","TAC^GTA",0,6,";4548,6;15487,6;25639,6;40054,6;593' +
+    '07,6;66039,6","N",";4550;15489;25641;40056;59309;66041"],' +
+    '["SpeI","A^CTAGT",0,19,";2646,6;12839,6;15767,6;15987,6;160' +
+    '92,6;29045,6;39833,6;40091,6;42656,6;43125,6;44807,6;45146,6' +
+    ';48472,6;49911,6;56121,6;56706,6;63637,6;67298,6;80838,6","N' +
+    '",";2646;12839;15767;15987;16092;29045;39833;40091;42656;431' +
+    '25;44807;45146;48472;49911;56121;56706;63637;67298;80838"],' +
+    '["SphI","GCATG^C",0,17,";123,6;5495,6;10871,6;12690,6;25666' +
+    ',6;27148,6;28389,6;32761,6;37117,6;41922,6;55826,6;60782,6;7' +
+    '3780,6;77834,6;87815,6;88304,6;91621,6","N",";127;5499;10875' +
+    ';12694;25670;27152;28393;32765;37121;41926;55830;60786;73784' +
+    ';77838;87819;88308;91625"],' +
+    '["SrfI","GCCC^GGGC",0,0,"","N",""],' +
+    '["SspI","AAT^ATT",0,79,";2306,6;4522,6;9333,6;9923,6;10220,' +
+    '6;10430,6;10550,6;11453,6;11554,6;11667,6;12391,6;12680,6;15' +
+    '153,6;16522,6;16830,6;17357,6;17537,6;17858,6;18267,6;18893,' +
+    '6;21642,6;22070,6;22360,6;22884,6;23088,6;24154,6;24416,6;24' +
+    '822,6;25199,6;26460,6;26690,6;29618,6;29688,6;29988,6;30320,' +
+    '6;30361,6;30616,6;31542,6;33745,6;34994,6;35737,6;38484,6;39' +
+    '161,6;43061,6;43227,6;43532,6;43757,6;43779,6;43873,6;44457,' +
+    '6;46075,6;46314,6;47011,6;49354,6;49770,6;51019,6;51945,6;55' +
+    '461,6;57207,6;57445,6;58196,6;58512,6;58888,6;59171,6;59471,' +
+    '6;59996,6;63020,6;63494,6;63778,6;65535,6;67425,6;69617,6;72' +
+    '480,6;73026,6;81722,6;84700,6;85777,6;89175,6;91249,6","N","' +
+    ';2308;4524;9335;9925;10222;10432;10552;11455;11556;11669;123' +
+    '93;12682;15155;16524;16832;17359;17539;17860;18269;18895;216' +
+    '44;22072;22362;22886;23090;24156;24418;24824;25201;26462;266' +
+    '92;29620;29690;29990;30322;30363;30618;31544;33747;34996;357' +
+    '39;38486;39163;43063;43229;43534;43759;43781;43875;44459;460' +
+    '77;46316;47013;49356;49772;51021;51947;55463;57209;57447;581' +
+    '98;58514;58890;59173;59473;59998;63022;63496;63780;65537;674' +
+    '27;69619;72482;73028;81724;84702;85779;89177;91251"],' +
+    '["StuI","AGG^CCT",0,3,";690,6;20303,6;62742,6","C",";692;20' +
+    '305;62744"],' +
+    '["StyI","C^CWWGG",0,73,";169,6;702,6;915,6;975,6;1125,6;248' +
+    '2,6;2895,6;2953,6;3683,6;5526,6;6259,6;6317,6;7047,6;7059,6;' +
+    '7726,6;8637,6;12858,6;13318,6;14677,6;14997,6;18495,6;18820,' +
+    '6;19494,6;20161,6;20439,6;22202,6;26065,6;29394,6;31638,6;35' +
+    '532,6;37005,6;38052,6;39459,6;40962,6;41061,6;41427,6;41565,' +
+    '6;41763,6;44212,6;46055,6;48000,6;50290,6;50630,6;53658,6;56' +
+    '783,6;57106,6;57514,6;60106,6;60636,6;60646,6;61025,6;61569,' +
+    '6;62783,6;66431,6;68117,6;70487,6;70679,6;70781,6;73896,6;75' +
+    '686,6;75773,6;77073,6;78407,6;78984,6;79101,6;79383,6;79468,' +
+    '6;80738,6;81777,6;82297,6;82639,6;90216,6;92601,6","N",";169' +
+    ';702;915;975;1125;2482;2895;2953;3683;5526;6259;6317;7047;70' +
+    '59;7726;8637;12858;13318;14677;14997;18495;18820;19494;20161' +
+    ';20439;22202;26065;29394;31638;35532;37005;38052;39459;40962' +
+    ';41061;41427;41565;41763;44212;46055;48000;50290;50630;53658' +
+    ';56783;57106;57514;60106;60636;60646;61025;61569;62783;66431' +
+    ';68117;70487;70679;70781;73896;75686;75773;77073;78407;78984' +
+    ';79101;79383;79468;80738;81777;82297;82639;90216;92601"],' +
+    '["StyD4I","^CCNGG",0,55,";104,5;105,5;554,5;3719,5;5097,5;5' +
+    '257,5;13337,5;17912,5;18916,5;28174,5;28179,5;34146,5;41736,' +
+    '5;41737,5;41746,5;43802,5;65595,5;71352,5;74124,5;74784,5;74' +
+    '785,5;76067,5;76119,5;77137,5;77782,5;78032,5;78033,5;78250,' +
+    '5;79441,5;80265,5;81214,5;81562,5;81709,5;83438,5;83526,5;83' +
+    '537,5;83538,5;83553,5;83554,5;84751,5;84752,5;85678,5;86041,' +
+    '5;87419,5;87518,5;87645,5;88217,5;88587,5;89003,5;89453,5;89' +
+    '832,5;90516,5;92313,5;93666,5;93754,5","C",";103;104;553;371' +
+    '8;5096;5256;13336;17911;18915;28173;28178;34145;41735;41736;' +
+    '41745;43801;65594;71351;74123;74783;74784;76066;76118;77136;' +
+    '77781;78031;78032;78249;79440;80264;81213;81561;81708;83437;' +
+    '83525;83536;83537;83552;83553;84750;84751;85677;86040;87418;' +
+    '87517;87644;88216;88586;89002;89452;89831;90515;92312;93665;' +
+    '93753"],' +
+    '["SwaI","ATTT^AAAT",0,14,";10815,8;16144,8;17054,8;17209,8;' +
+    '17659,8;22355,8;25173,8;26693,8;31147,8;45291,8;55702,8;5799' +
+    '7,8;68848,8;69588,8","N",";10818;16147;17057;17212;17662;223' +
+    '58;25176;26696;31150;45294;55705;58000;68851;69591"],' +
+    '["TaqI","T^CGA",0,218,";129,4;827,4;1043,4;1170,4;1229,4;12' +
+    '44,4;1297,4;1410,4;2214,4;4055,4;4319,4;4364,4;4544,4;4952,4' +
+    ';5207,4;5363,4;5387,4;5585,4;5769,4;7590,4;7704,4;7827,4;813' +
+    '3,4;8271,4;9112,4;9387,4;9816,4;9832,4;10389,4;10651,4;10939' +
+    ',4;11265,4;11403,4;11760,4;13354,4;16394,4;17122,4;19052,4;1' +
+    '9534,4;19671,4;20292,4;20562,4;21984,4;22259,4;23711,4;23759' +
+    ',4;24316,4;24329,4;24512,4;24695,4;25477,4;25661,4;26404,4;2' +
+    '6432,4;26552,4;26587,4;26859,4;27487,4;28667,4;28703,4;28981' +
+    ',4;29192,4;29213,4;30486,4;30593,4;30747,4;30900,4;32193,4;3' +
+    '2728,4;32774,4;33510,4;33842,4;34115,4;34449,4;34863,4;36396' +
+    ',4;36702,4;36708,4;37029,4;38224,4;38593,4;39582,4;40070,4;4' +
+    '1168,4;41510,4;42119,4;42152,4;42839,4;43130,4;43651,4;43745' +
+    ',4;43830,4;44447,4;44908,4;45655,4;45760,4;46567,4;48511,4;4' +
+    '8529,4;48772,4;48787,4;49295,4;50166,4;51223,4;51837,4;51902' +
+    ',4;53438,4;53653,4;54080,4;55102,4;56263,4;56424,4;58951,4;5' +
+    '9263,4;59476,4;59511,4;59589,4;59607,4;60514,4;61088,4;61702' +
+    ',4;62857,4;69427,4;70497,4;70744,4;70769,4;70814,4;70819,4;7' +
+    '1224,4;73139,4;73489,4;73924,4;74011,4;74413,4;74623,4;74682' +
+    ',4;74883,4;74991,4;75122,4;75308,4;75406,4;75433,4;75452,4;7' +
+    '5509,4;75556,4;75641,4;75670,4;76273,4;76316,4;76381,4;76860' +
+    ',4;77183,4;77349,4;77526,4;77598,4;78663,4;78828,4;79074,4;7' +
+    '9323,4;79411,4;79527,4;79606,4;79802,4;79836,4;80176,4;80330' +
+    ',4;80358,4;80663,4;80909,4;80930,4;80954,4;81078,4;81503,4;8' +
+    '1714,4;82022,4;82101,4;82707,4;83001,4;83013,4;83044,4;83144' +
+    ',4;83543,4;83548,4;83617,4;83821,4;84161,4;84254,4;84660,4;8' +
+    '4934,4;85026,4;85807,4;86010,4;86277,4;86852,4;86857,4;87153' +
+    ',4;87259,4;87394,4;87636,4;87912,4;88073,4;88126,4;88287,4;8' +
+    '8530,4;88750,4;89219,4;89460,4;89580,4;90042,4;90071,4;90107' +
+    ',4;91022,4;91634,4;91736,4;91743,4;91865,4;92946,4;93777,4",' +
+    '"A",";129;827;1043;1170;1229;1244;1297;1410;2214;4055;4319;4' +
+    '364;4544;4952;5207;5363;5387;5585;5769;7590;7704;7827;8133;8' +
+    '271;9112;9387;9816;9832;10389;10651;10939;11265;11403;11760;' +
+    '13354;16394;17122;19052;19534;19671;20292;20562;21984;22259;' +
+    '23711;23759;24316;24329;24512;24695;25477;25661;26404;26432;' +
+    '26552;26587;26859;27487;28667;28703;28981;29192;29213;30486;' +
+    '30593;30747;30900;32193;32728;32774;33510;33842;34115;34449;' +
+    '34863;36396;36702;36708;37029;38224;38593;39582;40070;41168;' +
+    '41510;42119;42152;42839;43130;43651;43745;43830;44447;44908;' +
+    '45655;45760;46567;48511;48529;48772;48787;49295;50166;51223;' +
+    '51837;51902;53438;53653;54080;55102;56263;56424;58951;59263;' +
+    '59476;59511;59589;59607;60514;61088;61702;62857;69427;70497;' +
+    '70744;70769;70814;70819;71224;73139;73489;73924;74011;74413;' +
+    '74623;74682;74883;74991;75122;75308;75406;75433;75452;75509;' +
+    '75556;75641;75670;76273;76316;76381;76860;77183;77349;77526;' +
+    '77598;78663;78828;79074;79323;79411;79527;79606;79802;79836;' +
+    '80176;80330;80358;80663;80909;80930;80954;81078;81503;81714;' +
+    '82022;82101;82707;83001;83013;83044;83144;83543;83548;83617;' +
+    '83821;84161;84254;84660;84934;85026;85807;86010;86277;86852;' +
+    '86857;87153;87259;87394;87636;87912;88073;88126;88287;88530;' +
+    '88750;89219;89460;89580;90042;90071;90107;91022;91634;91736;' +
+    '91743;91865;92946;93777"],' +
+    '["TfiI","G^AWTC",0,195,";392,5;1360,5;2797,5;2873,5;2943,5;' +
+    '2966,5;3178,5;3750,5;3912,5;4233,5;5579,5;5713,5;5819,5;6161' +
+    ',5;6237,5;6307,5;6330,5;6542,5;7563,5;7829,5;7938,5;7975,5;8' +
+    '545,5;8705,5;9109,5;9235,5;9437,5;9857,5;10300,5;10317,5;104' +
+    '67,5;10518,5;12060,5;12990,5;13392,5;14120,5;14157,5;14801,5' +
+    ';17132,5;17615,5;18386,5;18836,5;19277,5;19312,5;19852,5;198' +
+    '90,5;20018,5;20481,5;20648,5;21068,5;21074,5;21563,5;22256,5' +
+    ';23175,5;24475,5;24610,5;24692,5;25808,5;25999,5;26039,5;266' +
+    '33,5;27881,5;28211,5;28314,5;28352,5;29063,5;29566,5;30629,5' +
+    ';30778,5;31075,5;31097,5;31158,5;31339,5;31732,5;31925,5;319' +
+    '82,5;32449,5;32654,5;32769,5;33383,5;33776,5;34088,5;34878,5' +
+    ';34920,5;35032,5;35049,5;35070,5;35105,5;35134,5;35147,5;362' +
+    '09,5;37059,5;37148,5;37635,5;38221,5;38229,5;38299,5;38599,5' +
+    ';40413,5;41768,5;42067,5;42778,5;42841,5;43189,5;44341,5;452' +
+    '66,5;45502,5;49706,5;50045,5;50221,5;50830,5;50938,5;52272,5' +
+    ';52812,5;53522,5;53650,5;54587,5;55260,5;55512,5;55680,5;560' +
+    '35,5;56548,5;56679,5;57030,5;57666,5;58576,5;59326,5;59807,5' +
+    ';59939,5;60347,5;60384,5;60520,5;60826,5;60869,5;60985,5;612' +
+    '22,5;61543,5;61779,5;62889,5;63177,5;63756,5;63842,5;64760,5' +
+    ';65984,5;65997,5;66089,5;66796,5;68098,5;68299,5;68513,5;691' +
+    '03,5;71170,5;71618,5;72212,5;72408,5;72497,5;72807,5;74222,5' +
+    ';74237,5;74467,5;74826,5;75165,5;76546,5;76847,5;76862,5;770' +
+    '88,5;77717,5;78246,5;78496,5;78775,5;78915,5;80423,5;81342,5' +
+    ';81500,5;82828,5;84004,5;84391,5;84482,5;84657,5;84713,5;852' +
+    '23,5;85559,5;85844,5;86618,5;87018,5;87150,5;87301,5;87722,5' +
+    ';87921,5;88349,5;90318,5;90378,5;90712,5;93039,5;93366,5","N' +
+    '",";392;1360;2797;2873;2943;2966;3178;3750;3912;4233;5579;57' +
+    '13;5819;6161;6237;6307;6330;6542;7563;7829;7938;7975;8545;87' +
+    '05;9109;9235;9437;9857;10300;10317;10467;10518;12060;12990;1' +
+    '3392;14120;14157;14801;17132;17615;18386;18836;19277;19312;1' +
+    '9852;19890;20018;20481;20648;21068;21074;21563;22256;23175;2' +
+    '4475;24610;24692;25808;25999;26039;26633;27881;28211;28314;2' +
+    '8352;29063;29566;30629;30778;31075;31097;31158;31339;31732;3' +
+    '1925;31982;32449;32654;32769;33383;33776;34088;34878;34920;3' +
+    '5032;35049;35070;35105;35134;35147;36209;37059;37148;37635;3' +
+    '8221;38229;38299;38599;40413;41768;42067;42778;42841;43189;4' +
+    '4341;45266;45502;49706;50045;50221;50830;50938;52272;52812;5' +
+    '3522;53650;54587;55260;55512;55680;56035;56548;56679;57030;5' +
+    '7666;58576;59326;59807;59939;60347;60384;60520;60826;60869;6' +
+    '0985;61222;61543;61779;62889;63177;63756;63842;64760;65984;6' +
+    '5997;66089;66796;68098;68299;68513;69103;71170;71618;72212;7' +
+    '2408;72497;72807;74222;74237;74467;74826;75165;76546;76847;7' +
+    '6862;77088;77717;78246;78496;78775;78915;80423;81342;81500;8' +
+    '2828;84004;84391;84482;84657;84713;85223;85559;85844;86618;8' +
+    '7018;87150;87301;87722;87921;88349;90318;90378;90712;93039;9' +
+    '3366"],' +
+    '["Tru9I","T^TAA",0,705,";1,4;5,4;39,4;258,4;325,4;340,4;401' +
+    ',4;1147,4;1166,4;1304,4;1354,4;1482,4;1796,4;1829,4;1877,4;2' +
+    '098,4;2188,4;2232,4;2276,4;2318,4;2438,4;2528,4;2779,4;3582,' +
+    '4;3594,4;3659,4;3713,4;3970,4;4496,4;4580,4;4604,4;4724,4;47' +
+    '41,4;5811,4;5872,4;5887,4;5954,4;6143,4;6946,4;6958,4;7023,4' +
+    ';7083,4;7515,4;7971,4;8355,4;8931,4;9429,4;9490,4;9505,4;957' +
+    '2,4;9686,4;9799,4;9803,4;9877,4;9973,4;9993,4;10010,4;10119,' +
+    '4;10229,4;10236,4;10271,4;10307,4;10507,4;10571,4;10586,4;10' +
+    '597,4;10602,4;10792,4;10800,4;10817,4;10860,4;11005,4;11142,' +
+    '4;11207,4;11243,4;11314,4;11380,4;11418,4;11425,4;11489,4;11' +
+    '545,4;11581,4;11593,4;11731,4;11916,4;12005,4;12021,4;12041,' +
+    '4;12069,4;12080,4;12426,4;12678,4;12762,4;13015,4;13125,4;13' +
+    '190,4;13194,4;13198,4;13202,4;13206,4;14088,4;14564,4;14569,' +
+    '4;14936,4;15356,4;15455,4;15460,4;15465,4;15511,4;15584,4;15' +
+    '618,4;15670,4;15712,4;16065,4;16146,4;16182,4;16239,4;16280,' +
+    '4;16304,4;16374,4;16520,4;16564,4;16634,4;16659,4;16689,4;16' +
+    '730,4;16803,4;16840,4;16845,4;16908,4;17012,4;17021,4;17029,' +
+    '4;17044,4;17056,4;17211,4;17216,4;17240,4;17296,4;17431,4;17' +
+    '620,4;17661,4;17761,4;17922,4;17926,4;18014,4;18047,4;18066,' +
+    '4;18107,4;18284,4;18480,4;18579,4;18588,4;18600,4;18630,4;18' +
+    '936,4;19007,4;19097,4;19155,4;19167,4;19203,4;19365,4;19376,' +
+    '4;19661,4;19946,4;20144,4;20251,4;20845,4;20941,4;21269,4;21' +
+    '477,4;21534,4;21579,4;21709,4;21733,4;21778,4;21783,4;21791,' +
+    '4;21856,4;21866,4;21908,4;21923,4;21950,4;22339,4;22357,4;22' +
+    '415,4;22529,4;22705,4;22817,4;22835,4;22847,4;22882,4;22903,' +
+    '4;22931,4;23019,4;23059,4;23116,4;23166,4;23277,4;23373,4;23' +
+    '458,4;23472,4;23490,4;23507,4;23701,4;23772,4;23837,4;23889,' +
+    '4;23911,4;23916,4;23925,4;24001,4;24064,4;24115,4;24181,4;24' +
+    '220,4;24254,4;24414,4;24424,4;24569,4;24643,4;24777,4;24850,' +
+    '4;24939,4;25175,4;25225,4;25396,4;25711,4;25843,4;25878,4;25' +
+    '903,4;25932,4;25962,4;26466,4;26603,4;26695,4;26883,4;27068,' +
+    '4;27172,4;27198,4;27251,4;27325,4;27413,4;27619,4;27697,4;27' +
+    '738,4;27751,4;27855,4;27859,4;27992,4;28335,4;28428,4;28515,' +
+    '4;28629,4;29013,4;29405,4;29418,4;29611,4;29685,4;29795,4;29' +
+    '982,4;29986,4;30011,4;30161,4;30221,4;30325,4;30332,4;30410,' +
+    '4;30523,4;30527,4;30699,4;30790,4;30973,4;30979,4;31120,4;31' +
+    '129,4;31149,4;31280,4;31322,4;31475,4;31531,4;31540,4;31559,' +
+    '4;31573,4;31598,4;31749,4;31825,4;31836,4;31850,4;31870,4;31' +
+    '901,4;31918,4;32067,4;32323,4;32434,4;32723,4;33031,4;33166,' +
+    '4;33232,4;33471,4;33765,4;33912,4;33995,4;34310,4;34421,4;34' +
+    '703,4;35312,4;35416,4;35575,4;35648,4;35725,4;35895,4;35929,' +
+    '4;36100,4;36326,4;37366,4;37410,4;37661,4;37806,4;38270,4;38' +
+    '420,4;38649,4;38715,4;38736,4;39049,4;39080,4;39265,4;39443,' +
+    '4;39479,4;39488,4;39492,4;39500,4;39511,4;39540,4;39588,4;39' +
+    '633,4;39711,4;39732,4;39772,4;39854,4;40083,4;40114,4;40209,' +
+    '4;40243,4;40314,4;40520,4;40839,4;41190,4;41211,4;41225,4;41' +
+    '505,4;42254,4;42391,4;42465,4;42469,4;42487,4;42519,4;42642,' +
+    '4;42684,4;42691,4;42713,4;42725,4;42795,4;42831,4;42862,4;42' +
+    '912,4;43040,4;43059,4;43087,4;43109,4;43121,4;43225,4;43416,' +
+    '4;43469,4;43490,4;43530,4;43732,4;43879,4;43896,4;43917,4;43' +
+    '943,4;43956,4;44039,4;44144,4;44284,4;44346,4;44374,4;44403,' +
+    '4;44451,4;44474,4;44480,4;44554,4;44790,4;44834,4;44865,4;45' +
+    '032,4;45129,4;45228,4;45293,4;45493,4;46291,4;46296,4;46318,' +
+    '4;46492,4;46589,4;46814,4;47004,4;47199,4;47287,4;47619,4;47' +
+    '630,4;47681,4;47689,4;47903,4;47983,4;48157,4;48766,4;49007,' +
+    '4;49080,4;49125,4;49325,4;49534,4;49742,4;49758,4;49963,4;50' +
+    '113,4;50916,4;50923,4;51068,4;51079,4;51846,4;51981,4;52004,' +
+    '4;52223,4;52251,4;52428,4;52481,4;52765,4;52844,4;52899,4;53' +
+    '269,4;53421,4;53499,4;53784,4;53800,4;53807,4;53948,4;54011,' +
+    '4;54133,4;54187,4;54325,4;54349,4;54763,4;54770,4;54997,4;55' +
+    '611,4;55631,4;55704,4;55744,4;55857,4;56114,4;56279,4;56327,' +
+    '4;56374,4;56600,4;56768,4;56798,4;56802,4;56825,4;56865,4;57' +
+    '214,4;57353,4;57459,4;57564,4;57601,4;57635,4;57651,4;57773,' +
+    '4;57830,4;57948,4;57999,4;58019,4;58132,4;58314,4;58347,4;58' +
+    '525,4;58535,4;58621,4;58834,4;58847,4;58871,4;58912,4;59123,' +
+    '4;59128,4;59163,4;59175,4;59196,4;59226,4;59336,4;59420,4;59' +
+    '494,4;59875,4;59929,4;59944,4;59984,4;60080,4;60253,4;60533,' +
+    '4;60538,4;60669,4;60751,4;60919,4;61052,4;61366,4;61408,4;61' +
+    '507,4;61615,4;61649,4;61997,4;62285,4;62337,4;62419,4;62444,' +
+    '4;62591,4;62826,4;62928,4;63196,4;63259,4;63280,4;63389,4;63' +
+    '396,4;63554,4;63782,4;63815,4;63863,4;63916,4;63970,4;63977,' +
+    '4;64031,4;64048,4;64152,4;64159,4;64671,4;64784,4;64963,4;65' +
+    '005,4;65047,4;65095,4;65508,4;65589,4;65635,4;65642,4;65935,' +
+    '4;66187,4;66206,4;66415,4;66427,4;66439,4;66991,4;67295,4;67' +
+    '321,4;67336,4;67349,4;67403,4;67407,4;67492,4;67497,4;67631,' +
+    '4;67638,4;67666,4;67714,4;67724,4;67728,4;67742,4;67750,4;67' +
+    '846,4;67915,4;67987,4;68066,4;68075,4;68133,4;68241,4;68465,' +
+    '4;68504,4;68528,4;68618,4;68668,4;68684,4;68752,4;68850,4;68' +
+    '860,4;68884,4;68911,4;68917,4;68944,4;69017,4;69158,4;69219,' +
+    '4;69376,4;69538,4;69557,4;69582,4;69590,4;69608,4;69709,4;69' +
+    '735,4;69743,4;69803,4;69809,4;69824,4;70097,4;70162,4;70199,' +
+    '4;70279,4;70356,4;71357,4;72171,4;72312,4;72673,4;72732,4;72' +
+    '856,4;72965,4;72972,4;73092,4;73198,4;73220,4;73233,4;73262,' +
+    '4;73348,4;73383,4;73408,4;73579,4;73614,4;73658,4;73736,4;74' +
+    '427,4;74438,4;74648,4;75479,4;75593,4;77724,4;78473,4;78705,' +
+    '4;79272,4;79593,4;80075,4;80297,4;80306,4;81233,4;82157,4;82' +
+    '235,4;82564,4;83080,4;84227,4;84423,4;84635,4;85014,4;85241,' +
+    '4;85319,4;85464,4;85494,4;85698,4;85720,4;85834,4;85855,4;86' +
+    '033,4;86250,4;86683,4;86836,4;87006,4;87055,4;87355,4;87376,' +
+    '4;87500,4;87875,4;87879,4;88261,4;88344,4;88395,4;88768,4;89' +
+    '165,4;89179,4;89359,4;89381,4;89740,4;89882,4;90038,4;90126,' +
+    '4;90154,4;90168,4;90340,4;90464,4;90869,4;91070,4;91079,4;92' +
+    '045,4;92579,4;92607,4;92640,4;92727,4;92985,4;93200,4;93533,' +
+    '4;93874,4;93897,4","N",";1;5;39;258;325;340;401;1147;1166;13' +
+    '04;1354;1482;1796;1829;1877;2098;2188;2232;2276;2318;2438;25' +
+    '28;2779;3582;3594;3659;3713;3970;4496;4580;4604;4724;4741;58' +
+    '11;5872;5887;5954;6143;6946;6958;7023;7083;7515;7971;8355;89' +
+    '31;9429;9490;9505;9572;9686;9799;9803;9877;9973;9993;10010;1' +
+    '0119;10229;10236;10271;10307;10507;10571;10586;10597;10602;1' +
+    '0792;10800;10817;10860;11005;11142;11207;11243;11314;11380;1' +
+    '1418;11425;11489;11545;11581;11593;11731;11916;12005;12021;1' +
+    '2041;12069;12080;12426;12678;12762;13015;13125;13190;13194;1' +
+    '3198;13202;13206;14088;14564;14569;14936;15356;15455;15460;1' +
+    '5465;15511;15584;15618;15670;15712;16065;16146;16182;16239;1' +
+    '6280;16304;16374;16520;16564;16634;16659;16689;16730;16803;1' +
+    '6840;16845;16908;17012;17021;17029;17044;17056;17211;17216;1' +
+    '7240;17296;17431;17620;17661;17761;17922;17926;18014;18047;1' +
+    '8066;18107;18284;18480;18579;18588;18600;18630;18936;19007;1' +
+    '9097;19155;19167;19203;19365;19376;19661;19946;20144;20251;2' +
+    '0845;20941;21269;21477;21534;21579;21709;21733;21778;21783;2' +
+    '1791;21856;21866;21908;21923;21950;22339;22357;22415;22529;2' +
+    '2705;22817;22835;22847;22882;22903;22931;23019;23059;23116;2' +
+    '3166;23277;23373;23458;23472;23490;23507;23701;23772;23837;2' +
+    '3889;23911;23916;23925;24001;24064;24115;24181;24220;24254;2' +
+    '4414;24424;24569;24643;24777;24850;24939;25175;25225;25396;2' +
+    '5711;25843;25878;25903;25932;25962;26466;26603;26695;26883;2' +
+    '7068;27172;27198;27251;27325;27413;27619;27697;27738;27751;2' +
+    '7855;27859;27992;28335;28428;28515;28629;29013;29405;29418;2' +
+    '9611;29685;29795;29982;29986;30011;30161;30221;30325;30332;3' +
+    '0410;30523;30527;30699;30790;30973;30979;31120;31129;31149;3' +
+    '1280;31322;31475;31531;31540;31559;31573;31598;31749;31825;3' +
+    '1836;31850;31870;31901;31918;32067;32323;32434;32723;33031;3' +
+    '3166;33232;33471;33765;33912;33995;34310;34421;34703;35312;3' +
+    '5416;35575;35648;35725;35895;35929;36100;36326;37366;37410;3' +
+    '7661;37806;38270;38420;38649;38715;38736;39049;39080;39265;3' +
+    '9443;39479;39488;39492;39500;39511;39540;39588;39633;39711;3' +
+    '9732;39772;39854;40083;40114;40209;40243;40314;40520;40839;4' +
+    '1190;41211;41225;41505;42254;42391;42465;42469;42487;42519;4' +
+    '2642;42684;42691;42713;42725;42795;42831;42862;42912;43040;4' +
+    '3059;43087;43109;43121;43225;43416;43469;43490;43530;43732;4' +
+    '3879;43896;43917;43943;43956;44039;44144;44284;44346;44374;4' +
+    '4403;44451;44474;44480;44554;44790;44834;44865;45032;45129;4' +
+    '5228;45293;45493;46291;46296;46318;46492;46589;46814;47004;4' +
+    '7199;47287;47619;47630;47681;47689;47903;47983;48157;48766;4' +
+    '9007;49080;49125;49325;49534;49742;49758;49963;50113;50916;5' +
+    '0923;51068;51079;51846;51981;52004;52223;52251;52428;52481;5' +
+    '2765;52844;52899;53269;53421;53499;53784;53800;53807;53948;5' +
+    '4011;54133;54187;54325;54349;54763;54770;54997;55611;55631;5' +
+    '5704;55744;55857;56114;56279;56327;56374;56600;56768;56798;5' +
+    '6802;56825;56865;57214;57353;57459;57564;57601;57635;57651;5' +
+    '7773;57830;57948;57999;58019;58132;58314;58347;58525;58535;5' +
+    '8621;58834;58847;58871;58912;59123;59128;59163;59175;59196;5' +
+    '9226;59336;59420;59494;59875;59929;59944;59984;60080;60253;6' +
+    '0533;60538;60669;60751;60919;61052;61366;61408;61507;61615;6' +
+    '1649;61997;62285;62337;62419;62444;62591;62826;62928;63196;6' +
+    '3259;63280;63389;63396;63554;63782;63815;63863;63916;63970;6' +
+    '3977;64031;64048;64152;64159;64671;64784;64963;65005;65047;6' +
+    '5095;65508;65589;65635;65642;65935;66187;66206;66415;66427;6' +
+    '6439;66991;67295;67321;67336;67349;67403;67407;67492;67497;6' +
+    '7631;67638;67666;67714;67724;67728;67742;67750;67846;67915;6' +
+    '7987;68066;68075;68133;68241;68465;68504;68528;68618;68668;6' +
+    '8684;68752;68850;68860;68884;68911;68917;68944;69017;69158;6' +
+    '9219;69376;69538;69557;69582;69590;69608;69709;69735;69743;6' +
+    '9803;69809;69824;70097;70162;70199;70279;70356;71357;72171;7' +
+    '2312;72673;72732;72856;72965;72972;73092;73198;73220;73233;7' +
+    '3262;73348;73383;73408;73579;73614;73658;73736;74427;74438;7' +
+    '4648;75479;75593;77724;78473;78705;79272;79593;80075;80297;8' +
+    '0306;81233;82157;82235;82564;83080;84227;84423;84635;85014;8' +
+    '5241;85319;85464;85494;85698;85720;85834;85855;86033;86250;8' +
+    '6683;86836;87006;87055;87355;87376;87500;87875;87879;88261;8' +
+    '8344;88395;88768;89165;89179;89359;89381;89740;89882;90038;9' +
+    '0126;90154;90168;90340;90464;90869;91070;91079;92045;92579;9' +
+    '2607;92640;92727;92985;93200;93533;93874;93897"],' +
+    '["TseI","G^CWGC",0,156,";558,5;561,5;775,5;1739,5;2709,5;36' +
+    '12,5;4275,5;4375,5;4668,5;4677,5;4689,5;4848,5;4938,5;5054,5' +
+    ';5155,5;5197,5;5238,5;5331,5;5718,5;6073,5;6976,5;8340,5;839' +
+    '4,5;8459,5;8612,5;8762,5;10425,5;10751,5;12233,5;12236,5;122' +
+    '39,5;12448,5;12655,5;13450,5;13453,5;13456,5;13459,5;13920,5' +
+    ';13962,5;14174,5;14328,5;14741,5;15061,5;15197,5;15561,5;157' +
+    '81,5;15835,5;15900,5;19789,5;19920,5;20575,5;20755,5;20806,5' +
+    ';20986,5;23367,5;24574,5;28775,5;30342,5;30352,5;30571,5;312' +
+    '43,5;32251,5;32414,5;32417,5;32694,5;33607,5;34196,5;35886,5' +
+    ';36503,5;36802,5;38042,5;38577,5;39612,5;42342,5;42576,5;441' +
+    '17,5;44120,5;45613,5;50246,5;51906,5;52168,5;53368,5;54672,5' +
+    ';54675,5;60502,5;62751,5;65331,5;66883,5;68167,5;68319,5;714' +
+    '18,5;71497,5;72941,5;73877,5;73932,5;73973,5;74162,5;74566,5' +
+    ';74712,5;74895,5;76529,5;77420,5;77486,5;77678,5;77692,5;779' +
+    '00,5;77984,5;77987,5;78515,5;78518,5;78536,5;78752,5;79229,5' +
+    ';79247,5;79495,5;80019,5;80697,5;81551,5;81906,5;81927,5;824' +
+    '49,5;82735,5;83107,5;83123,5;83167,5;83256,5;83373,5;83442,5' +
+    ';84504,5;85352,5;86148,5;86702,5;87234,5;87514,5;87641,5;876' +
+    '91,5;87866,5;88819,5;88966,5;89568,5;89641,5;89689,5;90502,5' +
+    ';90595,5;90721,5;90802,5;90901,5;91106,5;91132,5;91801,5;921' +
+    '54,5;92882,5;93601,5;93670,5;93767,5;93799,5","N",";558;561;' +
+    '775;1739;2709;3612;4275;4375;4668;4677;4689;4848;4938;5054;5' +
+    '155;5197;5238;5331;5718;6073;6976;8340;8394;8459;8612;8762;1' +
+    '0425;10751;12233;12236;12239;12448;12655;13450;13453;13456;1' +
+    '3459;13920;13962;14174;14328;14741;15061;15197;15561;15781;1' +
+    '5835;15900;19789;19920;20575;20755;20806;20986;23367;24574;2' +
+    '8775;30342;30352;30571;31243;32251;32414;32417;32694;33607;3' +
+    '4196;35886;36503;36802;38042;38577;39612;42342;42576;44117;4' +
+    '4120;45613;50246;51906;52168;53368;54672;54675;60502;62751;6' +
+    '5331;66883;68167;68319;71418;71497;72941;73877;73932;73973;7' +
+    '4162;74566;74712;74895;76529;77420;77486;77678;77692;77900;7' +
+    '7984;77987;78515;78518;78536;78752;79229;79247;79495;80019;8' +
+    '0697;81551;81906;81927;82449;82735;83107;83123;83167;83256;8' +
+    '3373;83442;84504;85352;86148;86702;87234;87514;87641;87691;8' +
+    '7866;88819;88966;89568;89641;89689;90502;90595;90721;90802;9' +
+    '0901;91106;91132;91801;92154;92882;93601;93670;93767;93799"]' +
+    ',' +
+    '["Tsp45I","^GTSAC",0,107,";803,5;809,5;980,5;1579,5;2209,5;' +
+    '2643,5;3199,5;4411,5;4619,5;5215,5;5521,5;6563,5;8012,5;8644' +
+    ',5;9756,5;13231,5;13524,5;13877,5;14138,5;14485,5;16858,5;17' +
+    '746,5;19824,5;21403,5;25684,5;27677,5;28301,5;28749,5;28990,' +
+    '5;29639,5;29816,5;30841,5;31670,5;31893,5;32203,5;32532,5;34' +
+    '377,5;34749,5;35475,5;35629,5;36093,5;36440,5;36463,5;36995,' +
+    '5;38729,5;38767,5;38798,5;39235,5;41046,5;41081,5;43700,5;44' +
+    '902,5;46562,5;48938,5;50195,5;50885,5;51536,5;52950,5;53350,' +
+    '5;54235,5;55174,5;55977,5;56085,5;56592,5;57702,5;58818,5;61' +
+    '478,5;62315,5;62971,5;64239,5;64349,5;66421,5;66594,5;66972,' +
+    '5;67020,5;68797,5;68814,5;69121,5;69627,5;70375,5;71467,5;71' +
+    '992,5;74080,5;74216,5;74258,5;75373,5;76641,5;77886,5;79317,' +
+    '5;79843,5;80959,5;81241,5;82809,5;82911,5;83288,5;83695,5;84' +
+    '473,5;87791,5;89330,5;89503,5;89671,5;90268,5;90287,5;90842,' +
+    '5;92219,5;92719,5;93526,5","N",";802;808;979;1578;2208;2642;' +
+    '3198;4410;4618;5214;5520;6562;8011;8643;9755;13230;13523;138' +
+    '76;14137;14484;16857;17745;19823;21402;25683;27676;28300;287' +
+    '48;28989;29638;29815;30840;31669;31892;32202;32531;34376;347' +
+    '48;35474;35628;36092;36439;36462;36994;38728;38766;38797;392' +
+    '34;41045;41080;43699;44901;46561;48937;50194;50884;51535;529' +
+    '49;53349;54234;55173;55976;56084;56591;57701;58817;61477;623' +
+    '14;62970;64238;64348;66420;66593;66971;67019;68796;68813;691' +
+    '20;69626;70374;71466;71991;74079;74215;74257;75372;76640;778' +
+    '85;79316;79842;80958;81240;82808;82910;83287;83694;84472;877' +
+    '90;89329;89502;89670;90267;90286;90841;92218;92718;93525"],' +
+    '["TspMI","C^CCGGG",0,7,";104,6;41736,6;74784,6;78032,6;8353' +
+    '7,6;83553,6;84751,6","N",";104;41736;74784;78032;83537;83553' +
+    ';84751"],' +
+    '["TspRI","CASTGNN^",0,242,";90,7;92,7;139,7;141,7;1926,7;19' +
+    '28,7;2032,7;2034,7;2937,7;2939,7;3294,7;3296,7;3393,7;3395,7' +
+    ';4325,7;4327,7;5215,7;5217,7;6301,7;6303,7;6658,7;6660,7;675' +
+    '7,7;6759,7;7064,7;7066,7;7813,7;7815,7;8555,7;8557,7;8644,7;' +
+    '8646,7;8764,7;8766,7;9737,7;9739,7;9765,7;9767,7;10877,7;108' +
+    '79,7;13101,7;13103,7;13928,7;13930,7;14102,7;14104,7;14292,7' +
+    ';14294,7;15069,7;15071,7;18922,7;18924,7;19818,7;19820,7;198' +
+    '93,7;19895,7;20232,7;20234,7;20788,7;20790,7;22489,7;22491,7' +
+    ';24733,7;24735,7;25207,7;25209,7;26001,7;26003,7;28467,7;284' +
+    '69,7;29286,7;29288,7;29580,7;29582,7;30645,7;30647,7;30759,7' +
+    ';30761,7;31976,7;31978,7;32468,7;32470,7;32697,7;32699,7;333' +
+    '43,7;33345,7;33558,7;33560,7;33591,7;33593,7;33609,7;33611,7' +
+    ';33685,7;33687,7;35568,7;35570,7;36203,7;36205,7;36404,7;364' +
+    '06,7;42037,7;42039,7;42422,7;42424,7;46389,7;46391,7;48074,7' +
+    ';48076,7;48164,7;48166,7;49157,7;49159,7;52361,7;52363,7;527' +
+    '45,7;52747,7;53507,7;53509,7;54154,7;54156,7;54479,7;54481,7' +
+    ';54707,7;54709,7;54945,7;54947,7;55044,7;55046,7;55176,7;551' +
+    '78,7;55213,7;55215,7;55325,7;55327,7;55720,7;55722,7;59447,7' +
+    ';59449,7;60808,7;60810,7;61297,7;61299,7;62717,7;62719,7;629' +
+    '87,7;62989,7;63348,7;63350,7;63501,7;63503,7;64519,7;64521,7' +
+    ';65561,7;65563,7;66334,7;66336,7;66417,7;66419,7;69027,7;690' +
+    '29,7;70234,7;70236,7;70525,7;70527,7;70906,7;70908,7;71164,7' +
+    ';71166,7;71467,7;71469,7;71499,7;71501,7;72466,7;72468,7;729' +
+    '20,7;72922,7;73665,7;73667,7;74520,7;74522,7;75723,7;75725,7' +
+    ';75908,7;75910,7;75977,7;75979,7;78388,7;78390,7;80313,7;803' +
+    '15,7;80335,7;80337,7;80944,7;80946,7;81326,7;81328,7;81669,7' +
+    ';81671,7;82934,7;82936,7;82959,7;82961,7;83236,7;83238,7;833' +
+    '42,7;83344,7;84210,7;84212,7;84680,7;84682,7;84760,7;84762,7' +
+    ';85770,7;85772,7;85967,7;85969,7;86120,7;86122,7;86347,7;863' +
+    '49,7;86694,7;86696,7;88046,7;88048,7;88983,7;88985,7;90430,7' +
+    ';90432,7;90576,7;90578,7;91147,7;91149,7;91219,7;91221,7;921' +
+    '17,7;92119,7;92354,7;92356,7;93135,7;93137,7;93300,7;93302,7' +
+    '","N",";98;147;1934;2040;2945;3302;3401;4333;5223;6309;6666;' +
+    '6765;7072;7821;8563;8652;8772;9745;9773;10885;13109;13936;14' +
+    '110;14300;15077;18930;19826;19901;20240;20796;22497;24741;25' +
+    '215;26009;28475;29294;29588;30653;30767;31984;32476;32705;33' +
+    '351;33566;33599;33617;33693;35576;36211;36412;42045;42430;46' +
+    '397;48082;48172;49165;52369;52753;53515;54162;54487;54715;54' +
+    '953;55052;55184;55221;55333;55728;59455;60816;61305;62725;62' +
+    '995;63356;63509;64527;65569;66342;66425;69035;70242;70533;70' +
+    '914;71172;71475;71507;72474;72928;73673;74528;75731;75916;75' +
+    '985;78396;80321;80343;80952;81334;81677;82942;82967;83244;83' +
+    '350;84218;84688;84768;85778;85975;86128;86355;86702;88054;88' +
+    '991;90438;90584;91155;91227;92125;92362;93143;93308"],' +
+    '["Tth111I","GACN^NNGTC",0,13,";1573,9;1770,9;5209,9;13487,9' +
+    ';30639,9;35623,9;55176,9;74004,9;74745,9;79169,9;82103,9;835' +
+    '18,9;93746,9","N",";1576;1773;5212;13490;30642;35626;55179;7' +
+    '4007;74748;79172;82106;83521;93749"],' +
+    '["XbaI","T^CTAGA",0,10,";116,6;1955,6;20308,6;30781,6;31725' +
+    ',6;47101,6;50401,6;52385,6;55676,6;62757,6","A",";116;1955;2' +
+    '0308;30781;31725;47101;50401;52385;55676;62757"],' +
+    '["XhoI","C^TCGAG",0,17,";128,6;28980,6;30899,6;34114,6;4006' +
+    '9,6;51901,6;55101,6;56262,6;73488,6;74622,6;76315,6;78827,6;' +
+    '79410,6;80662,6;83547,6;85025,6;88072,6","N",";128;28980;308' +
+    '99;34114;40069;51901;55101;56262;73488;74622;76315;78827;794' +
+    '10;80662;83547;85025;88072"],' +
+    '["XmaI","C^CCGGG",0,7,";104,6;41736,6;74784,6;78032,6;83537' +
+    ',6;83553,6;84751,6","N",";104;41736;74784;78032;83537;83553;' +
+    '84751"],' +
+    '["XmnI","GAANN^NNTTC",0,50,";2359,10;3050,10;3345,10;6414,1' +
+    '0;6709,10;7706,10;13552,10;18899,10;23028,10;25045,10;25808,' +
+    '10;26712,10;26791,10;28890,10;30890,10;33744,10;33782,10;391' +
+    '59,10;40540,10;44226,10;45572,10;47429,10;47747,10;48645,10;' +
+    '50961,10;51417,10;52213,10;54699,10;59295,10;59478,10;59671,' +
+    '10;60180,10;60821,10;60864,10;62731,10;62859,10;62889,10;629' +
+    '25,10;65554,10;65586,10;65997,10;66471,10;70475,10;71196,10;' +
+    '72191,10;72807,10;73479,10;74344,10;76818,10;87261,10","N","' +
+    ';2363;3054;3349;6418;6713;7710;13556;18903;23032;25049;25812' +
+    ';26716;26795;28894;30894;33748;33786;39163;40544;44230;45576' +
+    ';47433;47751;48649;50965;51421;52217;54703;59299;59482;59675' +
+    ';60184;60825;60868;62735;62863;62893;62929;65558;65590;66001' +
+    ';66475;70479;71200;72195;72811;73483;74348;76822;87265"],' +
+    '["ZraI","GAC^GTC",0,14,";2640,6;7442,6;9753,6;9828,6;30962,' +
+    '6;33504,6;48414,6;59063,6;74046,6;75295,6;75360,6;75800,6;82' +
+    '024,6;83619,6","N",";2642;7444;9755;9830;30964;33506;48416;5' +
+    '9065;74048;75297;75362;75802;82026;83621"]]';
+    return str;
+}
+
+function wdeTestDataString_013() {
+    var str = '[["AatII","GACGT^C",0,1,";2695,6","N",";2699"],' +
+    '["AccI","GT^MKAC",0,1,";2106,6","N",";2107"],' +
+    '["Acc65I","G^GTACC",0,0,"","C",""],' +
+    '["AciI","CCGC(-3/-1)",0,17,";98,4;511,4;866,4;1027,4;1122,4' +
+    ';1188,4;1233,4;1485,4;1521,4;1667,4;2076,4;2555,4;2568,4;263' +
+    '5,4;2691,4;2732,4;2822,4","N",";98;511;866;1027;1122;1188;12' +
+    '33;1485;1521;1667;2076;2555;2568;2635;2691;2732;2822"],' +
+    '["AclI","AA^CGTT",0,0,"","N",""],' +
+    '["AcuI","CTGAAG(16/14)",0,2,";74,6;1013,6","N",";59;998"],' +
+    '["AfeI","AGC^GCT",0,0,"","N",""],' +
+    '["AflII","C^TTAAG",0,0,"","N",""],' +
+    '["AflIII","A^CRYGT",0,0,"","N",""],' +
+    '["AgeI","A^CCGGT",0,0,"","N",""],' +
+    '["AhdI","GACNNN^NNGTC",0,1,";2825,11","N",";2830"],' +
+    '["AleI","CACNN^NNGTG",0,0,"","N",""],' +
+    '["AluI","AG^CT",0,6,";30,4;105,4;204,4;390,4;1091,4;3157,4"' +
+    ',"N",";31;106;205;391;1092;3158"],' +
+    '["AlwI","GGATC(4/5)",0,0,"","A",""],' +
+    '["AlwNI","CAGNNN^CTG",0,0,"","C",""],' +
+    '["ApaI","GGGCC^C",0,0,"","C",""],' +
+    '["ApaLI","G^TGCAC",0,1,";2861,6","N",";2861"],' +
+    '["ApeKI","G^CWGC",0,6,";1223,5;1697,5;2300,5;2583,5;2659,5;' +
+    '2672,5","N",";1223;1697;2300;2583;2659;2672"],' +
+    '["ApoI","R^AATTY",0,5,";22,6;1280,6;1589,6;1914,6;2152,6","' +
+    'N",";22;1280;1589;1914;2152"],' +
+    '["AscI","GG^CGCGCC",0,0,"","N",""],' +
+    '["AseI","AT^TAAT",0,0,"","N",""],' +
+    '["AsiSI","GCGAT^CGC",0,0,"","N",""],' +
+    '["Asp700I","GAANN^NNTTC",0,1,";2523,10","N",";2527"],' +
+    '["Asp718I","G^GTACC",0,0,"","C",""],' +
+    '["AvaI","C^YCGRG",0,3,";533,6;1409,6;2745,6","N",";533;1409' +
+    ';2745"],' +
+    '["AvaII","G^GWCC",0,7,";461,5;1421,5;1464,5;1791,5;1801,5;2' +
+    '184,5;2854,5","C",";461;1421;1464;1791;1801;2184;2854"],' +
+    '["AvrII","C^CTAGG",0,1,";1460,6","N",";1460"],' +
+    '["BaeGI","GKGCM^C",0,1,";2861,6","N",";2865"],' +
+    '["BamHI","G^GATCC",0,3,";1004,6;1770,6;2682,6","N",";1004;1' +
+    '770;2682"],' +
+    '["BanI","G^GYRCC",0,0,"","N",""],' +
+    '["BanII","GRGCY^C",0,1,";1145,6","N",";1149"],' +
+    '["BbrPI","CAC^GTG",0,0,"","N",""],' +
+    '["BbsI","GAAGAC(2/6)",0,0,"","N",""],' +
+    '["BbvI","GCAGC(8/12)",0,6,";1223,5;1697,5;2300,5;2583,5;265' +
+    '9,5;2672,5","N",";1235;1684;2287;2595;2646;2659"],' +
+    '["BbvCI","CCTCAGC(-5/-2)",0,2,";101,7;1933,7","N",";102;193' +
+    '4"],' +
+    '["BccI","CCATC(4/5)",0,5,";635,5;1888,5;1893,5;2136,5;2506,' +
+    '5","N",";643;1896;1901;2130;2514"],' +
+    '["BceAI","ACGGC(12/14)",0,2,";2443,5;2785,5","N",";2459;277' +
+    '0"],' +
+    '["BciVI","GTATCC(6/5)",0,1,";1835,6","N",";1846"],' +
+    '["BclI","T^GATCA",0,0,"","A",""],' +
+    '["BcoDI","GTCTC(1/5)",0,7,";129,5;245,5;320,5;433,5;501,5;1' +
+    '238,5;2893,5","N",";134;239;325;427;506;1243;2887"],' +
+    '["BfaI","C^TAG",0,14,";91,4;202,4;242,4;250,4;467,4;815,4;8' +
+    '37,4;1461,4;1530,4;1560,4;1962,4;2564,4;2663,4;3055,4","N","' +
+    ';91;202;242;250;467;815;837;1461;1530;1560;1962;2564;2663;30' +
+    '55"],' +
+    '["BfrI","C^TTAAG",0,0,"","N",""],' +
+    '["BfuAI","ACCTGC(4/8)",0,3,";458,6;1803,6;2586,6","N",";449' +
+    ';1812;2577"],' +
+    '["BfuCI","^GATC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,4' +
+    ';1771,4;2545,4;2683,4","N",";84;231;523;937;1004;1310;1770;2' +
+    '544;2682"],' +
+    '["BglI","GCCNNNN^NGGC",0,0,"","N",""],' +
+    '["BglII","A^GATCT",0,3,";84,6;523,6;937,6","N",";84;523;937' +
+    '"],' +
+    '["BlnI","C^CTAGG",0,1,";1460,6","N",";1460"],' +
+    '["BlpI","GC^TNAGC",0,0,"","N",""],' +
+    '["BmgBI","CACGTC(-3/-3)",0,1,";2882,6","N",";2884"],' +
+    '["BmrI","ACTGGG(5/4)",0,2,";584,6;3011,6","N",";594;3021"],' +
+    '["BmtI","GCTAG^C",0,0,"","N",""],' +
+    '["BpmI","CTGGAG(16/14)",0,4,";386,6;1093,6;1349,6;2592,6","' +
+    'N",";371;1114;1334;2613"],' +
+    '["Bpu10I","CCTNAGC(-5/-2)",0,4,";101,7;133,7;1155,7;1933,7"' +
+    ',"N",";102;134;1156;1934"],' +
+    '["BpuEI","CTTGAG(16/14)",0,3,";1819,6;2060,6;2977,6","N",";' +
+    '1804;2081;2998"],' +
+    '["BsaI","GGTCTC(1/5)",0,3,";245,6;500,6;2893,6","C",";239;5' +
+    '06;2887"],' +
+    '["BsaAI","YAC^GTR",0,0,"","N",""],' +
+    '["BsaBI","GATNN^NNATC",0,0,"","A",""],' +
+    '["BsaHI","GR^CGYC",0,2,";1074,6;2695,6","N",";1075;2696"],' +
+    '["BsaJI","C^CNNGG",0,8,";209,6;557,6;1460,6;1900,6;2654,6;2' +
+    '799,6;2924,6;3164,6","N",";209;557;1460;1900;2654;2799;2924;' +
+    '3164"],' +
+    '["BsaWI","W^CCGGW",0,1,";429,6","N",";429"],' +
+    '["BsaXI","(9/12)ACNNNNNCTCC(10/7)",0,4,";28,11;1383,11;2820' +
+    ',11;3030,11","N",";50;20;1373;1403;2810;2840;3052;3022"],' +
+    '["BseRI","GAGGAG(10/8)",0,4,";383,6;2535,6;3016,6;3028,6","' +
+    'N",";374;2526;3031;3043"],' +
+    '["BseYI","CCCAGC(-5/-1)",0,3,";182,6;1106,6;2487,6","N",";1' +
+    '82;1106;2487"],' +
+    '["BsgI","GTGCAG(16/14)",0,2,";158,6;2879,6","N",";143;2864"' +
+    '],' +
+    '["BsiEI","CGRY^CG",0,2,";2792,6;2969,6","N",";2795;2972"],' +
+    '["BsiHKAI","GWGCW^C",0,1,";2861,6","N",";2865"],' +
+    '["BsiWI","C^GTACG",0,0,"","N",""],' +
+    '["BslI","CCNNNNN^NNGG",0,14,";995,11;1119,11;1122,11;1270,1' +
+    '1;1338,11;1860,11;1999,11;2430,11;2436,11;2481,11;2548,11;27' +
+    '40,11;2741,11;2795,11","N",";1001;1125;1128;1276;1344;1866;2' +
+    '005;2436;2442;2487;2554;2746;2747;2801"],' +
+    '["BsmI","GAATGC(1/-1)",0,1,";1098,6","N",";1098"],' +
+    '["BsmAI","GTCTC(1/5)",0,7,";129,5;245,5;320,5;433,5;501,5;1' +
+    '238,5;2893,5","N",";134;239;325;427;506;1243;2887"],' +
+    '["BsmBI","CGTCTC(1/5)",0,0,"","N",""],' +
+    '["BsmFI","GGGAC(10/14)",0,11,";462,5;1042,5;1420,5;1598,5;1' +
+    '790,5;2065,5;2609,5;2693,5;2711,5;2758,5;2769,5","N",";447;1' +
+    '056;1434;1583;1804;2050;2623;2707;2696;2772;2754"],' +
+    '["BsoBI","C^YCGRG",0,3,";533,6;1409,6;2745,6","N",";533;140' +
+    '9;2745"],' +
+    '["Bsp1286I","GDGCH^C",0,2,";1145,6;2861,6","N",";1149;2865"' +
+    '],' +
+    '["BspCNI","CTCAG(9/7)",0,9,";102,5;134,5;163,5;1150,5;1156,' +
+    '5;1264,5;1934,5;1953,5;2955,5","N",";115;126;176;1163;1169;1' +
+    '277;1947;1966;2968"],' +
+    '["BspDI","AT^CGAT",0,0,"","A",""],' +
+    '["BspEI","T^CCGGA",0,1,";429,6","A",";429"],' +
+    '["BspHI","T^CATGA",0,0,"","A",""],' +
+    '["BspMI","ACCTGC(4/8)",0,3,";458,6;1803,6;2586,6","N",";449' +
+    ';1812;2577"],' +
+    '["BspQI","GCTCTTC(1/4)",0,0,"","N",""],' +
+    '["BsrI","ACTGG(1/-1)",0,7,";584,5;998,5;1211,5;1351,5;2483,' +
+    '5;2679,5;3011,5","N",";589;998;1211;1351;2488;2684;3016"],' +
+    '["BsrBI","CCGCTC(-3/-3)",0,0,"","N",""],' +
+    '["BsrDI","GCAATG(2/0)",0,1,";2959,6","N",";2966"],' +
+    '["BsrFI","R^CCGGY",0,0,"","N",""],' +
+    '["BsrGI","T^GTACA",0,1,";2050,6","N",";2050"],' +
+    '["BssHII","G^CGCGC",0,0,"","N",""],' +
+    '["BssSI","CACGAG(-5/-1)",0,2,";1473,6;1535,6","N",";1473;15' +
+    '35"],' +
+    '["BstAPI","GCANNNN^NTGC",0,0,"","N",""],' +
+    '["BstBI","TT^CGAA",0,0,"","N",""],' +
+    '["BstEII","G^GTNACC",0,2,";760,7;915,7","N",";760;915"],' +
+    '["BstNI","CC^WGG",0,8,";209,5;744,5;1066,5;1644,5;1767,5;19' +
+    '00,5;1948,5;2447,5","N",";210;745;1067;1645;1768;1901;1949;2' +
+    '448"],' +
+    '["BstUI","CG^CG",0,3,";512,4;2690,4;2821,4","N",";513;2691;' +
+    '2822"],' +
+    '["BstXI","CCANNNNN^NTGG",0,2,";920,12;1893,12","N",";927;19' +
+    '00"],' +
+    '["BstYI","R^GATCY",0,8,";84,6;231,6;523,6;937,6;1004,6;1310' +
+    ',6;1770,6;2682,6","N",";84;231;523;937;1004;1310;1770;2682"]' +
+    ',' +
+    '["BstZ17I","GTA^TAC",0,1,";2106,6","N",";2108"],' +
+    '["Bsu36I","CC^TNAGG",0,2,";1149,7;1263,7","N",";1150;1264"]' +
+    ',' +
+    '["BtgI","C^CRYGG",0,2,";2654,6;2799,6","N",";2654;2799"],' +
+    '["BtgZI","GCGATG(10/14)",0,0,"","N",""],' +
+    '["BtsI","GCAGTG(2/0)",0,1,";1274,6","N",";1281"],' +
+    '["BtsIMutI","CAGTG(2/0)",0,4,";1275,5;1977,5;2000,5;2482,5"' +
+    ',"N",";1281;1983;1999;2481"],' +
+    '["BtsCI","GGATG(2/0)",0,7,";1260,5;1657,5;1691,5;1889,5;189' +
+    '7,5;2023,5;2174,5","N",";1259;1663;1690;1888;1896;2029;2180"' +
+    '],' +
+    '["Cac8I","GCN^NGC",0,6,";168,6;739,6;1178,6;2365,6;2514,6;2' +
+    '579,6","N",";170;741;1180;2367;2516;2581"],' +
+    '["CfoI","GCG^C",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;280' +
+    '6,4;3083,4","N",";902;1430;2514;2691;2722;2808;3085"],' +
+    '["ClaI","AT^CGAT",0,0,"","A",""],' +
+    '["CviAII","C^ATG",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;' +
+    '2349,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N"' +
+    ',";947;1271;1436;1795;1808;2349;2500;2515;2655;2889;3095;313' +
+    '3;4"],' +
+    '["CviQI","G^TAC",0,5,";79,4;605,4;1852,4;2051,4;3052,4","N"' +
+    ',";79;605;1852;2051;3052"],' +
+    '["DdeI","C^TNAG",0,11,";102,5;123,5;134,5;163,5;1150,5;1156' +
+    ',5;1264,5;1934,5;1953,5;2361,5;2955,5","N",";102;123;134;163' +
+    ';1150;1156;1264;1934;1953;2361;2955"],' +
+    '["DpnI","GA^TC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,4;' +
+    '1771,4;2545,4;2683,4","N",";86;233;525;939;1006;1312;1772;25' +
+    '46;2684"],' +
+    '["DpnII","^GATC",0,0,"","A",""],' +
+    '["DraI","TTT^AAA",0,2,";2113,6;3004,6","N",";2115;3006"],' +
+    '["DraIII","CACNNN^GTG",0,1,";2313,9","N",";2318"],' +
+    '["DrdI","GACNNNN^NNGTC",0,2,";247,12;2760,12","N",";253;276' +
+    '6"],' +
+    '["EaeI","Y^GGCCR",0,1,";1583,6","C",";1583"],' +
+    '["EagI","C^GGCCG",0,0,"","N",""],' +
+    '["EarI","CTCTTC(1/4)",0,2,";332,6;1686,6","N",";327;1692"],' +
+    '["EciI","GGCGGA(11/9)",0,1,";1187,6","A",";1177"],' +
+    '["Eco47III","AGC^GCT",0,0,"","N",""],' +
+    '["EcoNI","CCTNN^NNNAGG",0,0,"","N",""],' +
+    '["EcoO109I","RG^GNCCY",0,4,";460,7;1420,7;1463,7;2183,7","N' +
+    '",";461;1421;1464;2184"],' +
+    '["EcoP15I","CAGCAG(25/27)",0,3,";1339,6;1695,6;2584,6","N",' +
+    '";1311;1667;2614"],' +
+    '["EcoRI","G^AATTC",0,1,";1280,6","N",";1280"],' +
+    '["EcoRV","GAT^ATC",0,0,"","N",""],' +
+    '["Eco53kI","GAG^CTC",0,0,"","N",""],' +
+    '["FatI","^CATG",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;23' +
+    '49,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N","' +
+    ';946;1270;1435;1794;1807;2348;2499;2514;2654;2888;3094;3132;' +
+    '3"],' +
+    '["FauI","CCCGC(4/6)",0,5,";866,5;1232,5;1485,5;2634,5;2691,' +
+    '5","N",";859;1240;1478;2642;2684"],' +
+    '["Fnu4HI","GC^NGC",0,9,";510,5;1223,5;1667,5;1697,5;2300,5;' +
+    '2567,5;2583,5;2659,5;2672,5","N",";511;1224;1668;1698;2301;2' +
+    '568;2584;2660;2673"],' +
+    '["FokI","GGATG(9/13)",0,7,";1260,5;1657,5;1691,5;1889,5;189' +
+    '7,5;2023,5;2174,5","N",";1246;1670;1677;1875;1883;2036;2187"' +
+    '],' +
+    '["FseI","GGCCGG^CC",0,0,"","N",""],' +
+    '["FspI","TGC^GCA",0,1,";3082,6","N",";3084"],' +
+    '["HaeII","RGCGC^Y",0,2,";899,6;2719,6","N",";903;2723"],' +
+    '["HaeIII","GG^CC",0,13,";280,4;695,4;1069,4;1131,4;1268,4;1' +
+    '326,4;1584,4;1931,4;2041,4;2250,4;2395,4;2445,4;2504,4","N",' +
+    '";281;696;1070;1132;1269;1327;1585;1932;2042;2251;2396;2446;' +
+    '2505"],' +
+    '["HgaI","GACGC(5/10)",0,4,";238,5;513,5;1074,5;2471,5","N",' +
+    '";227;502;1083;2480"],' +
+    '["HhaI","GCG^C",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;280' +
+    '6,4;3083,4","N",";902;1430;2514;2691;2722;2808;3085"],' +
+    '["HinP1I","G^CGC",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;2' +
+    '806,4;3083,4","N",";900;1428;2512;2689;2720;2806;3083"],' +
+    '["HincII","GTY^RAC",0,4,";265,6;1499,6;2271,6;2964,6","N","' +
+    ';267;1501;2273;2966"],' +
+    '["HindII","GTY^RAC",0,4,";265,6;1499,6;2271,6;2964,6","N","' +
+    ';267;1501;2273;2966"],' +
+    '["HindIII","A^AGCTT",0,0,"","N",""],' +
+    '["HinfI","G^ANTC",0,17,";127,5;198,5;375,5;538,5;562,5;956,' +
+    '5;982,5;1456,5;1507,5;1526,5;1533,5;2063,5;2725,5;2760,5;282' +
+    '5,5;2943,5;2951,5","N",";127;198;375;538;562;956;982;1456;15' +
+    '07;1526;1533;2063;2725;2760;2825;2943;2951"],' +
+    '["HpaI","GTT^AAC",0,0,"","N",""],' +
+    '["HpaII","C^CGG",0,4,";430,4;1799,4;2437,4;2852,4","N",";43' +
+    '0;1799;2437;2852"],' +
+    '["HphI","GGTGA(8/7)",0,7,";145,5;150,5;917,5;1114,5;1617,5;' +
+    '2873,5;3107,5","A",";137;142;909;1106;1609;2865;3099"],' +
+    '["Hpy99I","CGWCG^",0,4,";451,5;514,5;2715,5;2884,5","N",";4' +
+    '55;518;2719;2888"],' +
+    '["Hpy166II","GTN^NAC",0,14,";143,6;265,6;681,6;1365,6;1499,' +
+    '6;1541,6;1957,6;2106,6;2271,6;2406,6;2705,6;2861,6;2902,6;29' +
+    '64,6","N",";145;267;683;1367;1501;1543;1959;2108;2273;2408;2' +
+    '707;2863;2904;2966"],' +
+    '["Hpy188I","TCN^GA",0,7,";61,5;365,5;1015,5;1376,5;1863,5;1' +
+    '909,5;2790,5","A",";63;367;1017;1378;1865;1911;2792"],' +
+    '["Hpy188III","TC^NNGA",0,18,";90,6;114,6;132,6;241,6;429,6;' +
+    '534,6;805,6;989,6;1034,6;1215,6;1356,6;1408,6;1452,6;1529,6;' +
+    '1727,6;2059,6;2591,6;2607,6","A",";91;115;133;242;430;535;80' +
+    '6;990;1035;1216;1357;1409;1453;1530;1728;2060;2592;2608"],' +
+    '["HpyAV","CCTTC(6/5)",0,12,";58,5;73,5;497,5;862,5;1012,5;1' +
+    '219,5;1291,5;1469,5;1860,5;2741,5;2773,5;2840,5","N",";68;83' +
+    ';491;856;1022;1213;1301;1479;1870;2751;2783;2850"],' +
+    '["HpyCH4III","ACN^GT",0,13,";34,5;340,5;439,5;602,5;685,5;7' +
+    '04,5;1362,5;1572,5;2001,5;2856,5;2899,5;2996,5;3141,5","N","' +
+    ';36;342;441;604;687;706;1364;1574;2003;2858;2901;2998;3143"]' +
+    ',' +
+    '["HpyCH4IV","A^CGT",0,3,";2696,4;2709,4;2883,4","N",";2696;' +
+    '2709;2883"],' +
+    '["HpyCH4V","TG^CA",0,10,";159,4;726,4;1273,4;1306,4;1806,4;' +
+    '1875,4;2347,4;2862,4;2880,4;3097,4","N",";160;727;1274;1307;' +
+    '1807;1876;2348;2863;2881;3098"],' +
+    '["KasI","G^GCGCC",0,0,"","N",""],' +
+    '["KpnI","GGTAC^C",0,0,"","N",""],' +
+    '["KspI","CCGC^GG",0,0,"","N",""],' +
+    '["MaeI","C^TAG",0,14,";91,4;202,4;242,4;250,4;467,4;815,4;8' +
+    '37,4;1461,4;1530,4;1560,4;1962,4;2564,4;2663,4;3055,4","N","' +
+    ';91;202;242;250;467;815;837;1461;1530;1560;1962;2564;2663;30' +
+    '55"],' +
+    '["MaeII","A^CGT",0,3,";2696,4;2709,4;2883,4","N",";2696;270' +
+    '9;2883"],' +
+    '["MaeIII","^GTNAC",0,6,";42,5;761,5;916,5;1478,5;2081,5;214' +
+    '2,5","N",";41;760;915;1477;2080;2141"],' +
+    '["MboI","^GATC",0,0,"","A",""],' +
+    '["MboII","GAAGA(8/7)",0,10,";332,5;470,5;473,5;596,5;720,5;' +
+    '1405,5;1681,5;1687,5;1711,5;1724,5","A",";344;482;485;588;73' +
+    '2;1397;1673;1679;1703;1716"],' +
+    '["MfeI","C^AATTG",0,1,";728,6","N",";728"],' +
+    '["MluI","A^CGCGT",0,0,"","N",""],' +
+    '["MluCI","^AATT",0,14,";23,4;174,4;223,4;729,4;1281,4;1554,' +
+    '4;1590,4;1763,4;1872,4;1915,4;2087,4;2153,4;2278,4;3074,4","' +
+    'N",";22;173;222;728;1280;1553;1589;1762;1871;1914;2086;2152;' +
+    '2277;3073"],' +
+    '["MluNI","TGG^CCA",0,2,";1068,6;1583,6","N",";1070;1585"],' +
+    '["MlyI","GAGTC(5/5)",0,10,";127,5;198,5;562,5;1526,5;1533,5' +
+    ';2063,5;2760,5;2825,5;2943,5;2951,5","N",";136;192;556;1535;' +
+    '1527;2072;2754;2819;2937;2945"],' +
+    '["MmeI","TCCRAC(20/18)",0,3,";1001,6;1634,6;2790,6","N",";9' +
+    '82;1659;2815"],' +
+    '["MnlI","CCTC(7/6)",0,38,";101,4;148,4;385,4;455,4;482,4;48' +
+    '7,4;620,4;903,4;975,4;1129,4;1149,4;1191,4;1198,4;1263,4;132' +
+    '4,4;1387,4;1412,4;1511,4;1606,4;1624,4;1632,4;1685,4;1706,4;' +
+    '1758,4;1774,4;1828,4;1840,4;1933,4;2537,4;2811,4;2876,4;2940' +
+    ',4;2980,4;3016,4;3028,4;3059,4;3110,4;3151,4","N",";111;158;' +
+    '395;448;492;497;630;913;985;1122;1159;1201;1208;1273;1317;13' +
+    '97;1405;1521;1616;1634;1642;1695;1716;1768;1784;1838;1850;19' +
+    '43;2547;2821;2886;2933;2973;3009;3021;3052;3120;3161"],' +
+    '["MroI","T^CCGGA",0,1,";429,6","N",";429"],' +
+    '["MscI","TGG^CCA",0,1,";1583,6","C",";1585"],' +
+    '["MseI","T^TAA",0,9,";221,4;615,4;708,4;792,4;819,4;2114,4;' +
+    '2244,4;3005,4;3040,4","N",";221;615;708;792;819;2114;2244;30' +
+    '05;3040"],' +
+    '["MslI","CAYNN^NNRTG",0,1,";270,10","N",";274"],' +
+    '["MspI","C^CGG",0,4,";430,4;1799,4;2437,4;2852,4","N",";430' +
+    ';1799;2437;2852"],' +
+    '["MspA1I","CMG^CKG",0,2,";1233,6;2076,6","N",";1235;2078"],' +
+    '["MunI","C^AATTG",0,1,";728,6","N",";728"],' +
+    '["MvaI","CC^WGG",0,8,";209,5;744,5;1066,5;1644,5;1767,5;190' +
+    '0,5;1948,5;2447,5","N",";210;745;1067;1645;1768;1901;1949;24' +
+    '48"],' +
+    '["MvnI","CG^CG",0,3,";512,4;2690,4;2821,4","N",";513;2691;2' +
+    '822"],' +
+    '["MwoI","GCNNNNN^NNGC",0,6,";1011,11;1020,11;1226,11;1798,1' +
+    '1;2505,11;2570,11","N",";1017;1026;1232;1804;2511;2576"],' +
+    '["NaeI","GCC^GGC",0,0,"","N",""],' +
+    '["NarI","GG^CGCC",0,0,"","N",""],' +
+    '["NciI","CC^SGG",0,1,";2436,5","N",";2437"],' +
+    '["NcoI","C^CATGG",0,1,";2654,6","N",";2654"],' +
+    '["NdeI","CA^TATG",0,0,"","N",""],' +
+    '["NdeII","^GATC",0,0,"","A",""],' +
+    '["NgoMIV","G^CCGGC",0,0,"","N",""],' +
+    '["NheI","G^CTAGC",0,0,"","N",""],' +
+    '["NlaIII","CATG^",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;' +
+    '2349,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N"' +
+    ',";950;1274;1439;1798;1811;2352;2503;2518;2658;2892;3098;313' +
+    '6;7"],' +
+    '["NlaIV","GGN^NCC",0,14,";461,6;1004,6;1144,6;1347,6;1420,6' +
+    ';1421,6;1464,6;1790,6;1824,6;2039,6;2183,6;2522,6;2533,6;268' +
+    '2,6","C",";463;1006;1146;1349;1422;1423;1466;1792;1826;2041;' +
+    '2185;2524;2535;2684"],' +
+    '["NmeAIII","GCCGAG(21/19)",0,0,"","N",""],' +
+    '["NotI","GC^GGCCGC",0,0,"","N",""],' +
+    '["NruI","TCG^CGA",0,0,"","A",""],' +
+    '["NsiI","ATGCA^T",0,1,";2346,6","N",";2350"],' +
+    '["NspI","RCATG^Y",0,2,";2348,6;2514,6","N",";2352;2518"],' +
+    '["PacI","TTAAT^TAA",0,0,"","N",""],' +
+    '["PaeR7I","C^TCGAG",0,1,";1409,6","N",";1409"],' +
+    '["PciI","A^CATGT",0,0,"","N",""],' +
+    '["PflFI","GACN^NNGTC",0,0,"","N",""],' +
+    '["PflMI","CCANNNN^NTGG",0,4,";995,11;1270,11;1999,11;2481,1' +
+    '1","C",";1001;1276;2005;2487"],' +
+    '["PleI","GAGTC(4/5)",0,10,";127,5;198,5;562,5;1526,5;1533,5' +
+    ';2063,5;2760,5;2825,5;2943,5;2951,5","N",";135;192;556;1534;' +
+    '1527;2071;2754;2819;2937;2945"],' +
+    '["PluTI","GGCGC^C",0,0,"","N",""],' +
+    '["PmeI","GTTT^AAAC",0,0,"","N",""],' +
+    '["PmlI","CAC^GTG",0,0,"","N",""],' +
+    '["PpuMI","RG^GWCCY",0,4,";460,7;1420,7;1463,7;2183,7","C","' +
+    ';461;1421;1464;2184"],' +
+    '["PshAI","GACNN^NNGTC",0,1,";494,10","N",";498"],' +
+    '["PsiI","TTA^TAA",0,1,";15,6","N",";17"],' +
+    '["PspGI","^CCWGG",0,0,"","C",""],' +
+    '["PspOMI","G^GGCCC",0,0,"","C",""],' +
+    '["PspXI","VC^TCGAGB",0,0,"","N",""],' +
+    '["PstI","CTGCA^G",0,0,"","N",""],' +
+    '["PvuI","CGAT^CG",0,0,"","N",""],' +
+    '["PvuII","CAG^CTG",0,0,"","N",""],' +
+    '["RsaI","GT^AC",0,5,";79,4;605,4;1852,4;2051,4;3052,4","N",' +
+    '";80;606;1853;2052;3053"],' +
+    '["RsrII","CG^GWCCG",0,1,";2853,7","N",";2854"],' +
+    '["SacI","GAGCT^C",0,0,"","N",""],' +
+    '["SacII","CCGC^GG",0,0,"","N",""],' +
+    '["SalI","G^TCGAC",0,0,"","N",""],' +
+    '["SapI","GCTCTTC(1/4)",0,0,"","N",""],' +
+    '["Sau96I","G^GNCC",0,12,";279,5;461,5;695,5;1421,5;1464,5;1' +
+    '791,5;1801,5;1930,5;2040,5;2184,5;2503,5;2854,5","C",";279;4' +
+    '61;695;1421;1464;1791;1801;1930;2040;2184;2503;2854"],' +
+    '["Sau3AI","^GATC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,' +
+    '4;1771,4;2545,4;2683,4","N",";84;231;523;937;1004;1310;1770;' +
+    '2544;2682"],' +
+    '["SbfI","CCTGCA^GG",0,0,"","N",""],' +
+    '["ScaI","AGT^ACT",0,0,"","N",""],' +
+    '["ScrFI","CC^NGG",0,1,";2436,5","C",";2437"],' +
+    '["SexAI","A^CCWGGT",0,0,"","C",""],' +
+    '["SfaNI","GCATC(5/9)",0,2,";2056,5;2335,5","N",";2065;2325"' +
+    '],' +
+    '["SfcI","C^TRYAG",0,2,";941,6;3063,6","N",";941;3063"],' +
+    '["SfoI","GGC^GCC",0,0,"","N",""],' +
+    '["SfuI","TT^CGAA",0,0,"","N",""],' +
+    '["SgrAI","CR^CCGGYG",0,0,"","N",""],' +
+    '["SmaI","CCC^GGG",0,0,"","N",""],' +
+    '["SmlI","C^TYRAG",0,4,";1409,6;1819,6;2060,6;2977,6","N",";' +
+    '1409;1819;2060;2977"],' +
+    '["SnaBI","TAC^GTA",0,0,"","N",""],' +
+    '["SpeI","A^CTAGT",0,1,";1961,6","N",";1961"],' +
+    '["SphI","GCATG^C",0,1,";2514,6","N",";2518"],' +
+    '["SrfI","GCCC^GGGC",0,0,"","N",""],' +
+    '["SspI","AAT^ATT",0,2,";768,6;2916,6","N",";770;2918"],' +
+    '["StuI","AGG^CCT",0,4,";1130,6;1325,6;2249,6;2394,6","C",";' +
+    '1132;1327;2251;2396"],' +
+    '["StyI","C^CWWGG",0,5,";557,6;1460,6;2654,6;2924,6;3164,6",' +
+    '"N",";557;1460;2654;2924;3164"],' +
+    '["StyD4I","^CCNGG",0,1,";2436,5","C",";2435"],' +
+    '["SwaI","ATTT^AAAT",0,0,"","N",""],' +
+    '["TaqI","T^CGA",0,2,";8,4;1410,4","A",";8;1410"],' +
+    '["TfiI","G^AWTC",0,7,";375,5;538,5;956,5;982,5;1456,5;1507,' +
+    '5;2725,5","N",";375;538;956;982;1456;1507;2725"],' +
+    '["Tru9I","T^TAA",0,9,";221,4;615,4;708,4;792,4;819,4;2114,4' +
+    ';2244,4;3005,4;3040,4","N",";221;615;708;792;819;2114;2244;3' +
+    '005;3040"],' +
+    '["TseI","G^CWGC",0,6,";1223,5;1697,5;2300,5;2583,5;2659,5;2' +
+    '672,5","N",";1223;1697;2300;2583;2659;2672"],' +
+    '["Tsp45I","^GTSAC",0,1,";916,5","N",";915"],' +
+    '["TspMI","C^CCGGG",0,0,"","N",""],' +
+    '["TspRI","CASTGNN^",0,8,";1273,7;1275,7;1975,7;1977,7;1998,' +
+    '7;2000,7;2480,7;2482,7","N",";1281;1983;2006;2488"],' +
+    '["Tth111I","GACN^NNGTC",0,0,"","N",""],' +
+    '["XbaI","T^CTAGA",0,3,";90,6;241,6;1529,6","A",";90;241;152' +
+    '9"],' +
+    '["XhoI","C^TCGAG",0,1,";1409,6","N",";1409"],' +
+    '["XmaI","C^CCGGG",0,0,"","N",""],' +
+    '["XmnI","GAANN^NNTTC",0,1,";2523,10","N",";2527"],' +
+    '["ZraI","GAC^GTC",0,1,";2695,6","N",";2697"]]';
     return str;
 }
 
