@@ -43,12 +43,15 @@ function wdeTestAll() {
     wdeTestFailed = 0;
     wdeInTestRun = 1;   
     var currentTestOut = "";
-    
+    var browser = wdeTestDetectBorwser();
+
     var startTime = new Date();
     wdeTestLastTime = startTime;
     wdeTestAddToOutput("Starting Tests: " + wdeTestLeadingZero(startTime.getHours()) + ":" 
                    + wdeTestLeadingZero(startTime.getMinutes()) + ":" 
-                   + wdeTestLeadingZero(startTime.getSeconds()) + "\n\n");
+                   + wdeTestLeadingZero(startTime.getSeconds()) + "\n");
+
+    wdeTestAddToOutput("\nTest Main Functions:\n\n");
 
     wdeTestAddToOutput("wdeReadFile() - ");
     wdeTGViewZeroOne(1,0);
@@ -108,6 +111,8 @@ function wdeTestAll() {
     wdeTestSimulateSelection(118, 223); //in Seq 96-185
     wdeRCompSel();
     wdeTestOutCompString(wdeTestDataString_009(), window.frames['WDE_RTF'].document.body.innerHTML);
+
+    wdeTestAddToOutput("\nTest Enzyme Functions:\n\n");
     
     wdeTestAddToOutput("wdePopulateEnzmes() - ");
     wdeTestLoadSmallGeneBank();
@@ -116,17 +121,26 @@ function wdeTestAll() {
     wdeTestOutCompString(wdeTestDataString_010(), currentTestOut);
 
     wdeTestAddToOutput("wdeDrawEnzymes() - ");
-    wdeTestOutCompString(wdeTestDataString_011(), document.getElementById("WDE_enzymes_spacer").innerHTML);
-    
+    if (browser != "chrome") {
+        wdeTestOutCompString(wdeTestDataString_011(), document.getElementById("WDE_enzymes_spacer").innerHTML);
+    } else {
+        wdeTestAddToOutput("[Chrome Version] - ");
+        wdeTestOutCompString(wdeTestDataString_011_chrome(), document.getElementById("WDE_enzymes_spacer").innerHTML);
+    }
+
     alert("The next test run for a few seconds,\n please be patient!");
     wdeTestLastTime = new Date();
 
-    wdeTestAddToOutput("wdeFindRE() on LargeGeneBank - ");
-    wdeTestLoadLargeGeneBank();
-    wdeFindRE();
-    currentTestOut = JSON.stringify(wdeEnzy);
-    // var myObj = JSON.parse(currentTestOut);
-    wdeTestOutCompString(wdeTestDataString_012(), currentTestOut);
+    if (browser != "chrome") {
+	    wdeTestAddToOutput("wdeFindRE() on LargeGeneBank - ");
+	    wdeTestLoadLargeGeneBank();
+	    wdeFindRE();
+	    currentTestOut = JSON.stringify(wdeEnzy);
+	    // var myObj = JSON.parse(currentTestOut);
+	    wdeTestOutCompString(wdeTestDataString_012(), currentTestOut);
+    } else {
+	    wdeTestAddToOutput("wdeFindRE() on LargeGeneBank - [SKIPPED on CHOME]\n");
+    }
 
     wdeTestAddToOutput("wdeFindRE() on SmallGeneBank - ");
     wdeTestLoadSmallGeneBank();
@@ -134,6 +148,69 @@ function wdeTestAll() {
     currentTestOut = JSON.stringify(wdeEnzy);
     // var myObj = JSON.parse(currentTestOut);
     wdeTestOutCompString(wdeTestDataString_013(), currentTestOut);
+    
+    wdeTestAddToOutput("wdeTGDamDcm() on SmallGeneBank - ");
+    wdeTGDamDcm(0);
+    wdeFindRE();
+    currentTestOut = JSON.stringify(wdeEnzy);
+    // var myObj = JSON.parse(currentTestOut);
+    wdeTestOutCompString(wdeTestDataString_014(), currentTestOut);
+    wdeTGDamDcm(1);
+    
+    wdeTestAddToOutput("wdeSelREsel(ABSENT) - ");
+    wdeTestLoadSmallGeneBank();
+    wdeFindRE();
+    wdeSelREsel('E', 0);
+    currentTestOut = JSON.stringify(wdeEnzy);
+    // var myObj = JSON.parse(currentTestOut);
+    wdeTestOutCompString(wdeTestDataString_015(), currentTestOut);
+
+    wdeTestAddToOutput("wdeSelREdeselect() - ");
+    wdeSelREdeselect();
+    currentTestOut = JSON.stringify(wdeEnzy);
+    // var myObj = JSON.parse(currentTestOut);
+    wdeTestOutCompString(wdeTestDataString_013(), currentTestOut);
+    
+    wdeTestAddToOutput("wdeSelREselMLE(MORE) - ");
+    wdeSelREdeselect();
+    wdeSelREselMLE('M');
+    currentTestOut = JSON.stringify(wdeEnzy);
+    // var myObj = JSON.parse(currentTestOut);
+    wdeTestOutCompString(wdeTestDataString_016(), currentTestOut);
+
+    wdeTestAddToOutput("wdeSelREselMLE(EXACT) - ");
+    wdeSelREdeselect();
+    wdeSelREselMLE('E');
+    currentTestOut = JSON.stringify(wdeEnzy);
+    // var myObj = JSON.parse(currentTestOut);
+    wdeTestOutCompString(wdeTestDataString_017(), currentTestOut);
+
+    wdeTestAddToOutput("wdeSelREselMLE(LESS) - ");
+    wdeSelREdeselect();
+    wdeSelREselMLE('L');
+    currentTestOut = JSON.stringify(wdeEnzy);
+    // var myObj = JSON.parse(currentTestOut);
+    wdeTestOutCompString(wdeTestDataString_018(), currentTestOut);
+    
+    wdeTestAddToOutput("wdeSelREListDS() - ");
+    wdeSelREdeselect();
+    mainForm.elements["RESTRICTION_LIST"].value = "KpnI, BstBI, HindIII, BamHI, BstXI";
+    wdeSelREListDS('S');
+    currentTestOut = JSON.stringify(wdeEnzy);
+    // var myObj = JSON.parse(currentTestOut);
+    wdeTestOutCompString(wdeTestDataString_019(), currentTestOut);
+    mainForm.elements["RESTRICTION_LIST"].value = "KpnI, BstBI, HindIII, BamHI";
+
+    wdeTestAddToOutput("wdeSelREsel(UNIQUE) - ");
+    wdeSelREdeselect();
+    wdeSelREsel('E', 1);
+    currentTestOut = JSON.stringify(wdeEnzy);
+    // var myObj = JSON.parse(currentTestOut);
+    wdeTestOutCompString(wdeTestDataString_020(), currentTestOut);
+
+    wdeTestAddToOutput("wdeHighlight() - ");
+    wdeHighlight();
+    wdeTestOutCompString(wdeTestDataString_021(), window.frames['WDE_RTF'].document.body.innerHTML);
 
 
 
@@ -169,7 +246,21 @@ function wdeTestAll() {
     wdeTestAddToOutput("Tests Runtime: " + seconds + " s\n");
 
     // See if there is something else for output
-    wdeTestPRStringAsFunction2();
+    wdeTestPRStringAsFunction();
+}
+
+function wdeTestDetectBorwser() {
+    var browser = window.navigator.userAgent.toLowerCase();
+    if (browser.indexOf("edge") != -1) {
+        return "edge";
+    }
+    if (browser.indexOf("firefox") != -1) {
+        return "firefox";
+    }
+    if (browser.indexOf("chrome") != -1) {
+        return "chrome";
+    }
+    return browser;
 }
 
 function wdeTestSimulateSelection(start, end) {
@@ -1729,6 +1820,792 @@ function wdeTestDataString_011() {
     "td><td style=\"text-align:right\">- &nbsp;</td><td>MscI</td>" +
     "<td>&nbsp;TGG^CCA</td><th>&nbsp;&nbsp;&nbsp;</th><td></td><t" +
     "d></td><td></td><td></td></tr>\n</tbody></table>";
+    return str;
+}
+
+function wdeTestDataString_011_chrome() {
+    var str = "<table border=\"0\"><tbody><tr><th>Sel</th><th>&nb" +
+    "sp;&nbsp;Hits</th><th>Name</th><th>Sequence</th><th>&nbsp;&n" +
+    "bsp;&nbsp;</th><th>Sel</th><th>&nbsp;&nbsp;Hits</th><th>Name" +
+    "</th><th>Sequence</th><th>&nbsp;&nbsp;&nbsp;</th><th>Sel</th" +
+    "><th>&nbsp;&nbsp;Hits</th><th>Name</th><th>Sequence</th></tr" +
+    ">\n<tr><td><input type=\"checkbox\" id=\"WDE_0\" onclick=\"w" +
+    "deSelEnzymes(this, 0)\"></td><td style=\"text-align:right\">" +
+    "- &nbsp;</td><td>AatII</td><td>&nbsp;GACGT^C</td><th>&nbsp;&" +
+    "nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_83\" o" +
+    "nclick=\"wdeSelEnzymes(this, 83)\"></td><td style=\"text-ali" +
+    "gn:right\">- &nbsp;</td><td>BsrFI</td><td>&nbsp;R^CCGGY</td>" +
+    "<th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"" +
+    "WDE_166\" onclick=\"wdeSelEnzymes(this, 166)\"></td><td styl" +
+    "e=\"text-align:right\">- &nbsp;</td><td>MseI</td><td>&nbsp;T" +
+    "^TAA</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_1\"" +
+    " onclick=\"wdeSelEnzymes(this, 1)\"></td><td style=\"text-al" +
+    "ign:right\">- &nbsp;</td><td>AccI</td><td>&nbsp;GT^MKAC</td>" +
+    "<th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"" +
+    "WDE_84\" onclick=\"wdeSelEnzymes(this, 84)\"></td><td style=" +
+    "\"text-align:right\">- &nbsp;</td><td>BsrGI</td><td>&nbsp;T^" +
+    "GTACA</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"check" +
+    "box\" id=\"WDE_167\" onclick=\"wdeSelEnzymes(this, 167)\"></" +
+    "td><td style=\"text-align:right\">- &nbsp;</td><td>MslI</td>" +
+    "<td>&nbsp;CAYNN^NNRTG</td></tr>\n<tr><td><input type=\"check" +
+    "box\" id=\"WDE_2\" onclick=\"wdeSelEnzymes(this, 2)\"></td><" +
+    "td style=\"text-align:right\">- &nbsp;</td><td>Acc65I</td><t" +
+    "d>&nbsp;G^GTACC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input ty" +
+    "pe=\"checkbox\" id=\"WDE_85\" onclick=\"wdeSelEnzymes(this, " +
+    "85)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>B" +
+    "ssHII</td><td>&nbsp;G^CGCGC</td><th>&nbsp;&nbsp;&nbsp;</th><" +
+    "td><input type=\"checkbox\" id=\"WDE_168\" onclick=\"wdeSelE" +
+    "nzymes(this, 168)\"></td><td style=\"text-align:right\">- &n" +
+    "bsp;</td><td>MspI</td><td>&nbsp;C^CGG</td></tr>\n<tr><td><in" +
+    "put type=\"checkbox\" id=\"WDE_3\" onclick=\"wdeSelEnzymes(t" +
+    "his, 3)\"></td><td style=\"text-align:right\">- &nbsp;</td><" +
+    "td>AciI</td><td>&nbsp;CCGC(-3/-1)</td><th>&nbsp;&nbsp;&nbsp;" +
+    "</th><td><input type=\"checkbox\" id=\"WDE_86\" onclick=\"wd" +
+    "eSelEnzymes(this, 86)\"></td><td style=\"text-align:right\">" +
+    "- &nbsp;</td><td>BssSI</td><td>&nbsp;CACGAG(-5/-1)</td><th>&" +
+    "nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_" +
+    "169\" onclick=\"wdeSelEnzymes(this, 169)\"></td><td style=\"" +
+    "text-align:right\">- &nbsp;</td><td>MspA1I</td><td>&nbsp;CMG" +
+    "^CKG</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_4\"" +
+    " onclick=\"wdeSelEnzymes(this, 4)\"></td><td style=\"text-al" +
+    "ign:right\">- &nbsp;</td><td>AclI</td><td>&nbsp;AA^CGTT</td>" +
+    "<th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"" +
+    "WDE_87\" onclick=\"wdeSelEnzymes(this, 87)\"></td><td style=" +
+    "\"text-align:right\">- &nbsp;</td><td>BstAPI</td><td>&nbsp;G" +
+    "CANNNN^NTGC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"" +
+    "checkbox\" id=\"WDE_170\" onclick=\"wdeSelEnzymes(this, 170)" +
+    "\"></td><td style=\"text-align:right\">- &nbsp;</td><td>MunI" +
+    "</td><td>&nbsp;C^AATTG</td></tr>\n<tr><td><input type=\"chec" +
+    "kbox\" id=\"WDE_5\" onclick=\"wdeSelEnzymes(this, 5)\"></td>" +
+    "<td style=\"text-align:right\">- &nbsp;</td><td>AcuI</td><td" +
+    ">&nbsp;CTGAAG(16/14)</td><th>&nbsp;&nbsp;&nbsp;</th><td><inp" +
+    "ut type=\"checkbox\" id=\"WDE_88\" onclick=\"wdeSelEnzymes(t" +
+    "his, 88)\"></td><td style=\"text-align:right\">- &nbsp;</td>" +
+    "<td>BstBI</td><td>&nbsp;TT^CGAA</td><th>&nbsp;&nbsp;&nbsp;</" +
+    "th><td><input type=\"checkbox\" id=\"WDE_171\" onclick=\"wde" +
+    "SelEnzymes(this, 171)\"></td><td style=\"text-align:right\">" +
+    "- &nbsp;</td><td>MvaI</td><td>&nbsp;CC^WGG</td></tr>\n<tr><t" +
+    "d><input type=\"checkbox\" id=\"WDE_6\" onclick=\"wdeSelEnzy" +
+    "mes(this, 6)\"></td><td style=\"text-align:right\">- &nbsp;<" +
+    "/td><td>AfeI</td><td>&nbsp;AGC^GCT</td><th>&nbsp;&nbsp;&nbsp" +
+    ";</th><td><input type=\"checkbox\" id=\"WDE_89\" onclick=\"w" +
+    "deSelEnzymes(this, 89)\"></td><td style=\"text-align:right\"" +
+    ">- &nbsp;</td><td>BstEII</td><td>&nbsp;G^GTNACC</td><th>&nbs" +
+    "p;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_172" +
+    "\" onclick=\"wdeSelEnzymes(this, 172)\"></td><td style=\"tex" +
+    "t-align:right\">- &nbsp;</td><td>MvnI</td><td>&nbsp;CG^CG</t" +
+    "d></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_7\" oncli" +
+    "ck=\"wdeSelEnzymes(this, 7)\"></td><td style=\"text-align:ri" +
+    "ght\">- &nbsp;</td><td>AflII</td><td>&nbsp;C^TTAAG</td><th>&" +
+    "nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_" +
+    "90\" onclick=\"wdeSelEnzymes(this, 90)\"></td><td style=\"te" +
+    "xt-align:right\">- &nbsp;</td><td>BstNI</td><td>&nbsp;CC^WGG" +
+    "</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\"" +
+    " id=\"WDE_173\" onclick=\"wdeSelEnzymes(this, 173)\"></td><t" +
+    "d style=\"text-align:right\">- &nbsp;</td><td>MwoI</td><td>&" +
+    "nbsp;GCNNNNN^NNGC</td></tr>\n<tr><td><input type=\"checkbox\"" +
+    " id=\"WDE_8\" onclick=\"wdeSelEnzymes(this, 8)\"></td><td st" +
+    "yle=\"text-align:right\">- &nbsp;</td><td>AflIII</td><td>&nb" +
+    "sp;A^CRYGT</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"" +
+    "checkbox\" id=\"WDE_91\" onclick=\"wdeSelEnzymes(this, 91)\"" +
+    "></td><td style=\"text-align:right\">- &nbsp;</td><td>BstUI<" +
+    "/td><td>&nbsp;CG^CG</td><th>&nbsp;&nbsp;&nbsp;</th><td><inpu" +
+    "t type=\"checkbox\" id=\"WDE_174\" onclick=\"wdeSelEnzymes(t" +
+    "his, 174)\"></td><td style=\"text-align:right\">- &nbsp;</td" +
+    "><td>NaeI</td><td>&nbsp;GCC^GGC</td></tr>\n<tr><td><input ty" +
+    "pe=\"checkbox\" id=\"WDE_9\" onclick=\"wdeSelEnzymes(this, 9" +
+    ")\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Age" +
+    "I</td><td>&nbsp;A^CCGGT</td><th>&nbsp;&nbsp;&nbsp;</th><td><" +
+    "input type=\"checkbox\" id=\"WDE_92\" onclick=\"wdeSelEnzyme" +
+    "s(this, 92)\"></td><td style=\"text-align:right\">- &nbsp;</" +
+    "td><td>BstXI</td><td>&nbsp;CCANNNNN^NTGG</td><th>&nbsp;&nbsp" +
+    ";&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_175\" oncl" +
+    "ick=\"wdeSelEnzymes(this, 175)\"></td><td style=\"text-align" +
+    ":right\">- &nbsp;</td><td>NarI</td><td>&nbsp;GG^CGCC</td></t" +
+    "r>\n<tr><td><input type=\"checkbox\" id=\"WDE_10\" onclick=\"" +
+    "wdeSelEnzymes(this, 10)\"></td><td style=\"text-align:right\"" +
+    ">- &nbsp;</td><td>AhdI</td><td>&nbsp;GACNNN^NNGTC</td><th>&n" +
+    "bsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_9" +
+    "3\" onclick=\"wdeSelEnzymes(this, 93)\"></td><td style=\"tex" +
+    "t-align:right\">- &nbsp;</td><td>BstYI</td><td>&nbsp;R^GATCY" +
+    "</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\"" +
+    " id=\"WDE_176\" onclick=\"wdeSelEnzymes(this, 176)\"></td><t" +
+    "d style=\"text-align:right\">- &nbsp;</td><td>NciI</td><td>&" +
+    "nbsp;CC^SGG</td></tr>\n<tr><td><input type=\"checkbox\" id=\"" +
+    "WDE_11\" onclick=\"wdeSelEnzymes(this, 11)\"></td><td style=" +
+    "\"text-align:right\">- &nbsp;</td><td>AleI</td><td>&nbsp;CAC" +
+    "NN^NNGTG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"ch" +
+    "eckbox\" id=\"WDE_94\" onclick=\"wdeSelEnzymes(this, 94)\"><" +
+    "/td><td style=\"text-align:right\">- &nbsp;</td><td>BstZ17I<" +
+    "/td><td>&nbsp;GTA^TAC</td><th>&nbsp;&nbsp;&nbsp;</th><td><in" +
+    "put type=\"checkbox\" id=\"WDE_177\" onclick=\"wdeSelEnzymes" +
+    "(this, 177)\"></td><td style=\"text-align:right\">- &nbsp;</" +
+    "td><td>NcoI</td><td>&nbsp;C^CATGG</td></tr>\n<tr><td><input " +
+    "type=\"checkbox\" id=\"WDE_12\" onclick=\"wdeSelEnzymes(this" +
+    ", 12)\"></td><td style=\"text-align:right\">- &nbsp;</td><td" +
+    ">AluI</td><td>&nbsp;AG^CT</td><th>&nbsp;&nbsp;&nbsp;</th><td" +
+    "><input type=\"checkbox\" id=\"WDE_95\" onclick=\"wdeSelEnzy" +
+    "mes(this, 95)\"></td><td style=\"text-align:right\">- &nbsp;" +
+    "</td><td>Bsu36I</td><td>&nbsp;CC^TNAGG</td><th>&nbsp;&nbsp;&" +
+    "nbsp;</th><td><input type=\"checkbox\" id=\"WDE_178\" onclic" +
+    "k=\"wdeSelEnzymes(this, 178)\"></td><td style=\"text-align:r" +
+    "ight\">- &nbsp;</td><td>NdeI</td><td>&nbsp;CA^TATG</td></tr>" +
+    "\n<tr><td><input type=\"checkbox\" id=\"WDE_13\" onclick=\"w" +
+    "deSelEnzymes(this, 13)\"></td><td style=\"text-align:right\"" +
+    ">- &nbsp;</td><td>AlwI</td><td>&nbsp;GGATC(4/5)</td><th>&nbs" +
+    "p;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_96\"" +
+    " onclick=\"wdeSelEnzymes(this, 96)\"></td><td style=\"text-a" +
+    "lign:right\">- &nbsp;</td><td>BtgI</td><td>&nbsp;C^CRYGG</td" +
+    "><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=" +
+    "\"WDE_179\" onclick=\"wdeSelEnzymes(this, 179)\"></td><td st" +
+    "yle=\"text-align:right\">- &nbsp;</td><td>NdeII</td><td>&nbs" +
+    "p;^GATC</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE" +
+    "_14\" onclick=\"wdeSelEnzymes(this, 14)\"></td><td style=\"t" +
+    "ext-align:right\">- &nbsp;</td><td>AlwNI</td><td>&nbsp;CAGNN" +
+    "N^CTG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"check" +
+    "box\" id=\"WDE_97\" onclick=\"wdeSelEnzymes(this, 97)\"></td" +
+    "><td style=\"text-align:right\">- &nbsp;</td><td>BtgZI</td><" +
+    "td>&nbsp;GCGATG(10/14)</td><th>&nbsp;&nbsp;&nbsp;</th><td><i" +
+    "nput type=\"checkbox\" id=\"WDE_180\" onclick=\"wdeSelEnzyme" +
+    "s(this, 180)\"></td><td style=\"text-align:right\">- &nbsp;<" +
+    "/td><td>NgoMIV</td><td>&nbsp;G^CCGGC</td></tr>\n<tr><td><inp" +
+    "ut type=\"checkbox\" id=\"WDE_15\" onclick=\"wdeSelEnzymes(t" +
+    "his, 15)\"></td><td style=\"text-align:right\">- &nbsp;</td>" +
+    "<td>ApaI</td><td>&nbsp;GGGCC^C</td><th>&nbsp;&nbsp;&nbsp;</t" +
+    "h><td><input type=\"checkbox\" id=\"WDE_98\" onclick=\"wdeSe" +
+    "lEnzymes(this, 98)\"></td><td style=\"text-align:right\">- &" +
+    "nbsp;</td><td>BtsI</td><td>&nbsp;GCAGTG(2/0)</td><th>&nbsp;&" +
+    "nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_181\" " +
+    "onclick=\"wdeSelEnzymes(this, 181)\"></td><td style=\"text-a" +
+    "lign:right\">- &nbsp;</td><td>NheI</td><td>&nbsp;G^CTAGC</td" +
+    "></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_16\" oncli" +
+    "ck=\"wdeSelEnzymes(this, 16)\"></td><td style=\"text-align:r" +
+    "ight\">- &nbsp;</td><td>ApaLI</td><td>&nbsp;G^TGCAC</td><th>" +
+    "&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE" +
+    "_99\" onclick=\"wdeSelEnzymes(this, 99)\"></td><td style=\"t" +
+    "ext-align:right\">- &nbsp;</td><td>BtsIMutI</td><td>&nbsp;CA" +
+    "GTG(2/0)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"ch" +
+    "eckbox\" id=\"WDE_182\" onclick=\"wdeSelEnzymes(this, 182)\"" +
+    "></td><td style=\"text-align:right\">- &nbsp;</td><td>NlaIII" +
+    "</td><td>&nbsp;CATG^</td></tr>\n<tr><td><input type=\"checkb" +
+    "ox\" id=\"WDE_17\" onclick=\"wdeSelEnzymes(this, 17)\"></td>" +
+    "<td style=\"text-align:right\">- &nbsp;</td><td>ApeKI</td><t" +
+    "d>&nbsp;G^CWGC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input typ" +
+    "e=\"checkbox\" id=\"WDE_100\" onclick=\"wdeSelEnzymes(this, " +
+    "100)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>" +
+    "BtsCI</td><td>&nbsp;GGATG(2/0)</td><th>&nbsp;&nbsp;&nbsp;</t" +
+    "h><td><input type=\"checkbox\" id=\"WDE_183\" onclick=\"wdeS" +
+    "elEnzymes(this, 183)\"></td><td style=\"text-align:right\">-" +
+    " &nbsp;</td><td>NlaIV</td><td>&nbsp;GGN^NCC</td></tr>\n<tr><" +
+    "td><input type=\"checkbox\" id=\"WDE_18\" onclick=\"wdeSelEn" +
+    "zymes(this, 18)\"></td><td style=\"text-align:right\">- &nbs" +
+    "p;</td><td>ApoI</td><td>&nbsp;R^AATTY</td><th>&nbsp;&nbsp;&n" +
+    "bsp;</th><td><input type=\"checkbox\" id=\"WDE_101\" onclick" +
+    "=\"wdeSelEnzymes(this, 101)\"></td><td style=\"text-align:ri" +
+    "ght\">- &nbsp;</td><td>Cac8I</td><td>&nbsp;GCN^NGC</td><th>&" +
+    "nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_" +
+    "184\" onclick=\"wdeSelEnzymes(this, 184)\"></td><td style=\"" +
+    "text-align:right\">- &nbsp;</td><td>NmeAIII</td><td>&nbsp;GC" +
+    "CGAG(21/19)</td></tr>\n<tr><td><input type=\"checkbox\" id=\"" +
+    "WDE_19\" onclick=\"wdeSelEnzymes(this, 19)\"></td><td style=" +
+    "\"text-align:right\">- &nbsp;</td><td>AscI</td><td>&nbsp;GG^" +
+    "CGCGCC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"chec" +
+    "kbox\" id=\"WDE_102\" onclick=\"wdeSelEnzymes(this, 102)\"><" +
+    "/td><td style=\"text-align:right\">- &nbsp;</td><td>CfoI</td" +
+    "><td>&nbsp;GCG^C</td><th>&nbsp;&nbsp;&nbsp;</th><td><input t" +
+    "ype=\"checkbox\" id=\"WDE_185\" onclick=\"wdeSelEnzymes(this" +
+    ", 185)\"></td><td style=\"text-align:right\">- &nbsp;</td><t" +
+    "d>NotI</td><td>&nbsp;GC^GGCCGC</td></tr>\n<tr><td><input typ" +
+    "e=\"checkbox\" id=\"WDE_20\" onclick=\"wdeSelEnzymes(this, 2" +
+    "0)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>As" +
+    "eI</td><td>&nbsp;AT^TAAT</td><th>&nbsp;&nbsp;&nbsp;</th><td>" +
+    "<input type=\"checkbox\" id=\"WDE_103\" onclick=\"wdeSelEnzy" +
+    "mes(this, 103)\"></td><td style=\"text-align:right\">- &nbsp" +
+    ";</td><td>ClaI</td><td>&nbsp;AT^CGAT</td><th>&nbsp;&nbsp;&nb" +
+    "sp;</th><td><input type=\"checkbox\" id=\"WDE_186\" onclick=" +
+    "\"wdeSelEnzymes(this, 186)\"></td><td style=\"text-align:rig" +
+    "ht\">- &nbsp;</td><td>NruI</td><td>&nbsp;TCG^CGA</td></tr>\n" +
+    "<tr><td><input type=\"checkbox\" id=\"WDE_21\" onclick=\"wde" +
+    "SelEnzymes(this, 21)\"></td><td style=\"text-align:right\">-" +
+    " &nbsp;</td><td>AsiSI</td><td>&nbsp;GCGAT^CGC</td><th>&nbsp;" +
+    "&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_104\"" +
+    " onclick=\"wdeSelEnzymes(this, 104)\"></td><td style=\"text-" +
+    "align:right\">- &nbsp;</td><td>CviAII</td><td>&nbsp;C^ATG</t" +
+    "d><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id" +
+    "=\"WDE_187\" onclick=\"wdeSelEnzymes(this, 187)\"></td><td s" +
+    "tyle=\"text-align:right\">- &nbsp;</td><td>NsiI</td><td>&nbs" +
+    "p;ATGCA^T</td></tr>\n<tr><td><input type=\"checkbox\" id=\"W" +
+    "DE_22\" onclick=\"wdeSelEnzymes(this, 22)\"></td><td style=\"" +
+    "text-align:right\">- &nbsp;</td><td>Asp700I</td><td>&nbsp;GA" +
+    "ANN^NNTTC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"c" +
+    "heckbox\" id=\"WDE_105\" onclick=\"wdeSelEnzymes(this, 105)\"" +
+    "></td><td style=\"text-align:right\">- &nbsp;</td><td>CviQI<" +
+    "/td><td>&nbsp;G^TAC</td><th>&nbsp;&nbsp;&nbsp;</th><td><inpu" +
+    "t type=\"checkbox\" id=\"WDE_188\" onclick=\"wdeSelEnzymes(t" +
+    "his, 188)\"></td><td style=\"text-align:right\">- &nbsp;</td" +
+    "><td>NspI</td><td>&nbsp;RCATG^Y</td></tr>\n<tr><td><input ty" +
+    "pe=\"checkbox\" id=\"WDE_23\" onclick=\"wdeSelEnzymes(this, " +
+    "23)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>A" +
+    "sp718I</td><td>&nbsp;G^GTACC</td><th>&nbsp;&nbsp;&nbsp;</th>" +
+    "<td><input type=\"checkbox\" id=\"WDE_106\" onclick=\"wdeSel" +
+    "Enzymes(this, 106)\"></td><td style=\"text-align:right\">- &" +
+    "nbsp;</td><td>DdeI</td><td>&nbsp;C^TNAG</td><th>&nbsp;&nbsp;" +
+    "&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_189\" oncli" +
+    "ck=\"wdeSelEnzymes(this, 189)\"></td><td style=\"text-align:" +
+    "right\">- &nbsp;</td><td>PacI</td><td>&nbsp;TTAAT^TAA</td></" +
+    "tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_24\" onclick=" +
+    "\"wdeSelEnzymes(this, 24)\"></td><td style=\"text-align:righ" +
+    "t\">- &nbsp;</td><td>AvaI</td><td>&nbsp;C^YCGRG</td><th>&nbs" +
+    "p;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_107" +
+    "\" onclick=\"wdeSelEnzymes(this, 107)\"></td><td style=\"tex" +
+    "t-align:right\">- &nbsp;</td><td>DpnI</td><td>&nbsp;GA^TC</t" +
+    "d><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id" +
+    "=\"WDE_190\" onclick=\"wdeSelEnzymes(this, 190)\"></td><td s" +
+    "tyle=\"text-align:right\">- &nbsp;</td><td>PaeR7I</td><td>&n" +
+    "bsp;C^TCGAG</td></tr>\n<tr><td><input type=\"checkbox\" id=\"" +
+    "WDE_25\" onclick=\"wdeSelEnzymes(this, 25)\"></td><td style=" +
+    "\"text-align:right\">- &nbsp;</td><td>AvaII</td><td>&nbsp;G^" +
+    "GWCC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkb" +
+    "ox\" id=\"WDE_108\" onclick=\"wdeSelEnzymes(this, 108)\"></t" +
+    "d><td style=\"text-align:right\">- &nbsp;</td><td>DpnII</td>" +
+    "<td>&nbsp;^GATC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input ty" +
+    "pe=\"checkbox\" id=\"WDE_191\" onclick=\"wdeSelEnzymes(this," +
+    " 191)\"></td><td style=\"text-align:right\">- &nbsp;</td><td" +
+    ">PciI</td><td>&nbsp;A^CATGT</td></tr>\n<tr><td><input type=\"" +
+    "checkbox\" id=\"WDE_26\" onclick=\"wdeSelEnzymes(this, 26)\"" +
+    "></td><td style=\"text-align:right\">- &nbsp;</td><td>AvrII<" +
+    "/td><td>&nbsp;C^CTAGG</td><th>&nbsp;&nbsp;&nbsp;</th><td><in" +
+    "put type=\"checkbox\" id=\"WDE_109\" onclick=\"wdeSelEnzymes" +
+    "(this, 109)\"></td><td style=\"text-align:right\">- &nbsp;</" +
+    "td><td>DraI</td><td>&nbsp;TTT^AAA</td><th>&nbsp;&nbsp;&nbsp;" +
+    "</th><td><input type=\"checkbox\" id=\"WDE_192\" onclick=\"w" +
+    "deSelEnzymes(this, 192)\"></td><td style=\"text-align:right\"" +
+    ">- &nbsp;</td><td>PflFI</td><td>&nbsp;GACN^NNGTC</td></tr>\n" +
+    "<tr><td><input type=\"checkbox\" id=\"WDE_27\" onclick=\"wde" +
+    "SelEnzymes(this, 27)\"></td><td style=\"text-align:right\">-" +
+    " &nbsp;</td><td>BaeGI</td><td>&nbsp;GKGCM^C</td><th>&nbsp;&n" +
+    "bsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_110\" o" +
+    "nclick=\"wdeSelEnzymes(this, 110)\"></td><td style=\"text-al" +
+    "ign:right\">- &nbsp;</td><td>DraIII</td><td>&nbsp;CACNNN^GTG" +
+    "</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\"" +
+    " id=\"WDE_193\" onclick=\"wdeSelEnzymes(this, 193)\"></td><t" +
+    "d style=\"text-align:right\">- &nbsp;</td><td>PflMI</td><td>" +
+    "&nbsp;CCANNNN^NTGG</td></tr>\n<tr><td><input type=\"checkbox" +
+    "\" id=\"WDE_28\" onclick=\"wdeSelEnzymes(this, 28)\"></td><t" +
+    "d style=\"text-align:right\">- &nbsp;</td><td>BamHI</td><td>" +
+    "&nbsp;G^GATCC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type" +
+    "=\"checkbox\" id=\"WDE_111\" onclick=\"wdeSelEnzymes(this, 1" +
+    "11)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>D" +
+    "rdI</td><td>&nbsp;GACNNNN^NNGTC</td><th>&nbsp;&nbsp;&nbsp;</" +
+    "th><td><input type=\"checkbox\" id=\"WDE_194\" onclick=\"wde" +
+    "SelEnzymes(this, 194)\"></td><td style=\"text-align:right\">" +
+    "- &nbsp;</td><td>PleI</td><td>&nbsp;GAGTC(4/5)</td></tr>\n<t" +
+    "r><td><input type=\"checkbox\" id=\"WDE_29\" onclick=\"wdeSe" +
+    "lEnzymes(this, 29)\"></td><td style=\"text-align:right\">- &" +
+    "nbsp;</td><td>BanI</td><td>&nbsp;G^GYRCC</td><th>&nbsp;&nbsp" +
+    ";&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_112\" oncl" +
+    "ick=\"wdeSelEnzymes(this, 112)\"></td><td style=\"text-align" +
+    ":right\">- &nbsp;</td><td>EaeI</td><td>&nbsp;Y^GGCCR</td><th" +
+    ">&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WD" +
+    "E_195\" onclick=\"wdeSelEnzymes(this, 195)\"></td><td style=" +
+    "\"text-align:right\">- &nbsp;</td><td>PluTI</td><td>&nbsp;GG" +
+    "CGC^C</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_3" +
+    "0\" onclick=\"wdeSelEnzymes(this, 30)\"></td><td style=\"tex" +
+    "t-align:right\">- &nbsp;</td><td>BanII</td><td>&nbsp;GRGCY^C" +
+    "</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\"" +
+    " id=\"WDE_113\" onclick=\"wdeSelEnzymes(this, 113)\"></td><t" +
+    "d style=\"text-align:right\">- &nbsp;</td><td>EagI</td><td>&" +
+    "nbsp;C^GGCCG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=" +
+    "\"checkbox\" id=\"WDE_196\" onclick=\"wdeSelEnzymes(this, 19" +
+    "6)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Pm" +
+    "eI</td><td>&nbsp;GTTT^AAAC</td></tr>\n<tr><td><input type=\"" +
+    "checkbox\" id=\"WDE_31\" onclick=\"wdeSelEnzymes(this, 31)\"" +
+    "></td><td style=\"text-align:right\">- &nbsp;</td><td>BbrPI<" +
+    "/td><td>&nbsp;CAC^GTG</td><th>&nbsp;&nbsp;&nbsp;</th><td><in" +
+    "put type=\"checkbox\" id=\"WDE_114\" onclick=\"wdeSelEnzymes" +
+    "(this, 114)\"></td><td style=\"text-align:right\">- &nbsp;</" +
+    "td><td>EarI</td><td>&nbsp;CTCTTC(1/4)</td><th>&nbsp;&nbsp;&n" +
+    "bsp;</th><td><input type=\"checkbox\" id=\"WDE_197\" onclick" +
+    "=\"wdeSelEnzymes(this, 197)\"></td><td style=\"text-align:ri" +
+    "ght\">- &nbsp;</td><td>PmlI</td><td>&nbsp;CAC^GTG</td></tr>\n" +
+    "<tr><td><input type=\"checkbox\" id=\"WDE_32\" onclick=\"wde" +
+    "SelEnzymes(this, 32)\"></td><td style=\"text-align:right\">-" +
+    " &nbsp;</td><td>BbsI</td><td>&nbsp;GAAGAC(2/6)</td><th>&nbsp" +
+    ";&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_115\"" +
+    " onclick=\"wdeSelEnzymes(this, 115)\"></td><td style=\"text-" +
+    "align:right\">- &nbsp;</td><td>EciI</td><td>&nbsp;GGCGGA(11/" +
+    "9)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox" +
+    "\" id=\"WDE_198\" onclick=\"wdeSelEnzymes(this, 198)\"></td>" +
+    "<td style=\"text-align:right\">- &nbsp;</td><td>PpuMI</td><t" +
+    "d>&nbsp;RG^GWCCY</td></tr>\n<tr><td><input type=\"checkbox\"" +
+    " id=\"WDE_33\" onclick=\"wdeSelEnzymes(this, 33)\"></td><td " +
+    "style=\"text-align:right\">- &nbsp;</td><td>BbvI</td><td>&nb" +
+    "sp;GCAGC(8/12)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input typ" +
+    "e=\"checkbox\" id=\"WDE_116\" onclick=\"wdeSelEnzymes(this, " +
+    "116)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>" +
+    "Eco47III</td><td>&nbsp;AGC^GCT</td><th>&nbsp;&nbsp;&nbsp;</t" +
+    "h><td><input type=\"checkbox\" id=\"WDE_199\" onclick=\"wdeS" +
+    "elEnzymes(this, 199)\"></td><td style=\"text-align:right\">-" +
+    " &nbsp;</td><td>PshAI</td><td>&nbsp;GACNN^NNGTC</td></tr>\n<" +
+    "tr><td><input type=\"checkbox\" id=\"WDE_34\" onclick=\"wdeS" +
+    "elEnzymes(this, 34)\"></td><td style=\"text-align:right\">- " +
+    "&nbsp;</td><td>BbvCI</td><td>&nbsp;CCTCAGC(-5/-2)</td><th>&n" +
+    "bsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_1" +
+    "17\" onclick=\"wdeSelEnzymes(this, 117)\"></td><td style=\"t" +
+    "ext-align:right\">- &nbsp;</td><td>EcoNI</td><td>&nbsp;CCTNN" +
+    "^NNNAGG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"che" +
+    "ckbox\" id=\"WDE_200\" onclick=\"wdeSelEnzymes(this, 200)\">" +
+    "</td><td style=\"text-align:right\">- &nbsp;</td><td>PsiI</t" +
+    "d><td>&nbsp;TTA^TAA</td></tr>\n<tr><td><input type=\"checkbo" +
+    "x\" id=\"WDE_35\" onclick=\"wdeSelEnzymes(this, 35)\"></td><" +
+    "td style=\"text-align:right\">- &nbsp;</td><td>BccI</td><td>" +
+    "&nbsp;CCATC(4/5)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input t" +
+    "ype=\"checkbox\" id=\"WDE_118\" onclick=\"wdeSelEnzymes(this" +
+    ", 118)\"></td><td style=\"text-align:right\">- &nbsp;</td><t" +
+    "d>EcoO109I</td><td>&nbsp;RG^GNCCY</td><th>&nbsp;&nbsp;&nbsp;" +
+    "</th><td><input type=\"checkbox\" id=\"WDE_201\" onclick=\"w" +
+    "deSelEnzymes(this, 201)\"></td><td style=\"text-align:right\"" +
+    ">- &nbsp;</td><td>PspGI</td><td>&nbsp;^CCWGG</td></tr>\n<tr>" +
+    "<td><input type=\"checkbox\" id=\"WDE_36\" onclick=\"wdeSelE" +
+    "nzymes(this, 36)\"></td><td style=\"text-align:right\">- &nb" +
+    "sp;</td><td>BceAI</td><td>&nbsp;ACGGC(12/14)</td><th>&nbsp;&" +
+    "nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_119\" " +
+    "onclick=\"wdeSelEnzymes(this, 119)\"></td><td style=\"text-a" +
+    "lign:right\">- &nbsp;</td><td>EcoP15I</td><td>&nbsp;CAGCAG(2" +
+    "5/27)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"check" +
+    "box\" id=\"WDE_202\" onclick=\"wdeSelEnzymes(this, 202)\"></" +
+    "td><td style=\"text-align:right\">- &nbsp;</td><td>PspOMI</t" +
+    "d><td>&nbsp;G^GGCCC</td></tr>\n<tr><td><input type=\"checkbo" +
+    "x\" id=\"WDE_37\" onclick=\"wdeSelEnzymes(this, 37)\"></td><" +
+    "td style=\"text-align:right\">- &nbsp;</td><td>BciVI</td><td" +
+    ">&nbsp;GTATCC(6/5)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input" +
+    " type=\"checkbox\" id=\"WDE_120\" onclick=\"wdeSelEnzymes(th" +
+    "is, 120)\"></td><td style=\"text-align:right\">- &nbsp;</td>" +
+    "<td>EcoRI</td><td>&nbsp;G^AATTC</td><th>&nbsp;&nbsp;&nbsp;</" +
+    "th><td><input type=\"checkbox\" id=\"WDE_203\" onclick=\"wde" +
+    "SelEnzymes(this, 203)\"></td><td style=\"text-align:right\">" +
+    "- &nbsp;</td><td>PspXI</td><td>&nbsp;VC^TCGAGB</td></tr>\n<t" +
+    "r><td><input type=\"checkbox\" id=\"WDE_38\" onclick=\"wdeSe" +
+    "lEnzymes(this, 38)\"></td><td style=\"text-align:right\">- &" +
+    "nbsp;</td><td>BclI</td><td>&nbsp;T^GATCA</td><th>&nbsp;&nbsp" +
+    ";&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_121\" oncl" +
+    "ick=\"wdeSelEnzymes(this, 121)\"></td><td style=\"text-align" +
+    ":right\">- &nbsp;</td><td>EcoRV</td><td>&nbsp;GAT^ATC</td><t" +
+    "h>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"W" +
+    "DE_204\" onclick=\"wdeSelEnzymes(this, 204)\"></td><td style" +
+    "=\"text-align:right\">- &nbsp;</td><td>PstI</td><td>&nbsp;CT" +
+    "GCA^G</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_3" +
+    "9\" onclick=\"wdeSelEnzymes(this, 39)\"></td><td style=\"tex" +
+    "t-align:right\">- &nbsp;</td><td>BcoDI</td><td>&nbsp;GTCTC(1" +
+    "/5)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbo" +
+    "x\" id=\"WDE_122\" onclick=\"wdeSelEnzymes(this, 122)\"></td" +
+    "><td style=\"text-align:right\">- &nbsp;</td><td>Eco53kI</td" +
+    "><td>&nbsp;GAG^CTC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input" +
+    " type=\"checkbox\" id=\"WDE_205\" onclick=\"wdeSelEnzymes(th" +
+    "is, 205)\"></td><td style=\"text-align:right\">- &nbsp;</td>" +
+    "<td>PvuI</td><td>&nbsp;CGAT^CG</td></tr>\n<tr><td><input typ" +
+    "e=\"checkbox\" id=\"WDE_40\" onclick=\"wdeSelEnzymes(this, 4" +
+    "0)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Bf" +
+    "aI</td><td>&nbsp;C^TAG</td><th>&nbsp;&nbsp;&nbsp;</th><td><i" +
+    "nput type=\"checkbox\" id=\"WDE_123\" onclick=\"wdeSelEnzyme" +
+    "s(this, 123)\"></td><td style=\"text-align:right\">- &nbsp;<" +
+    "/td><td>FatI</td><td>&nbsp;^CATG</td><th>&nbsp;&nbsp;&nbsp;<" +
+    "/th><td><input type=\"checkbox\" id=\"WDE_206\" onclick=\"wd" +
+    "eSelEnzymes(this, 206)\"></td><td style=\"text-align:right\"" +
+    ">- &nbsp;</td><td>PvuII</td><td>&nbsp;CAG^CTG</td></tr>\n<tr" +
+    "><td><input type=\"checkbox\" id=\"WDE_41\" onclick=\"wdeSel" +
+    "Enzymes(this, 41)\"></td><td style=\"text-align:right\">- &n" +
+    "bsp;</td><td>BfrI</td><td>&nbsp;C^TTAAG</td><th>&nbsp;&nbsp;" +
+    "&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_124\" oncli" +
+    "ck=\"wdeSelEnzymes(this, 124)\"></td><td style=\"text-align:" +
+    "right\">- &nbsp;</td><td>FauI</td><td>&nbsp;CCCGC(4/6)</td><" +
+    "th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"" +
+    "WDE_207\" onclick=\"wdeSelEnzymes(this, 207)\"></td><td styl" +
+    "e=\"text-align:right\">- &nbsp;</td><td>RsaI</td><td>&nbsp;G" +
+    "T^AC</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_42" +
+    "\" onclick=\"wdeSelEnzymes(this, 42)\"></td><td style=\"text" +
+    "-align:right\">- &nbsp;</td><td>BfuAI</td><td>&nbsp;ACCTGC(4" +
+    "/8)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbo" +
+    "x\" id=\"WDE_125\" onclick=\"wdeSelEnzymes(this, 125)\"></td" +
+    "><td style=\"text-align:right\">- &nbsp;</td><td>Fnu4HI</td>" +
+    "<td>&nbsp;GC^NGC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input t" +
+    "ype=\"checkbox\" id=\"WDE_208\" onclick=\"wdeSelEnzymes(this" +
+    ", 208)\"></td><td style=\"text-align:right\">- &nbsp;</td><t" +
+    "d>RsrII</td><td>&nbsp;CG^GWCCG</td></tr>\n<tr><td><input typ" +
+    "e=\"checkbox\" id=\"WDE_43\" onclick=\"wdeSelEnzymes(this, 4" +
+    "3)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Bf" +
+    "uCI</td><td>&nbsp;^GATC</td><th>&nbsp;&nbsp;&nbsp;</th><td><" +
+    "input type=\"checkbox\" id=\"WDE_126\" onclick=\"wdeSelEnzym" +
+    "es(this, 126)\"></td><td style=\"text-align:right\">- &nbsp;" +
+    "</td><td>FokI</td><td>&nbsp;GGATG(9/13)</td><th>&nbsp;&nbsp;" +
+    "&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_209\" oncli" +
+    "ck=\"wdeSelEnzymes(this, 209)\"></td><td style=\"text-align:" +
+    "right\">- &nbsp;</td><td>SacI</td><td>&nbsp;GAGCT^C</td></tr" +
+    ">\n<tr><td><input type=\"checkbox\" id=\"WDE_44\" onclick=\"" +
+    "wdeSelEnzymes(this, 44)\"></td><td style=\"text-align:right\"" +
+    ">- &nbsp;</td><td>BglI</td><td>&nbsp;GCCNNNN^NGGC</td><th>&n" +
+    "bsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_1" +
+    "27\" onclick=\"wdeSelEnzymes(this, 127)\"></td><td style=\"t" +
+    "ext-align:right\">- &nbsp;</td><td>FseI</td><td>&nbsp;GGCCGG" +
+    "^CC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbo" +
+    "x\" id=\"WDE_210\" onclick=\"wdeSelEnzymes(this, 210)\"></td" +
+    "><td style=\"text-align:right\">- &nbsp;</td><td>SacII</td><" +
+    "td>&nbsp;CCGC^GG</td></tr>\n<tr><td><input type=\"checkbox\"" +
+    " id=\"WDE_45\" onclick=\"wdeSelEnzymes(this, 45)\"></td><td " +
+    "style=\"text-align:right\">- &nbsp;</td><td>BglII</td><td>&n" +
+    "bsp;A^GATCT</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"" +
+    "checkbox\" id=\"WDE_128\" onclick=\"wdeSelEnzymes(this, 128)" +
+    "\"></td><td style=\"text-align:right\">- &nbsp;</td><td>FspI" +
+    "</td><td>&nbsp;TGC^GCA</td><th>&nbsp;&nbsp;&nbsp;</th><td><i" +
+    "nput type=\"checkbox\" id=\"WDE_211\" onclick=\"wdeSelEnzyme" +
+    "s(this, 211)\"></td><td style=\"text-align:right\">- &nbsp;<" +
+    "/td><td>SalI</td><td>&nbsp;G^TCGAC</td></tr>\n<tr><td><input" +
+    " type=\"checkbox\" id=\"WDE_46\" onclick=\"wdeSelEnzymes(thi" +
+    "s, 46)\"></td><td style=\"text-align:right\">- &nbsp;</td><t" +
+    "d>BlnI</td><td>&nbsp;C^CTAGG</td><th>&nbsp;&nbsp;&nbsp;</th>" +
+    "<td><input type=\"checkbox\" id=\"WDE_129\" onclick=\"wdeSel" +
+    "Enzymes(this, 129)\"></td><td style=\"text-align:right\">- &" +
+    "nbsp;</td><td>HaeII</td><td>&nbsp;RGCGC^Y</td><th>&nbsp;&nbs" +
+    "p;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_212\" onc" +
+    "lick=\"wdeSelEnzymes(this, 212)\"></td><td style=\"text-alig" +
+    "n:right\">- &nbsp;</td><td>SapI</td><td>&nbsp;GCTCTTC(1/4)</" +
+    "td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_47\" onc" +
+    "lick=\"wdeSelEnzymes(this, 47)\"></td><td style=\"text-align" +
+    ":right\">- &nbsp;</td><td>BlpI</td><td>&nbsp;GC^TNAGC</td><t" +
+    "h>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"W" +
+    "DE_130\" onclick=\"wdeSelEnzymes(this, 130)\"></td><td style" +
+    "=\"text-align:right\">- &nbsp;</td><td>HaeIII</td><td>&nbsp;" +
+    "GG^CC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"check" +
+    "box\" id=\"WDE_213\" onclick=\"wdeSelEnzymes(this, 213)\"></" +
+    "td><td style=\"text-align:right\">- &nbsp;</td><td>Sau96I</t" +
+    "d><td>&nbsp;G^GNCC</td></tr>\n<tr><td><input type=\"checkbox" +
+    "\" id=\"WDE_48\" onclick=\"wdeSelEnzymes(this, 48)\"></td><t" +
+    "d style=\"text-align:right\">- &nbsp;</td><td>BmgBI</td><td>" +
+    "&nbsp;CACGTC(-3/-3)</td><th>&nbsp;&nbsp;&nbsp;</th><td><inpu" +
+    "t type=\"checkbox\" id=\"WDE_131\" onclick=\"wdeSelEnzymes(t" +
+    "his, 131)\"></td><td style=\"text-align:right\">- &nbsp;</td" +
+    "><td>HgaI</td><td>&nbsp;GACGC(5/10)</td><th>&nbsp;&nbsp;&nbs" +
+    "p;</th><td><input type=\"checkbox\" id=\"WDE_214\" onclick=\"" +
+    "wdeSelEnzymes(this, 214)\"></td><td style=\"text-align:right" +
+    "\">- &nbsp;</td><td>Sau3AI</td><td>&nbsp;^GATC</td></tr>\n<t" +
+    "r><td><input type=\"checkbox\" id=\"WDE_49\" onclick=\"wdeSe" +
+    "lEnzymes(this, 49)\"></td><td style=\"text-align:right\">- &" +
+    "nbsp;</td><td>BmrI</td><td>&nbsp;ACTGGG(5/4)</td><th>&nbsp;&" +
+    "nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_132\" " +
+    "onclick=\"wdeSelEnzymes(this, 132)\"></td><td style=\"text-a" +
+    "lign:right\">- &nbsp;</td><td>HhaI</td><td>&nbsp;GCG^C</td><" +
+    "th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"" +
+    "WDE_215\" onclick=\"wdeSelEnzymes(this, 215)\"></td><td styl" +
+    "e=\"text-align:right\">- &nbsp;</td><td>SbfI</td><td>&nbsp;C" +
+    "CTGCA^GG</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WD" +
+    "E_50\" onclick=\"wdeSelEnzymes(this, 50)\"></td><td style=\"" +
+    "text-align:right\">- &nbsp;</td><td>BmtI</td><td>&nbsp;GCTAG" +
+    "^C</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox" +
+    "\" id=\"WDE_133\" onclick=\"wdeSelEnzymes(this, 133)\"></td>" +
+    "<td style=\"text-align:right\">- &nbsp;</td><td>HinP1I</td><" +
+    "td>&nbsp;G^CGC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input typ" +
+    "e=\"checkbox\" id=\"WDE_216\" onclick=\"wdeSelEnzymes(this, " +
+    "216)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>" +
+    "ScaI</td><td>&nbsp;AGT^ACT</td></tr>\n<tr><td><input type=\"" +
+    "checkbox\" id=\"WDE_51\" onclick=\"wdeSelEnzymes(this, 51)\"" +
+    "></td><td style=\"text-align:right\">- &nbsp;</td><td>BpmI</" +
+    "td><td>&nbsp;CTGGAG(16/14)</td><th>&nbsp;&nbsp;&nbsp;</th><t" +
+    "d><input type=\"checkbox\" id=\"WDE_134\" onclick=\"wdeSelEn" +
+    "zymes(this, 134)\"></td><td style=\"text-align:right\">- &nb" +
+    "sp;</td><td>HincII</td><td>&nbsp;GTY^RAC</td><th>&nbsp;&nbsp" +
+    ";&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_217\" oncl" +
+    "ick=\"wdeSelEnzymes(this, 217)\"></td><td style=\"text-align" +
+    ":right\">- &nbsp;</td><td>ScrFI</td><td>&nbsp;CC^NGG</td></t" +
+    "r>\n<tr><td><input type=\"checkbox\" id=\"WDE_52\" onclick=\"" +
+    "wdeSelEnzymes(this, 52)\"></td><td style=\"text-align:right\"" +
+    ">- &nbsp;</td><td>Bpu10I</td><td>&nbsp;CCTNAGC(-5/-2)</td><t" +
+    "h>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"W" +
+    "DE_135\" onclick=\"wdeSelEnzymes(this, 135)\"></td><td style" +
+    "=\"text-align:right\">- &nbsp;</td><td>HindII</td><td>&nbsp;" +
+    "GTY^RAC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"che" +
+    "ckbox\" id=\"WDE_218\" onclick=\"wdeSelEnzymes(this, 218)\">" +
+    "</td><td style=\"text-align:right\">- &nbsp;</td><td>SexAI</" +
+    "td><td>&nbsp;A^CCWGGT</td></tr>\n<tr><td><input type=\"check" +
+    "box\" id=\"WDE_53\" onclick=\"wdeSelEnzymes(this, 53)\"></td" +
+    "><td style=\"text-align:right\">- &nbsp;</td><td>BpuEI</td><" +
+    "td>&nbsp;CTTGAG(16/14)</td><th>&nbsp;&nbsp;&nbsp;</th><td><i" +
+    "nput type=\"checkbox\" id=\"WDE_136\" onclick=\"wdeSelEnzyme" +
+    "s(this, 136)\"></td><td style=\"text-align:right\">- &nbsp;<" +
+    "/td><td>HindIII</td><td>&nbsp;A^AGCTT</td><th>&nbsp;&nbsp;&n" +
+    "bsp;</th><td><input type=\"checkbox\" id=\"WDE_219\" onclick" +
+    "=\"wdeSelEnzymes(this, 219)\"></td><td style=\"text-align:ri" +
+    "ght\">- &nbsp;</td><td>SfaNI</td><td>&nbsp;GCATC(5/9)</td></" +
+    "tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_54\" onclick=" +
+    "\"wdeSelEnzymes(this, 54)\"></td><td style=\"text-align:righ" +
+    "t\">- &nbsp;</td><td>BsaI</td><td>&nbsp;GGTCTC(1/5)</td><th>" +
+    "&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE" +
+    "_137\" onclick=\"wdeSelEnzymes(this, 137)\"></td><td style=\"" +
+    "text-align:right\">- &nbsp;</td><td>HinfI</td><td>&nbsp;G^AN" +
+    "TC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox" +
+    "\" id=\"WDE_220\" onclick=\"wdeSelEnzymes(this, 220)\"></td>" +
+    "<td style=\"text-align:right\">- &nbsp;</td><td>SfcI</td><td" +
+    ">&nbsp;C^TRYAG</td></tr>\n<tr><td><input type=\"checkbox\" i" +
+    "d=\"WDE_55\" onclick=\"wdeSelEnzymes(this, 55)\"></td><td st" +
+    "yle=\"text-align:right\">- &nbsp;</td><td>BsaAI</td><td>&nbs" +
+    "p;YAC^GTR</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"c" +
+    "heckbox\" id=\"WDE_138\" onclick=\"wdeSelEnzymes(this, 138)\"" +
+    "></td><td style=\"text-align:right\">- &nbsp;</td><td>HpaI</" +
+    "td><td>&nbsp;GTT^AAC</td><th>&nbsp;&nbsp;&nbsp;</th><td><inp" +
+    "ut type=\"checkbox\" id=\"WDE_221\" onclick=\"wdeSelEnzymes(" +
+    "this, 221)\"></td><td style=\"text-align:right\">- &nbsp;</t" +
+    "d><td>SfoI</td><td>&nbsp;GGC^GCC</td></tr>\n<tr><td><input t" +
+    "ype=\"checkbox\" id=\"WDE_56\" onclick=\"wdeSelEnzymes(this," +
+    " 56)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>" +
+    "BsaBI</td><td>&nbsp;GATNN^NNATC</td><th>&nbsp;&nbsp;&nbsp;</" +
+    "th><td><input type=\"checkbox\" id=\"WDE_139\" onclick=\"wde" +
+    "SelEnzymes(this, 139)\"></td><td style=\"text-align:right\">" +
+    "- &nbsp;</td><td>HpaII</td><td>&nbsp;C^CGG</td><th>&nbsp;&nb" +
+    "sp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_222\" on" +
+    "click=\"wdeSelEnzymes(this, 222)\"></td><td style=\"text-ali" +
+    "gn:right\">- &nbsp;</td><td>SfuI</td><td>&nbsp;TT^CGAA</td><" +
+    "/tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_57\" onclick" +
+    "=\"wdeSelEnzymes(this, 57)\"></td><td style=\"text-align:rig" +
+    "ht\">- &nbsp;</td><td>BsaHI</td><td>&nbsp;GR^CGYC</td><th>&n" +
+    "bsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_1" +
+    "40\" onclick=\"wdeSelEnzymes(this, 140)\"></td><td style=\"t" +
+    "ext-align:right\">- &nbsp;</td><td>HphI</td><td>&nbsp;GGTGA(" +
+    "8/7)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkb" +
+    "ox\" id=\"WDE_223\" onclick=\"wdeSelEnzymes(this, 223)\"></t" +
+    "d><td style=\"text-align:right\">- &nbsp;</td><td>SgrAI</td>" +
+    "<td>&nbsp;CR^CCGGYG</td></tr>\n<tr><td><input type=\"checkbo" +
+    "x\" id=\"WDE_58\" onclick=\"wdeSelEnzymes(this, 58)\"></td><" +
+    "td style=\"text-align:right\">- &nbsp;</td><td>BsaJI</td><td" +
+    ">&nbsp;C^CNNGG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input typ" +
+    "e=\"checkbox\" id=\"WDE_141\" onclick=\"wdeSelEnzymes(this, " +
+    "141)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>" +
+    "Hpy99I</td><td>&nbsp;CGWCG^</td><th>&nbsp;&nbsp;&nbsp;</th><" +
+    "td><input type=\"checkbox\" id=\"WDE_224\" onclick=\"wdeSelE" +
+    "nzymes(this, 224)\"></td><td style=\"text-align:right\">- &n" +
+    "bsp;</td><td>SmaI</td><td>&nbsp;CCC^GGG</td></tr>\n<tr><td><" +
+    "input type=\"checkbox\" id=\"WDE_59\" onclick=\"wdeSelEnzyme" +
+    "s(this, 59)\"></td><td style=\"text-align:right\">- &nbsp;</" +
+    "td><td>BsaWI</td><td>&nbsp;W^CCGGW</td><th>&nbsp;&nbsp;&nbsp" +
+    ";</th><td><input type=\"checkbox\" id=\"WDE_142\" onclick=\"" +
+    "wdeSelEnzymes(this, 142)\"></td><td style=\"text-align:right" +
+    "\">- &nbsp;</td><td>Hpy166II</td><td>&nbsp;GTN^NAC</td><th>&" +
+    "nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_" +
+    "225\" onclick=\"wdeSelEnzymes(this, 225)\"></td><td style=\"" +
+    "text-align:right\">- &nbsp;</td><td>SmlI</td><td>&nbsp;C^TYR" +
+    "AG</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_60\"" +
+    " onclick=\"wdeSelEnzymes(this, 60)\"></td><td style=\"text-a" +
+    "lign:right\">- &nbsp;</td><td>BsaXI</td><td>&nbsp;(9/12)ACNN" +
+    "NNNCTCC(10/7)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type" +
+    "=\"checkbox\" id=\"WDE_143\" onclick=\"wdeSelEnzymes(this, 1" +
+    "43)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>H" +
+    "py188I</td><td>&nbsp;TCN^GA</td><th>&nbsp;&nbsp;&nbsp;</th><" +
+    "td><input type=\"checkbox\" id=\"WDE_226\" onclick=\"wdeSelE" +
+    "nzymes(this, 226)\"></td><td style=\"text-align:right\">- &n" +
+    "bsp;</td><td>SnaBI</td><td>&nbsp;TAC^GTA</td></tr>\n<tr><td>" +
+    "<input type=\"checkbox\" id=\"WDE_61\" onclick=\"wdeSelEnzym" +
+    "es(this, 61)\"></td><td style=\"text-align:right\">- &nbsp;<" +
+    "/td><td>BseRI</td><td>&nbsp;GAGGAG(10/8)</td><th>&nbsp;&nbsp" +
+    ";&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_144\" oncl" +
+    "ick=\"wdeSelEnzymes(this, 144)\"></td><td style=\"text-align" +
+    ":right\">- &nbsp;</td><td>Hpy188III</td><td>&nbsp;TC^NNGA</t" +
+    "d><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id" +
+    "=\"WDE_227\" onclick=\"wdeSelEnzymes(this, 227)\"></td><td s" +
+    "tyle=\"text-align:right\">- &nbsp;</td><td>SpeI</td><td>&nbs" +
+    "p;A^CTAGT</td></tr>\n<tr><td><input type=\"checkbox\" id=\"W" +
+    "DE_62\" onclick=\"wdeSelEnzymes(this, 62)\"></td><td style=\"" +
+    "text-align:right\">- &nbsp;</td><td>BseYI</td><td>&nbsp;CCCA" +
+    "GC(-5/-1)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"c" +
+    "heckbox\" id=\"WDE_145\" onclick=\"wdeSelEnzymes(this, 145)\"" +
+    "></td><td style=\"text-align:right\">- &nbsp;</td><td>HpyAV<" +
+    "/td><td>&nbsp;CCTTC(6/5)</td><th>&nbsp;&nbsp;&nbsp;</th><td>" +
+    "<input type=\"checkbox\" id=\"WDE_228\" onclick=\"wdeSelEnzy" +
+    "mes(this, 228)\"></td><td style=\"text-align:right\">- &nbsp" +
+    ";</td><td>SphI</td><td>&nbsp;GCATG^C</td></tr>\n<tr><td><inp" +
+    "ut type=\"checkbox\" id=\"WDE_63\" onclick=\"wdeSelEnzymes(t" +
+    "his, 63)\"></td><td style=\"text-align:right\">- &nbsp;</td>" +
+    "<td>BsgI</td><td>&nbsp;GTGCAG(16/14)</td><th>&nbsp;&nbsp;&nb" +
+    "sp;</th><td><input type=\"checkbox\" id=\"WDE_146\" onclick=" +
+    "\"wdeSelEnzymes(this, 146)\"></td><td style=\"text-align:rig" +
+    "ht\">- &nbsp;</td><td>HpyCH4III</td><td>&nbsp;ACN^GT</td><th" +
+    ">&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WD" +
+    "E_229\" onclick=\"wdeSelEnzymes(this, 229)\"></td><td style=" +
+    "\"text-align:right\">- &nbsp;</td><td>SrfI</td><td>&nbsp;GCC" +
+    "C^GGGC</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_" +
+    "64\" onclick=\"wdeSelEnzymes(this, 64)\"></td><td style=\"te" +
+    "xt-align:right\">- &nbsp;</td><td>BsiEI</td><td>&nbsp;CGRY^C" +
+    "G</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\"" +
+    " id=\"WDE_147\" onclick=\"wdeSelEnzymes(this, 147)\"></td><t" +
+    "d style=\"text-align:right\">- &nbsp;</td><td>HpyCH4IV</td><" +
+    "td>&nbsp;A^CGT</td><th>&nbsp;&nbsp;&nbsp;</th><td><input typ" +
+    "e=\"checkbox\" id=\"WDE_230\" onclick=\"wdeSelEnzymes(this, " +
+    "230)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>" +
+    "SspI</td><td>&nbsp;AAT^ATT</td></tr>\n<tr><td><input type=\"" +
+    "checkbox\" id=\"WDE_65\" onclick=\"wdeSelEnzymes(this, 65)\"" +
+    "></td><td style=\"text-align:right\">- &nbsp;</td><td>BsiHKA" +
+    "I</td><td>&nbsp;GWGCW^C</td><th>&nbsp;&nbsp;&nbsp;</th><td><" +
+    "input type=\"checkbox\" id=\"WDE_148\" onclick=\"wdeSelEnzym" +
+    "es(this, 148)\"></td><td style=\"text-align:right\">- &nbsp;" +
+    "</td><td>HpyCH4V</td><td>&nbsp;TG^CA</td><th>&nbsp;&nbsp;&nb" +
+    "sp;</th><td><input type=\"checkbox\" id=\"WDE_231\" onclick=" +
+    "\"wdeSelEnzymes(this, 231)\"></td><td style=\"text-align:rig" +
+    "ht\">- &nbsp;</td><td>StuI</td><td>&nbsp;AGG^CCT</td></tr>\n" +
+    "<tr><td><input type=\"checkbox\" id=\"WDE_66\" onclick=\"wde" +
+    "SelEnzymes(this, 66)\"></td><td style=\"text-align:right\">-" +
+    " &nbsp;</td><td>BsiWI</td><td>&nbsp;C^GTACG</td><th>&nbsp;&n" +
+    "bsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_149\" o" +
+    "nclick=\"wdeSelEnzymes(this, 149)\"></td><td style=\"text-al" +
+    "ign:right\">- &nbsp;</td><td>KasI</td><td>&nbsp;G^GCGCC</td>" +
+    "<th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"" +
+    "WDE_232\" onclick=\"wdeSelEnzymes(this, 232)\"></td><td styl" +
+    "e=\"text-align:right\">- &nbsp;</td><td>StyI</td><td>&nbsp;C" +
+    "^CWWGG</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_" +
+    "67\" onclick=\"wdeSelEnzymes(this, 67)\"></td><td style=\"te" +
+    "xt-align:right\">- &nbsp;</td><td>BslI</td><td>&nbsp;CCNNNNN" +
+    "^NNGG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"check" +
+    "box\" id=\"WDE_150\" onclick=\"wdeSelEnzymes(this, 150)\"></" +
+    "td><td style=\"text-align:right\">- &nbsp;</td><td>KpnI</td>" +
+    "<td>&nbsp;GGTAC^C</td><th>&nbsp;&nbsp;&nbsp;</th><td><input " +
+    "type=\"checkbox\" id=\"WDE_233\" onclick=\"wdeSelEnzymes(thi" +
+    "s, 233)\"></td><td style=\"text-align:right\">- &nbsp;</td><" +
+    "td>StyD4I</td><td>&nbsp;^CCNGG</td></tr>\n<tr><td><input typ" +
+    "e=\"checkbox\" id=\"WDE_68\" onclick=\"wdeSelEnzymes(this, 6" +
+    "8)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Bs" +
+    "mI</td><td>&nbsp;GAATGC(1/-1)</td><th>&nbsp;&nbsp;&nbsp;</th" +
+    "><td><input type=\"checkbox\" id=\"WDE_151\" onclick=\"wdeSe" +
+    "lEnzymes(this, 151)\"></td><td style=\"text-align:right\">- " +
+    "&nbsp;</td><td>KspI</td><td>&nbsp;CCGC^GG</td><th>&nbsp;&nbs" +
+    "p;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_234\" onc" +
+    "lick=\"wdeSelEnzymes(this, 234)\"></td><td style=\"text-alig" +
+    "n:right\">- &nbsp;</td><td>SwaI</td><td>&nbsp;ATTT^AAAT</td>" +
+    "</tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_69\" onclic" +
+    "k=\"wdeSelEnzymes(this, 69)\"></td><td style=\"text-align:ri" +
+    "ght\">- &nbsp;</td><td>BsmAI</td><td>&nbsp;GTCTC(1/5)</td><t" +
+    "h>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"W" +
+    "DE_152\" onclick=\"wdeSelEnzymes(this, 152)\"></td><td style" +
+    "=\"text-align:right\">- &nbsp;</td><td>MaeI</td><td>&nbsp;C^" +
+    "TAG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbo" +
+    "x\" id=\"WDE_235\" onclick=\"wdeSelEnzymes(this, 235)\"></td" +
+    "><td style=\"text-align:right\">- &nbsp;</td><td>TaqI</td><t" +
+    "d>&nbsp;T^CGA</td></tr>\n<tr><td><input type=\"checkbox\" id" +
+    "=\"WDE_70\" onclick=\"wdeSelEnzymes(this, 70)\"></td><td sty" +
+    "le=\"text-align:right\">- &nbsp;</td><td>BsmBI</td><td>&nbsp" +
+    ";CGTCTC(1/5)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=" +
+    "\"checkbox\" id=\"WDE_153\" onclick=\"wdeSelEnzymes(this, 15" +
+    "3)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Ma" +
+    "eII</td><td>&nbsp;A^CGT</td><th>&nbsp;&nbsp;&nbsp;</th><td><" +
+    "input type=\"checkbox\" id=\"WDE_236\" onclick=\"wdeSelEnzym" +
+    "es(this, 236)\"></td><td style=\"text-align:right\">- &nbsp;" +
+    "</td><td>TfiI</td><td>&nbsp;G^AWTC</td></tr>\n<tr><td><input" +
+    " type=\"checkbox\" id=\"WDE_71\" onclick=\"wdeSelEnzymes(thi" +
+    "s, 71)\"></td><td style=\"text-align:right\">- &nbsp;</td><t" +
+    "d>BsmFI</td><td>&nbsp;GGGAC(10/14)</td><th>&nbsp;&nbsp;&nbsp" +
+    ";</th><td><input type=\"checkbox\" id=\"WDE_154\" onclick=\"" +
+    "wdeSelEnzymes(this, 154)\"></td><td style=\"text-align:right" +
+    "\">- &nbsp;</td><td>MaeIII</td><td>&nbsp;^GTNAC</td><th>&nbs" +
+    "p;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_237" +
+    "\" onclick=\"wdeSelEnzymes(this, 237)\"></td><td style=\"tex" +
+    "t-align:right\">- &nbsp;</td><td>Tru9I</td><td>&nbsp;T^TAA</" +
+    "td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_72\" onc" +
+    "lick=\"wdeSelEnzymes(this, 72)\"></td><td style=\"text-align" +
+    ":right\">- &nbsp;</td><td>BsoBI</td><td>&nbsp;C^YCGRG</td><t" +
+    "h>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"W" +
+    "DE_155\" onclick=\"wdeSelEnzymes(this, 155)\"></td><td style" +
+    "=\"text-align:right\">- &nbsp;</td><td>MboI</td><td>&nbsp;^G" +
+    "ATC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbo" +
+    "x\" id=\"WDE_238\" onclick=\"wdeSelEnzymes(this, 238)\"></td" +
+    "><td style=\"text-align:right\">- &nbsp;</td><td>TseI</td><t" +
+    "d>&nbsp;G^CWGC</td></tr>\n<tr><td><input type=\"checkbox\" i" +
+    "d=\"WDE_73\" onclick=\"wdeSelEnzymes(this, 73)\"></td><td st" +
+    "yle=\"text-align:right\">- &nbsp;</td><td>Bsp1286I</td><td>&" +
+    "nbsp;GDGCH^C</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=" +
+    "\"checkbox\" id=\"WDE_156\" onclick=\"wdeSelEnzymes(this, 15" +
+    "6)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Mb" +
+    "oII</td><td>&nbsp;GAAGA(8/7)</td><th>&nbsp;&nbsp;&nbsp;</th>" +
+    "<td><input type=\"checkbox\" id=\"WDE_239\" onclick=\"wdeSel" +
+    "Enzymes(this, 239)\"></td><td style=\"text-align:right\">- &" +
+    "nbsp;</td><td>Tsp45I</td><td>&nbsp;^GTSAC</td></tr>\n<tr><td" +
+    "><input type=\"checkbox\" id=\"WDE_74\" onclick=\"wdeSelEnzy" +
+    "mes(this, 74)\"></td><td style=\"text-align:right\">- &nbsp;" +
+    "</td><td>BspCNI</td><td>&nbsp;CTCAG(9/7)</td><th>&nbsp;&nbsp" +
+    ";&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_157\" oncl" +
+    "ick=\"wdeSelEnzymes(this, 157)\"></td><td style=\"text-align" +
+    ":right\">- &nbsp;</td><td>MfeI</td><td>&nbsp;C^AATTG</td><th" +
+    ">&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WD" +
+    "E_240\" onclick=\"wdeSelEnzymes(this, 240)\"></td><td style=" +
+    "\"text-align:right\">- &nbsp;</td><td>TspMI</td><td>&nbsp;C^" +
+    "CCGGG</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_7" +
+    "5\" onclick=\"wdeSelEnzymes(this, 75)\"></td><td style=\"tex" +
+    "t-align:right\">- &nbsp;</td><td>BspDI</td><td>&nbsp;AT^CGAT" +
+    "</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\"" +
+    " id=\"WDE_158\" onclick=\"wdeSelEnzymes(this, 158)\"></td><t" +
+    "d style=\"text-align:right\">- &nbsp;</td><td>MluI</td><td>&" +
+    "nbsp;A^CGCGT</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=" +
+    "\"checkbox\" id=\"WDE_241\" onclick=\"wdeSelEnzymes(this, 24" +
+    "1)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Ts" +
+    "pRI</td><td>&nbsp;CASTGNN^</td></tr>\n<tr><td><input type=\"" +
+    "checkbox\" id=\"WDE_76\" onclick=\"wdeSelEnzymes(this, 76)\"" +
+    "></td><td style=\"text-align:right\">- &nbsp;</td><td>BspEI<" +
+    "/td><td>&nbsp;T^CCGGA</td><th>&nbsp;&nbsp;&nbsp;</th><td><in" +
+    "put type=\"checkbox\" id=\"WDE_159\" onclick=\"wdeSelEnzymes" +
+    "(this, 159)\"></td><td style=\"text-align:right\">- &nbsp;</" +
+    "td><td>MluCI</td><td>&nbsp;^AATT</td><th>&nbsp;&nbsp;&nbsp;<" +
+    "/th><td><input type=\"checkbox\" id=\"WDE_242\" onclick=\"wd" +
+    "eSelEnzymes(this, 242)\"></td><td style=\"text-align:right\"" +
+    ">- &nbsp;</td><td>Tth111I</td><td>&nbsp;GACN^NNGTC</td></tr>" +
+    "\n<tr><td><input type=\"checkbox\" id=\"WDE_77\" onclick=\"w" +
+    "deSelEnzymes(this, 77)\"></td><td style=\"text-align:right\"" +
+    ">- &nbsp;</td><td>BspHI</td><td>&nbsp;T^CATGA</td><th>&nbsp;" +
+    "&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_160\"" +
+    " onclick=\"wdeSelEnzymes(this, 160)\"></td><td style=\"text-" +
+    "align:right\">- &nbsp;</td><td>MluNI</td><td>&nbsp;TGG^CCA</" +
+    "td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" i" +
+    "d=\"WDE_243\" onclick=\"wdeSelEnzymes(this, 243)\"></td><td " +
+    "style=\"text-align:right\">- &nbsp;</td><td>XbaI</td><td>&nb" +
+    "sp;T^CTAGA</td></tr>\n<tr><td><input type=\"checkbox\" id=\"" +
+    "WDE_78\" onclick=\"wdeSelEnzymes(this, 78)\"></td><td style=" +
+    "\"text-align:right\">- &nbsp;</td><td>BspMI</td><td>&nbsp;AC" +
+    "CTGC(4/8)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"c" +
+    "heckbox\" id=\"WDE_161\" onclick=\"wdeSelEnzymes(this, 161)\"" +
+    "></td><td style=\"text-align:right\">- &nbsp;</td><td>MlyI</" +
+    "td><td>&nbsp;GAGTC(5/5)</td><th>&nbsp;&nbsp;&nbsp;</th><td><" +
+    "input type=\"checkbox\" id=\"WDE_244\" onclick=\"wdeSelEnzym" +
+    "es(this, 244)\"></td><td style=\"text-align:right\">- &nbsp;" +
+    "</td><td>XhoI</td><td>&nbsp;C^TCGAG</td></tr>\n<tr><td><inpu" +
+    "t type=\"checkbox\" id=\"WDE_79\" onclick=\"wdeSelEnzymes(th" +
+    "is, 79)\"></td><td style=\"text-align:right\">- &nbsp;</td><" +
+    "td>BspQI</td><td>&nbsp;GCTCTTC(1/4)</td><th>&nbsp;&nbsp;&nbs" +
+    "p;</th><td><input type=\"checkbox\" id=\"WDE_162\" onclick=\"" +
+    "wdeSelEnzymes(this, 162)\"></td><td style=\"text-align:right" +
+    "\">- &nbsp;</td><td>MmeI</td><td>&nbsp;TCCRAC(20/18)</td><th" +
+    ">&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WD" +
+    "E_245\" onclick=\"wdeSelEnzymes(this, 245)\"></td><td style=" +
+    "\"text-align:right\">- &nbsp;</td><td>XmaI</td><td>&nbsp;C^C" +
+    "CGGG</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_80" +
+    "\" onclick=\"wdeSelEnzymes(this, 80)\"></td><td style=\"text" +
+    "-align:right\">- &nbsp;</td><td>BsrI</td><td>&nbsp;ACTGG(1/-" +
+    "1)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox" +
+    "\" id=\"WDE_163\" onclick=\"wdeSelEnzymes(this, 163)\"></td>" +
+    "<td style=\"text-align:right\">- &nbsp;</td><td>MnlI</td><td" +
+    ">&nbsp;CCTC(7/6)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input t" +
+    "ype=\"checkbox\" id=\"WDE_246\" onclick=\"wdeSelEnzymes(this" +
+    ", 246)\"></td><td style=\"text-align:right\">- &nbsp;</td><t" +
+    "d>XmnI</td><td>&nbsp;GAANN^NNTTC</td></tr>\n<tr><td><input t" +
+    "ype=\"checkbox\" id=\"WDE_81\" onclick=\"wdeSelEnzymes(this," +
+    " 81)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>" +
+    "BsrBI</td><td>&nbsp;CCGCTC(-3/-3)</td><th>&nbsp;&nbsp;&nbsp;" +
+    "</th><td><input type=\"checkbox\" id=\"WDE_164\" onclick=\"w" +
+    "deSelEnzymes(this, 164)\"></td><td style=\"text-align:right\"" +
+    ">- &nbsp;</td><td>MroI</td><td>&nbsp;T^CCGGA</td><th>&nbsp;&" +
+    "nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_247\" " +
+    "onclick=\"wdeSelEnzymes(this, 247)\"></td><td style=\"text-a" +
+    "lign:right\">- &nbsp;</td><td>ZraI</td><td>&nbsp;GAC^GTC</td" +
+    "></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_82\" oncli" +
+    "ck=\"wdeSelEnzymes(this, 82)\"></td><td style=\"text-align:r" +
+    "ight\">- &nbsp;</td><td>BsrDI</td><td>&nbsp;GCAATG(2/0)</td>" +
+    "<th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"" +
+    "WDE_165\" onclick=\"wdeSelEnzymes(this, 165)\"></td><td styl" +
+    "e=\"text-align:right\">- &nbsp;</td><td>MscI</td><td>&nbsp;T" +
+    "GG^CCA</td><th>&nbsp;&nbsp;&nbsp;</th><td></td><td></td><td>" +
+    "</td><td></td></tr>\n</tbody></table>";
     return str;
 }
 
@@ -7122,6 +7999,2970 @@ function wdeTestDataString_013() {
     return str;
 }
 
+function wdeTestDataString_014() {
+    var str = '[["AatII","GACGT^C",0,1,";2695,6","N",";2699"],' +
+    '["AccI","GT^MKAC",0,1,";2106,6","N",";2107"],' +
+    '["Acc65I","G^GTACC",0,0,"","C",""],' +
+    '["AciI","CCGC(-3/-1)",0,17,";98,4;511,4;866,4;1027,4;1122,4' +
+    ';1188,4;1233,4;1485,4;1521,4;1667,4;2076,4;2555,4;2568,4;263' +
+    '5,4;2691,4;2732,4;2822,4","N",";98;511;866;1027;1122;1188;12' +
+    '33;1485;1521;1667;2076;2555;2568;2635;2691;2732;2822"],' +
+    '["AclI","AA^CGTT",0,0,"","N",""],' +
+    '["AcuI","CTGAAG(16/14)",0,2,";74,6;1013,6","N",";59;998"],' +
+    '["AfeI","AGC^GCT",0,0,"","N",""],' +
+    '["AflII","C^TTAAG",0,0,"","N",""],' +
+    '["AflIII","A^CRYGT",0,0,"","N",""],' +
+    '["AgeI","A^CCGGT",0,0,"","N",""],' +
+    '["AhdI","GACNNN^NNGTC",0,1,";2825,11","N",";2830"],' +
+    '["AleI","CACNN^NNGTG",0,0,"","N",""],' +
+    '["AluI","AG^CT",0,6,";30,4;105,4;204,4;390,4;1091,4;3157,4"' +
+    ',"N",";31;106;205;391;1092;3158"],' +
+    '["AlwI","GGATC(4/5)",0,9,";232,5;1004,5;1005,5;1311,5;1770,' +
+    '5;1771,5;2545,5;2682,5;2683,5","A",";226;1012;999;1305;1778;' +
+    '1765;2539;2690;2677"],' +
+    '["AlwNI","CAGNNN^CTG",0,0,"","C",""],' +
+    '["ApaI","GGGCC^C",0,0,"","C",""],' +
+    '["ApaLI","G^TGCAC",0,1,";2861,6","N",";2861"],' +
+    '["ApeKI","G^CWGC",0,6,";1223,5;1697,5;2300,5;2583,5;2659,5;' +
+    '2672,5","N",";1223;1697;2300;2583;2659;2672"],' +
+    '["ApoI","R^AATTY",0,5,";22,6;1280,6;1589,6;1914,6;2152,6","' +
+    'N",";22;1280;1589;1914;2152"],' +
+    '["AscI","GG^CGCGCC",0,0,"","N",""],' +
+    '["AseI","AT^TAAT",0,0,"","N",""],' +
+    '["AsiSI","GCGAT^CGC",0,0,"","N",""],' +
+    '["Asp700I","GAANN^NNTTC",0,1,";2523,10","N",";2527"],' +
+    '["Asp718I","G^GTACC",0,0,"","C",""],' +
+    '["AvaI","C^YCGRG",0,3,";533,6;1409,6;2745,6","N",";533;1409' +
+    ';2745"],' +
+    '["AvaII","G^GWCC",0,7,";461,5;1421,5;1464,5;1791,5;1801,5;2' +
+    '184,5;2854,5","C",";461;1421;1464;1791;1801;2184;2854"],' +
+    '["AvrII","C^CTAGG",0,1,";1460,6","N",";1460"],' +
+    '["BaeGI","GKGCM^C",0,1,";2861,6","N",";2865"],' +
+    '["BamHI","G^GATCC",0,3,";1004,6;1770,6;2682,6","N",";1004;1' +
+    '770;2682"],' +
+    '["BanI","G^GYRCC",0,0,"","N",""],' +
+    '["BanII","GRGCY^C",0,1,";1145,6","N",";1149"],' +
+    '["BbrPI","CAC^GTG",0,0,"","N",""],' +
+    '["BbsI","GAAGAC(2/6)",0,0,"","N",""],' +
+    '["BbvI","GCAGC(8/12)",0,6,";1223,5;1697,5;2300,5;2583,5;265' +
+    '9,5;2672,5","N",";1235;1684;2287;2595;2646;2659"],' +
+    '["BbvCI","CCTCAGC(-5/-2)",0,2,";101,7;1933,7","N",";102;193' +
+    '4"],' +
+    '["BccI","CCATC(4/5)",0,5,";635,5;1888,5;1893,5;2136,5;2506,' +
+    '5","N",";643;1896;1901;2130;2514"],' +
+    '["BceAI","ACGGC(12/14)",0,2,";2443,5;2785,5","N",";2459;277' +
+    '0"],' +
+    '["BciVI","GTATCC(6/5)",0,1,";1835,6","N",";1846"],' +
+    '["BclI","T^GATCA",0,0,"","A",""],' +
+    '["BcoDI","GTCTC(1/5)",0,7,";129,5;245,5;320,5;433,5;501,5;1' +
+    '238,5;2893,5","N",";134;239;325;427;506;1243;2887"],' +
+    '["BfaI","C^TAG",0,14,";91,4;202,4;242,4;250,4;467,4;815,4;8' +
+    '37,4;1461,4;1530,4;1560,4;1962,4;2564,4;2663,4;3055,4","N","' +
+    ';91;202;242;250;467;815;837;1461;1530;1560;1962;2564;2663;30' +
+    '55"],' +
+    '["BfrI","C^TTAAG",0,0,"","N",""],' +
+    '["BfuAI","ACCTGC(4/8)",0,3,";458,6;1803,6;2586,6","N",";449' +
+    ';1812;2577"],' +
+    '["BfuCI","^GATC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,4' +
+    ';1771,4;2545,4;2683,4","N",";84;231;523;937;1004;1310;1770;2' +
+    '544;2682"],' +
+    '["BglI","GCCNNNN^NGGC",0,0,"","N",""],' +
+    '["BglII","A^GATCT",0,3,";84,6;523,6;937,6","N",";84;523;937' +
+    '"],' +
+    '["BlnI","C^CTAGG",0,1,";1460,6","N",";1460"],' +
+    '["BlpI","GC^TNAGC",0,0,"","N",""],' +
+    '["BmgBI","CACGTC(-3/-3)",0,1,";2882,6","N",";2884"],' +
+    '["BmrI","ACTGGG(5/4)",0,2,";584,6;3011,6","N",";594;3021"],' +
+    '["BmtI","GCTAG^C",0,0,"","N",""],' +
+    '["BpmI","CTGGAG(16/14)",0,4,";386,6;1093,6;1349,6;2592,6","' +
+    'N",";371;1114;1334;2613"],' +
+    '["Bpu10I","CCTNAGC(-5/-2)",0,4,";101,7;133,7;1155,7;1933,7"' +
+    ',"N",";102;134;1156;1934"],' +
+    '["BpuEI","CTTGAG(16/14)",0,3,";1819,6;2060,6;2977,6","N",";' +
+    '1804;2081;2998"],' +
+    '["BsaI","GGTCTC(1/5)",0,3,";245,6;500,6;2893,6","C",";239;5' +
+    '06;2887"],' +
+    '["BsaAI","YAC^GTR",0,0,"","N",""],' +
+    '["BsaBI","GATNN^NNATC",0,1,";524,10","A",";528"],' +
+    '["BsaHI","GR^CGYC",0,2,";1074,6;2695,6","N",";1075;2696"],' +
+    '["BsaJI","C^CNNGG",0,8,";209,6;557,6;1460,6;1900,6;2654,6;2' +
+    '799,6;2924,6;3164,6","N",";209;557;1460;1900;2654;2799;2924;' +
+    '3164"],' +
+    '["BsaWI","W^CCGGW",0,1,";429,6","N",";429"],' +
+    '["BsaXI","(9/12)ACNNNNNCTCC(10/7)",0,4,";28,11;1383,11;2820' +
+    ',11;3030,11","N",";50;20;1373;1403;2810;2840;3052;3022"],' +
+    '["BseRI","GAGGAG(10/8)",0,4,";383,6;2535,6;3016,6;3028,6","' +
+    'N",";374;2526;3031;3043"],' +
+    '["BseYI","CCCAGC(-5/-1)",0,3,";182,6;1106,6;2487,6","N",";1' +
+    '82;1106;2487"],' +
+    '["BsgI","GTGCAG(16/14)",0,2,";158,6;2879,6","N",";143;2864"' +
+    '],' +
+    '["BsiEI","CGRY^CG",0,2,";2792,6;2969,6","N",";2795;2972"],' +
+    '["BsiHKAI","GWGCW^C",0,1,";2861,6","N",";2865"],' +
+    '["BsiWI","C^GTACG",0,0,"","N",""],' +
+    '["BslI","CCNNNNN^NNGG",0,14,";995,11;1119,11;1122,11;1270,1' +
+    '1;1338,11;1860,11;1999,11;2430,11;2436,11;2481,11;2548,11;27' +
+    '40,11;2741,11;2795,11","N",";1001;1125;1128;1276;1344;1866;2' +
+    '005;2436;2442;2487;2554;2746;2747;2801"],' +
+    '["BsmI","GAATGC(1/-1)",0,1,";1098,6","N",";1098"],' +
+    '["BsmAI","GTCTC(1/5)",0,7,";129,5;245,5;320,5;433,5;501,5;1' +
+    '238,5;2893,5","N",";134;239;325;427;506;1243;2887"],' +
+    '["BsmBI","CGTCTC(1/5)",0,0,"","N",""],' +
+    '["BsmFI","GGGAC(10/14)",0,11,";462,5;1042,5;1420,5;1598,5;1' +
+    '790,5;2065,5;2609,5;2693,5;2711,5;2758,5;2769,5","N",";447;1' +
+    '056;1434;1583;1804;2050;2623;2707;2696;2772;2754"],' +
+    '["BsoBI","C^YCGRG",0,3,";533,6;1409,6;2745,6","N",";533;140' +
+    '9;2745"],' +
+    '["Bsp1286I","GDGCH^C",0,2,";1145,6;2861,6","N",";1149;2865"' +
+    '],' +
+    '["BspCNI","CTCAG(9/7)",0,9,";102,5;134,5;163,5;1150,5;1156,' +
+    '5;1264,5;1934,5;1953,5;2955,5","N",";115;126;176;1163;1169;1' +
+    '277;1947;1966;2968"],' +
+    '["BspDI","AT^CGAT",0,0,"","A",""],' +
+    '["BspEI","T^CCGGA",0,1,";429,6","A",";429"],' +
+    '["BspHI","T^CATGA",0,0,"","A",""],' +
+    '["BspMI","ACCTGC(4/8)",0,3,";458,6;1803,6;2586,6","N",";449' +
+    ';1812;2577"],' +
+    '["BspQI","GCTCTTC(1/4)",0,0,"","N",""],' +
+    '["BsrI","ACTGG(1/-1)",0,7,";584,5;998,5;1211,5;1351,5;2483,' +
+    '5;2679,5;3011,5","N",";589;998;1211;1351;2488;2684;3016"],' +
+    '["BsrBI","CCGCTC(-3/-3)",0,0,"","N",""],' +
+    '["BsrDI","GCAATG(2/0)",0,1,";2959,6","N",";2966"],' +
+    '["BsrFI","R^CCGGY",0,0,"","N",""],' +
+    '["BsrGI","T^GTACA",0,1,";2050,6","N",";2050"],' +
+    '["BssHII","G^CGCGC",0,0,"","N",""],' +
+    '["BssSI","CACGAG(-5/-1)",0,2,";1473,6;1535,6","N",";1473;15' +
+    '35"],' +
+    '["BstAPI","GCANNNN^NTGC",0,0,"","N",""],' +
+    '["BstBI","TT^CGAA",0,0,"","N",""],' +
+    '["BstEII","G^GTNACC",0,2,";760,7;915,7","N",";760;915"],' +
+    '["BstNI","CC^WGG",0,8,";209,5;744,5;1066,5;1644,5;1767,5;19' +
+    '00,5;1948,5;2447,5","N",";210;745;1067;1645;1768;1901;1949;2' +
+    '448"],' +
+    '["BstUI","CG^CG",0,3,";512,4;2690,4;2821,4","N",";513;2691;' +
+    '2822"],' +
+    '["BstXI","CCANNNNN^NTGG",0,2,";920,12;1893,12","N",";927;19' +
+    '00"],' +
+    '["BstYI","R^GATCY",0,8,";84,6;231,6;523,6;937,6;1004,6;1310' +
+    ',6;1770,6;2682,6","N",";84;231;523;937;1004;1310;1770;2682"]' +
+    ',' +
+    '["BstZ17I","GTA^TAC",0,1,";2106,6","N",";2108"],' +
+    '["Bsu36I","CC^TNAGG",0,2,";1149,7;1263,7","N",";1150;1264"]' +
+    ',' +
+    '["BtgI","C^CRYGG",0,2,";2654,6;2799,6","N",";2654;2799"],' +
+    '["BtgZI","GCGATG(10/14)",0,0,"","N",""],' +
+    '["BtsI","GCAGTG(2/0)",0,1,";1274,6","N",";1281"],' +
+    '["BtsIMutI","CAGTG(2/0)",0,4,";1275,5;1977,5;2000,5;2482,5"' +
+    ',"N",";1281;1983;1999;2481"],' +
+    '["BtsCI","GGATG(2/0)",0,7,";1260,5;1657,5;1691,5;1889,5;189' +
+    '7,5;2023,5;2174,5","N",";1259;1663;1690;1888;1896;2029;2180"' +
+    '],' +
+    '["Cac8I","GCN^NGC",0,6,";168,6;739,6;1178,6;2365,6;2514,6;2' +
+    '579,6","N",";170;741;1180;2367;2516;2581"],' +
+    '["CfoI","GCG^C",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;280' +
+    '6,4;3083,4","N",";902;1430;2514;2691;2722;2808;3085"],' +
+    '["ClaI","AT^CGAT",0,0,"","A",""],' +
+    '["CviAII","C^ATG",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;' +
+    '2349,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N"' +
+    ',";947;1271;1436;1795;1808;2349;2500;2515;2655;2889;3095;313' +
+    '3;4"],' +
+    '["CviQI","G^TAC",0,5,";79,4;605,4;1852,4;2051,4;3052,4","N"' +
+    ',";79;605;1852;2051;3052"],' +
+    '["DdeI","C^TNAG",0,11,";102,5;123,5;134,5;163,5;1150,5;1156' +
+    ',5;1264,5;1934,5;1953,5;2361,5;2955,5","N",";102;123;134;163' +
+    ';1150;1156;1264;1934;1953;2361;2955"],' +
+    '["DpnI","GA^TC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,4;' +
+    '1771,4;2545,4;2683,4","N",";86;233;525;939;1006;1312;1772;25' +
+    '46;2684"],' +
+    '["DpnII","^GATC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,4' +
+    ';1771,4;2545,4;2683,4","A",";84;231;523;937;1004;1310;1770;2' +
+    '544;2682"],' +
+    '["DraI","TTT^AAA",0,2,";2113,6;3004,6","N",";2115;3006"],' +
+    '["DraIII","CACNNN^GTG",0,1,";2313,9","N",";2318"],' +
+    '["DrdI","GACNNNN^NNGTC",0,2,";247,12;2760,12","N",";253;276' +
+    '6"],' +
+    '["EaeI","Y^GGCCR",0,3,";1068,6;1583,6;2444,6","C",";1068;15' +
+    '83;2444"],' +
+    '["EagI","C^GGCCG",0,0,"","N",""],' +
+    '["EarI","CTCTTC(1/4)",0,2,";332,6;1686,6","N",";327;1692"],' +
+    '["EciI","GGCGGA(11/9)",0,1,";1187,6","A",";1177"],' +
+    '["Eco47III","AGC^GCT",0,0,"","N",""],' +
+    '["EcoNI","CCTNN^NNNAGG",0,0,"","N",""],' +
+    '["EcoO109I","RG^GNCCY",0,4,";460,7;1420,7;1463,7;2183,7","N' +
+    '",";461;1421;1464;2184"],' +
+    '["EcoP15I","CAGCAG(25/27)",0,3,";1339,6;1695,6;2584,6","N",' +
+    '";1311;1667;2614"],' +
+    '["EcoRI","G^AATTC",0,1,";1280,6","N",";1280"],' +
+    '["EcoRV","GAT^ATC",0,0,"","N",""],' +
+    '["Eco53kI","GAG^CTC",0,0,"","N",""],' +
+    '["FatI","^CATG",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;23' +
+    '49,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N","' +
+    ';946;1270;1435;1794;1807;2348;2499;2514;2654;2888;3094;3132;' +
+    '3"],' +
+    '["FauI","CCCGC(4/6)",0,5,";866,5;1232,5;1485,5;2634,5;2691,' +
+    '5","N",";859;1240;1478;2642;2684"],' +
+    '["Fnu4HI","GC^NGC",0,9,";510,5;1223,5;1667,5;1697,5;2300,5;' +
+    '2567,5;2583,5;2659,5;2672,5","N",";511;1224;1668;1698;2301;2' +
+    '568;2584;2660;2673"],' +
+    '["FokI","GGATG(9/13)",0,7,";1260,5;1657,5;1691,5;1889,5;189' +
+    '7,5;2023,5;2174,5","N",";1246;1670;1677;1875;1883;2036;2187"' +
+    '],' +
+    '["FseI","GGCCGG^CC",0,0,"","N",""],' +
+    '["FspI","TGC^GCA",0,1,";3082,6","N",";3084"],' +
+    '["HaeII","RGCGC^Y",0,2,";899,6;2719,6","N",";903;2723"],' +
+    '["HaeIII","GG^CC",0,13,";280,4;695,4;1069,4;1131,4;1268,4;1' +
+    '326,4;1584,4;1931,4;2041,4;2250,4;2395,4;2445,4;2504,4","N",' +
+    '";281;696;1070;1132;1269;1327;1585;1932;2042;2251;2396;2446;' +
+    '2505"],' +
+    '["HgaI","GACGC(5/10)",0,4,";238,5;513,5;1074,5;2471,5","N",' +
+    '";227;502;1083;2480"],' +
+    '["HhaI","GCG^C",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;280' +
+    '6,4;3083,4","N",";902;1430;2514;2691;2722;2808;3085"],' +
+    '["HinP1I","G^CGC",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;2' +
+    '806,4;3083,4","N",";900;1428;2512;2689;2720;2806;3083"],' +
+    '["HincII","GTY^RAC",0,4,";265,6;1499,6;2271,6;2964,6","N","' +
+    ';267;1501;2273;2966"],' +
+    '["HindII","GTY^RAC",0,4,";265,6;1499,6;2271,6;2964,6","N","' +
+    ';267;1501;2273;2966"],' +
+    '["HindIII","A^AGCTT",0,0,"","N",""],' +
+    '["HinfI","G^ANTC",0,17,";127,5;198,5;375,5;538,5;562,5;956,' +
+    '5;982,5;1456,5;1507,5;1526,5;1533,5;2063,5;2725,5;2760,5;282' +
+    '5,5;2943,5;2951,5","N",";127;198;375;538;562;956;982;1456;15' +
+    '07;1526;1533;2063;2725;2760;2825;2943;2951"],' +
+    '["HpaI","GTT^AAC",0,0,"","N",""],' +
+    '["HpaII","C^CGG",0,4,";430,4;1799,4;2437,4;2852,4","N",";43' +
+    '0;1799;2437;2852"],' +
+    '["HphI","GGTGA(8/7)",0,7,";145,5;150,5;917,5;1114,5;1617,5;' +
+    '2873,5;3107,5","A",";137;142;909;1106;1609;2865;3099"],' +
+    '["Hpy99I","CGWCG^",0,4,";451,5;514,5;2715,5;2884,5","N",";4' +
+    '55;518;2719;2888"],' +
+    '["Hpy166II","GTN^NAC",0,14,";143,6;265,6;681,6;1365,6;1499,' +
+    '6;1541,6;1957,6;2106,6;2271,6;2406,6;2705,6;2861,6;2902,6;29' +
+    '64,6","N",";145;267;683;1367;1501;1543;1959;2108;2273;2408;2' +
+    '707;2863;2904;2966"],' +
+    '["Hpy188I","TCN^GA",0,7,";61,5;365,5;1015,5;1376,5;1863,5;1' +
+    '909,5;2790,5","A",";63;367;1017;1378;1865;1911;2792"],' +
+    '["Hpy188III","TC^NNGA",0,18,";90,6;114,6;132,6;241,6;429,6;' +
+    '534,6;805,6;989,6;1034,6;1215,6;1356,6;1408,6;1452,6;1529,6;' +
+    '1727,6;2059,6;2591,6;2607,6","A",";91;115;133;242;430;535;80' +
+    '6;990;1035;1216;1357;1409;1453;1530;1728;2060;2592;2608"],' +
+    '["HpyAV","CCTTC(6/5)",0,12,";58,5;73,5;497,5;862,5;1012,5;1' +
+    '219,5;1291,5;1469,5;1860,5;2741,5;2773,5;2840,5","N",";68;83' +
+    ';491;856;1022;1213;1301;1479;1870;2751;2783;2850"],' +
+    '["HpyCH4III","ACN^GT",0,13,";34,5;340,5;439,5;602,5;685,5;7' +
+    '04,5;1362,5;1572,5;2001,5;2856,5;2899,5;2996,5;3141,5","N","' +
+    ';36;342;441;604;687;706;1364;1574;2003;2858;2901;2998;3143"]' +
+    ',' +
+    '["HpyCH4IV","A^CGT",0,3,";2696,4;2709,4;2883,4","N",";2696;' +
+    '2709;2883"],' +
+    '["HpyCH4V","TG^CA",0,10,";159,4;726,4;1273,4;1306,4;1806,4;' +
+    '1875,4;2347,4;2862,4;2880,4;3097,4","N",";160;727;1274;1307;' +
+    '1807;1876;2348;2863;2881;3098"],' +
+    '["KasI","G^GCGCC",0,0,"","N",""],' +
+    '["KpnI","GGTAC^C",0,0,"","N",""],' +
+    '["KspI","CCGC^GG",0,0,"","N",""],' +
+    '["MaeI","C^TAG",0,14,";91,4;202,4;242,4;250,4;467,4;815,4;8' +
+    '37,4;1461,4;1530,4;1560,4;1962,4;2564,4;2663,4;3055,4","N","' +
+    ';91;202;242;250;467;815;837;1461;1530;1560;1962;2564;2663;30' +
+    '55"],' +
+    '["MaeII","A^CGT",0,3,";2696,4;2709,4;2883,4","N",";2696;270' +
+    '9;2883"],' +
+    '["MaeIII","^GTNAC",0,6,";42,5;761,5;916,5;1478,5;2081,5;214' +
+    '2,5","N",";41;760;915;1477;2080;2141"],' +
+    '["MboI","^GATC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,4;' +
+    '1771,4;2545,4;2683,4","A",";84;231;523;937;1004;1310;1770;25' +
+    '44;2682"],' +
+    '["MboII","GAAGA(8/7)",0,13,";87,5;229,5;332,5;470,5;473,5;5' +
+    '21,5;596,5;720,5;1405,5;1681,5;1687,5;1711,5;1724,5","A",";7' +
+    '9;241;344;482;485;533;588;732;1397;1673;1679;1703;1716"],' +
+    '["MfeI","C^AATTG",0,1,";728,6","N",";728"],' +
+    '["MluI","A^CGCGT",0,0,"","N",""],' +
+    '["MluCI","^AATT",0,14,";23,4;174,4;223,4;729,4;1281,4;1554,' +
+    '4;1590,4;1763,4;1872,4;1915,4;2087,4;2153,4;2278,4;3074,4","' +
+    'N",";22;173;222;728;1280;1553;1589;1762;1871;1914;2086;2152;' +
+    '2277;3073"],' +
+    '["MluNI","TGG^CCA",0,2,";1068,6;1583,6","N",";1070;1585"],' +
+    '["MlyI","GAGTC(5/5)",0,10,";127,5;198,5;562,5;1526,5;1533,5' +
+    ';2063,5;2760,5;2825,5;2943,5;2951,5","N",";136;192;556;1535;' +
+    '1527;2072;2754;2819;2937;2945"],' +
+    '["MmeI","TCCRAC(20/18)",0,3,";1001,6;1634,6;2790,6","N",";9' +
+    '82;1659;2815"],' +
+    '["MnlI","CCTC(7/6)",0,38,";101,4;148,4;385,4;455,4;482,4;48' +
+    '7,4;620,4;903,4;975,4;1129,4;1149,4;1191,4;1198,4;1263,4;132' +
+    '4,4;1387,4;1412,4;1511,4;1606,4;1624,4;1632,4;1685,4;1706,4;' +
+    '1758,4;1774,4;1828,4;1840,4;1933,4;2537,4;2811,4;2876,4;2940' +
+    ',4;2980,4;3016,4;3028,4;3059,4;3110,4;3151,4","N",";111;158;' +
+    '395;448;492;497;630;913;985;1122;1159;1201;1208;1273;1317;13' +
+    '97;1405;1521;1616;1634;1642;1695;1716;1768;1784;1838;1850;19' +
+    '43;2547;2821;2886;2933;2973;3009;3021;3052;3120;3161"],' +
+    '["MroI","T^CCGGA",0,1,";429,6","N",";429"],' +
+    '["MscI","TGG^CCA",0,2,";1068,6;1583,6","C",";1070;1585"],' +
+    '["MseI","T^TAA",0,9,";221,4;615,4;708,4;792,4;819,4;2114,4;' +
+    '2244,4;3005,4;3040,4","N",";221;615;708;792;819;2114;2244;30' +
+    '05;3040"],' +
+    '["MslI","CAYNN^NNRTG",0,1,";270,10","N",";274"],' +
+    '["MspI","C^CGG",0,4,";430,4;1799,4;2437,4;2852,4","N",";430' +
+    ';1799;2437;2852"],' +
+    '["MspA1I","CMG^CKG",0,2,";1233,6;2076,6","N",";1235;2078"],' +
+    '["MunI","C^AATTG",0,1,";728,6","N",";728"],' +
+    '["MvaI","CC^WGG",0,8,";209,5;744,5;1066,5;1644,5;1767,5;190' +
+    '0,5;1948,5;2447,5","N",";210;745;1067;1645;1768;1901;1949;24' +
+    '48"],' +
+    '["MvnI","CG^CG",0,3,";512,4;2690,4;2821,4","N",";513;2691;2' +
+    '822"],' +
+    '["MwoI","GCNNNNN^NNGC",0,6,";1011,11;1020,11;1226,11;1798,1' +
+    '1;2505,11;2570,11","N",";1017;1026;1232;1804;2511;2576"],' +
+    '["NaeI","GCC^GGC",0,0,"","N",""],' +
+    '["NarI","GG^CGCC",0,0,"","N",""],' +
+    '["NciI","CC^SGG",0,1,";2436,5","N",";2437"],' +
+    '["NcoI","C^CATGG",0,1,";2654,6","N",";2654"],' +
+    '["NdeI","CA^TATG",0,0,"","N",""],' +
+    '["NdeII","^GATC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,4' +
+    ';1771,4;2545,4;2683,4","A",";84;231;523;937;1004;1310;1770;2' +
+    '544;2682"],' +
+    '["NgoMIV","G^CCGGC",0,0,"","N",""],' +
+    '["NheI","G^CTAGC",0,0,"","N",""],' +
+    '["NlaIII","CATG^",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;' +
+    '2349,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N"' +
+    ',";950;1274;1439;1798;1811;2352;2503;2518;2658;2892;3098;313' +
+    '6;7"],' +
+    '["NlaIV","GGN^NCC",0,15,";461,6;1004,6;1144,6;1347,6;1420,6' +
+    ';1421,6;1464,6;1770,6;1790,6;1824,6;2039,6;2183,6;2522,6;253' +
+    '3,6;2682,6","C",";463;1006;1146;1349;1422;1423;1466;1772;179' +
+    '2;1826;2041;2185;2524;2535;2684"],' +
+    '["NmeAIII","GCCGAG(21/19)",0,0,"","N",""],' +
+    '["NotI","GC^GGCCGC",0,0,"","N",""],' +
+    '["NruI","TCG^CGA",0,0,"","A",""],' +
+    '["NsiI","ATGCA^T",0,1,";2346,6","N",";2350"],' +
+    '["NspI","RCATG^Y",0,2,";2348,6;2514,6","N",";2352;2518"],' +
+    '["PacI","TTAAT^TAA",0,0,"","N",""],' +
+    '["PaeR7I","C^TCGAG",0,1,";1409,6","N",";1409"],' +
+    '["PciI","A^CATGT",0,0,"","N",""],' +
+    '["PflFI","GACN^NNGTC",0,0,"","N",""],' +
+    '["PflMI","CCANNNN^NTGG",0,4,";995,11;1270,11;1999,11;2481,1' +
+    '1","C",";1001;1276;2005;2487"],' +
+    '["PleI","GAGTC(4/5)",0,10,";127,5;198,5;562,5;1526,5;1533,5' +
+    ';2063,5;2760,5;2825,5;2943,5;2951,5","N",";135;192;556;1534;' +
+    '1527;2071;2754;2819;2937;2945"],' +
+    '["PluTI","GGCGC^C",0,0,"","N",""],' +
+    '["PmeI","GTTT^AAAC",0,0,"","N",""],' +
+    '["PmlI","CAC^GTG",0,0,"","N",""],' +
+    '["PpuMI","RG^GWCCY",0,4,";460,7;1420,7;1463,7;2183,7","C","' +
+    ';461;1421;1464;2184"],' +
+    '["PshAI","GACNN^NNGTC",0,1,";494,10","N",";498"],' +
+    '["PsiI","TTA^TAA",0,1,";15,6","N",";17"],' +
+    '["PspGI","^CCWGG",0,8,";209,5;744,5;1066,5;1644,5;1767,5;19' +
+    '00,5;1948,5;2447,5","C",";208;743;1065;1643;1766;1899;1947;2' +
+    '446"],' +
+    '["PspOMI","G^GGCCC",0,0,"","C",""],' +
+    '["PspXI","VC^TCGAGB",0,0,"","N",""],' +
+    '["PstI","CTGCA^G",0,0,"","N",""],' +
+    '["PvuI","CGAT^CG",0,0,"","N",""],' +
+    '["PvuII","CAG^CTG",0,0,"","N",""],' +
+    '["RsaI","GT^AC",0,5,";79,4;605,4;1852,4;2051,4;3052,4","N",' +
+    '";80;606;1853;2052;3053"],' +
+    '["RsrII","CG^GWCCG",0,1,";2853,7","N",";2854"],' +
+    '["SacI","GAGCT^C",0,0,"","N",""],' +
+    '["SacII","CCGC^GG",0,0,"","N",""],' +
+    '["SalI","G^TCGAC",0,0,"","N",""],' +
+    '["SapI","GCTCTTC(1/4)",0,0,"","N",""],' +
+    '["Sau96I","G^GNCC",0,12,";279,5;461,5;695,5;1421,5;1464,5;1' +
+    '791,5;1801,5;1930,5;2040,5;2184,5;2503,5;2854,5","C",";279;4' +
+    '61;695;1421;1464;1791;1801;1930;2040;2184;2503;2854"],' +
+    '["Sau3AI","^GATC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,' +
+    '4;1771,4;2545,4;2683,4","N",";84;231;523;937;1004;1310;1770;' +
+    '2544;2682"],' +
+    '["SbfI","CCTGCA^GG",0,0,"","N",""],' +
+    '["ScaI","AGT^ACT",0,0,"","N",""],' +
+    '["ScrFI","CC^NGG",0,9,";209,5;744,5;1066,5;1644,5;1767,5;19' +
+    '00,5;1948,5;2436,5;2447,5","C",";210;745;1067;1645;1768;1901' +
+    ';1949;2437;2448"],' +
+    '["SexAI","A^CCWGGT",0,0,"","C",""],' +
+    '["SfaNI","GCATC(5/9)",0,2,";2056,5;2335,5","N",";2065;2325"' +
+    '],' +
+    '["SfcI","C^TRYAG",0,2,";941,6;3063,6","N",";941;3063"],' +
+    '["SfoI","GGC^GCC",0,0,"","N",""],' +
+    '["SfuI","TT^CGAA",0,0,"","N",""],' +
+    '["SgrAI","CR^CCGGYG",0,0,"","N",""],' +
+    '["SmaI","CCC^GGG",0,0,"","N",""],' +
+    '["SmlI","C^TYRAG",0,4,";1409,6;1819,6;2060,6;2977,6","N",";' +
+    '1409;1819;2060;2977"],' +
+    '["SnaBI","TAC^GTA",0,0,"","N",""],' +
+    '["SpeI","A^CTAGT",0,1,";1961,6","N",";1961"],' +
+    '["SphI","GCATG^C",0,1,";2514,6","N",";2518"],' +
+    '["SrfI","GCCC^GGGC",0,0,"","N",""],' +
+    '["SspI","AAT^ATT",0,2,";768,6;2916,6","N",";770;2918"],' +
+    '["StuI","AGG^CCT",0,4,";1130,6;1325,6;2249,6;2394,6","C",";' +
+    '1132;1327;2251;2396"],' +
+    '["StyI","C^CWWGG",0,5,";557,6;1460,6;2654,6;2924,6;3164,6",' +
+    '"N",";557;1460;2654;2924;3164"],' +
+    '["StyD4I","^CCNGG",0,9,";209,5;744,5;1066,5;1644,5;1767,5;1' +
+    '900,5;1948,5;2436,5;2447,5","C",";208;743;1065;1643;1766;189' +
+    '9;1947;2435;2446"],' +
+    '["SwaI","ATTT^AAAT",0,0,"","N",""],' +
+    '["TaqI","T^CGA",0,2,";8,4;1410,4","A",";8;1410"],' +
+    '["TfiI","G^AWTC",0,7,";375,5;538,5;956,5;982,5;1456,5;1507,' +
+    '5;2725,5","N",";375;538;956;982;1456;1507;2725"],' +
+    '["Tru9I","T^TAA",0,9,";221,4;615,4;708,4;792,4;819,4;2114,4' +
+    ';2244,4;3005,4;3040,4","N",";221;615;708;792;819;2114;2244;3' +
+    '005;3040"],' +
+    '["TseI","G^CWGC",0,6,";1223,5;1697,5;2300,5;2583,5;2659,5;2' +
+    '672,5","N",";1223;1697;2300;2583;2659;2672"],' +
+    '["Tsp45I","^GTSAC",0,1,";916,5","N",";915"],' +
+    '["TspMI","C^CCGGG",0,0,"","N",""],' +
+    '["TspRI","CASTGNN^",0,8,";1273,7;1275,7;1975,7;1977,7;1998,' +
+    '7;2000,7;2480,7;2482,7","N",";1281;1983;2006;2488"],' +
+    '["Tth111I","GACN^NNGTC",0,0,"","N",""],' +
+    '["XbaI","T^CTAGA",0,3,";90,6;241,6;1529,6","A",";90;241;152' +
+    '9"],' +
+    '["XhoI","C^TCGAG",0,1,";1409,6","N",";1409"],' +
+    '["XmaI","C^CCGGG",0,0,"","N",""],' +
+    '["XmnI","GAANN^NNTTC",0,1,";2523,10","N",";2527"],' +
+    '["ZraI","GAC^GTC",0,1,";2695,6","N",";2697"]]';
+    return str;
+}
+
+function wdeTestDataString_015() {
+    var str = '[["AatII","GACGT^C",0,1,";2695,6","N",";2699"],' +
+    '["AccI","GT^MKAC",0,1,";2106,6","N",";2107"],' +
+    '["Acc65I","G^GTACC",1,0,"","C",""],' +
+    '["AciI","CCGC(-3/-1)",0,17,";98,4;511,4;866,4;1027,4;1122,4' +
+    ';1188,4;1233,4;1485,4;1521,4;1667,4;2076,4;2555,4;2568,4;263' +
+    '5,4;2691,4;2732,4;2822,4","N",";98;511;866;1027;1122;1188;12' +
+    '33;1485;1521;1667;2076;2555;2568;2635;2691;2732;2822"],' +
+    '["AclI","AA^CGTT",1,0,"","N",""],' +
+    '["AcuI","CTGAAG(16/14)",0,2,";74,6;1013,6","N",";59;998"],' +
+    '["AfeI","AGC^GCT",1,0,"","N",""],' +
+    '["AflII","C^TTAAG",1,0,"","N",""],' +
+    '["AflIII","A^CRYGT",1,0,"","N",""],' +
+    '["AgeI","A^CCGGT",1,0,"","N",""],' +
+    '["AhdI","GACNNN^NNGTC",0,1,";2825,11","N",";2830"],' +
+    '["AleI","CACNN^NNGTG",1,0,"","N",""],' +
+    '["AluI","AG^CT",0,6,";30,4;105,4;204,4;390,4;1091,4;3157,4"' +
+    ',"N",";31;106;205;391;1092;3158"],' +
+    '["AlwI","GGATC(4/5)",1,0,"","A",""],' +
+    '["AlwNI","CAGNNN^CTG",1,0,"","C",""],' +
+    '["ApaI","GGGCC^C",1,0,"","C",""],' +
+    '["ApaLI","G^TGCAC",0,1,";2861,6","N",";2861"],' +
+    '["ApeKI","G^CWGC",0,6,";1223,5;1697,5;2300,5;2583,5;2659,5;' +
+    '2672,5","N",";1223;1697;2300;2583;2659;2672"],' +
+    '["ApoI","R^AATTY",0,5,";22,6;1280,6;1589,6;1914,6;2152,6","' +
+    'N",";22;1280;1589;1914;2152"],' +
+    '["AscI","GG^CGCGCC",1,0,"","N",""],' +
+    '["AseI","AT^TAAT",1,0,"","N",""],' +
+    '["AsiSI","GCGAT^CGC",1,0,"","N",""],' +
+    '["Asp700I","GAANN^NNTTC",0,1,";2523,10","N",";2527"],' +
+    '["Asp718I","G^GTACC",1,0,"","C",""],' +
+    '["AvaI","C^YCGRG",0,3,";533,6;1409,6;2745,6","N",";533;1409' +
+    ';2745"],' +
+    '["AvaII","G^GWCC",0,7,";461,5;1421,5;1464,5;1791,5;1801,5;2' +
+    '184,5;2854,5","C",";461;1421;1464;1791;1801;2184;2854"],' +
+    '["AvrII","C^CTAGG",0,1,";1460,6","N",";1460"],' +
+    '["BaeGI","GKGCM^C",0,1,";2861,6","N",";2865"],' +
+    '["BamHI","G^GATCC",0,3,";1004,6;1770,6;2682,6","N",";1004;1' +
+    '770;2682"],' +
+    '["BanI","G^GYRCC",1,0,"","N",""],' +
+    '["BanII","GRGCY^C",0,1,";1145,6","N",";1149"],' +
+    '["BbrPI","CAC^GTG",1,0,"","N",""],' +
+    '["BbsI","GAAGAC(2/6)",1,0,"","N",""],' +
+    '["BbvI","GCAGC(8/12)",0,6,";1223,5;1697,5;2300,5;2583,5;265' +
+    '9,5;2672,5","N",";1235;1684;2287;2595;2646;2659"],' +
+    '["BbvCI","CCTCAGC(-5/-2)",0,2,";101,7;1933,7","N",";102;193' +
+    '4"],' +
+    '["BccI","CCATC(4/5)",0,5,";635,5;1888,5;1893,5;2136,5;2506,' +
+    '5","N",";643;1896;1901;2130;2514"],' +
+    '["BceAI","ACGGC(12/14)",0,2,";2443,5;2785,5","N",";2459;277' +
+    '0"],' +
+    '["BciVI","GTATCC(6/5)",0,1,";1835,6","N",";1846"],' +
+    '["BclI","T^GATCA",1,0,"","A",""],' +
+    '["BcoDI","GTCTC(1/5)",0,7,";129,5;245,5;320,5;433,5;501,5;1' +
+    '238,5;2893,5","N",";134;239;325;427;506;1243;2887"],' +
+    '["BfaI","C^TAG",0,14,";91,4;202,4;242,4;250,4;467,4;815,4;8' +
+    '37,4;1461,4;1530,4;1560,4;1962,4;2564,4;2663,4;3055,4","N","' +
+    ';91;202;242;250;467;815;837;1461;1530;1560;1962;2564;2663;30' +
+    '55"],' +
+    '["BfrI","C^TTAAG",1,0,"","N",""],' +
+    '["BfuAI","ACCTGC(4/8)",0,3,";458,6;1803,6;2586,6","N",";449' +
+    ';1812;2577"],' +
+    '["BfuCI","^GATC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,4' +
+    ';1771,4;2545,4;2683,4","N",";84;231;523;937;1004;1310;1770;2' +
+    '544;2682"],' +
+    '["BglI","GCCNNNN^NGGC",1,0,"","N",""],' +
+    '["BglII","A^GATCT",0,3,";84,6;523,6;937,6","N",";84;523;937' +
+    '"],' +
+    '["BlnI","C^CTAGG",0,1,";1460,6","N",";1460"],' +
+    '["BlpI","GC^TNAGC",1,0,"","N",""],' +
+    '["BmgBI","CACGTC(-3/-3)",0,1,";2882,6","N",";2884"],' +
+    '["BmrI","ACTGGG(5/4)",0,2,";584,6;3011,6","N",";594;3021"],' +
+    '["BmtI","GCTAG^C",1,0,"","N",""],' +
+    '["BpmI","CTGGAG(16/14)",0,4,";386,6;1093,6;1349,6;2592,6","' +
+    'N",";371;1114;1334;2613"],' +
+    '["Bpu10I","CCTNAGC(-5/-2)",0,4,";101,7;133,7;1155,7;1933,7"' +
+    ',"N",";102;134;1156;1934"],' +
+    '["BpuEI","CTTGAG(16/14)",0,3,";1819,6;2060,6;2977,6","N",";' +
+    '1804;2081;2998"],' +
+    '["BsaI","GGTCTC(1/5)",0,3,";245,6;500,6;2893,6","C",";239;5' +
+    '06;2887"],' +
+    '["BsaAI","YAC^GTR",1,0,"","N",""],' +
+    '["BsaBI","GATNN^NNATC",1,0,"","A",""],' +
+    '["BsaHI","GR^CGYC",0,2,";1074,6;2695,6","N",";1075;2696"],' +
+    '["BsaJI","C^CNNGG",0,8,";209,6;557,6;1460,6;1900,6;2654,6;2' +
+    '799,6;2924,6;3164,6","N",";209;557;1460;1900;2654;2799;2924;' +
+    '3164"],' +
+    '["BsaWI","W^CCGGW",0,1,";429,6","N",";429"],' +
+    '["BsaXI","(9/12)ACNNNNNCTCC(10/7)",0,4,";28,11;1383,11;2820' +
+    ',11;3030,11","N",";50;20;1373;1403;2810;2840;3052;3022"],' +
+    '["BseRI","GAGGAG(10/8)",0,4,";383,6;2535,6;3016,6;3028,6","' +
+    'N",";374;2526;3031;3043"],' +
+    '["BseYI","CCCAGC(-5/-1)",0,3,";182,6;1106,6;2487,6","N",";1' +
+    '82;1106;2487"],' +
+    '["BsgI","GTGCAG(16/14)",0,2,";158,6;2879,6","N",";143;2864"' +
+    '],' +
+    '["BsiEI","CGRY^CG",0,2,";2792,6;2969,6","N",";2795;2972"],' +
+    '["BsiHKAI","GWGCW^C",0,1,";2861,6","N",";2865"],' +
+    '["BsiWI","C^GTACG",1,0,"","N",""],' +
+    '["BslI","CCNNNNN^NNGG",0,14,";995,11;1119,11;1122,11;1270,1' +
+    '1;1338,11;1860,11;1999,11;2430,11;2436,11;2481,11;2548,11;27' +
+    '40,11;2741,11;2795,11","N",";1001;1125;1128;1276;1344;1866;2' +
+    '005;2436;2442;2487;2554;2746;2747;2801"],' +
+    '["BsmI","GAATGC(1/-1)",0,1,";1098,6","N",";1098"],' +
+    '["BsmAI","GTCTC(1/5)",0,7,";129,5;245,5;320,5;433,5;501,5;1' +
+    '238,5;2893,5","N",";134;239;325;427;506;1243;2887"],' +
+    '["BsmBI","CGTCTC(1/5)",1,0,"","N",""],' +
+    '["BsmFI","GGGAC(10/14)",0,11,";462,5;1042,5;1420,5;1598,5;1' +
+    '790,5;2065,5;2609,5;2693,5;2711,5;2758,5;2769,5","N",";447;1' +
+    '056;1434;1583;1804;2050;2623;2707;2696;2772;2754"],' +
+    '["BsoBI","C^YCGRG",0,3,";533,6;1409,6;2745,6","N",";533;140' +
+    '9;2745"],' +
+    '["Bsp1286I","GDGCH^C",0,2,";1145,6;2861,6","N",";1149;2865"' +
+    '],' +
+    '["BspCNI","CTCAG(9/7)",0,9,";102,5;134,5;163,5;1150,5;1156,' +
+    '5;1264,5;1934,5;1953,5;2955,5","N",";115;126;176;1163;1169;1' +
+    '277;1947;1966;2968"],' +
+    '["BspDI","AT^CGAT",1,0,"","A",""],' +
+    '["BspEI","T^CCGGA",0,1,";429,6","A",";429"],' +
+    '["BspHI","T^CATGA",1,0,"","A",""],' +
+    '["BspMI","ACCTGC(4/8)",0,3,";458,6;1803,6;2586,6","N",";449' +
+    ';1812;2577"],' +
+    '["BspQI","GCTCTTC(1/4)",1,0,"","N",""],' +
+    '["BsrI","ACTGG(1/-1)",0,7,";584,5;998,5;1211,5;1351,5;2483,' +
+    '5;2679,5;3011,5","N",";589;998;1211;1351;2488;2684;3016"],' +
+    '["BsrBI","CCGCTC(-3/-3)",1,0,"","N",""],' +
+    '["BsrDI","GCAATG(2/0)",0,1,";2959,6","N",";2966"],' +
+    '["BsrFI","R^CCGGY",1,0,"","N",""],' +
+    '["BsrGI","T^GTACA",0,1,";2050,6","N",";2050"],' +
+    '["BssHII","G^CGCGC",1,0,"","N",""],' +
+    '["BssSI","CACGAG(-5/-1)",0,2,";1473,6;1535,6","N",";1473;15' +
+    '35"],' +
+    '["BstAPI","GCANNNN^NTGC",1,0,"","N",""],' +
+    '["BstBI","TT^CGAA",1,0,"","N",""],' +
+    '["BstEII","G^GTNACC",0,2,";760,7;915,7","N",";760;915"],' +
+    '["BstNI","CC^WGG",0,8,";209,5;744,5;1066,5;1644,5;1767,5;19' +
+    '00,5;1948,5;2447,5","N",";210;745;1067;1645;1768;1901;1949;2' +
+    '448"],' +
+    '["BstUI","CG^CG",0,3,";512,4;2690,4;2821,4","N",";513;2691;' +
+    '2822"],' +
+    '["BstXI","CCANNNNN^NTGG",0,2,";920,12;1893,12","N",";927;19' +
+    '00"],' +
+    '["BstYI","R^GATCY",0,8,";84,6;231,6;523,6;937,6;1004,6;1310' +
+    ',6;1770,6;2682,6","N",";84;231;523;937;1004;1310;1770;2682"]' +
+    ',' +
+    '["BstZ17I","GTA^TAC",0,1,";2106,6","N",";2108"],' +
+    '["Bsu36I","CC^TNAGG",0,2,";1149,7;1263,7","N",";1150;1264"]' +
+    ',' +
+    '["BtgI","C^CRYGG",0,2,";2654,6;2799,6","N",";2654;2799"],' +
+    '["BtgZI","GCGATG(10/14)",1,0,"","N",""],' +
+    '["BtsI","GCAGTG(2/0)",0,1,";1274,6","N",";1281"],' +
+    '["BtsIMutI","CAGTG(2/0)",0,4,";1275,5;1977,5;2000,5;2482,5"' +
+    ',"N",";1281;1983;1999;2481"],' +
+    '["BtsCI","GGATG(2/0)",0,7,";1260,5;1657,5;1691,5;1889,5;189' +
+    '7,5;2023,5;2174,5","N",";1259;1663;1690;1888;1896;2029;2180"' +
+    '],' +
+    '["Cac8I","GCN^NGC",0,6,";168,6;739,6;1178,6;2365,6;2514,6;2' +
+    '579,6","N",";170;741;1180;2367;2516;2581"],' +
+    '["CfoI","GCG^C",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;280' +
+    '6,4;3083,4","N",";902;1430;2514;2691;2722;2808;3085"],' +
+    '["ClaI","AT^CGAT",1,0,"","A",""],' +
+    '["CviAII","C^ATG",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;' +
+    '2349,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N"' +
+    ',";947;1271;1436;1795;1808;2349;2500;2515;2655;2889;3095;313' +
+    '3;4"],' +
+    '["CviQI","G^TAC",0,5,";79,4;605,4;1852,4;2051,4;3052,4","N"' +
+    ',";79;605;1852;2051;3052"],' +
+    '["DdeI","C^TNAG",0,11,";102,5;123,5;134,5;163,5;1150,5;1156' +
+    ',5;1264,5;1934,5;1953,5;2361,5;2955,5","N",";102;123;134;163' +
+    ';1150;1156;1264;1934;1953;2361;2955"],' +
+    '["DpnI","GA^TC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,4;' +
+    '1771,4;2545,4;2683,4","N",";86;233;525;939;1006;1312;1772;25' +
+    '46;2684"],' +
+    '["DpnII","^GATC",1,0,"","A",""],' +
+    '["DraI","TTT^AAA",0,2,";2113,6;3004,6","N",";2115;3006"],' +
+    '["DraIII","CACNNN^GTG",0,1,";2313,9","N",";2318"],' +
+    '["DrdI","GACNNNN^NNGTC",0,2,";247,12;2760,12","N",";253;276' +
+    '6"],' +
+    '["EaeI","Y^GGCCR",0,1,";1583,6","C",";1583"],' +
+    '["EagI","C^GGCCG",1,0,"","N",""],' +
+    '["EarI","CTCTTC(1/4)",0,2,";332,6;1686,6","N",";327;1692"],' +
+    '["EciI","GGCGGA(11/9)",0,1,";1187,6","A",";1177"],' +
+    '["Eco47III","AGC^GCT",1,0,"","N",""],' +
+    '["EcoNI","CCTNN^NNNAGG",1,0,"","N",""],' +
+    '["EcoO109I","RG^GNCCY",0,4,";460,7;1420,7;1463,7;2183,7","N' +
+    '",";461;1421;1464;2184"],' +
+    '["EcoP15I","CAGCAG(25/27)",0,3,";1339,6;1695,6;2584,6","N",' +
+    '";1311;1667;2614"],' +
+    '["EcoRI","G^AATTC",0,1,";1280,6","N",";1280"],' +
+    '["EcoRV","GAT^ATC",1,0,"","N",""],' +
+    '["Eco53kI","GAG^CTC",1,0,"","N",""],' +
+    '["FatI","^CATG",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;23' +
+    '49,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N","' +
+    ';946;1270;1435;1794;1807;2348;2499;2514;2654;2888;3094;3132;' +
+    '3"],' +
+    '["FauI","CCCGC(4/6)",0,5,";866,5;1232,5;1485,5;2634,5;2691,' +
+    '5","N",";859;1240;1478;2642;2684"],' +
+    '["Fnu4HI","GC^NGC",0,9,";510,5;1223,5;1667,5;1697,5;2300,5;' +
+    '2567,5;2583,5;2659,5;2672,5","N",";511;1224;1668;1698;2301;2' +
+    '568;2584;2660;2673"],' +
+    '["FokI","GGATG(9/13)",0,7,";1260,5;1657,5;1691,5;1889,5;189' +
+    '7,5;2023,5;2174,5","N",";1246;1670;1677;1875;1883;2036;2187"' +
+    '],' +
+    '["FseI","GGCCGG^CC",1,0,"","N",""],' +
+    '["FspI","TGC^GCA",0,1,";3082,6","N",";3084"],' +
+    '["HaeII","RGCGC^Y",0,2,";899,6;2719,6","N",";903;2723"],' +
+    '["HaeIII","GG^CC",0,13,";280,4;695,4;1069,4;1131,4;1268,4;1' +
+    '326,4;1584,4;1931,4;2041,4;2250,4;2395,4;2445,4;2504,4","N",' +
+    '";281;696;1070;1132;1269;1327;1585;1932;2042;2251;2396;2446;' +
+    '2505"],' +
+    '["HgaI","GACGC(5/10)",0,4,";238,5;513,5;1074,5;2471,5","N",' +
+    '";227;502;1083;2480"],' +
+    '["HhaI","GCG^C",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;280' +
+    '6,4;3083,4","N",";902;1430;2514;2691;2722;2808;3085"],' +
+    '["HinP1I","G^CGC",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;2' +
+    '806,4;3083,4","N",";900;1428;2512;2689;2720;2806;3083"],' +
+    '["HincII","GTY^RAC",0,4,";265,6;1499,6;2271,6;2964,6","N","' +
+    ';267;1501;2273;2966"],' +
+    '["HindII","GTY^RAC",0,4,";265,6;1499,6;2271,6;2964,6","N","' +
+    ';267;1501;2273;2966"],' +
+    '["HindIII","A^AGCTT",1,0,"","N",""],' +
+    '["HinfI","G^ANTC",0,17,";127,5;198,5;375,5;538,5;562,5;956,' +
+    '5;982,5;1456,5;1507,5;1526,5;1533,5;2063,5;2725,5;2760,5;282' +
+    '5,5;2943,5;2951,5","N",";127;198;375;538;562;956;982;1456;15' +
+    '07;1526;1533;2063;2725;2760;2825;2943;2951"],' +
+    '["HpaI","GTT^AAC",1,0,"","N",""],' +
+    '["HpaII","C^CGG",0,4,";430,4;1799,4;2437,4;2852,4","N",";43' +
+    '0;1799;2437;2852"],' +
+    '["HphI","GGTGA(8/7)",0,7,";145,5;150,5;917,5;1114,5;1617,5;' +
+    '2873,5;3107,5","A",";137;142;909;1106;1609;2865;3099"],' +
+    '["Hpy99I","CGWCG^",0,4,";451,5;514,5;2715,5;2884,5","N",";4' +
+    '55;518;2719;2888"],' +
+    '["Hpy166II","GTN^NAC",0,14,";143,6;265,6;681,6;1365,6;1499,' +
+    '6;1541,6;1957,6;2106,6;2271,6;2406,6;2705,6;2861,6;2902,6;29' +
+    '64,6","N",";145;267;683;1367;1501;1543;1959;2108;2273;2408;2' +
+    '707;2863;2904;2966"],' +
+    '["Hpy188I","TCN^GA",0,7,";61,5;365,5;1015,5;1376,5;1863,5;1' +
+    '909,5;2790,5","A",";63;367;1017;1378;1865;1911;2792"],' +
+    '["Hpy188III","TC^NNGA",0,18,";90,6;114,6;132,6;241,6;429,6;' +
+    '534,6;805,6;989,6;1034,6;1215,6;1356,6;1408,6;1452,6;1529,6;' +
+    '1727,6;2059,6;2591,6;2607,6","A",";91;115;133;242;430;535;80' +
+    '6;990;1035;1216;1357;1409;1453;1530;1728;2060;2592;2608"],' +
+    '["HpyAV","CCTTC(6/5)",0,12,";58,5;73,5;497,5;862,5;1012,5;1' +
+    '219,5;1291,5;1469,5;1860,5;2741,5;2773,5;2840,5","N",";68;83' +
+    ';491;856;1022;1213;1301;1479;1870;2751;2783;2850"],' +
+    '["HpyCH4III","ACN^GT",0,13,";34,5;340,5;439,5;602,5;685,5;7' +
+    '04,5;1362,5;1572,5;2001,5;2856,5;2899,5;2996,5;3141,5","N","' +
+    ';36;342;441;604;687;706;1364;1574;2003;2858;2901;2998;3143"]' +
+    ',' +
+    '["HpyCH4IV","A^CGT",0,3,";2696,4;2709,4;2883,4","N",";2696;' +
+    '2709;2883"],' +
+    '["HpyCH4V","TG^CA",0,10,";159,4;726,4;1273,4;1306,4;1806,4;' +
+    '1875,4;2347,4;2862,4;2880,4;3097,4","N",";160;727;1274;1307;' +
+    '1807;1876;2348;2863;2881;3098"],' +
+    '["KasI","G^GCGCC",1,0,"","N",""],' +
+    '["KpnI","GGTAC^C",1,0,"","N",""],' +
+    '["KspI","CCGC^GG",1,0,"","N",""],' +
+    '["MaeI","C^TAG",0,14,";91,4;202,4;242,4;250,4;467,4;815,4;8' +
+    '37,4;1461,4;1530,4;1560,4;1962,4;2564,4;2663,4;3055,4","N","' +
+    ';91;202;242;250;467;815;837;1461;1530;1560;1962;2564;2663;30' +
+    '55"],' +
+    '["MaeII","A^CGT",0,3,";2696,4;2709,4;2883,4","N",";2696;270' +
+    '9;2883"],' +
+    '["MaeIII","^GTNAC",0,6,";42,5;761,5;916,5;1478,5;2081,5;214' +
+    '2,5","N",";41;760;915;1477;2080;2141"],' +
+    '["MboI","^GATC",1,0,"","A",""],' +
+    '["MboII","GAAGA(8/7)",0,10,";332,5;470,5;473,5;596,5;720,5;' +
+    '1405,5;1681,5;1687,5;1711,5;1724,5","A",";344;482;485;588;73' +
+    '2;1397;1673;1679;1703;1716"],' +
+    '["MfeI","C^AATTG",0,1,";728,6","N",";728"],' +
+    '["MluI","A^CGCGT",1,0,"","N",""],' +
+    '["MluCI","^AATT",0,14,";23,4;174,4;223,4;729,4;1281,4;1554,' +
+    '4;1590,4;1763,4;1872,4;1915,4;2087,4;2153,4;2278,4;3074,4","' +
+    'N",";22;173;222;728;1280;1553;1589;1762;1871;1914;2086;2152;' +
+    '2277;3073"],' +
+    '["MluNI","TGG^CCA",0,2,";1068,6;1583,6","N",";1070;1585"],' +
+    '["MlyI","GAGTC(5/5)",0,10,";127,5;198,5;562,5;1526,5;1533,5' +
+    ';2063,5;2760,5;2825,5;2943,5;2951,5","N",";136;192;556;1535;' +
+    '1527;2072;2754;2819;2937;2945"],' +
+    '["MmeI","TCCRAC(20/18)",0,3,";1001,6;1634,6;2790,6","N",";9' +
+    '82;1659;2815"],' +
+    '["MnlI","CCTC(7/6)",0,38,";101,4;148,4;385,4;455,4;482,4;48' +
+    '7,4;620,4;903,4;975,4;1129,4;1149,4;1191,4;1198,4;1263,4;132' +
+    '4,4;1387,4;1412,4;1511,4;1606,4;1624,4;1632,4;1685,4;1706,4;' +
+    '1758,4;1774,4;1828,4;1840,4;1933,4;2537,4;2811,4;2876,4;2940' +
+    ',4;2980,4;3016,4;3028,4;3059,4;3110,4;3151,4","N",";111;158;' +
+    '395;448;492;497;630;913;985;1122;1159;1201;1208;1273;1317;13' +
+    '97;1405;1521;1616;1634;1642;1695;1716;1768;1784;1838;1850;19' +
+    '43;2547;2821;2886;2933;2973;3009;3021;3052;3120;3161"],' +
+    '["MroI","T^CCGGA",0,1,";429,6","N",";429"],' +
+    '["MscI","TGG^CCA",0,1,";1583,6","C",";1585"],' +
+    '["MseI","T^TAA",0,9,";221,4;615,4;708,4;792,4;819,4;2114,4;' +
+    '2244,4;3005,4;3040,4","N",";221;615;708;792;819;2114;2244;30' +
+    '05;3040"],' +
+    '["MslI","CAYNN^NNRTG",0,1,";270,10","N",";274"],' +
+    '["MspI","C^CGG",0,4,";430,4;1799,4;2437,4;2852,4","N",";430' +
+    ';1799;2437;2852"],' +
+    '["MspA1I","CMG^CKG",0,2,";1233,6;2076,6","N",";1235;2078"],' +
+    '["MunI","C^AATTG",0,1,";728,6","N",";728"],' +
+    '["MvaI","CC^WGG",0,8,";209,5;744,5;1066,5;1644,5;1767,5;190' +
+    '0,5;1948,5;2447,5","N",";210;745;1067;1645;1768;1901;1949;24' +
+    '48"],' +
+    '["MvnI","CG^CG",0,3,";512,4;2690,4;2821,4","N",";513;2691;2' +
+    '822"],' +
+    '["MwoI","GCNNNNN^NNGC",0,6,";1011,11;1020,11;1226,11;1798,1' +
+    '1;2505,11;2570,11","N",";1017;1026;1232;1804;2511;2576"],' +
+    '["NaeI","GCC^GGC",1,0,"","N",""],' +
+    '["NarI","GG^CGCC",1,0,"","N",""],' +
+    '["NciI","CC^SGG",0,1,";2436,5","N",";2437"],' +
+    '["NcoI","C^CATGG",0,1,";2654,6","N",";2654"],' +
+    '["NdeI","CA^TATG",1,0,"","N",""],' +
+    '["NdeII","^GATC",1,0,"","A",""],' +
+    '["NgoMIV","G^CCGGC",1,0,"","N",""],' +
+    '["NheI","G^CTAGC",1,0,"","N",""],' +
+    '["NlaIII","CATG^",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;' +
+    '2349,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N"' +
+    ',";950;1274;1439;1798;1811;2352;2503;2518;2658;2892;3098;313' +
+    '6;7"],' +
+    '["NlaIV","GGN^NCC",0,14,";461,6;1004,6;1144,6;1347,6;1420,6' +
+    ';1421,6;1464,6;1790,6;1824,6;2039,6;2183,6;2522,6;2533,6;268' +
+    '2,6","C",";463;1006;1146;1349;1422;1423;1466;1792;1826;2041;' +
+    '2185;2524;2535;2684"],' +
+    '["NmeAIII","GCCGAG(21/19)",1,0,"","N",""],' +
+    '["NotI","GC^GGCCGC",1,0,"","N",""],' +
+    '["NruI","TCG^CGA",1,0,"","A",""],' +
+    '["NsiI","ATGCA^T",0,1,";2346,6","N",";2350"],' +
+    '["NspI","RCATG^Y",0,2,";2348,6;2514,6","N",";2352;2518"],' +
+    '["PacI","TTAAT^TAA",1,0,"","N",""],' +
+    '["PaeR7I","C^TCGAG",0,1,";1409,6","N",";1409"],' +
+    '["PciI","A^CATGT",1,0,"","N",""],' +
+    '["PflFI","GACN^NNGTC",1,0,"","N",""],' +
+    '["PflMI","CCANNNN^NTGG",0,4,";995,11;1270,11;1999,11;2481,1' +
+    '1","C",";1001;1276;2005;2487"],' +
+    '["PleI","GAGTC(4/5)",0,10,";127,5;198,5;562,5;1526,5;1533,5' +
+    ';2063,5;2760,5;2825,5;2943,5;2951,5","N",";135;192;556;1534;' +
+    '1527;2071;2754;2819;2937;2945"],' +
+    '["PluTI","GGCGC^C",1,0,"","N",""],' +
+    '["PmeI","GTTT^AAAC",1,0,"","N",""],' +
+    '["PmlI","CAC^GTG",1,0,"","N",""],' +
+    '["PpuMI","RG^GWCCY",0,4,";460,7;1420,7;1463,7;2183,7","C","' +
+    ';461;1421;1464;2184"],' +
+    '["PshAI","GACNN^NNGTC",0,1,";494,10","N",";498"],' +
+    '["PsiI","TTA^TAA",0,1,";15,6","N",";17"],' +
+    '["PspGI","^CCWGG",1,0,"","C",""],' +
+    '["PspOMI","G^GGCCC",1,0,"","C",""],' +
+    '["PspXI","VC^TCGAGB",1,0,"","N",""],' +
+    '["PstI","CTGCA^G",1,0,"","N",""],' +
+    '["PvuI","CGAT^CG",1,0,"","N",""],' +
+    '["PvuII","CAG^CTG",1,0,"","N",""],' +
+    '["RsaI","GT^AC",0,5,";79,4;605,4;1852,4;2051,4;3052,4","N",' +
+    '";80;606;1853;2052;3053"],' +
+    '["RsrII","CG^GWCCG",0,1,";2853,7","N",";2854"],' +
+    '["SacI","GAGCT^C",1,0,"","N",""],' +
+    '["SacII","CCGC^GG",1,0,"","N",""],' +
+    '["SalI","G^TCGAC",1,0,"","N",""],' +
+    '["SapI","GCTCTTC(1/4)",1,0,"","N",""],' +
+    '["Sau96I","G^GNCC",0,12,";279,5;461,5;695,5;1421,5;1464,5;1' +
+    '791,5;1801,5;1930,5;2040,5;2184,5;2503,5;2854,5","C",";279;4' +
+    '61;695;1421;1464;1791;1801;1930;2040;2184;2503;2854"],' +
+    '["Sau3AI","^GATC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,' +
+    '4;1771,4;2545,4;2683,4","N",";84;231;523;937;1004;1310;1770;' +
+    '2544;2682"],' +
+    '["SbfI","CCTGCA^GG",1,0,"","N",""],' +
+    '["ScaI","AGT^ACT",1,0,"","N",""],' +
+    '["ScrFI","CC^NGG",0,1,";2436,5","C",";2437"],' +
+    '["SexAI","A^CCWGGT",1,0,"","C",""],' +
+    '["SfaNI","GCATC(5/9)",0,2,";2056,5;2335,5","N",";2065;2325"' +
+    '],' +
+    '["SfcI","C^TRYAG",0,2,";941,6;3063,6","N",";941;3063"],' +
+    '["SfoI","GGC^GCC",1,0,"","N",""],' +
+    '["SfuI","TT^CGAA",1,0,"","N",""],' +
+    '["SgrAI","CR^CCGGYG",1,0,"","N",""],' +
+    '["SmaI","CCC^GGG",1,0,"","N",""],' +
+    '["SmlI","C^TYRAG",0,4,";1409,6;1819,6;2060,6;2977,6","N",";' +
+    '1409;1819;2060;2977"],' +
+    '["SnaBI","TAC^GTA",1,0,"","N",""],' +
+    '["SpeI","A^CTAGT",0,1,";1961,6","N",";1961"],' +
+    '["SphI","GCATG^C",0,1,";2514,6","N",";2518"],' +
+    '["SrfI","GCCC^GGGC",1,0,"","N",""],' +
+    '["SspI","AAT^ATT",0,2,";768,6;2916,6","N",";770;2918"],' +
+    '["StuI","AGG^CCT",0,4,";1130,6;1325,6;2249,6;2394,6","C",";' +
+    '1132;1327;2251;2396"],' +
+    '["StyI","C^CWWGG",0,5,";557,6;1460,6;2654,6;2924,6;3164,6",' +
+    '"N",";557;1460;2654;2924;3164"],' +
+    '["StyD4I","^CCNGG",0,1,";2436,5","C",";2435"],' +
+    '["SwaI","ATTT^AAAT",1,0,"","N",""],' +
+    '["TaqI","T^CGA",0,2,";8,4;1410,4","A",";8;1410"],' +
+    '["TfiI","G^AWTC",0,7,";375,5;538,5;956,5;982,5;1456,5;1507,' +
+    '5;2725,5","N",";375;538;956;982;1456;1507;2725"],' +
+    '["Tru9I","T^TAA",0,9,";221,4;615,4;708,4;792,4;819,4;2114,4' +
+    ';2244,4;3005,4;3040,4","N",";221;615;708;792;819;2114;2244;3' +
+    '005;3040"],' +
+    '["TseI","G^CWGC",0,6,";1223,5;1697,5;2300,5;2583,5;2659,5;2' +
+    '672,5","N",";1223;1697;2300;2583;2659;2672"],' +
+    '["Tsp45I","^GTSAC",0,1,";916,5","N",";915"],' +
+    '["TspMI","C^CCGGG",1,0,"","N",""],' +
+    '["TspRI","CASTGNN^",0,8,";1273,7;1275,7;1975,7;1977,7;1998,' +
+    '7;2000,7;2480,7;2482,7","N",";1281;1983;2006;2488"],' +
+    '["Tth111I","GACN^NNGTC",1,0,"","N",""],' +
+    '["XbaI","T^CTAGA",0,3,";90,6;241,6;1529,6","A",";90;241;152' +
+    '9"],' +
+    '["XhoI","C^TCGAG",0,1,";1409,6","N",";1409"],' +
+    '["XmaI","C^CCGGG",1,0,"","N",""],' +
+    '["XmnI","GAANN^NNTTC",0,1,";2523,10","N",";2527"],' +
+    '["ZraI","GAC^GTC",0,1,";2695,6","N",";2697"]]';
+    return str;
+}
+
+function wdeTestDataString_016() {
+    var str = '[["AatII","GACGT^C",0,1,";2695,6","N",";2699"],' +
+    '["AccI","GT^MKAC",0,1,";2106,6","N",";2107"],' +
+    '["Acc65I","G^GTACC",0,0,"","C",""],' +
+    '["AciI","CCGC(-3/-1)",1,17,";98,4;511,4;866,4;1027,4;1122,4' +
+    ';1188,4;1233,4;1485,4;1521,4;1667,4;2076,4;2555,4;2568,4;263' +
+    '5,4;2691,4;2732,4;2822,4","N",";98;511;866;1027;1122;1188;12' +
+    '33;1485;1521;1667;2076;2555;2568;2635;2691;2732;2822"],' +
+    '["AclI","AA^CGTT",0,0,"","N",""],' +
+    '["AcuI","CTGAAG(16/14)",0,2,";74,6;1013,6","N",";59;998"],' +
+    '["AfeI","AGC^GCT",0,0,"","N",""],' +
+    '["AflII","C^TTAAG",0,0,"","N",""],' +
+    '["AflIII","A^CRYGT",0,0,"","N",""],' +
+    '["AgeI","A^CCGGT",0,0,"","N",""],' +
+    '["AhdI","GACNNN^NNGTC",0,1,";2825,11","N",";2830"],' +
+    '["AleI","CACNN^NNGTG",0,0,"","N",""],' +
+    '["AluI","AG^CT",1,6,";30,4;105,4;204,4;390,4;1091,4;3157,4"' +
+    ',"N",";31;106;205;391;1092;3158"],' +
+    '["AlwI","GGATC(4/5)",0,0,"","A",""],' +
+    '["AlwNI","CAGNNN^CTG",0,0,"","C",""],' +
+    '["ApaI","GGGCC^C",0,0,"","C",""],' +
+    '["ApaLI","G^TGCAC",0,1,";2861,6","N",";2861"],' +
+    '["ApeKI","G^CWGC",1,6,";1223,5;1697,5;2300,5;2583,5;2659,5;' +
+    '2672,5","N",";1223;1697;2300;2583;2659;2672"],' +
+    '["ApoI","R^AATTY",1,5,";22,6;1280,6;1589,6;1914,6;2152,6","' +
+    'N",";22;1280;1589;1914;2152"],' +
+    '["AscI","GG^CGCGCC",0,0,"","N",""],' +
+    '["AseI","AT^TAAT",0,0,"","N",""],' +
+    '["AsiSI","GCGAT^CGC",0,0,"","N",""],' +
+    '["Asp700I","GAANN^NNTTC",0,1,";2523,10","N",";2527"],' +
+    '["Asp718I","G^GTACC",0,0,"","C",""],' +
+    '["AvaI","C^YCGRG",1,3,";533,6;1409,6;2745,6","N",";533;1409' +
+    ';2745"],' +
+    '["AvaII","G^GWCC",1,7,";461,5;1421,5;1464,5;1791,5;1801,5;2' +
+    '184,5;2854,5","C",";461;1421;1464;1791;1801;2184;2854"],' +
+    '["AvrII","C^CTAGG",0,1,";1460,6","N",";1460"],' +
+    '["BaeGI","GKGCM^C",0,1,";2861,6","N",";2865"],' +
+    '["BamHI","G^GATCC",1,3,";1004,6;1770,6;2682,6","N",";1004;1' +
+    '770;2682"],' +
+    '["BanI","G^GYRCC",0,0,"","N",""],' +
+    '["BanII","GRGCY^C",0,1,";1145,6","N",";1149"],' +
+    '["BbrPI","CAC^GTG",0,0,"","N",""],' +
+    '["BbsI","GAAGAC(2/6)",0,0,"","N",""],' +
+    '["BbvI","GCAGC(8/12)",1,6,";1223,5;1697,5;2300,5;2583,5;265' +
+    '9,5;2672,5","N",";1235;1684;2287;2595;2646;2659"],' +
+    '["BbvCI","CCTCAGC(-5/-2)",0,2,";101,7;1933,7","N",";102;193' +
+    '4"],' +
+    '["BccI","CCATC(4/5)",1,5,";635,5;1888,5;1893,5;2136,5;2506,' +
+    '5","N",";643;1896;1901;2130;2514"],' +
+    '["BceAI","ACGGC(12/14)",0,2,";2443,5;2785,5","N",";2459;277' +
+    '0"],' +
+    '["BciVI","GTATCC(6/5)",0,1,";1835,6","N",";1846"],' +
+    '["BclI","T^GATCA",0,0,"","A",""],' +
+    '["BcoDI","GTCTC(1/5)",1,7,";129,5;245,5;320,5;433,5;501,5;1' +
+    '238,5;2893,5","N",";134;239;325;427;506;1243;2887"],' +
+    '["BfaI","C^TAG",1,14,";91,4;202,4;242,4;250,4;467,4;815,4;8' +
+    '37,4;1461,4;1530,4;1560,4;1962,4;2564,4;2663,4;3055,4","N","' +
+    ';91;202;242;250;467;815;837;1461;1530;1560;1962;2564;2663;30' +
+    '55"],' +
+    '["BfrI","C^TTAAG",0,0,"","N",""],' +
+    '["BfuAI","ACCTGC(4/8)",1,3,";458,6;1803,6;2586,6","N",";449' +
+    ';1812;2577"],' +
+    '["BfuCI","^GATC",1,9,";85,4;232,4;524,4;938,4;1005,4;1311,4' +
+    ';1771,4;2545,4;2683,4","N",";84;231;523;937;1004;1310;1770;2' +
+    '544;2682"],' +
+    '["BglI","GCCNNNN^NGGC",0,0,"","N",""],' +
+    '["BglII","A^GATCT",1,3,";84,6;523,6;937,6","N",";84;523;937' +
+    '"],' +
+    '["BlnI","C^CTAGG",0,1,";1460,6","N",";1460"],' +
+    '["BlpI","GC^TNAGC",0,0,"","N",""],' +
+    '["BmgBI","CACGTC(-3/-3)",0,1,";2882,6","N",";2884"],' +
+    '["BmrI","ACTGGG(5/4)",0,2,";584,6;3011,6","N",";594;3021"],' +
+    '["BmtI","GCTAG^C",0,0,"","N",""],' +
+    '["BpmI","CTGGAG(16/14)",1,4,";386,6;1093,6;1349,6;2592,6","' +
+    'N",";371;1114;1334;2613"],' +
+    '["Bpu10I","CCTNAGC(-5/-2)",1,4,";101,7;133,7;1155,7;1933,7"' +
+    ',"N",";102;134;1156;1934"],' +
+    '["BpuEI","CTTGAG(16/14)",1,3,";1819,6;2060,6;2977,6","N",";' +
+    '1804;2081;2998"],' +
+    '["BsaI","GGTCTC(1/5)",1,3,";245,6;500,6;2893,6","C",";239;5' +
+    '06;2887"],' +
+    '["BsaAI","YAC^GTR",0,0,"","N",""],' +
+    '["BsaBI","GATNN^NNATC",0,0,"","A",""],' +
+    '["BsaHI","GR^CGYC",0,2,";1074,6;2695,6","N",";1075;2696"],' +
+    '["BsaJI","C^CNNGG",1,8,";209,6;557,6;1460,6;1900,6;2654,6;2' +
+    '799,6;2924,6;3164,6","N",";209;557;1460;1900;2654;2799;2924;' +
+    '3164"],' +
+    '["BsaWI","W^CCGGW",0,1,";429,6","N",";429"],' +
+    '["BsaXI","(9/12)ACNNNNNCTCC(10/7)",1,4,";28,11;1383,11;2820' +
+    ',11;3030,11","N",";50;20;1373;1403;2810;2840;3052;3022"],' +
+    '["BseRI","GAGGAG(10/8)",1,4,";383,6;2535,6;3016,6;3028,6","' +
+    'N",";374;2526;3031;3043"],' +
+    '["BseYI","CCCAGC(-5/-1)",1,3,";182,6;1106,6;2487,6","N",";1' +
+    '82;1106;2487"],' +
+    '["BsgI","GTGCAG(16/14)",0,2,";158,6;2879,6","N",";143;2864"' +
+    '],' +
+    '["BsiEI","CGRY^CG",0,2,";2792,6;2969,6","N",";2795;2972"],' +
+    '["BsiHKAI","GWGCW^C",0,1,";2861,6","N",";2865"],' +
+    '["BsiWI","C^GTACG",0,0,"","N",""],' +
+    '["BslI","CCNNNNN^NNGG",1,14,";995,11;1119,11;1122,11;1270,1' +
+    '1;1338,11;1860,11;1999,11;2430,11;2436,11;2481,11;2548,11;27' +
+    '40,11;2741,11;2795,11","N",";1001;1125;1128;1276;1344;1866;2' +
+    '005;2436;2442;2487;2554;2746;2747;2801"],' +
+    '["BsmI","GAATGC(1/-1)",0,1,";1098,6","N",";1098"],' +
+    '["BsmAI","GTCTC(1/5)",1,7,";129,5;245,5;320,5;433,5;501,5;1' +
+    '238,5;2893,5","N",";134;239;325;427;506;1243;2887"],' +
+    '["BsmBI","CGTCTC(1/5)",0,0,"","N",""],' +
+    '["BsmFI","GGGAC(10/14)",1,11,";462,5;1042,5;1420,5;1598,5;1' +
+    '790,5;2065,5;2609,5;2693,5;2711,5;2758,5;2769,5","N",";447;1' +
+    '056;1434;1583;1804;2050;2623;2707;2696;2772;2754"],' +
+    '["BsoBI","C^YCGRG",1,3,";533,6;1409,6;2745,6","N",";533;140' +
+    '9;2745"],' +
+    '["Bsp1286I","GDGCH^C",0,2,";1145,6;2861,6","N",";1149;2865"' +
+    '],' +
+    '["BspCNI","CTCAG(9/7)",1,9,";102,5;134,5;163,5;1150,5;1156,' +
+    '5;1264,5;1934,5;1953,5;2955,5","N",";115;126;176;1163;1169;1' +
+    '277;1947;1966;2968"],' +
+    '["BspDI","AT^CGAT",0,0,"","A",""],' +
+    '["BspEI","T^CCGGA",0,1,";429,6","A",";429"],' +
+    '["BspHI","T^CATGA",0,0,"","A",""],' +
+    '["BspMI","ACCTGC(4/8)",1,3,";458,6;1803,6;2586,6","N",";449' +
+    ';1812;2577"],' +
+    '["BspQI","GCTCTTC(1/4)",0,0,"","N",""],' +
+    '["BsrI","ACTGG(1/-1)",1,7,";584,5;998,5;1211,5;1351,5;2483,' +
+    '5;2679,5;3011,5","N",";589;998;1211;1351;2488;2684;3016"],' +
+    '["BsrBI","CCGCTC(-3/-3)",0,0,"","N",""],' +
+    '["BsrDI","GCAATG(2/0)",0,1,";2959,6","N",";2966"],' +
+    '["BsrFI","R^CCGGY",0,0,"","N",""],' +
+    '["BsrGI","T^GTACA",0,1,";2050,6","N",";2050"],' +
+    '["BssHII","G^CGCGC",0,0,"","N",""],' +
+    '["BssSI","CACGAG(-5/-1)",0,2,";1473,6;1535,6","N",";1473;15' +
+    '35"],' +
+    '["BstAPI","GCANNNN^NTGC",0,0,"","N",""],' +
+    '["BstBI","TT^CGAA",0,0,"","N",""],' +
+    '["BstEII","G^GTNACC",0,2,";760,7;915,7","N",";760;915"],' +
+    '["BstNI","CC^WGG",1,8,";209,5;744,5;1066,5;1644,5;1767,5;19' +
+    '00,5;1948,5;2447,5","N",";210;745;1067;1645;1768;1901;1949;2' +
+    '448"],' +
+    '["BstUI","CG^CG",1,3,";512,4;2690,4;2821,4","N",";513;2691;' +
+    '2822"],' +
+    '["BstXI","CCANNNNN^NTGG",0,2,";920,12;1893,12","N",";927;19' +
+    '00"],' +
+    '["BstYI","R^GATCY",1,8,";84,6;231,6;523,6;937,6;1004,6;1310' +
+    ',6;1770,6;2682,6","N",";84;231;523;937;1004;1310;1770;2682"]' +
+    ',' +
+    '["BstZ17I","GTA^TAC",0,1,";2106,6","N",";2108"],' +
+    '["Bsu36I","CC^TNAGG",0,2,";1149,7;1263,7","N",";1150;1264"]' +
+    ',' +
+    '["BtgI","C^CRYGG",0,2,";2654,6;2799,6","N",";2654;2799"],' +
+    '["BtgZI","GCGATG(10/14)",0,0,"","N",""],' +
+    '["BtsI","GCAGTG(2/0)",0,1,";1274,6","N",";1281"],' +
+    '["BtsIMutI","CAGTG(2/0)",1,4,";1275,5;1977,5;2000,5;2482,5"' +
+    ',"N",";1281;1983;1999;2481"],' +
+    '["BtsCI","GGATG(2/0)",1,7,";1260,5;1657,5;1691,5;1889,5;189' +
+    '7,5;2023,5;2174,5","N",";1259;1663;1690;1888;1896;2029;2180"' +
+    '],' +
+    '["Cac8I","GCN^NGC",1,6,";168,6;739,6;1178,6;2365,6;2514,6;2' +
+    '579,6","N",";170;741;1180;2367;2516;2581"],' +
+    '["CfoI","GCG^C",1,7,";900,4;1428,4;2512,4;2689,4;2720,4;280' +
+    '6,4;3083,4","N",";902;1430;2514;2691;2722;2808;3085"],' +
+    '["ClaI","AT^CGAT",0,0,"","A",""],' +
+    '["CviAII","C^ATG",1,13,";947,4;1271,4;1436,4;1795,4;1808,4;' +
+    '2349,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N"' +
+    ',";947;1271;1436;1795;1808;2349;2500;2515;2655;2889;3095;313' +
+    '3;4"],' +
+    '["CviQI","G^TAC",1,5,";79,4;605,4;1852,4;2051,4;3052,4","N"' +
+    ',";79;605;1852;2051;3052"],' +
+    '["DdeI","C^TNAG",1,11,";102,5;123,5;134,5;163,5;1150,5;1156' +
+    ',5;1264,5;1934,5;1953,5;2361,5;2955,5","N",";102;123;134;163' +
+    ';1150;1156;1264;1934;1953;2361;2955"],' +
+    '["DpnI","GA^TC",1,9,";85,4;232,4;524,4;938,4;1005,4;1311,4;' +
+    '1771,4;2545,4;2683,4","N",";86;233;525;939;1006;1312;1772;25' +
+    '46;2684"],' +
+    '["DpnII","^GATC",0,0,"","A",""],' +
+    '["DraI","TTT^AAA",0,2,";2113,6;3004,6","N",";2115;3006"],' +
+    '["DraIII","CACNNN^GTG",0,1,";2313,9","N",";2318"],' +
+    '["DrdI","GACNNNN^NNGTC",0,2,";247,12;2760,12","N",";253;276' +
+    '6"],' +
+    '["EaeI","Y^GGCCR",0,1,";1583,6","C",";1583"],' +
+    '["EagI","C^GGCCG",0,0,"","N",""],' +
+    '["EarI","CTCTTC(1/4)",0,2,";332,6;1686,6","N",";327;1692"],' +
+    '["EciI","GGCGGA(11/9)",0,1,";1187,6","A",";1177"],' +
+    '["Eco47III","AGC^GCT",0,0,"","N",""],' +
+    '["EcoNI","CCTNN^NNNAGG",0,0,"","N",""],' +
+    '["EcoO109I","RG^GNCCY",1,4,";460,7;1420,7;1463,7;2183,7","N' +
+    '",";461;1421;1464;2184"],' +
+    '["EcoP15I","CAGCAG(25/27)",1,3,";1339,6;1695,6;2584,6","N",' +
+    '";1311;1667;2614"],' +
+    '["EcoRI","G^AATTC",0,1,";1280,6","N",";1280"],' +
+    '["EcoRV","GAT^ATC",0,0,"","N",""],' +
+    '["Eco53kI","GAG^CTC",0,0,"","N",""],' +
+    '["FatI","^CATG",1,13,";947,4;1271,4;1436,4;1795,4;1808,4;23' +
+    '49,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N","' +
+    ';946;1270;1435;1794;1807;2348;2499;2514;2654;2888;3094;3132;' +
+    '3"],' +
+    '["FauI","CCCGC(4/6)",1,5,";866,5;1232,5;1485,5;2634,5;2691,' +
+    '5","N",";859;1240;1478;2642;2684"],' +
+    '["Fnu4HI","GC^NGC",1,9,";510,5;1223,5;1667,5;1697,5;2300,5;' +
+    '2567,5;2583,5;2659,5;2672,5","N",";511;1224;1668;1698;2301;2' +
+    '568;2584;2660;2673"],' +
+    '["FokI","GGATG(9/13)",1,7,";1260,5;1657,5;1691,5;1889,5;189' +
+    '7,5;2023,5;2174,5","N",";1246;1670;1677;1875;1883;2036;2187"' +
+    '],' +
+    '["FseI","GGCCGG^CC",0,0,"","N",""],' +
+    '["FspI","TGC^GCA",0,1,";3082,6","N",";3084"],' +
+    '["HaeII","RGCGC^Y",0,2,";899,6;2719,6","N",";903;2723"],' +
+    '["HaeIII","GG^CC",1,13,";280,4;695,4;1069,4;1131,4;1268,4;1' +
+    '326,4;1584,4;1931,4;2041,4;2250,4;2395,4;2445,4;2504,4","N",' +
+    '";281;696;1070;1132;1269;1327;1585;1932;2042;2251;2396;2446;' +
+    '2505"],' +
+    '["HgaI","GACGC(5/10)",1,4,";238,5;513,5;1074,5;2471,5","N",' +
+    '";227;502;1083;2480"],' +
+    '["HhaI","GCG^C",1,7,";900,4;1428,4;2512,4;2689,4;2720,4;280' +
+    '6,4;3083,4","N",";902;1430;2514;2691;2722;2808;3085"],' +
+    '["HinP1I","G^CGC",1,7,";900,4;1428,4;2512,4;2689,4;2720,4;2' +
+    '806,4;3083,4","N",";900;1428;2512;2689;2720;2806;3083"],' +
+    '["HincII","GTY^RAC",1,4,";265,6;1499,6;2271,6;2964,6","N","' +
+    ';267;1501;2273;2966"],' +
+    '["HindII","GTY^RAC",1,4,";265,6;1499,6;2271,6;2964,6","N","' +
+    ';267;1501;2273;2966"],' +
+    '["HindIII","A^AGCTT",0,0,"","N",""],' +
+    '["HinfI","G^ANTC",1,17,";127,5;198,5;375,5;538,5;562,5;956,' +
+    '5;982,5;1456,5;1507,5;1526,5;1533,5;2063,5;2725,5;2760,5;282' +
+    '5,5;2943,5;2951,5","N",";127;198;375;538;562;956;982;1456;15' +
+    '07;1526;1533;2063;2725;2760;2825;2943;2951"],' +
+    '["HpaI","GTT^AAC",0,0,"","N",""],' +
+    '["HpaII","C^CGG",1,4,";430,4;1799,4;2437,4;2852,4","N",";43' +
+    '0;1799;2437;2852"],' +
+    '["HphI","GGTGA(8/7)",1,7,";145,5;150,5;917,5;1114,5;1617,5;' +
+    '2873,5;3107,5","A",";137;142;909;1106;1609;2865;3099"],' +
+    '["Hpy99I","CGWCG^",1,4,";451,5;514,5;2715,5;2884,5","N",";4' +
+    '55;518;2719;2888"],' +
+    '["Hpy166II","GTN^NAC",1,14,";143,6;265,6;681,6;1365,6;1499,' +
+    '6;1541,6;1957,6;2106,6;2271,6;2406,6;2705,6;2861,6;2902,6;29' +
+    '64,6","N",";145;267;683;1367;1501;1543;1959;2108;2273;2408;2' +
+    '707;2863;2904;2966"],' +
+    '["Hpy188I","TCN^GA",1,7,";61,5;365,5;1015,5;1376,5;1863,5;1' +
+    '909,5;2790,5","A",";63;367;1017;1378;1865;1911;2792"],' +
+    '["Hpy188III","TC^NNGA",1,18,";90,6;114,6;132,6;241,6;429,6;' +
+    '534,6;805,6;989,6;1034,6;1215,6;1356,6;1408,6;1452,6;1529,6;' +
+    '1727,6;2059,6;2591,6;2607,6","A",";91;115;133;242;430;535;80' +
+    '6;990;1035;1216;1357;1409;1453;1530;1728;2060;2592;2608"],' +
+    '["HpyAV","CCTTC(6/5)",1,12,";58,5;73,5;497,5;862,5;1012,5;1' +
+    '219,5;1291,5;1469,5;1860,5;2741,5;2773,5;2840,5","N",";68;83' +
+    ';491;856;1022;1213;1301;1479;1870;2751;2783;2850"],' +
+    '["HpyCH4III","ACN^GT",1,13,";34,5;340,5;439,5;602,5;685,5;7' +
+    '04,5;1362,5;1572,5;2001,5;2856,5;2899,5;2996,5;3141,5","N","' +
+    ';36;342;441;604;687;706;1364;1574;2003;2858;2901;2998;3143"]' +
+    ',' +
+    '["HpyCH4IV","A^CGT",1,3,";2696,4;2709,4;2883,4","N",";2696;' +
+    '2709;2883"],' +
+    '["HpyCH4V","TG^CA",1,10,";159,4;726,4;1273,4;1306,4;1806,4;' +
+    '1875,4;2347,4;2862,4;2880,4;3097,4","N",";160;727;1274;1307;' +
+    '1807;1876;2348;2863;2881;3098"],' +
+    '["KasI","G^GCGCC",0,0,"","N",""],' +
+    '["KpnI","GGTAC^C",0,0,"","N",""],' +
+    '["KspI","CCGC^GG",0,0,"","N",""],' +
+    '["MaeI","C^TAG",1,14,";91,4;202,4;242,4;250,4;467,4;815,4;8' +
+    '37,4;1461,4;1530,4;1560,4;1962,4;2564,4;2663,4;3055,4","N","' +
+    ';91;202;242;250;467;815;837;1461;1530;1560;1962;2564;2663;30' +
+    '55"],' +
+    '["MaeII","A^CGT",1,3,";2696,4;2709,4;2883,4","N",";2696;270' +
+    '9;2883"],' +
+    '["MaeIII","^GTNAC",1,6,";42,5;761,5;916,5;1478,5;2081,5;214' +
+    '2,5","N",";41;760;915;1477;2080;2141"],' +
+    '["MboI","^GATC",0,0,"","A",""],' +
+    '["MboII","GAAGA(8/7)",1,10,";332,5;470,5;473,5;596,5;720,5;' +
+    '1405,5;1681,5;1687,5;1711,5;1724,5","A",";344;482;485;588;73' +
+    '2;1397;1673;1679;1703;1716"],' +
+    '["MfeI","C^AATTG",0,1,";728,6","N",";728"],' +
+    '["MluI","A^CGCGT",0,0,"","N",""],' +
+    '["MluCI","^AATT",1,14,";23,4;174,4;223,4;729,4;1281,4;1554,' +
+    '4;1590,4;1763,4;1872,4;1915,4;2087,4;2153,4;2278,4;3074,4","' +
+    'N",";22;173;222;728;1280;1553;1589;1762;1871;1914;2086;2152;' +
+    '2277;3073"],' +
+    '["MluNI","TGG^CCA",0,2,";1068,6;1583,6","N",";1070;1585"],' +
+    '["MlyI","GAGTC(5/5)",1,10,";127,5;198,5;562,5;1526,5;1533,5' +
+    ';2063,5;2760,5;2825,5;2943,5;2951,5","N",";136;192;556;1535;' +
+    '1527;2072;2754;2819;2937;2945"],' +
+    '["MmeI","TCCRAC(20/18)",1,3,";1001,6;1634,6;2790,6","N",";9' +
+    '82;1659;2815"],' +
+    '["MnlI","CCTC(7/6)",1,38,";101,4;148,4;385,4;455,4;482,4;48' +
+    '7,4;620,4;903,4;975,4;1129,4;1149,4;1191,4;1198,4;1263,4;132' +
+    '4,4;1387,4;1412,4;1511,4;1606,4;1624,4;1632,4;1685,4;1706,4;' +
+    '1758,4;1774,4;1828,4;1840,4;1933,4;2537,4;2811,4;2876,4;2940' +
+    ',4;2980,4;3016,4;3028,4;3059,4;3110,4;3151,4","N",";111;158;' +
+    '395;448;492;497;630;913;985;1122;1159;1201;1208;1273;1317;13' +
+    '97;1405;1521;1616;1634;1642;1695;1716;1768;1784;1838;1850;19' +
+    '43;2547;2821;2886;2933;2973;3009;3021;3052;3120;3161"],' +
+    '["MroI","T^CCGGA",0,1,";429,6","N",";429"],' +
+    '["MscI","TGG^CCA",0,1,";1583,6","C",";1585"],' +
+    '["MseI","T^TAA",1,9,";221,4;615,4;708,4;792,4;819,4;2114,4;' +
+    '2244,4;3005,4;3040,4","N",";221;615;708;792;819;2114;2244;30' +
+    '05;3040"],' +
+    '["MslI","CAYNN^NNRTG",0,1,";270,10","N",";274"],' +
+    '["MspI","C^CGG",1,4,";430,4;1799,4;2437,4;2852,4","N",";430' +
+    ';1799;2437;2852"],' +
+    '["MspA1I","CMG^CKG",0,2,";1233,6;2076,6","N",";1235;2078"],' +
+    '["MunI","C^AATTG",0,1,";728,6","N",";728"],' +
+    '["MvaI","CC^WGG",1,8,";209,5;744,5;1066,5;1644,5;1767,5;190' +
+    '0,5;1948,5;2447,5","N",";210;745;1067;1645;1768;1901;1949;24' +
+    '48"],' +
+    '["MvnI","CG^CG",1,3,";512,4;2690,4;2821,4","N",";513;2691;2' +
+    '822"],' +
+    '["MwoI","GCNNNNN^NNGC",1,6,";1011,11;1020,11;1226,11;1798,1' +
+    '1;2505,11;2570,11","N",";1017;1026;1232;1804;2511;2576"],' +
+    '["NaeI","GCC^GGC",0,0,"","N",""],' +
+    '["NarI","GG^CGCC",0,0,"","N",""],' +
+    '["NciI","CC^SGG",0,1,";2436,5","N",";2437"],' +
+    '["NcoI","C^CATGG",0,1,";2654,6","N",";2654"],' +
+    '["NdeI","CA^TATG",0,0,"","N",""],' +
+    '["NdeII","^GATC",0,0,"","A",""],' +
+    '["NgoMIV","G^CCGGC",0,0,"","N",""],' +
+    '["NheI","G^CTAGC",0,0,"","N",""],' +
+    '["NlaIII","CATG^",1,13,";947,4;1271,4;1436,4;1795,4;1808,4;' +
+    '2349,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N"' +
+    ',";950;1274;1439;1798;1811;2352;2503;2518;2658;2892;3098;313' +
+    '6;7"],' +
+    '["NlaIV","GGN^NCC",1,14,";461,6;1004,6;1144,6;1347,6;1420,6' +
+    ';1421,6;1464,6;1790,6;1824,6;2039,6;2183,6;2522,6;2533,6;268' +
+    '2,6","C",";463;1006;1146;1349;1422;1423;1466;1792;1826;2041;' +
+    '2185;2524;2535;2684"],' +
+    '["NmeAIII","GCCGAG(21/19)",0,0,"","N",""],' +
+    '["NotI","GC^GGCCGC",0,0,"","N",""],' +
+    '["NruI","TCG^CGA",0,0,"","A",""],' +
+    '["NsiI","ATGCA^T",0,1,";2346,6","N",";2350"],' +
+    '["NspI","RCATG^Y",0,2,";2348,6;2514,6","N",";2352;2518"],' +
+    '["PacI","TTAAT^TAA",0,0,"","N",""],' +
+    '["PaeR7I","C^TCGAG",0,1,";1409,6","N",";1409"],' +
+    '["PciI","A^CATGT",0,0,"","N",""],' +
+    '["PflFI","GACN^NNGTC",0,0,"","N",""],' +
+    '["PflMI","CCANNNN^NTGG",1,4,";995,11;1270,11;1999,11;2481,1' +
+    '1","C",";1001;1276;2005;2487"],' +
+    '["PleI","GAGTC(4/5)",1,10,";127,5;198,5;562,5;1526,5;1533,5' +
+    ';2063,5;2760,5;2825,5;2943,5;2951,5","N",";135;192;556;1534;' +
+    '1527;2071;2754;2819;2937;2945"],' +
+    '["PluTI","GGCGC^C",0,0,"","N",""],' +
+    '["PmeI","GTTT^AAAC",0,0,"","N",""],' +
+    '["PmlI","CAC^GTG",0,0,"","N",""],' +
+    '["PpuMI","RG^GWCCY",1,4,";460,7;1420,7;1463,7;2183,7","C","' +
+    ';461;1421;1464;2184"],' +
+    '["PshAI","GACNN^NNGTC",0,1,";494,10","N",";498"],' +
+    '["PsiI","TTA^TAA",0,1,";15,6","N",";17"],' +
+    '["PspGI","^CCWGG",0,0,"","C",""],' +
+    '["PspOMI","G^GGCCC",0,0,"","C",""],' +
+    '["PspXI","VC^TCGAGB",0,0,"","N",""],' +
+    '["PstI","CTGCA^G",0,0,"","N",""],' +
+    '["PvuI","CGAT^CG",0,0,"","N",""],' +
+    '["PvuII","CAG^CTG",0,0,"","N",""],' +
+    '["RsaI","GT^AC",1,5,";79,4;605,4;1852,4;2051,4;3052,4","N",' +
+    '";80;606;1853;2052;3053"],' +
+    '["RsrII","CG^GWCCG",0,1,";2853,7","N",";2854"],' +
+    '["SacI","GAGCT^C",0,0,"","N",""],' +
+    '["SacII","CCGC^GG",0,0,"","N",""],' +
+    '["SalI","G^TCGAC",0,0,"","N",""],' +
+    '["SapI","GCTCTTC(1/4)",0,0,"","N",""],' +
+    '["Sau96I","G^GNCC",1,12,";279,5;461,5;695,5;1421,5;1464,5;1' +
+    '791,5;1801,5;1930,5;2040,5;2184,5;2503,5;2854,5","C",";279;4' +
+    '61;695;1421;1464;1791;1801;1930;2040;2184;2503;2854"],' +
+    '["Sau3AI","^GATC",1,9,";85,4;232,4;524,4;938,4;1005,4;1311,' +
+    '4;1771,4;2545,4;2683,4","N",";84;231;523;937;1004;1310;1770;' +
+    '2544;2682"],' +
+    '["SbfI","CCTGCA^GG",0,0,"","N",""],' +
+    '["ScaI","AGT^ACT",0,0,"","N",""],' +
+    '["ScrFI","CC^NGG",0,1,";2436,5","C",";2437"],' +
+    '["SexAI","A^CCWGGT",0,0,"","C",""],' +
+    '["SfaNI","GCATC(5/9)",0,2,";2056,5;2335,5","N",";2065;2325"' +
+    '],' +
+    '["SfcI","C^TRYAG",0,2,";941,6;3063,6","N",";941;3063"],' +
+    '["SfoI","GGC^GCC",0,0,"","N",""],' +
+    '["SfuI","TT^CGAA",0,0,"","N",""],' +
+    '["SgrAI","CR^CCGGYG",0,0,"","N",""],' +
+    '["SmaI","CCC^GGG",0,0,"","N",""],' +
+    '["SmlI","C^TYRAG",1,4,";1409,6;1819,6;2060,6;2977,6","N",";' +
+    '1409;1819;2060;2977"],' +
+    '["SnaBI","TAC^GTA",0,0,"","N",""],' +
+    '["SpeI","A^CTAGT",0,1,";1961,6","N",";1961"],' +
+    '["SphI","GCATG^C",0,1,";2514,6","N",";2518"],' +
+    '["SrfI","GCCC^GGGC",0,0,"","N",""],' +
+    '["SspI","AAT^ATT",0,2,";768,6;2916,6","N",";770;2918"],' +
+    '["StuI","AGG^CCT",1,4,";1130,6;1325,6;2249,6;2394,6","C",";' +
+    '1132;1327;2251;2396"],' +
+    '["StyI","C^CWWGG",1,5,";557,6;1460,6;2654,6;2924,6;3164,6",' +
+    '"N",";557;1460;2654;2924;3164"],' +
+    '["StyD4I","^CCNGG",0,1,";2436,5","C",";2435"],' +
+    '["SwaI","ATTT^AAAT",0,0,"","N",""],' +
+    '["TaqI","T^CGA",0,2,";8,4;1410,4","A",";8;1410"],' +
+    '["TfiI","G^AWTC",1,7,";375,5;538,5;956,5;982,5;1456,5;1507,' +
+    '5;2725,5","N",";375;538;956;982;1456;1507;2725"],' +
+    '["Tru9I","T^TAA",1,9,";221,4;615,4;708,4;792,4;819,4;2114,4' +
+    ';2244,4;3005,4;3040,4","N",";221;615;708;792;819;2114;2244;3' +
+    '005;3040"],' +
+    '["TseI","G^CWGC",1,6,";1223,5;1697,5;2300,5;2583,5;2659,5;2' +
+    '672,5","N",";1223;1697;2300;2583;2659;2672"],' +
+    '["Tsp45I","^GTSAC",0,1,";916,5","N",";915"],' +
+    '["TspMI","C^CCGGG",0,0,"","N",""],' +
+    '["TspRI","CASTGNN^",1,8,";1273,7;1275,7;1975,7;1977,7;1998,' +
+    '7;2000,7;2480,7;2482,7","N",";1281;1983;2006;2488"],' +
+    '["Tth111I","GACN^NNGTC",0,0,"","N",""],' +
+    '["XbaI","T^CTAGA",1,3,";90,6;241,6;1529,6","A",";90;241;152' +
+    '9"],' +
+    '["XhoI","C^TCGAG",0,1,";1409,6","N",";1409"],' +
+    '["XmaI","C^CCGGG",0,0,"","N",""],' +
+    '["XmnI","GAANN^NNTTC",0,1,";2523,10","N",";2527"],' +
+    '["ZraI","GAC^GTC",0,1,";2695,6","N",";2697"]]';
+    return str;
+}
+
+function wdeTestDataString_017() {
+    var str = '[["AatII","GACGT^C",0,1,";2695,6","N",";2699"],' +
+    '["AccI","GT^MKAC",0,1,";2106,6","N",";2107"],' +
+    '["Acc65I","G^GTACC",0,0,"","C",""],' +
+    '["AciI","CCGC(-3/-1)",0,17,";98,4;511,4;866,4;1027,4;1122,4' +
+    ';1188,4;1233,4;1485,4;1521,4;1667,4;2076,4;2555,4;2568,4;263' +
+    '5,4;2691,4;2732,4;2822,4","N",";98;511;866;1027;1122;1188;12' +
+    '33;1485;1521;1667;2076;2555;2568;2635;2691;2732;2822"],' +
+    '["AclI","AA^CGTT",0,0,"","N",""],' +
+    '["AcuI","CTGAAG(16/14)",1,2,";74,6;1013,6","N",";59;998"],' +
+    '["AfeI","AGC^GCT",0,0,"","N",""],' +
+    '["AflII","C^TTAAG",0,0,"","N",""],' +
+    '["AflIII","A^CRYGT",0,0,"","N",""],' +
+    '["AgeI","A^CCGGT",0,0,"","N",""],' +
+    '["AhdI","GACNNN^NNGTC",0,1,";2825,11","N",";2830"],' +
+    '["AleI","CACNN^NNGTG",0,0,"","N",""],' +
+    '["AluI","AG^CT",0,6,";30,4;105,4;204,4;390,4;1091,4;3157,4"' +
+    ',"N",";31;106;205;391;1092;3158"],' +
+    '["AlwI","GGATC(4/5)",0,0,"","A",""],' +
+    '["AlwNI","CAGNNN^CTG",0,0,"","C",""],' +
+    '["ApaI","GGGCC^C",0,0,"","C",""],' +
+    '["ApaLI","G^TGCAC",0,1,";2861,6","N",";2861"],' +
+    '["ApeKI","G^CWGC",0,6,";1223,5;1697,5;2300,5;2583,5;2659,5;' +
+    '2672,5","N",";1223;1697;2300;2583;2659;2672"],' +
+    '["ApoI","R^AATTY",0,5,";22,6;1280,6;1589,6;1914,6;2152,6","' +
+    'N",";22;1280;1589;1914;2152"],' +
+    '["AscI","GG^CGCGCC",0,0,"","N",""],' +
+    '["AseI","AT^TAAT",0,0,"","N",""],' +
+    '["AsiSI","GCGAT^CGC",0,0,"","N",""],' +
+    '["Asp700I","GAANN^NNTTC",0,1,";2523,10","N",";2527"],' +
+    '["Asp718I","G^GTACC",0,0,"","C",""],' +
+    '["AvaI","C^YCGRG",0,3,";533,6;1409,6;2745,6","N",";533;1409' +
+    ';2745"],' +
+    '["AvaII","G^GWCC",0,7,";461,5;1421,5;1464,5;1791,5;1801,5;2' +
+    '184,5;2854,5","C",";461;1421;1464;1791;1801;2184;2854"],' +
+    '["AvrII","C^CTAGG",0,1,";1460,6","N",";1460"],' +
+    '["BaeGI","GKGCM^C",0,1,";2861,6","N",";2865"],' +
+    '["BamHI","G^GATCC",0,3,";1004,6;1770,6;2682,6","N",";1004;1' +
+    '770;2682"],' +
+    '["BanI","G^GYRCC",0,0,"","N",""],' +
+    '["BanII","GRGCY^C",0,1,";1145,6","N",";1149"],' +
+    '["BbrPI","CAC^GTG",0,0,"","N",""],' +
+    '["BbsI","GAAGAC(2/6)",0,0,"","N",""],' +
+    '["BbvI","GCAGC(8/12)",0,6,";1223,5;1697,5;2300,5;2583,5;265' +
+    '9,5;2672,5","N",";1235;1684;2287;2595;2646;2659"],' +
+    '["BbvCI","CCTCAGC(-5/-2)",1,2,";101,7;1933,7","N",";102;193' +
+    '4"],' +
+    '["BccI","CCATC(4/5)",0,5,";635,5;1888,5;1893,5;2136,5;2506,' +
+    '5","N",";643;1896;1901;2130;2514"],' +
+    '["BceAI","ACGGC(12/14)",1,2,";2443,5;2785,5","N",";2459;277' +
+    '0"],' +
+    '["BciVI","GTATCC(6/5)",0,1,";1835,6","N",";1846"],' +
+    '["BclI","T^GATCA",0,0,"","A",""],' +
+    '["BcoDI","GTCTC(1/5)",0,7,";129,5;245,5;320,5;433,5;501,5;1' +
+    '238,5;2893,5","N",";134;239;325;427;506;1243;2887"],' +
+    '["BfaI","C^TAG",0,14,";91,4;202,4;242,4;250,4;467,4;815,4;8' +
+    '37,4;1461,4;1530,4;1560,4;1962,4;2564,4;2663,4;3055,4","N","' +
+    ';91;202;242;250;467;815;837;1461;1530;1560;1962;2564;2663;30' +
+    '55"],' +
+    '["BfrI","C^TTAAG",0,0,"","N",""],' +
+    '["BfuAI","ACCTGC(4/8)",0,3,";458,6;1803,6;2586,6","N",";449' +
+    ';1812;2577"],' +
+    '["BfuCI","^GATC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,4' +
+    ';1771,4;2545,4;2683,4","N",";84;231;523;937;1004;1310;1770;2' +
+    '544;2682"],' +
+    '["BglI","GCCNNNN^NGGC",0,0,"","N",""],' +
+    '["BglII","A^GATCT",0,3,";84,6;523,6;937,6","N",";84;523;937' +
+    '"],' +
+    '["BlnI","C^CTAGG",0,1,";1460,6","N",";1460"],' +
+    '["BlpI","GC^TNAGC",0,0,"","N",""],' +
+    '["BmgBI","CACGTC(-3/-3)",0,1,";2882,6","N",";2884"],' +
+    '["BmrI","ACTGGG(5/4)",1,2,";584,6;3011,6","N",";594;3021"],' +
+    '["BmtI","GCTAG^C",0,0,"","N",""],' +
+    '["BpmI","CTGGAG(16/14)",0,4,";386,6;1093,6;1349,6;2592,6","' +
+    'N",";371;1114;1334;2613"],' +
+    '["Bpu10I","CCTNAGC(-5/-2)",0,4,";101,7;133,7;1155,7;1933,7"' +
+    ',"N",";102;134;1156;1934"],' +
+    '["BpuEI","CTTGAG(16/14)",0,3,";1819,6;2060,6;2977,6","N",";' +
+    '1804;2081;2998"],' +
+    '["BsaI","GGTCTC(1/5)",0,3,";245,6;500,6;2893,6","C",";239;5' +
+    '06;2887"],' +
+    '["BsaAI","YAC^GTR",0,0,"","N",""],' +
+    '["BsaBI","GATNN^NNATC",0,0,"","A",""],' +
+    '["BsaHI","GR^CGYC",1,2,";1074,6;2695,6","N",";1075;2696"],' +
+    '["BsaJI","C^CNNGG",0,8,";209,6;557,6;1460,6;1900,6;2654,6;2' +
+    '799,6;2924,6;3164,6","N",";209;557;1460;1900;2654;2799;2924;' +
+    '3164"],' +
+    '["BsaWI","W^CCGGW",0,1,";429,6","N",";429"],' +
+    '["BsaXI","(9/12)ACNNNNNCTCC(10/7)",0,4,";28,11;1383,11;2820' +
+    ',11;3030,11","N",";50;20;1373;1403;2810;2840;3052;3022"],' +
+    '["BseRI","GAGGAG(10/8)",0,4,";383,6;2535,6;3016,6;3028,6","' +
+    'N",";374;2526;3031;3043"],' +
+    '["BseYI","CCCAGC(-5/-1)",0,3,";182,6;1106,6;2487,6","N",";1' +
+    '82;1106;2487"],' +
+    '["BsgI","GTGCAG(16/14)",1,2,";158,6;2879,6","N",";143;2864"' +
+    '],' +
+    '["BsiEI","CGRY^CG",1,2,";2792,6;2969,6","N",";2795;2972"],' +
+    '["BsiHKAI","GWGCW^C",0,1,";2861,6","N",";2865"],' +
+    '["BsiWI","C^GTACG",0,0,"","N",""],' +
+    '["BslI","CCNNNNN^NNGG",0,14,";995,11;1119,11;1122,11;1270,1' +
+    '1;1338,11;1860,11;1999,11;2430,11;2436,11;2481,11;2548,11;27' +
+    '40,11;2741,11;2795,11","N",";1001;1125;1128;1276;1344;1866;2' +
+    '005;2436;2442;2487;2554;2746;2747;2801"],' +
+    '["BsmI","GAATGC(1/-1)",0,1,";1098,6","N",";1098"],' +
+    '["BsmAI","GTCTC(1/5)",0,7,";129,5;245,5;320,5;433,5;501,5;1' +
+    '238,5;2893,5","N",";134;239;325;427;506;1243;2887"],' +
+    '["BsmBI","CGTCTC(1/5)",0,0,"","N",""],' +
+    '["BsmFI","GGGAC(10/14)",0,11,";462,5;1042,5;1420,5;1598,5;1' +
+    '790,5;2065,5;2609,5;2693,5;2711,5;2758,5;2769,5","N",";447;1' +
+    '056;1434;1583;1804;2050;2623;2707;2696;2772;2754"],' +
+    '["BsoBI","C^YCGRG",0,3,";533,6;1409,6;2745,6","N",";533;140' +
+    '9;2745"],' +
+    '["Bsp1286I","GDGCH^C",1,2,";1145,6;2861,6","N",";1149;2865"' +
+    '],' +
+    '["BspCNI","CTCAG(9/7)",0,9,";102,5;134,5;163,5;1150,5;1156,' +
+    '5;1264,5;1934,5;1953,5;2955,5","N",";115;126;176;1163;1169;1' +
+    '277;1947;1966;2968"],' +
+    '["BspDI","AT^CGAT",0,0,"","A",""],' +
+    '["BspEI","T^CCGGA",0,1,";429,6","A",";429"],' +
+    '["BspHI","T^CATGA",0,0,"","A",""],' +
+    '["BspMI","ACCTGC(4/8)",0,3,";458,6;1803,6;2586,6","N",";449' +
+    ';1812;2577"],' +
+    '["BspQI","GCTCTTC(1/4)",0,0,"","N",""],' +
+    '["BsrI","ACTGG(1/-1)",0,7,";584,5;998,5;1211,5;1351,5;2483,' +
+    '5;2679,5;3011,5","N",";589;998;1211;1351;2488;2684;3016"],' +
+    '["BsrBI","CCGCTC(-3/-3)",0,0,"","N",""],' +
+    '["BsrDI","GCAATG(2/0)",0,1,";2959,6","N",";2966"],' +
+    '["BsrFI","R^CCGGY",0,0,"","N",""],' +
+    '["BsrGI","T^GTACA",0,1,";2050,6","N",";2050"],' +
+    '["BssHII","G^CGCGC",0,0,"","N",""],' +
+    '["BssSI","CACGAG(-5/-1)",1,2,";1473,6;1535,6","N",";1473;15' +
+    '35"],' +
+    '["BstAPI","GCANNNN^NTGC",0,0,"","N",""],' +
+    '["BstBI","TT^CGAA",0,0,"","N",""],' +
+    '["BstEII","G^GTNACC",1,2,";760,7;915,7","N",";760;915"],' +
+    '["BstNI","CC^WGG",0,8,";209,5;744,5;1066,5;1644,5;1767,5;19' +
+    '00,5;1948,5;2447,5","N",";210;745;1067;1645;1768;1901;1949;2' +
+    '448"],' +
+    '["BstUI","CG^CG",0,3,";512,4;2690,4;2821,4","N",";513;2691;' +
+    '2822"],' +
+    '["BstXI","CCANNNNN^NTGG",1,2,";920,12;1893,12","N",";927;19' +
+    '00"],' +
+    '["BstYI","R^GATCY",0,8,";84,6;231,6;523,6;937,6;1004,6;1310' +
+    ',6;1770,6;2682,6","N",";84;231;523;937;1004;1310;1770;2682"]' +
+    ',' +
+    '["BstZ17I","GTA^TAC",0,1,";2106,6","N",";2108"],' +
+    '["Bsu36I","CC^TNAGG",1,2,";1149,7;1263,7","N",";1150;1264"]' +
+    ',' +
+    '["BtgI","C^CRYGG",1,2,";2654,6;2799,6","N",";2654;2799"],' +
+    '["BtgZI","GCGATG(10/14)",0,0,"","N",""],' +
+    '["BtsI","GCAGTG(2/0)",0,1,";1274,6","N",";1281"],' +
+    '["BtsIMutI","CAGTG(2/0)",0,4,";1275,5;1977,5;2000,5;2482,5"' +
+    ',"N",";1281;1983;1999;2481"],' +
+    '["BtsCI","GGATG(2/0)",0,7,";1260,5;1657,5;1691,5;1889,5;189' +
+    '7,5;2023,5;2174,5","N",";1259;1663;1690;1888;1896;2029;2180"' +
+    '],' +
+    '["Cac8I","GCN^NGC",0,6,";168,6;739,6;1178,6;2365,6;2514,6;2' +
+    '579,6","N",";170;741;1180;2367;2516;2581"],' +
+    '["CfoI","GCG^C",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;280' +
+    '6,4;3083,4","N",";902;1430;2514;2691;2722;2808;3085"],' +
+    '["ClaI","AT^CGAT",0,0,"","A",""],' +
+    '["CviAII","C^ATG",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;' +
+    '2349,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N"' +
+    ',";947;1271;1436;1795;1808;2349;2500;2515;2655;2889;3095;313' +
+    '3;4"],' +
+    '["CviQI","G^TAC",0,5,";79,4;605,4;1852,4;2051,4;3052,4","N"' +
+    ',";79;605;1852;2051;3052"],' +
+    '["DdeI","C^TNAG",0,11,";102,5;123,5;134,5;163,5;1150,5;1156' +
+    ',5;1264,5;1934,5;1953,5;2361,5;2955,5","N",";102;123;134;163' +
+    ';1150;1156;1264;1934;1953;2361;2955"],' +
+    '["DpnI","GA^TC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,4;' +
+    '1771,4;2545,4;2683,4","N",";86;233;525;939;1006;1312;1772;25' +
+    '46;2684"],' +
+    '["DpnII","^GATC",0,0,"","A",""],' +
+    '["DraI","TTT^AAA",1,2,";2113,6;3004,6","N",";2115;3006"],' +
+    '["DraIII","CACNNN^GTG",0,1,";2313,9","N",";2318"],' +
+    '["DrdI","GACNNNN^NNGTC",1,2,";247,12;2760,12","N",";253;276' +
+    '6"],' +
+    '["EaeI","Y^GGCCR",0,1,";1583,6","C",";1583"],' +
+    '["EagI","C^GGCCG",0,0,"","N",""],' +
+    '["EarI","CTCTTC(1/4)",1,2,";332,6;1686,6","N",";327;1692"],' +
+    '["EciI","GGCGGA(11/9)",0,1,";1187,6","A",";1177"],' +
+    '["Eco47III","AGC^GCT",0,0,"","N",""],' +
+    '["EcoNI","CCTNN^NNNAGG",0,0,"","N",""],' +
+    '["EcoO109I","RG^GNCCY",0,4,";460,7;1420,7;1463,7;2183,7","N' +
+    '",";461;1421;1464;2184"],' +
+    '["EcoP15I","CAGCAG(25/27)",0,3,";1339,6;1695,6;2584,6","N",' +
+    '";1311;1667;2614"],' +
+    '["EcoRI","G^AATTC",0,1,";1280,6","N",";1280"],' +
+    '["EcoRV","GAT^ATC",0,0,"","N",""],' +
+    '["Eco53kI","GAG^CTC",0,0,"","N",""],' +
+    '["FatI","^CATG",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;23' +
+    '49,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N","' +
+    ';946;1270;1435;1794;1807;2348;2499;2514;2654;2888;3094;3132;' +
+    '3"],' +
+    '["FauI","CCCGC(4/6)",0,5,";866,5;1232,5;1485,5;2634,5;2691,' +
+    '5","N",";859;1240;1478;2642;2684"],' +
+    '["Fnu4HI","GC^NGC",0,9,";510,5;1223,5;1667,5;1697,5;2300,5;' +
+    '2567,5;2583,5;2659,5;2672,5","N",";511;1224;1668;1698;2301;2' +
+    '568;2584;2660;2673"],' +
+    '["FokI","GGATG(9/13)",0,7,";1260,5;1657,5;1691,5;1889,5;189' +
+    '7,5;2023,5;2174,5","N",";1246;1670;1677;1875;1883;2036;2187"' +
+    '],' +
+    '["FseI","GGCCGG^CC",0,0,"","N",""],' +
+    '["FspI","TGC^GCA",0,1,";3082,6","N",";3084"],' +
+    '["HaeII","RGCGC^Y",1,2,";899,6;2719,6","N",";903;2723"],' +
+    '["HaeIII","GG^CC",0,13,";280,4;695,4;1069,4;1131,4;1268,4;1' +
+    '326,4;1584,4;1931,4;2041,4;2250,4;2395,4;2445,4;2504,4","N",' +
+    '";281;696;1070;1132;1269;1327;1585;1932;2042;2251;2396;2446;' +
+    '2505"],' +
+    '["HgaI","GACGC(5/10)",0,4,";238,5;513,5;1074,5;2471,5","N",' +
+    '";227;502;1083;2480"],' +
+    '["HhaI","GCG^C",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;280' +
+    '6,4;3083,4","N",";902;1430;2514;2691;2722;2808;3085"],' +
+    '["HinP1I","G^CGC",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;2' +
+    '806,4;3083,4","N",";900;1428;2512;2689;2720;2806;3083"],' +
+    '["HincII","GTY^RAC",0,4,";265,6;1499,6;2271,6;2964,6","N","' +
+    ';267;1501;2273;2966"],' +
+    '["HindII","GTY^RAC",0,4,";265,6;1499,6;2271,6;2964,6","N","' +
+    ';267;1501;2273;2966"],' +
+    '["HindIII","A^AGCTT",0,0,"","N",""],' +
+    '["HinfI","G^ANTC",0,17,";127,5;198,5;375,5;538,5;562,5;956,' +
+    '5;982,5;1456,5;1507,5;1526,5;1533,5;2063,5;2725,5;2760,5;282' +
+    '5,5;2943,5;2951,5","N",";127;198;375;538;562;956;982;1456;15' +
+    '07;1526;1533;2063;2725;2760;2825;2943;2951"],' +
+    '["HpaI","GTT^AAC",0,0,"","N",""],' +
+    '["HpaII","C^CGG",0,4,";430,4;1799,4;2437,4;2852,4","N",";43' +
+    '0;1799;2437;2852"],' +
+    '["HphI","GGTGA(8/7)",0,7,";145,5;150,5;917,5;1114,5;1617,5;' +
+    '2873,5;3107,5","A",";137;142;909;1106;1609;2865;3099"],' +
+    '["Hpy99I","CGWCG^",0,4,";451,5;514,5;2715,5;2884,5","N",";4' +
+    '55;518;2719;2888"],' +
+    '["Hpy166II","GTN^NAC",0,14,";143,6;265,6;681,6;1365,6;1499,' +
+    '6;1541,6;1957,6;2106,6;2271,6;2406,6;2705,6;2861,6;2902,6;29' +
+    '64,6","N",";145;267;683;1367;1501;1543;1959;2108;2273;2408;2' +
+    '707;2863;2904;2966"],' +
+    '["Hpy188I","TCN^GA",0,7,";61,5;365,5;1015,5;1376,5;1863,5;1' +
+    '909,5;2790,5","A",";63;367;1017;1378;1865;1911;2792"],' +
+    '["Hpy188III","TC^NNGA",0,18,";90,6;114,6;132,6;241,6;429,6;' +
+    '534,6;805,6;989,6;1034,6;1215,6;1356,6;1408,6;1452,6;1529,6;' +
+    '1727,6;2059,6;2591,6;2607,6","A",";91;115;133;242;430;535;80' +
+    '6;990;1035;1216;1357;1409;1453;1530;1728;2060;2592;2608"],' +
+    '["HpyAV","CCTTC(6/5)",0,12,";58,5;73,5;497,5;862,5;1012,5;1' +
+    '219,5;1291,5;1469,5;1860,5;2741,5;2773,5;2840,5","N",";68;83' +
+    ';491;856;1022;1213;1301;1479;1870;2751;2783;2850"],' +
+    '["HpyCH4III","ACN^GT",0,13,";34,5;340,5;439,5;602,5;685,5;7' +
+    '04,5;1362,5;1572,5;2001,5;2856,5;2899,5;2996,5;3141,5","N","' +
+    ';36;342;441;604;687;706;1364;1574;2003;2858;2901;2998;3143"]' +
+    ',' +
+    '["HpyCH4IV","A^CGT",0,3,";2696,4;2709,4;2883,4","N",";2696;' +
+    '2709;2883"],' +
+    '["HpyCH4V","TG^CA",0,10,";159,4;726,4;1273,4;1306,4;1806,4;' +
+    '1875,4;2347,4;2862,4;2880,4;3097,4","N",";160;727;1274;1307;' +
+    '1807;1876;2348;2863;2881;3098"],' +
+    '["KasI","G^GCGCC",0,0,"","N",""],' +
+    '["KpnI","GGTAC^C",0,0,"","N",""],' +
+    '["KspI","CCGC^GG",0,0,"","N",""],' +
+    '["MaeI","C^TAG",0,14,";91,4;202,4;242,4;250,4;467,4;815,4;8' +
+    '37,4;1461,4;1530,4;1560,4;1962,4;2564,4;2663,4;3055,4","N","' +
+    ';91;202;242;250;467;815;837;1461;1530;1560;1962;2564;2663;30' +
+    '55"],' +
+    '["MaeII","A^CGT",0,3,";2696,4;2709,4;2883,4","N",";2696;270' +
+    '9;2883"],' +
+    '["MaeIII","^GTNAC",0,6,";42,5;761,5;916,5;1478,5;2081,5;214' +
+    '2,5","N",";41;760;915;1477;2080;2141"],' +
+    '["MboI","^GATC",0,0,"","A",""],' +
+    '["MboII","GAAGA(8/7)",0,10,";332,5;470,5;473,5;596,5;720,5;' +
+    '1405,5;1681,5;1687,5;1711,5;1724,5","A",";344;482;485;588;73' +
+    '2;1397;1673;1679;1703;1716"],' +
+    '["MfeI","C^AATTG",0,1,";728,6","N",";728"],' +
+    '["MluI","A^CGCGT",0,0,"","N",""],' +
+    '["MluCI","^AATT",0,14,";23,4;174,4;223,4;729,4;1281,4;1554,' +
+    '4;1590,4;1763,4;1872,4;1915,4;2087,4;2153,4;2278,4;3074,4","' +
+    'N",";22;173;222;728;1280;1553;1589;1762;1871;1914;2086;2152;' +
+    '2277;3073"],' +
+    '["MluNI","TGG^CCA",1,2,";1068,6;1583,6","N",";1070;1585"],' +
+    '["MlyI","GAGTC(5/5)",0,10,";127,5;198,5;562,5;1526,5;1533,5' +
+    ';2063,5;2760,5;2825,5;2943,5;2951,5","N",";136;192;556;1535;' +
+    '1527;2072;2754;2819;2937;2945"],' +
+    '["MmeI","TCCRAC(20/18)",0,3,";1001,6;1634,6;2790,6","N",";9' +
+    '82;1659;2815"],' +
+    '["MnlI","CCTC(7/6)",0,38,";101,4;148,4;385,4;455,4;482,4;48' +
+    '7,4;620,4;903,4;975,4;1129,4;1149,4;1191,4;1198,4;1263,4;132' +
+    '4,4;1387,4;1412,4;1511,4;1606,4;1624,4;1632,4;1685,4;1706,4;' +
+    '1758,4;1774,4;1828,4;1840,4;1933,4;2537,4;2811,4;2876,4;2940' +
+    ',4;2980,4;3016,4;3028,4;3059,4;3110,4;3151,4","N",";111;158;' +
+    '395;448;492;497;630;913;985;1122;1159;1201;1208;1273;1317;13' +
+    '97;1405;1521;1616;1634;1642;1695;1716;1768;1784;1838;1850;19' +
+    '43;2547;2821;2886;2933;2973;3009;3021;3052;3120;3161"],' +
+    '["MroI","T^CCGGA",0,1,";429,6","N",";429"],' +
+    '["MscI","TGG^CCA",0,1,";1583,6","C",";1585"],' +
+    '["MseI","T^TAA",0,9,";221,4;615,4;708,4;792,4;819,4;2114,4;' +
+    '2244,4;3005,4;3040,4","N",";221;615;708;792;819;2114;2244;30' +
+    '05;3040"],' +
+    '["MslI","CAYNN^NNRTG",0,1,";270,10","N",";274"],' +
+    '["MspI","C^CGG",0,4,";430,4;1799,4;2437,4;2852,4","N",";430' +
+    ';1799;2437;2852"],' +
+    '["MspA1I","CMG^CKG",1,2,";1233,6;2076,6","N",";1235;2078"],' +
+    '["MunI","C^AATTG",0,1,";728,6","N",";728"],' +
+    '["MvaI","CC^WGG",0,8,";209,5;744,5;1066,5;1644,5;1767,5;190' +
+    '0,5;1948,5;2447,5","N",";210;745;1067;1645;1768;1901;1949;24' +
+    '48"],' +
+    '["MvnI","CG^CG",0,3,";512,4;2690,4;2821,4","N",";513;2691;2' +
+    '822"],' +
+    '["MwoI","GCNNNNN^NNGC",0,6,";1011,11;1020,11;1226,11;1798,1' +
+    '1;2505,11;2570,11","N",";1017;1026;1232;1804;2511;2576"],' +
+    '["NaeI","GCC^GGC",0,0,"","N",""],' +
+    '["NarI","GG^CGCC",0,0,"","N",""],' +
+    '["NciI","CC^SGG",0,1,";2436,5","N",";2437"],' +
+    '["NcoI","C^CATGG",0,1,";2654,6","N",";2654"],' +
+    '["NdeI","CA^TATG",0,0,"","N",""],' +
+    '["NdeII","^GATC",0,0,"","A",""],' +
+    '["NgoMIV","G^CCGGC",0,0,"","N",""],' +
+    '["NheI","G^CTAGC",0,0,"","N",""],' +
+    '["NlaIII","CATG^",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;' +
+    '2349,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N"' +
+    ',";950;1274;1439;1798;1811;2352;2503;2518;2658;2892;3098;313' +
+    '6;7"],' +
+    '["NlaIV","GGN^NCC",0,14,";461,6;1004,6;1144,6;1347,6;1420,6' +
+    ';1421,6;1464,6;1790,6;1824,6;2039,6;2183,6;2522,6;2533,6;268' +
+    '2,6","C",";463;1006;1146;1349;1422;1423;1466;1792;1826;2041;' +
+    '2185;2524;2535;2684"],' +
+    '["NmeAIII","GCCGAG(21/19)",0,0,"","N",""],' +
+    '["NotI","GC^GGCCGC",0,0,"","N",""],' +
+    '["NruI","TCG^CGA",0,0,"","A",""],' +
+    '["NsiI","ATGCA^T",0,1,";2346,6","N",";2350"],' +
+    '["NspI","RCATG^Y",1,2,";2348,6;2514,6","N",";2352;2518"],' +
+    '["PacI","TTAAT^TAA",0,0,"","N",""],' +
+    '["PaeR7I","C^TCGAG",0,1,";1409,6","N",";1409"],' +
+    '["PciI","A^CATGT",0,0,"","N",""],' +
+    '["PflFI","GACN^NNGTC",0,0,"","N",""],' +
+    '["PflMI","CCANNNN^NTGG",0,4,";995,11;1270,11;1999,11;2481,1' +
+    '1","C",";1001;1276;2005;2487"],' +
+    '["PleI","GAGTC(4/5)",0,10,";127,5;198,5;562,5;1526,5;1533,5' +
+    ';2063,5;2760,5;2825,5;2943,5;2951,5","N",";135;192;556;1534;' +
+    '1527;2071;2754;2819;2937;2945"],' +
+    '["PluTI","GGCGC^C",0,0,"","N",""],' +
+    '["PmeI","GTTT^AAAC",0,0,"","N",""],' +
+    '["PmlI","CAC^GTG",0,0,"","N",""],' +
+    '["PpuMI","RG^GWCCY",0,4,";460,7;1420,7;1463,7;2183,7","C","' +
+    ';461;1421;1464;2184"],' +
+    '["PshAI","GACNN^NNGTC",0,1,";494,10","N",";498"],' +
+    '["PsiI","TTA^TAA",0,1,";15,6","N",";17"],' +
+    '["PspGI","^CCWGG",0,0,"","C",""],' +
+    '["PspOMI","G^GGCCC",0,0,"","C",""],' +
+    '["PspXI","VC^TCGAGB",0,0,"","N",""],' +
+    '["PstI","CTGCA^G",0,0,"","N",""],' +
+    '["PvuI","CGAT^CG",0,0,"","N",""],' +
+    '["PvuII","CAG^CTG",0,0,"","N",""],' +
+    '["RsaI","GT^AC",0,5,";79,4;605,4;1852,4;2051,4;3052,4","N",' +
+    '";80;606;1853;2052;3053"],' +
+    '["RsrII","CG^GWCCG",0,1,";2853,7","N",";2854"],' +
+    '["SacI","GAGCT^C",0,0,"","N",""],' +
+    '["SacII","CCGC^GG",0,0,"","N",""],' +
+    '["SalI","G^TCGAC",0,0,"","N",""],' +
+    '["SapI","GCTCTTC(1/4)",0,0,"","N",""],' +
+    '["Sau96I","G^GNCC",0,12,";279,5;461,5;695,5;1421,5;1464,5;1' +
+    '791,5;1801,5;1930,5;2040,5;2184,5;2503,5;2854,5","C",";279;4' +
+    '61;695;1421;1464;1791;1801;1930;2040;2184;2503;2854"],' +
+    '["Sau3AI","^GATC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,' +
+    '4;1771,4;2545,4;2683,4","N",";84;231;523;937;1004;1310;1770;' +
+    '2544;2682"],' +
+    '["SbfI","CCTGCA^GG",0,0,"","N",""],' +
+    '["ScaI","AGT^ACT",0,0,"","N",""],' +
+    '["ScrFI","CC^NGG",0,1,";2436,5","C",";2437"],' +
+    '["SexAI","A^CCWGGT",0,0,"","C",""],' +
+    '["SfaNI","GCATC(5/9)",1,2,";2056,5;2335,5","N",";2065;2325"' +
+    '],' +
+    '["SfcI","C^TRYAG",1,2,";941,6;3063,6","N",";941;3063"],' +
+    '["SfoI","GGC^GCC",0,0,"","N",""],' +
+    '["SfuI","TT^CGAA",0,0,"","N",""],' +
+    '["SgrAI","CR^CCGGYG",0,0,"","N",""],' +
+    '["SmaI","CCC^GGG",0,0,"","N",""],' +
+    '["SmlI","C^TYRAG",0,4,";1409,6;1819,6;2060,6;2977,6","N",";' +
+    '1409;1819;2060;2977"],' +
+    '["SnaBI","TAC^GTA",0,0,"","N",""],' +
+    '["SpeI","A^CTAGT",0,1,";1961,6","N",";1961"],' +
+    '["SphI","GCATG^C",0,1,";2514,6","N",";2518"],' +
+    '["SrfI","GCCC^GGGC",0,0,"","N",""],' +
+    '["SspI","AAT^ATT",1,2,";768,6;2916,6","N",";770;2918"],' +
+    '["StuI","AGG^CCT",0,4,";1130,6;1325,6;2249,6;2394,6","C",";' +
+    '1132;1327;2251;2396"],' +
+    '["StyI","C^CWWGG",0,5,";557,6;1460,6;2654,6;2924,6;3164,6",' +
+    '"N",";557;1460;2654;2924;3164"],' +
+    '["StyD4I","^CCNGG",0,1,";2436,5","C",";2435"],' +
+    '["SwaI","ATTT^AAAT",0,0,"","N",""],' +
+    '["TaqI","T^CGA",1,2,";8,4;1410,4","A",";8;1410"],' +
+    '["TfiI","G^AWTC",0,7,";375,5;538,5;956,5;982,5;1456,5;1507,' +
+    '5;2725,5","N",";375;538;956;982;1456;1507;2725"],' +
+    '["Tru9I","T^TAA",0,9,";221,4;615,4;708,4;792,4;819,4;2114,4' +
+    ';2244,4;3005,4;3040,4","N",";221;615;708;792;819;2114;2244;3' +
+    '005;3040"],' +
+    '["TseI","G^CWGC",0,6,";1223,5;1697,5;2300,5;2583,5;2659,5;2' +
+    '672,5","N",";1223;1697;2300;2583;2659;2672"],' +
+    '["Tsp45I","^GTSAC",0,1,";916,5","N",";915"],' +
+    '["TspMI","C^CCGGG",0,0,"","N",""],' +
+    '["TspRI","CASTGNN^",0,8,";1273,7;1275,7;1975,7;1977,7;1998,' +
+    '7;2000,7;2480,7;2482,7","N",";1281;1983;2006;2488"],' +
+    '["Tth111I","GACN^NNGTC",0,0,"","N",""],' +
+    '["XbaI","T^CTAGA",0,3,";90,6;241,6;1529,6","A",";90;241;152' +
+    '9"],' +
+    '["XhoI","C^TCGAG",0,1,";1409,6","N",";1409"],' +
+    '["XmaI","C^CCGGG",0,0,"","N",""],' +
+    '["XmnI","GAANN^NNTTC",0,1,";2523,10","N",";2527"],' +
+    '["ZraI","GAC^GTC",0,1,";2695,6","N",";2697"]]';
+    return str;
+}
+
+function wdeTestDataString_018() {
+    var str = '[["AatII","GACGT^C",1,1,";2695,6","N",";2699"],' +
+    '["AccI","GT^MKAC",1,1,";2106,6","N",";2107"],' +
+    '["Acc65I","G^GTACC",1,0,"","C",""],' +
+    '["AciI","CCGC(-3/-1)",0,17,";98,4;511,4;866,4;1027,4;1122,4' +
+    ';1188,4;1233,4;1485,4;1521,4;1667,4;2076,4;2555,4;2568,4;263' +
+    '5,4;2691,4;2732,4;2822,4","N",";98;511;866;1027;1122;1188;12' +
+    '33;1485;1521;1667;2076;2555;2568;2635;2691;2732;2822"],' +
+    '["AclI","AA^CGTT",1,0,"","N",""],' +
+    '["AcuI","CTGAAG(16/14)",0,2,";74,6;1013,6","N",";59;998"],' +
+    '["AfeI","AGC^GCT",1,0,"","N",""],' +
+    '["AflII","C^TTAAG",1,0,"","N",""],' +
+    '["AflIII","A^CRYGT",1,0,"","N",""],' +
+    '["AgeI","A^CCGGT",1,0,"","N",""],' +
+    '["AhdI","GACNNN^NNGTC",1,1,";2825,11","N",";2830"],' +
+    '["AleI","CACNN^NNGTG",1,0,"","N",""],' +
+    '["AluI","AG^CT",0,6,";30,4;105,4;204,4;390,4;1091,4;3157,4"' +
+    ',"N",";31;106;205;391;1092;3158"],' +
+    '["AlwI","GGATC(4/5)",1,0,"","A",""],' +
+    '["AlwNI","CAGNNN^CTG",1,0,"","C",""],' +
+    '["ApaI","GGGCC^C",1,0,"","C",""],' +
+    '["ApaLI","G^TGCAC",1,1,";2861,6","N",";2861"],' +
+    '["ApeKI","G^CWGC",0,6,";1223,5;1697,5;2300,5;2583,5;2659,5;' +
+    '2672,5","N",";1223;1697;2300;2583;2659;2672"],' +
+    '["ApoI","R^AATTY",0,5,";22,6;1280,6;1589,6;1914,6;2152,6","' +
+    'N",";22;1280;1589;1914;2152"],' +
+    '["AscI","GG^CGCGCC",1,0,"","N",""],' +
+    '["AseI","AT^TAAT",1,0,"","N",""],' +
+    '["AsiSI","GCGAT^CGC",1,0,"","N",""],' +
+    '["Asp700I","GAANN^NNTTC",1,1,";2523,10","N",";2527"],' +
+    '["Asp718I","G^GTACC",1,0,"","C",""],' +
+    '["AvaI","C^YCGRG",0,3,";533,6;1409,6;2745,6","N",";533;1409' +
+    ';2745"],' +
+    '["AvaII","G^GWCC",0,7,";461,5;1421,5;1464,5;1791,5;1801,5;2' +
+    '184,5;2854,5","C",";461;1421;1464;1791;1801;2184;2854"],' +
+    '["AvrII","C^CTAGG",1,1,";1460,6","N",";1460"],' +
+    '["BaeGI","GKGCM^C",1,1,";2861,6","N",";2865"],' +
+    '["BamHI","G^GATCC",0,3,";1004,6;1770,6;2682,6","N",";1004;1' +
+    '770;2682"],' +
+    '["BanI","G^GYRCC",1,0,"","N",""],' +
+    '["BanII","GRGCY^C",1,1,";1145,6","N",";1149"],' +
+    '["BbrPI","CAC^GTG",1,0,"","N",""],' +
+    '["BbsI","GAAGAC(2/6)",1,0,"","N",""],' +
+    '["BbvI","GCAGC(8/12)",0,6,";1223,5;1697,5;2300,5;2583,5;265' +
+    '9,5;2672,5","N",";1235;1684;2287;2595;2646;2659"],' +
+    '["BbvCI","CCTCAGC(-5/-2)",0,2,";101,7;1933,7","N",";102;193' +
+    '4"],' +
+    '["BccI","CCATC(4/5)",0,5,";635,5;1888,5;1893,5;2136,5;2506,' +
+    '5","N",";643;1896;1901;2130;2514"],' +
+    '["BceAI","ACGGC(12/14)",0,2,";2443,5;2785,5","N",";2459;277' +
+    '0"],' +
+    '["BciVI","GTATCC(6/5)",1,1,";1835,6","N",";1846"],' +
+    '["BclI","T^GATCA",1,0,"","A",""],' +
+    '["BcoDI","GTCTC(1/5)",0,7,";129,5;245,5;320,5;433,5;501,5;1' +
+    '238,5;2893,5","N",";134;239;325;427;506;1243;2887"],' +
+    '["BfaI","C^TAG",0,14,";91,4;202,4;242,4;250,4;467,4;815,4;8' +
+    '37,4;1461,4;1530,4;1560,4;1962,4;2564,4;2663,4;3055,4","N","' +
+    ';91;202;242;250;467;815;837;1461;1530;1560;1962;2564;2663;30' +
+    '55"],' +
+    '["BfrI","C^TTAAG",1,0,"","N",""],' +
+    '["BfuAI","ACCTGC(4/8)",0,3,";458,6;1803,6;2586,6","N",";449' +
+    ';1812;2577"],' +
+    '["BfuCI","^GATC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,4' +
+    ';1771,4;2545,4;2683,4","N",";84;231;523;937;1004;1310;1770;2' +
+    '544;2682"],' +
+    '["BglI","GCCNNNN^NGGC",1,0,"","N",""],' +
+    '["BglII","A^GATCT",0,3,";84,6;523,6;937,6","N",";84;523;937' +
+    '"],' +
+    '["BlnI","C^CTAGG",1,1,";1460,6","N",";1460"],' +
+    '["BlpI","GC^TNAGC",1,0,"","N",""],' +
+    '["BmgBI","CACGTC(-3/-3)",1,1,";2882,6","N",";2884"],' +
+    '["BmrI","ACTGGG(5/4)",0,2,";584,6;3011,6","N",";594;3021"],' +
+    '["BmtI","GCTAG^C",1,0,"","N",""],' +
+    '["BpmI","CTGGAG(16/14)",0,4,";386,6;1093,6;1349,6;2592,6","' +
+    'N",";371;1114;1334;2613"],' +
+    '["Bpu10I","CCTNAGC(-5/-2)",0,4,";101,7;133,7;1155,7;1933,7"' +
+    ',"N",";102;134;1156;1934"],' +
+    '["BpuEI","CTTGAG(16/14)",0,3,";1819,6;2060,6;2977,6","N",";' +
+    '1804;2081;2998"],' +
+    '["BsaI","GGTCTC(1/5)",0,3,";245,6;500,6;2893,6","C",";239;5' +
+    '06;2887"],' +
+    '["BsaAI","YAC^GTR",1,0,"","N",""],' +
+    '["BsaBI","GATNN^NNATC",1,0,"","A",""],' +
+    '["BsaHI","GR^CGYC",0,2,";1074,6;2695,6","N",";1075;2696"],' +
+    '["BsaJI","C^CNNGG",0,8,";209,6;557,6;1460,6;1900,6;2654,6;2' +
+    '799,6;2924,6;3164,6","N",";209;557;1460;1900;2654;2799;2924;' +
+    '3164"],' +
+    '["BsaWI","W^CCGGW",1,1,";429,6","N",";429"],' +
+    '["BsaXI","(9/12)ACNNNNNCTCC(10/7)",0,4,";28,11;1383,11;2820' +
+    ',11;3030,11","N",";50;20;1373;1403;2810;2840;3052;3022"],' +
+    '["BseRI","GAGGAG(10/8)",0,4,";383,6;2535,6;3016,6;3028,6","' +
+    'N",";374;2526;3031;3043"],' +
+    '["BseYI","CCCAGC(-5/-1)",0,3,";182,6;1106,6;2487,6","N",";1' +
+    '82;1106;2487"],' +
+    '["BsgI","GTGCAG(16/14)",0,2,";158,6;2879,6","N",";143;2864"' +
+    '],' +
+    '["BsiEI","CGRY^CG",0,2,";2792,6;2969,6","N",";2795;2972"],' +
+    '["BsiHKAI","GWGCW^C",1,1,";2861,6","N",";2865"],' +
+    '["BsiWI","C^GTACG",1,0,"","N",""],' +
+    '["BslI","CCNNNNN^NNGG",0,14,";995,11;1119,11;1122,11;1270,1' +
+    '1;1338,11;1860,11;1999,11;2430,11;2436,11;2481,11;2548,11;27' +
+    '40,11;2741,11;2795,11","N",";1001;1125;1128;1276;1344;1866;2' +
+    '005;2436;2442;2487;2554;2746;2747;2801"],' +
+    '["BsmI","GAATGC(1/-1)",1,1,";1098,6","N",";1098"],' +
+    '["BsmAI","GTCTC(1/5)",0,7,";129,5;245,5;320,5;433,5;501,5;1' +
+    '238,5;2893,5","N",";134;239;325;427;506;1243;2887"],' +
+    '["BsmBI","CGTCTC(1/5)",1,0,"","N",""],' +
+    '["BsmFI","GGGAC(10/14)",0,11,";462,5;1042,5;1420,5;1598,5;1' +
+    '790,5;2065,5;2609,5;2693,5;2711,5;2758,5;2769,5","N",";447;1' +
+    '056;1434;1583;1804;2050;2623;2707;2696;2772;2754"],' +
+    '["BsoBI","C^YCGRG",0,3,";533,6;1409,6;2745,6","N",";533;140' +
+    '9;2745"],' +
+    '["Bsp1286I","GDGCH^C",0,2,";1145,6;2861,6","N",";1149;2865"' +
+    '],' +
+    '["BspCNI","CTCAG(9/7)",0,9,";102,5;134,5;163,5;1150,5;1156,' +
+    '5;1264,5;1934,5;1953,5;2955,5","N",";115;126;176;1163;1169;1' +
+    '277;1947;1966;2968"],' +
+    '["BspDI","AT^CGAT",1,0,"","A",""],' +
+    '["BspEI","T^CCGGA",1,1,";429,6","A",";429"],' +
+    '["BspHI","T^CATGA",1,0,"","A",""],' +
+    '["BspMI","ACCTGC(4/8)",0,3,";458,6;1803,6;2586,6","N",";449' +
+    ';1812;2577"],' +
+    '["BspQI","GCTCTTC(1/4)",1,0,"","N",""],' +
+    '["BsrI","ACTGG(1/-1)",0,7,";584,5;998,5;1211,5;1351,5;2483,' +
+    '5;2679,5;3011,5","N",";589;998;1211;1351;2488;2684;3016"],' +
+    '["BsrBI","CCGCTC(-3/-3)",1,0,"","N",""],' +
+    '["BsrDI","GCAATG(2/0)",1,1,";2959,6","N",";2966"],' +
+    '["BsrFI","R^CCGGY",1,0,"","N",""],' +
+    '["BsrGI","T^GTACA",1,1,";2050,6","N",";2050"],' +
+    '["BssHII","G^CGCGC",1,0,"","N",""],' +
+    '["BssSI","CACGAG(-5/-1)",0,2,";1473,6;1535,6","N",";1473;15' +
+    '35"],' +
+    '["BstAPI","GCANNNN^NTGC",1,0,"","N",""],' +
+    '["BstBI","TT^CGAA",1,0,"","N",""],' +
+    '["BstEII","G^GTNACC",0,2,";760,7;915,7","N",";760;915"],' +
+    '["BstNI","CC^WGG",0,8,";209,5;744,5;1066,5;1644,5;1767,5;19' +
+    '00,5;1948,5;2447,5","N",";210;745;1067;1645;1768;1901;1949;2' +
+    '448"],' +
+    '["BstUI","CG^CG",0,3,";512,4;2690,4;2821,4","N",";513;2691;' +
+    '2822"],' +
+    '["BstXI","CCANNNNN^NTGG",0,2,";920,12;1893,12","N",";927;19' +
+    '00"],' +
+    '["BstYI","R^GATCY",0,8,";84,6;231,6;523,6;937,6;1004,6;1310' +
+    ',6;1770,6;2682,6","N",";84;231;523;937;1004;1310;1770;2682"]' +
+    ',' +
+    '["BstZ17I","GTA^TAC",1,1,";2106,6","N",";2108"],' +
+    '["Bsu36I","CC^TNAGG",0,2,";1149,7;1263,7","N",";1150;1264"]' +
+    ',' +
+    '["BtgI","C^CRYGG",0,2,";2654,6;2799,6","N",";2654;2799"],' +
+    '["BtgZI","GCGATG(10/14)",1,0,"","N",""],' +
+    '["BtsI","GCAGTG(2/0)",1,1,";1274,6","N",";1281"],' +
+    '["BtsIMutI","CAGTG(2/0)",0,4,";1275,5;1977,5;2000,5;2482,5"' +
+    ',"N",";1281;1983;1999;2481"],' +
+    '["BtsCI","GGATG(2/0)",0,7,";1260,5;1657,5;1691,5;1889,5;189' +
+    '7,5;2023,5;2174,5","N",";1259;1663;1690;1888;1896;2029;2180"' +
+    '],' +
+    '["Cac8I","GCN^NGC",0,6,";168,6;739,6;1178,6;2365,6;2514,6;2' +
+    '579,6","N",";170;741;1180;2367;2516;2581"],' +
+    '["CfoI","GCG^C",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;280' +
+    '6,4;3083,4","N",";902;1430;2514;2691;2722;2808;3085"],' +
+    '["ClaI","AT^CGAT",1,0,"","A",""],' +
+    '["CviAII","C^ATG",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;' +
+    '2349,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N"' +
+    ',";947;1271;1436;1795;1808;2349;2500;2515;2655;2889;3095;313' +
+    '3;4"],' +
+    '["CviQI","G^TAC",0,5,";79,4;605,4;1852,4;2051,4;3052,4","N"' +
+    ',";79;605;1852;2051;3052"],' +
+    '["DdeI","C^TNAG",0,11,";102,5;123,5;134,5;163,5;1150,5;1156' +
+    ',5;1264,5;1934,5;1953,5;2361,5;2955,5","N",";102;123;134;163' +
+    ';1150;1156;1264;1934;1953;2361;2955"],' +
+    '["DpnI","GA^TC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,4;' +
+    '1771,4;2545,4;2683,4","N",";86;233;525;939;1006;1312;1772;25' +
+    '46;2684"],' +
+    '["DpnII","^GATC",1,0,"","A",""],' +
+    '["DraI","TTT^AAA",0,2,";2113,6;3004,6","N",";2115;3006"],' +
+    '["DraIII","CACNNN^GTG",1,1,";2313,9","N",";2318"],' +
+    '["DrdI","GACNNNN^NNGTC",0,2,";247,12;2760,12","N",";253;276' +
+    '6"],' +
+    '["EaeI","Y^GGCCR",1,1,";1583,6","C",";1583"],' +
+    '["EagI","C^GGCCG",1,0,"","N",""],' +
+    '["EarI","CTCTTC(1/4)",0,2,";332,6;1686,6","N",";327;1692"],' +
+    '["EciI","GGCGGA(11/9)",1,1,";1187,6","A",";1177"],' +
+    '["Eco47III","AGC^GCT",1,0,"","N",""],' +
+    '["EcoNI","CCTNN^NNNAGG",1,0,"","N",""],' +
+    '["EcoO109I","RG^GNCCY",0,4,";460,7;1420,7;1463,7;2183,7","N' +
+    '",";461;1421;1464;2184"],' +
+    '["EcoP15I","CAGCAG(25/27)",0,3,";1339,6;1695,6;2584,6","N",' +
+    '";1311;1667;2614"],' +
+    '["EcoRI","G^AATTC",1,1,";1280,6","N",";1280"],' +
+    '["EcoRV","GAT^ATC",1,0,"","N",""],' +
+    '["Eco53kI","GAG^CTC",1,0,"","N",""],' +
+    '["FatI","^CATG",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;23' +
+    '49,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N","' +
+    ';946;1270;1435;1794;1807;2348;2499;2514;2654;2888;3094;3132;' +
+    '3"],' +
+    '["FauI","CCCGC(4/6)",0,5,";866,5;1232,5;1485,5;2634,5;2691,' +
+    '5","N",";859;1240;1478;2642;2684"],' +
+    '["Fnu4HI","GC^NGC",0,9,";510,5;1223,5;1667,5;1697,5;2300,5;' +
+    '2567,5;2583,5;2659,5;2672,5","N",";511;1224;1668;1698;2301;2' +
+    '568;2584;2660;2673"],' +
+    '["FokI","GGATG(9/13)",0,7,";1260,5;1657,5;1691,5;1889,5;189' +
+    '7,5;2023,5;2174,5","N",";1246;1670;1677;1875;1883;2036;2187"' +
+    '],' +
+    '["FseI","GGCCGG^CC",1,0,"","N",""],' +
+    '["FspI","TGC^GCA",1,1,";3082,6","N",";3084"],' +
+    '["HaeII","RGCGC^Y",0,2,";899,6;2719,6","N",";903;2723"],' +
+    '["HaeIII","GG^CC",0,13,";280,4;695,4;1069,4;1131,4;1268,4;1' +
+    '326,4;1584,4;1931,4;2041,4;2250,4;2395,4;2445,4;2504,4","N",' +
+    '";281;696;1070;1132;1269;1327;1585;1932;2042;2251;2396;2446;' +
+    '2505"],' +
+    '["HgaI","GACGC(5/10)",0,4,";238,5;513,5;1074,5;2471,5","N",' +
+    '";227;502;1083;2480"],' +
+    '["HhaI","GCG^C",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;280' +
+    '6,4;3083,4","N",";902;1430;2514;2691;2722;2808;3085"],' +
+    '["HinP1I","G^CGC",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;2' +
+    '806,4;3083,4","N",";900;1428;2512;2689;2720;2806;3083"],' +
+    '["HincII","GTY^RAC",0,4,";265,6;1499,6;2271,6;2964,6","N","' +
+    ';267;1501;2273;2966"],' +
+    '["HindII","GTY^RAC",0,4,";265,6;1499,6;2271,6;2964,6","N","' +
+    ';267;1501;2273;2966"],' +
+    '["HindIII","A^AGCTT",1,0,"","N",""],' +
+    '["HinfI","G^ANTC",0,17,";127,5;198,5;375,5;538,5;562,5;956,' +
+    '5;982,5;1456,5;1507,5;1526,5;1533,5;2063,5;2725,5;2760,5;282' +
+    '5,5;2943,5;2951,5","N",";127;198;375;538;562;956;982;1456;15' +
+    '07;1526;1533;2063;2725;2760;2825;2943;2951"],' +
+    '["HpaI","GTT^AAC",1,0,"","N",""],' +
+    '["HpaII","C^CGG",0,4,";430,4;1799,4;2437,4;2852,4","N",";43' +
+    '0;1799;2437;2852"],' +
+    '["HphI","GGTGA(8/7)",0,7,";145,5;150,5;917,5;1114,5;1617,5;' +
+    '2873,5;3107,5","A",";137;142;909;1106;1609;2865;3099"],' +
+    '["Hpy99I","CGWCG^",0,4,";451,5;514,5;2715,5;2884,5","N",";4' +
+    '55;518;2719;2888"],' +
+    '["Hpy166II","GTN^NAC",0,14,";143,6;265,6;681,6;1365,6;1499,' +
+    '6;1541,6;1957,6;2106,6;2271,6;2406,6;2705,6;2861,6;2902,6;29' +
+    '64,6","N",";145;267;683;1367;1501;1543;1959;2108;2273;2408;2' +
+    '707;2863;2904;2966"],' +
+    '["Hpy188I","TCN^GA",0,7,";61,5;365,5;1015,5;1376,5;1863,5;1' +
+    '909,5;2790,5","A",";63;367;1017;1378;1865;1911;2792"],' +
+    '["Hpy188III","TC^NNGA",0,18,";90,6;114,6;132,6;241,6;429,6;' +
+    '534,6;805,6;989,6;1034,6;1215,6;1356,6;1408,6;1452,6;1529,6;' +
+    '1727,6;2059,6;2591,6;2607,6","A",";91;115;133;242;430;535;80' +
+    '6;990;1035;1216;1357;1409;1453;1530;1728;2060;2592;2608"],' +
+    '["HpyAV","CCTTC(6/5)",0,12,";58,5;73,5;497,5;862,5;1012,5;1' +
+    '219,5;1291,5;1469,5;1860,5;2741,5;2773,5;2840,5","N",";68;83' +
+    ';491;856;1022;1213;1301;1479;1870;2751;2783;2850"],' +
+    '["HpyCH4III","ACN^GT",0,13,";34,5;340,5;439,5;602,5;685,5;7' +
+    '04,5;1362,5;1572,5;2001,5;2856,5;2899,5;2996,5;3141,5","N","' +
+    ';36;342;441;604;687;706;1364;1574;2003;2858;2901;2998;3143"]' +
+    ',' +
+    '["HpyCH4IV","A^CGT",0,3,";2696,4;2709,4;2883,4","N",";2696;' +
+    '2709;2883"],' +
+    '["HpyCH4V","TG^CA",0,10,";159,4;726,4;1273,4;1306,4;1806,4;' +
+    '1875,4;2347,4;2862,4;2880,4;3097,4","N",";160;727;1274;1307;' +
+    '1807;1876;2348;2863;2881;3098"],' +
+    '["KasI","G^GCGCC",1,0,"","N",""],' +
+    '["KpnI","GGTAC^C",1,0,"","N",""],' +
+    '["KspI","CCGC^GG",1,0,"","N",""],' +
+    '["MaeI","C^TAG",0,14,";91,4;202,4;242,4;250,4;467,4;815,4;8' +
+    '37,4;1461,4;1530,4;1560,4;1962,4;2564,4;2663,4;3055,4","N","' +
+    ';91;202;242;250;467;815;837;1461;1530;1560;1962;2564;2663;30' +
+    '55"],' +
+    '["MaeII","A^CGT",0,3,";2696,4;2709,4;2883,4","N",";2696;270' +
+    '9;2883"],' +
+    '["MaeIII","^GTNAC",0,6,";42,5;761,5;916,5;1478,5;2081,5;214' +
+    '2,5","N",";41;760;915;1477;2080;2141"],' +
+    '["MboI","^GATC",1,0,"","A",""],' +
+    '["MboII","GAAGA(8/7)",0,10,";332,5;470,5;473,5;596,5;720,5;' +
+    '1405,5;1681,5;1687,5;1711,5;1724,5","A",";344;482;485;588;73' +
+    '2;1397;1673;1679;1703;1716"],' +
+    '["MfeI","C^AATTG",1,1,";728,6","N",";728"],' +
+    '["MluI","A^CGCGT",1,0,"","N",""],' +
+    '["MluCI","^AATT",0,14,";23,4;174,4;223,4;729,4;1281,4;1554,' +
+    '4;1590,4;1763,4;1872,4;1915,4;2087,4;2153,4;2278,4;3074,4","' +
+    'N",";22;173;222;728;1280;1553;1589;1762;1871;1914;2086;2152;' +
+    '2277;3073"],' +
+    '["MluNI","TGG^CCA",0,2,";1068,6;1583,6","N",";1070;1585"],' +
+    '["MlyI","GAGTC(5/5)",0,10,";127,5;198,5;562,5;1526,5;1533,5' +
+    ';2063,5;2760,5;2825,5;2943,5;2951,5","N",";136;192;556;1535;' +
+    '1527;2072;2754;2819;2937;2945"],' +
+    '["MmeI","TCCRAC(20/18)",0,3,";1001,6;1634,6;2790,6","N",";9' +
+    '82;1659;2815"],' +
+    '["MnlI","CCTC(7/6)",0,38,";101,4;148,4;385,4;455,4;482,4;48' +
+    '7,4;620,4;903,4;975,4;1129,4;1149,4;1191,4;1198,4;1263,4;132' +
+    '4,4;1387,4;1412,4;1511,4;1606,4;1624,4;1632,4;1685,4;1706,4;' +
+    '1758,4;1774,4;1828,4;1840,4;1933,4;2537,4;2811,4;2876,4;2940' +
+    ',4;2980,4;3016,4;3028,4;3059,4;3110,4;3151,4","N",";111;158;' +
+    '395;448;492;497;630;913;985;1122;1159;1201;1208;1273;1317;13' +
+    '97;1405;1521;1616;1634;1642;1695;1716;1768;1784;1838;1850;19' +
+    '43;2547;2821;2886;2933;2973;3009;3021;3052;3120;3161"],' +
+    '["MroI","T^CCGGA",1,1,";429,6","N",";429"],' +
+    '["MscI","TGG^CCA",1,1,";1583,6","C",";1585"],' +
+    '["MseI","T^TAA",0,9,";221,4;615,4;708,4;792,4;819,4;2114,4;' +
+    '2244,4;3005,4;3040,4","N",";221;615;708;792;819;2114;2244;30' +
+    '05;3040"],' +
+    '["MslI","CAYNN^NNRTG",1,1,";270,10","N",";274"],' +
+    '["MspI","C^CGG",0,4,";430,4;1799,4;2437,4;2852,4","N",";430' +
+    ';1799;2437;2852"],' +
+    '["MspA1I","CMG^CKG",0,2,";1233,6;2076,6","N",";1235;2078"],' +
+    '["MunI","C^AATTG",1,1,";728,6","N",";728"],' +
+    '["MvaI","CC^WGG",0,8,";209,5;744,5;1066,5;1644,5;1767,5;190' +
+    '0,5;1948,5;2447,5","N",";210;745;1067;1645;1768;1901;1949;24' +
+    '48"],' +
+    '["MvnI","CG^CG",0,3,";512,4;2690,4;2821,4","N",";513;2691;2' +
+    '822"],' +
+    '["MwoI","GCNNNNN^NNGC",0,6,";1011,11;1020,11;1226,11;1798,1' +
+    '1;2505,11;2570,11","N",";1017;1026;1232;1804;2511;2576"],' +
+    '["NaeI","GCC^GGC",1,0,"","N",""],' +
+    '["NarI","GG^CGCC",1,0,"","N",""],' +
+    '["NciI","CC^SGG",1,1,";2436,5","N",";2437"],' +
+    '["NcoI","C^CATGG",1,1,";2654,6","N",";2654"],' +
+    '["NdeI","CA^TATG",1,0,"","N",""],' +
+    '["NdeII","^GATC",1,0,"","A",""],' +
+    '["NgoMIV","G^CCGGC",1,0,"","N",""],' +
+    '["NheI","G^CTAGC",1,0,"","N",""],' +
+    '["NlaIII","CATG^",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;' +
+    '2349,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N"' +
+    ',";950;1274;1439;1798;1811;2352;2503;2518;2658;2892;3098;313' +
+    '6;7"],' +
+    '["NlaIV","GGN^NCC",0,14,";461,6;1004,6;1144,6;1347,6;1420,6' +
+    ';1421,6;1464,6;1790,6;1824,6;2039,6;2183,6;2522,6;2533,6;268' +
+    '2,6","C",";463;1006;1146;1349;1422;1423;1466;1792;1826;2041;' +
+    '2185;2524;2535;2684"],' +
+    '["NmeAIII","GCCGAG(21/19)",1,0,"","N",""],' +
+    '["NotI","GC^GGCCGC",1,0,"","N",""],' +
+    '["NruI","TCG^CGA",1,0,"","A",""],' +
+    '["NsiI","ATGCA^T",1,1,";2346,6","N",";2350"],' +
+    '["NspI","RCATG^Y",0,2,";2348,6;2514,6","N",";2352;2518"],' +
+    '["PacI","TTAAT^TAA",1,0,"","N",""],' +
+    '["PaeR7I","C^TCGAG",1,1,";1409,6","N",";1409"],' +
+    '["PciI","A^CATGT",1,0,"","N",""],' +
+    '["PflFI","GACN^NNGTC",1,0,"","N",""],' +
+    '["PflMI","CCANNNN^NTGG",0,4,";995,11;1270,11;1999,11;2481,1' +
+    '1","C",";1001;1276;2005;2487"],' +
+    '["PleI","GAGTC(4/5)",0,10,";127,5;198,5;562,5;1526,5;1533,5' +
+    ';2063,5;2760,5;2825,5;2943,5;2951,5","N",";135;192;556;1534;' +
+    '1527;2071;2754;2819;2937;2945"],' +
+    '["PluTI","GGCGC^C",1,0,"","N",""],' +
+    '["PmeI","GTTT^AAAC",1,0,"","N",""],' +
+    '["PmlI","CAC^GTG",1,0,"","N",""],' +
+    '["PpuMI","RG^GWCCY",0,4,";460,7;1420,7;1463,7;2183,7","C","' +
+    ';461;1421;1464;2184"],' +
+    '["PshAI","GACNN^NNGTC",1,1,";494,10","N",";498"],' +
+    '["PsiI","TTA^TAA",1,1,";15,6","N",";17"],' +
+    '["PspGI","^CCWGG",1,0,"","C",""],' +
+    '["PspOMI","G^GGCCC",1,0,"","C",""],' +
+    '["PspXI","VC^TCGAGB",1,0,"","N",""],' +
+    '["PstI","CTGCA^G",1,0,"","N",""],' +
+    '["PvuI","CGAT^CG",1,0,"","N",""],' +
+    '["PvuII","CAG^CTG",1,0,"","N",""],' +
+    '["RsaI","GT^AC",0,5,";79,4;605,4;1852,4;2051,4;3052,4","N",' +
+    '";80;606;1853;2052;3053"],' +
+    '["RsrII","CG^GWCCG",1,1,";2853,7","N",";2854"],' +
+    '["SacI","GAGCT^C",1,0,"","N",""],' +
+    '["SacII","CCGC^GG",1,0,"","N",""],' +
+    '["SalI","G^TCGAC",1,0,"","N",""],' +
+    '["SapI","GCTCTTC(1/4)",1,0,"","N",""],' +
+    '["Sau96I","G^GNCC",0,12,";279,5;461,5;695,5;1421,5;1464,5;1' +
+    '791,5;1801,5;1930,5;2040,5;2184,5;2503,5;2854,5","C",";279;4' +
+    '61;695;1421;1464;1791;1801;1930;2040;2184;2503;2854"],' +
+    '["Sau3AI","^GATC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,' +
+    '4;1771,4;2545,4;2683,4","N",";84;231;523;937;1004;1310;1770;' +
+    '2544;2682"],' +
+    '["SbfI","CCTGCA^GG",1,0,"","N",""],' +
+    '["ScaI","AGT^ACT",1,0,"","N",""],' +
+    '["ScrFI","CC^NGG",1,1,";2436,5","C",";2437"],' +
+    '["SexAI","A^CCWGGT",1,0,"","C",""],' +
+    '["SfaNI","GCATC(5/9)",0,2,";2056,5;2335,5","N",";2065;2325"' +
+    '],' +
+    '["SfcI","C^TRYAG",0,2,";941,6;3063,6","N",";941;3063"],' +
+    '["SfoI","GGC^GCC",1,0,"","N",""],' +
+    '["SfuI","TT^CGAA",1,0,"","N",""],' +
+    '["SgrAI","CR^CCGGYG",1,0,"","N",""],' +
+    '["SmaI","CCC^GGG",1,0,"","N",""],' +
+    '["SmlI","C^TYRAG",0,4,";1409,6;1819,6;2060,6;2977,6","N",";' +
+    '1409;1819;2060;2977"],' +
+    '["SnaBI","TAC^GTA",1,0,"","N",""],' +
+    '["SpeI","A^CTAGT",1,1,";1961,6","N",";1961"],' +
+    '["SphI","GCATG^C",1,1,";2514,6","N",";2518"],' +
+    '["SrfI","GCCC^GGGC",1,0,"","N",""],' +
+    '["SspI","AAT^ATT",0,2,";768,6;2916,6","N",";770;2918"],' +
+    '["StuI","AGG^CCT",0,4,";1130,6;1325,6;2249,6;2394,6","C",";' +
+    '1132;1327;2251;2396"],' +
+    '["StyI","C^CWWGG",0,5,";557,6;1460,6;2654,6;2924,6;3164,6",' +
+    '"N",";557;1460;2654;2924;3164"],' +
+    '["StyD4I","^CCNGG",1,1,";2436,5","C",";2435"],' +
+    '["SwaI","ATTT^AAAT",1,0,"","N",""],' +
+    '["TaqI","T^CGA",0,2,";8,4;1410,4","A",";8;1410"],' +
+    '["TfiI","G^AWTC",0,7,";375,5;538,5;956,5;982,5;1456,5;1507,' +
+    '5;2725,5","N",";375;538;956;982;1456;1507;2725"],' +
+    '["Tru9I","T^TAA",0,9,";221,4;615,4;708,4;792,4;819,4;2114,4' +
+    ';2244,4;3005,4;3040,4","N",";221;615;708;792;819;2114;2244;3' +
+    '005;3040"],' +
+    '["TseI","G^CWGC",0,6,";1223,5;1697,5;2300,5;2583,5;2659,5;2' +
+    '672,5","N",";1223;1697;2300;2583;2659;2672"],' +
+    '["Tsp45I","^GTSAC",1,1,";916,5","N",";915"],' +
+    '["TspMI","C^CCGGG",1,0,"","N",""],' +
+    '["TspRI","CASTGNN^",0,8,";1273,7;1275,7;1975,7;1977,7;1998,' +
+    '7;2000,7;2480,7;2482,7","N",";1281;1983;2006;2488"],' +
+    '["Tth111I","GACN^NNGTC",1,0,"","N",""],' +
+    '["XbaI","T^CTAGA",0,3,";90,6;241,6;1529,6","A",";90;241;152' +
+    '9"],' +
+    '["XhoI","C^TCGAG",1,1,";1409,6","N",";1409"],' +
+    '["XmaI","C^CCGGG",1,0,"","N",""],' +
+    '["XmnI","GAANN^NNTTC",1,1,";2523,10","N",";2527"],' +
+    '["ZraI","GAC^GTC",1,1,";2695,6","N",";2697"]]';
+    return str;
+}
+
+function wdeTestDataString_019() {
+    var str = '[["AatII","GACGT^C",0,1,";2695,6","N",";2699"],' +
+    '["AccI","GT^MKAC",0,1,";2106,6","N",";2107"],' +
+    '["Acc65I","G^GTACC",0,0,"","C",""],' +
+    '["AciI","CCGC(-3/-1)",0,17,";98,4;511,4;866,4;1027,4;1122,4' +
+    ';1188,4;1233,4;1485,4;1521,4;1667,4;2076,4;2555,4;2568,4;263' +
+    '5,4;2691,4;2732,4;2822,4","N",";98;511;866;1027;1122;1188;12' +
+    '33;1485;1521;1667;2076;2555;2568;2635;2691;2732;2822"],' +
+    '["AclI","AA^CGTT",0,0,"","N",""],' +
+    '["AcuI","CTGAAG(16/14)",0,2,";74,6;1013,6","N",";59;998"],' +
+    '["AfeI","AGC^GCT",0,0,"","N",""],' +
+    '["AflII","C^TTAAG",0,0,"","N",""],' +
+    '["AflIII","A^CRYGT",0,0,"","N",""],' +
+    '["AgeI","A^CCGGT",0,0,"","N",""],' +
+    '["AhdI","GACNNN^NNGTC",0,1,";2825,11","N",";2830"],' +
+    '["AleI","CACNN^NNGTG",0,0,"","N",""],' +
+    '["AluI","AG^CT",0,6,";30,4;105,4;204,4;390,4;1091,4;3157,4"' +
+    ',"N",";31;106;205;391;1092;3158"],' +
+    '["AlwI","GGATC(4/5)",0,0,"","A",""],' +
+    '["AlwNI","CAGNNN^CTG",0,0,"","C",""],' +
+    '["ApaI","GGGCC^C",0,0,"","C",""],' +
+    '["ApaLI","G^TGCAC",0,1,";2861,6","N",";2861"],' +
+    '["ApeKI","G^CWGC",0,6,";1223,5;1697,5;2300,5;2583,5;2659,5;' +
+    '2672,5","N",";1223;1697;2300;2583;2659;2672"],' +
+    '["ApoI","R^AATTY",0,5,";22,6;1280,6;1589,6;1914,6;2152,6","' +
+    'N",";22;1280;1589;1914;2152"],' +
+    '["AscI","GG^CGCGCC",0,0,"","N",""],' +
+    '["AseI","AT^TAAT",0,0,"","N",""],' +
+    '["AsiSI","GCGAT^CGC",0,0,"","N",""],' +
+    '["Asp700I","GAANN^NNTTC",0,1,";2523,10","N",";2527"],' +
+    '["Asp718I","G^GTACC",0,0,"","C",""],' +
+    '["AvaI","C^YCGRG",0,3,";533,6;1409,6;2745,6","N",";533;1409' +
+    ';2745"],' +
+    '["AvaII","G^GWCC",0,7,";461,5;1421,5;1464,5;1791,5;1801,5;2' +
+    '184,5;2854,5","C",";461;1421;1464;1791;1801;2184;2854"],' +
+    '["AvrII","C^CTAGG",0,1,";1460,6","N",";1460"],' +
+    '["BaeGI","GKGCM^C",0,1,";2861,6","N",";2865"],' +
+    '["BamHI","G^GATCC",1,3,";1004,6;1770,6;2682,6","N",";1004;1' +
+    '770;2682"],' +
+    '["BanI","G^GYRCC",0,0,"","N",""],' +
+    '["BanII","GRGCY^C",0,1,";1145,6","N",";1149"],' +
+    '["BbrPI","CAC^GTG",0,0,"","N",""],' +
+    '["BbsI","GAAGAC(2/6)",0,0,"","N",""],' +
+    '["BbvI","GCAGC(8/12)",0,6,";1223,5;1697,5;2300,5;2583,5;265' +
+    '9,5;2672,5","N",";1235;1684;2287;2595;2646;2659"],' +
+    '["BbvCI","CCTCAGC(-5/-2)",0,2,";101,7;1933,7","N",";102;193' +
+    '4"],' +
+    '["BccI","CCATC(4/5)",0,5,";635,5;1888,5;1893,5;2136,5;2506,' +
+    '5","N",";643;1896;1901;2130;2514"],' +
+    '["BceAI","ACGGC(12/14)",0,2,";2443,5;2785,5","N",";2459;277' +
+    '0"],' +
+    '["BciVI","GTATCC(6/5)",0,1,";1835,6","N",";1846"],' +
+    '["BclI","T^GATCA",0,0,"","A",""],' +
+    '["BcoDI","GTCTC(1/5)",0,7,";129,5;245,5;320,5;433,5;501,5;1' +
+    '238,5;2893,5","N",";134;239;325;427;506;1243;2887"],' +
+    '["BfaI","C^TAG",0,14,";91,4;202,4;242,4;250,4;467,4;815,4;8' +
+    '37,4;1461,4;1530,4;1560,4;1962,4;2564,4;2663,4;3055,4","N","' +
+    ';91;202;242;250;467;815;837;1461;1530;1560;1962;2564;2663;30' +
+    '55"],' +
+    '["BfrI","C^TTAAG",0,0,"","N",""],' +
+    '["BfuAI","ACCTGC(4/8)",0,3,";458,6;1803,6;2586,6","N",";449' +
+    ';1812;2577"],' +
+    '["BfuCI","^GATC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,4' +
+    ';1771,4;2545,4;2683,4","N",";84;231;523;937;1004;1310;1770;2' +
+    '544;2682"],' +
+    '["BglI","GCCNNNN^NGGC",0,0,"","N",""],' +
+    '["BglII","A^GATCT",0,3,";84,6;523,6;937,6","N",";84;523;937' +
+    '"],' +
+    '["BlnI","C^CTAGG",0,1,";1460,6","N",";1460"],' +
+    '["BlpI","GC^TNAGC",0,0,"","N",""],' +
+    '["BmgBI","CACGTC(-3/-3)",0,1,";2882,6","N",";2884"],' +
+    '["BmrI","ACTGGG(5/4)",0,2,";584,6;3011,6","N",";594;3021"],' +
+    '["BmtI","GCTAG^C",0,0,"","N",""],' +
+    '["BpmI","CTGGAG(16/14)",0,4,";386,6;1093,6;1349,6;2592,6","' +
+    'N",";371;1114;1334;2613"],' +
+    '["Bpu10I","CCTNAGC(-5/-2)",0,4,";101,7;133,7;1155,7;1933,7"' +
+    ',"N",";102;134;1156;1934"],' +
+    '["BpuEI","CTTGAG(16/14)",0,3,";1819,6;2060,6;2977,6","N",";' +
+    '1804;2081;2998"],' +
+    '["BsaI","GGTCTC(1/5)",0,3,";245,6;500,6;2893,6","C",";239;5' +
+    '06;2887"],' +
+    '["BsaAI","YAC^GTR",0,0,"","N",""],' +
+    '["BsaBI","GATNN^NNATC",0,0,"","A",""],' +
+    '["BsaHI","GR^CGYC",0,2,";1074,6;2695,6","N",";1075;2696"],' +
+    '["BsaJI","C^CNNGG",0,8,";209,6;557,6;1460,6;1900,6;2654,6;2' +
+    '799,6;2924,6;3164,6","N",";209;557;1460;1900;2654;2799;2924;' +
+    '3164"],' +
+    '["BsaWI","W^CCGGW",0,1,";429,6","N",";429"],' +
+    '["BsaXI","(9/12)ACNNNNNCTCC(10/7)",0,4,";28,11;1383,11;2820' +
+    ',11;3030,11","N",";50;20;1373;1403;2810;2840;3052;3022"],' +
+    '["BseRI","GAGGAG(10/8)",0,4,";383,6;2535,6;3016,6;3028,6","' +
+    'N",";374;2526;3031;3043"],' +
+    '["BseYI","CCCAGC(-5/-1)",0,3,";182,6;1106,6;2487,6","N",";1' +
+    '82;1106;2487"],' +
+    '["BsgI","GTGCAG(16/14)",0,2,";158,6;2879,6","N",";143;2864"' +
+    '],' +
+    '["BsiEI","CGRY^CG",0,2,";2792,6;2969,6","N",";2795;2972"],' +
+    '["BsiHKAI","GWGCW^C",0,1,";2861,6","N",";2865"],' +
+    '["BsiWI","C^GTACG",0,0,"","N",""],' +
+    '["BslI","CCNNNNN^NNGG",0,14,";995,11;1119,11;1122,11;1270,1' +
+    '1;1338,11;1860,11;1999,11;2430,11;2436,11;2481,11;2548,11;27' +
+    '40,11;2741,11;2795,11","N",";1001;1125;1128;1276;1344;1866;2' +
+    '005;2436;2442;2487;2554;2746;2747;2801"],' +
+    '["BsmI","GAATGC(1/-1)",0,1,";1098,6","N",";1098"],' +
+    '["BsmAI","GTCTC(1/5)",0,7,";129,5;245,5;320,5;433,5;501,5;1' +
+    '238,5;2893,5","N",";134;239;325;427;506;1243;2887"],' +
+    '["BsmBI","CGTCTC(1/5)",0,0,"","N",""],' +
+    '["BsmFI","GGGAC(10/14)",0,11,";462,5;1042,5;1420,5;1598,5;1' +
+    '790,5;2065,5;2609,5;2693,5;2711,5;2758,5;2769,5","N",";447;1' +
+    '056;1434;1583;1804;2050;2623;2707;2696;2772;2754"],' +
+    '["BsoBI","C^YCGRG",0,3,";533,6;1409,6;2745,6","N",";533;140' +
+    '9;2745"],' +
+    '["Bsp1286I","GDGCH^C",0,2,";1145,6;2861,6","N",";1149;2865"' +
+    '],' +
+    '["BspCNI","CTCAG(9/7)",0,9,";102,5;134,5;163,5;1150,5;1156,' +
+    '5;1264,5;1934,5;1953,5;2955,5","N",";115;126;176;1163;1169;1' +
+    '277;1947;1966;2968"],' +
+    '["BspDI","AT^CGAT",0,0,"","A",""],' +
+    '["BspEI","T^CCGGA",0,1,";429,6","A",";429"],' +
+    '["BspHI","T^CATGA",0,0,"","A",""],' +
+    '["BspMI","ACCTGC(4/8)",0,3,";458,6;1803,6;2586,6","N",";449' +
+    ';1812;2577"],' +
+    '["BspQI","GCTCTTC(1/4)",0,0,"","N",""],' +
+    '["BsrI","ACTGG(1/-1)",0,7,";584,5;998,5;1211,5;1351,5;2483,' +
+    '5;2679,5;3011,5","N",";589;998;1211;1351;2488;2684;3016"],' +
+    '["BsrBI","CCGCTC(-3/-3)",0,0,"","N",""],' +
+    '["BsrDI","GCAATG(2/0)",0,1,";2959,6","N",";2966"],' +
+    '["BsrFI","R^CCGGY",0,0,"","N",""],' +
+    '["BsrGI","T^GTACA",0,1,";2050,6","N",";2050"],' +
+    '["BssHII","G^CGCGC",0,0,"","N",""],' +
+    '["BssSI","CACGAG(-5/-1)",0,2,";1473,6;1535,6","N",";1473;15' +
+    '35"],' +
+    '["BstAPI","GCANNNN^NTGC",0,0,"","N",""],' +
+    '["BstBI","TT^CGAA",1,0,"","N",""],' +
+    '["BstEII","G^GTNACC",0,2,";760,7;915,7","N",";760;915"],' +
+    '["BstNI","CC^WGG",0,8,";209,5;744,5;1066,5;1644,5;1767,5;19' +
+    '00,5;1948,5;2447,5","N",";210;745;1067;1645;1768;1901;1949;2' +
+    '448"],' +
+    '["BstUI","CG^CG",0,3,";512,4;2690,4;2821,4","N",";513;2691;' +
+    '2822"],' +
+    '["BstXI","CCANNNNN^NTGG",1,2,";920,12;1893,12","N",";927;19' +
+    '00"],' +
+    '["BstYI","R^GATCY",0,8,";84,6;231,6;523,6;937,6;1004,6;1310' +
+    ',6;1770,6;2682,6","N",";84;231;523;937;1004;1310;1770;2682"]' +
+    ',' +
+    '["BstZ17I","GTA^TAC",0,1,";2106,6","N",";2108"],' +
+    '["Bsu36I","CC^TNAGG",0,2,";1149,7;1263,7","N",";1150;1264"]' +
+    ',' +
+    '["BtgI","C^CRYGG",0,2,";2654,6;2799,6","N",";2654;2799"],' +
+    '["BtgZI","GCGATG(10/14)",0,0,"","N",""],' +
+    '["BtsI","GCAGTG(2/0)",0,1,";1274,6","N",";1281"],' +
+    '["BtsIMutI","CAGTG(2/0)",0,4,";1275,5;1977,5;2000,5;2482,5"' +
+    ',"N",";1281;1983;1999;2481"],' +
+    '["BtsCI","GGATG(2/0)",0,7,";1260,5;1657,5;1691,5;1889,5;189' +
+    '7,5;2023,5;2174,5","N",";1259;1663;1690;1888;1896;2029;2180"' +
+    '],' +
+    '["Cac8I","GCN^NGC",0,6,";168,6;739,6;1178,6;2365,6;2514,6;2' +
+    '579,6","N",";170;741;1180;2367;2516;2581"],' +
+    '["CfoI","GCG^C",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;280' +
+    '6,4;3083,4","N",";902;1430;2514;2691;2722;2808;3085"],' +
+    '["ClaI","AT^CGAT",0,0,"","A",""],' +
+    '["CviAII","C^ATG",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;' +
+    '2349,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N"' +
+    ',";947;1271;1436;1795;1808;2349;2500;2515;2655;2889;3095;313' +
+    '3;4"],' +
+    '["CviQI","G^TAC",0,5,";79,4;605,4;1852,4;2051,4;3052,4","N"' +
+    ',";79;605;1852;2051;3052"],' +
+    '["DdeI","C^TNAG",0,11,";102,5;123,5;134,5;163,5;1150,5;1156' +
+    ',5;1264,5;1934,5;1953,5;2361,5;2955,5","N",";102;123;134;163' +
+    ';1150;1156;1264;1934;1953;2361;2955"],' +
+    '["DpnI","GA^TC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,4;' +
+    '1771,4;2545,4;2683,4","N",";86;233;525;939;1006;1312;1772;25' +
+    '46;2684"],' +
+    '["DpnII","^GATC",0,0,"","A",""],' +
+    '["DraI","TTT^AAA",0,2,";2113,6;3004,6","N",";2115;3006"],' +
+    '["DraIII","CACNNN^GTG",0,1,";2313,9","N",";2318"],' +
+    '["DrdI","GACNNNN^NNGTC",0,2,";247,12;2760,12","N",";253;276' +
+    '6"],' +
+    '["EaeI","Y^GGCCR",0,1,";1583,6","C",";1583"],' +
+    '["EagI","C^GGCCG",0,0,"","N",""],' +
+    '["EarI","CTCTTC(1/4)",0,2,";332,6;1686,6","N",";327;1692"],' +
+    '["EciI","GGCGGA(11/9)",0,1,";1187,6","A",";1177"],' +
+    '["Eco47III","AGC^GCT",0,0,"","N",""],' +
+    '["EcoNI","CCTNN^NNNAGG",0,0,"","N",""],' +
+    '["EcoO109I","RG^GNCCY",0,4,";460,7;1420,7;1463,7;2183,7","N' +
+    '",";461;1421;1464;2184"],' +
+    '["EcoP15I","CAGCAG(25/27)",0,3,";1339,6;1695,6;2584,6","N",' +
+    '";1311;1667;2614"],' +
+    '["EcoRI","G^AATTC",0,1,";1280,6","N",";1280"],' +
+    '["EcoRV","GAT^ATC",0,0,"","N",""],' +
+    '["Eco53kI","GAG^CTC",0,0,"","N",""],' +
+    '["FatI","^CATG",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;23' +
+    '49,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N","' +
+    ';946;1270;1435;1794;1807;2348;2499;2514;2654;2888;3094;3132;' +
+    '3"],' +
+    '["FauI","CCCGC(4/6)",0,5,";866,5;1232,5;1485,5;2634,5;2691,' +
+    '5","N",";859;1240;1478;2642;2684"],' +
+    '["Fnu4HI","GC^NGC",0,9,";510,5;1223,5;1667,5;1697,5;2300,5;' +
+    '2567,5;2583,5;2659,5;2672,5","N",";511;1224;1668;1698;2301;2' +
+    '568;2584;2660;2673"],' +
+    '["FokI","GGATG(9/13)",0,7,";1260,5;1657,5;1691,5;1889,5;189' +
+    '7,5;2023,5;2174,5","N",";1246;1670;1677;1875;1883;2036;2187"' +
+    '],' +
+    '["FseI","GGCCGG^CC",0,0,"","N",""],' +
+    '["FspI","TGC^GCA",0,1,";3082,6","N",";3084"],' +
+    '["HaeII","RGCGC^Y",0,2,";899,6;2719,6","N",";903;2723"],' +
+    '["HaeIII","GG^CC",0,13,";280,4;695,4;1069,4;1131,4;1268,4;1' +
+    '326,4;1584,4;1931,4;2041,4;2250,4;2395,4;2445,4;2504,4","N",' +
+    '";281;696;1070;1132;1269;1327;1585;1932;2042;2251;2396;2446;' +
+    '2505"],' +
+    '["HgaI","GACGC(5/10)",0,4,";238,5;513,5;1074,5;2471,5","N",' +
+    '";227;502;1083;2480"],' +
+    '["HhaI","GCG^C",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;280' +
+    '6,4;3083,4","N",";902;1430;2514;2691;2722;2808;3085"],' +
+    '["HinP1I","G^CGC",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;2' +
+    '806,4;3083,4","N",";900;1428;2512;2689;2720;2806;3083"],' +
+    '["HincII","GTY^RAC",0,4,";265,6;1499,6;2271,6;2964,6","N","' +
+    ';267;1501;2273;2966"],' +
+    '["HindII","GTY^RAC",0,4,";265,6;1499,6;2271,6;2964,6","N","' +
+    ';267;1501;2273;2966"],' +
+    '["HindIII","A^AGCTT",1,0,"","N",""],' +
+    '["HinfI","G^ANTC",0,17,";127,5;198,5;375,5;538,5;562,5;956,' +
+    '5;982,5;1456,5;1507,5;1526,5;1533,5;2063,5;2725,5;2760,5;282' +
+    '5,5;2943,5;2951,5","N",";127;198;375;538;562;956;982;1456;15' +
+    '07;1526;1533;2063;2725;2760;2825;2943;2951"],' +
+    '["HpaI","GTT^AAC",0,0,"","N",""],' +
+    '["HpaII","C^CGG",0,4,";430,4;1799,4;2437,4;2852,4","N",";43' +
+    '0;1799;2437;2852"],' +
+    '["HphI","GGTGA(8/7)",0,7,";145,5;150,5;917,5;1114,5;1617,5;' +
+    '2873,5;3107,5","A",";137;142;909;1106;1609;2865;3099"],' +
+    '["Hpy99I","CGWCG^",0,4,";451,5;514,5;2715,5;2884,5","N",";4' +
+    '55;518;2719;2888"],' +
+    '["Hpy166II","GTN^NAC",0,14,";143,6;265,6;681,6;1365,6;1499,' +
+    '6;1541,6;1957,6;2106,6;2271,6;2406,6;2705,6;2861,6;2902,6;29' +
+    '64,6","N",";145;267;683;1367;1501;1543;1959;2108;2273;2408;2' +
+    '707;2863;2904;2966"],' +
+    '["Hpy188I","TCN^GA",0,7,";61,5;365,5;1015,5;1376,5;1863,5;1' +
+    '909,5;2790,5","A",";63;367;1017;1378;1865;1911;2792"],' +
+    '["Hpy188III","TC^NNGA",0,18,";90,6;114,6;132,6;241,6;429,6;' +
+    '534,6;805,6;989,6;1034,6;1215,6;1356,6;1408,6;1452,6;1529,6;' +
+    '1727,6;2059,6;2591,6;2607,6","A",";91;115;133;242;430;535;80' +
+    '6;990;1035;1216;1357;1409;1453;1530;1728;2060;2592;2608"],' +
+    '["HpyAV","CCTTC(6/5)",0,12,";58,5;73,5;497,5;862,5;1012,5;1' +
+    '219,5;1291,5;1469,5;1860,5;2741,5;2773,5;2840,5","N",";68;83' +
+    ';491;856;1022;1213;1301;1479;1870;2751;2783;2850"],' +
+    '["HpyCH4III","ACN^GT",0,13,";34,5;340,5;439,5;602,5;685,5;7' +
+    '04,5;1362,5;1572,5;2001,5;2856,5;2899,5;2996,5;3141,5","N","' +
+    ';36;342;441;604;687;706;1364;1574;2003;2858;2901;2998;3143"]' +
+    ',' +
+    '["HpyCH4IV","A^CGT",0,3,";2696,4;2709,4;2883,4","N",";2696;' +
+    '2709;2883"],' +
+    '["HpyCH4V","TG^CA",0,10,";159,4;726,4;1273,4;1306,4;1806,4;' +
+    '1875,4;2347,4;2862,4;2880,4;3097,4","N",";160;727;1274;1307;' +
+    '1807;1876;2348;2863;2881;3098"],' +
+    '["KasI","G^GCGCC",0,0,"","N",""],' +
+    '["KpnI","GGTAC^C",1,0,"","N",""],' +
+    '["KspI","CCGC^GG",0,0,"","N",""],' +
+    '["MaeI","C^TAG",0,14,";91,4;202,4;242,4;250,4;467,4;815,4;8' +
+    '37,4;1461,4;1530,4;1560,4;1962,4;2564,4;2663,4;3055,4","N","' +
+    ';91;202;242;250;467;815;837;1461;1530;1560;1962;2564;2663;30' +
+    '55"],' +
+    '["MaeII","A^CGT",0,3,";2696,4;2709,4;2883,4","N",";2696;270' +
+    '9;2883"],' +
+    '["MaeIII","^GTNAC",0,6,";42,5;761,5;916,5;1478,5;2081,5;214' +
+    '2,5","N",";41;760;915;1477;2080;2141"],' +
+    '["MboI","^GATC",0,0,"","A",""],' +
+    '["MboII","GAAGA(8/7)",0,10,";332,5;470,5;473,5;596,5;720,5;' +
+    '1405,5;1681,5;1687,5;1711,5;1724,5","A",";344;482;485;588;73' +
+    '2;1397;1673;1679;1703;1716"],' +
+    '["MfeI","C^AATTG",0,1,";728,6","N",";728"],' +
+    '["MluI","A^CGCGT",0,0,"","N",""],' +
+    '["MluCI","^AATT",0,14,";23,4;174,4;223,4;729,4;1281,4;1554,' +
+    '4;1590,4;1763,4;1872,4;1915,4;2087,4;2153,4;2278,4;3074,4","' +
+    'N",";22;173;222;728;1280;1553;1589;1762;1871;1914;2086;2152;' +
+    '2277;3073"],' +
+    '["MluNI","TGG^CCA",0,2,";1068,6;1583,6","N",";1070;1585"],' +
+    '["MlyI","GAGTC(5/5)",0,10,";127,5;198,5;562,5;1526,5;1533,5' +
+    ';2063,5;2760,5;2825,5;2943,5;2951,5","N",";136;192;556;1535;' +
+    '1527;2072;2754;2819;2937;2945"],' +
+    '["MmeI","TCCRAC(20/18)",0,3,";1001,6;1634,6;2790,6","N",";9' +
+    '82;1659;2815"],' +
+    '["MnlI","CCTC(7/6)",0,38,";101,4;148,4;385,4;455,4;482,4;48' +
+    '7,4;620,4;903,4;975,4;1129,4;1149,4;1191,4;1198,4;1263,4;132' +
+    '4,4;1387,4;1412,4;1511,4;1606,4;1624,4;1632,4;1685,4;1706,4;' +
+    '1758,4;1774,4;1828,4;1840,4;1933,4;2537,4;2811,4;2876,4;2940' +
+    ',4;2980,4;3016,4;3028,4;3059,4;3110,4;3151,4","N",";111;158;' +
+    '395;448;492;497;630;913;985;1122;1159;1201;1208;1273;1317;13' +
+    '97;1405;1521;1616;1634;1642;1695;1716;1768;1784;1838;1850;19' +
+    '43;2547;2821;2886;2933;2973;3009;3021;3052;3120;3161"],' +
+    '["MroI","T^CCGGA",0,1,";429,6","N",";429"],' +
+    '["MscI","TGG^CCA",0,1,";1583,6","C",";1585"],' +
+    '["MseI","T^TAA",0,9,";221,4;615,4;708,4;792,4;819,4;2114,4;' +
+    '2244,4;3005,4;3040,4","N",";221;615;708;792;819;2114;2244;30' +
+    '05;3040"],' +
+    '["MslI","CAYNN^NNRTG",0,1,";270,10","N",";274"],' +
+    '["MspI","C^CGG",0,4,";430,4;1799,4;2437,4;2852,4","N",";430' +
+    ';1799;2437;2852"],' +
+    '["MspA1I","CMG^CKG",0,2,";1233,6;2076,6","N",";1235;2078"],' +
+    '["MunI","C^AATTG",0,1,";728,6","N",";728"],' +
+    '["MvaI","CC^WGG",0,8,";209,5;744,5;1066,5;1644,5;1767,5;190' +
+    '0,5;1948,5;2447,5","N",";210;745;1067;1645;1768;1901;1949;24' +
+    '48"],' +
+    '["MvnI","CG^CG",0,3,";512,4;2690,4;2821,4","N",";513;2691;2' +
+    '822"],' +
+    '["MwoI","GCNNNNN^NNGC",0,6,";1011,11;1020,11;1226,11;1798,1' +
+    '1;2505,11;2570,11","N",";1017;1026;1232;1804;2511;2576"],' +
+    '["NaeI","GCC^GGC",0,0,"","N",""],' +
+    '["NarI","GG^CGCC",0,0,"","N",""],' +
+    '["NciI","CC^SGG",0,1,";2436,5","N",";2437"],' +
+    '["NcoI","C^CATGG",0,1,";2654,6","N",";2654"],' +
+    '["NdeI","CA^TATG",0,0,"","N",""],' +
+    '["NdeII","^GATC",0,0,"","A",""],' +
+    '["NgoMIV","G^CCGGC",0,0,"","N",""],' +
+    '["NheI","G^CTAGC",0,0,"","N",""],' +
+    '["NlaIII","CATG^",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;' +
+    '2349,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N"' +
+    ',";950;1274;1439;1798;1811;2352;2503;2518;2658;2892;3098;313' +
+    '6;7"],' +
+    '["NlaIV","GGN^NCC",0,14,";461,6;1004,6;1144,6;1347,6;1420,6' +
+    ';1421,6;1464,6;1790,6;1824,6;2039,6;2183,6;2522,6;2533,6;268' +
+    '2,6","C",";463;1006;1146;1349;1422;1423;1466;1792;1826;2041;' +
+    '2185;2524;2535;2684"],' +
+    '["NmeAIII","GCCGAG(21/19)",0,0,"","N",""],' +
+    '["NotI","GC^GGCCGC",0,0,"","N",""],' +
+    '["NruI","TCG^CGA",0,0,"","A",""],' +
+    '["NsiI","ATGCA^T",0,1,";2346,6","N",";2350"],' +
+    '["NspI","RCATG^Y",0,2,";2348,6;2514,6","N",";2352;2518"],' +
+    '["PacI","TTAAT^TAA",0,0,"","N",""],' +
+    '["PaeR7I","C^TCGAG",0,1,";1409,6","N",";1409"],' +
+    '["PciI","A^CATGT",0,0,"","N",""],' +
+    '["PflFI","GACN^NNGTC",0,0,"","N",""],' +
+    '["PflMI","CCANNNN^NTGG",0,4,";995,11;1270,11;1999,11;2481,1' +
+    '1","C",";1001;1276;2005;2487"],' +
+    '["PleI","GAGTC(4/5)",0,10,";127,5;198,5;562,5;1526,5;1533,5' +
+    ';2063,5;2760,5;2825,5;2943,5;2951,5","N",";135;192;556;1534;' +
+    '1527;2071;2754;2819;2937;2945"],' +
+    '["PluTI","GGCGC^C",0,0,"","N",""],' +
+    '["PmeI","GTTT^AAAC",0,0,"","N",""],' +
+    '["PmlI","CAC^GTG",0,0,"","N",""],' +
+    '["PpuMI","RG^GWCCY",0,4,";460,7;1420,7;1463,7;2183,7","C","' +
+    ';461;1421;1464;2184"],' +
+    '["PshAI","GACNN^NNGTC",0,1,";494,10","N",";498"],' +
+    '["PsiI","TTA^TAA",0,1,";15,6","N",";17"],' +
+    '["PspGI","^CCWGG",0,0,"","C",""],' +
+    '["PspOMI","G^GGCCC",0,0,"","C",""],' +
+    '["PspXI","VC^TCGAGB",0,0,"","N",""],' +
+    '["PstI","CTGCA^G",0,0,"","N",""],' +
+    '["PvuI","CGAT^CG",0,0,"","N",""],' +
+    '["PvuII","CAG^CTG",0,0,"","N",""],' +
+    '["RsaI","GT^AC",0,5,";79,4;605,4;1852,4;2051,4;3052,4","N",' +
+    '";80;606;1853;2052;3053"],' +
+    '["RsrII","CG^GWCCG",0,1,";2853,7","N",";2854"],' +
+    '["SacI","GAGCT^C",0,0,"","N",""],' +
+    '["SacII","CCGC^GG",0,0,"","N",""],' +
+    '["SalI","G^TCGAC",0,0,"","N",""],' +
+    '["SapI","GCTCTTC(1/4)",0,0,"","N",""],' +
+    '["Sau96I","G^GNCC",0,12,";279,5;461,5;695,5;1421,5;1464,5;1' +
+    '791,5;1801,5;1930,5;2040,5;2184,5;2503,5;2854,5","C",";279;4' +
+    '61;695;1421;1464;1791;1801;1930;2040;2184;2503;2854"],' +
+    '["Sau3AI","^GATC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,' +
+    '4;1771,4;2545,4;2683,4","N",";84;231;523;937;1004;1310;1770;' +
+    '2544;2682"],' +
+    '["SbfI","CCTGCA^GG",0,0,"","N",""],' +
+    '["ScaI","AGT^ACT",0,0,"","N",""],' +
+    '["ScrFI","CC^NGG",0,1,";2436,5","C",";2437"],' +
+    '["SexAI","A^CCWGGT",0,0,"","C",""],' +
+    '["SfaNI","GCATC(5/9)",0,2,";2056,5;2335,5","N",";2065;2325"' +
+    '],' +
+    '["SfcI","C^TRYAG",0,2,";941,6;3063,6","N",";941;3063"],' +
+    '["SfoI","GGC^GCC",0,0,"","N",""],' +
+    '["SfuI","TT^CGAA",0,0,"","N",""],' +
+    '["SgrAI","CR^CCGGYG",0,0,"","N",""],' +
+    '["SmaI","CCC^GGG",0,0,"","N",""],' +
+    '["SmlI","C^TYRAG",0,4,";1409,6;1819,6;2060,6;2977,6","N",";' +
+    '1409;1819;2060;2977"],' +
+    '["SnaBI","TAC^GTA",0,0,"","N",""],' +
+    '["SpeI","A^CTAGT",0,1,";1961,6","N",";1961"],' +
+    '["SphI","GCATG^C",0,1,";2514,6","N",";2518"],' +
+    '["SrfI","GCCC^GGGC",0,0,"","N",""],' +
+    '["SspI","AAT^ATT",0,2,";768,6;2916,6","N",";770;2918"],' +
+    '["StuI","AGG^CCT",0,4,";1130,6;1325,6;2249,6;2394,6","C",";' +
+    '1132;1327;2251;2396"],' +
+    '["StyI","C^CWWGG",0,5,";557,6;1460,6;2654,6;2924,6;3164,6",' +
+    '"N",";557;1460;2654;2924;3164"],' +
+    '["StyD4I","^CCNGG",0,1,";2436,5","C",";2435"],' +
+    '["SwaI","ATTT^AAAT",0,0,"","N",""],' +
+    '["TaqI","T^CGA",0,2,";8,4;1410,4","A",";8;1410"],' +
+    '["TfiI","G^AWTC",0,7,";375,5;538,5;956,5;982,5;1456,5;1507,' +
+    '5;2725,5","N",";375;538;956;982;1456;1507;2725"],' +
+    '["Tru9I","T^TAA",0,9,";221,4;615,4;708,4;792,4;819,4;2114,4' +
+    ';2244,4;3005,4;3040,4","N",";221;615;708;792;819;2114;2244;3' +
+    '005;3040"],' +
+    '["TseI","G^CWGC",0,6,";1223,5;1697,5;2300,5;2583,5;2659,5;2' +
+    '672,5","N",";1223;1697;2300;2583;2659;2672"],' +
+    '["Tsp45I","^GTSAC",0,1,";916,5","N",";915"],' +
+    '["TspMI","C^CCGGG",0,0,"","N",""],' +
+    '["TspRI","CASTGNN^",0,8,";1273,7;1275,7;1975,7;1977,7;1998,' +
+    '7;2000,7;2480,7;2482,7","N",";1281;1983;2006;2488"],' +
+    '["Tth111I","GACN^NNGTC",0,0,"","N",""],' +
+    '["XbaI","T^CTAGA",0,3,";90,6;241,6;1529,6","A",";90;241;152' +
+    '9"],' +
+    '["XhoI","C^TCGAG",0,1,";1409,6","N",";1409"],' +
+    '["XmaI","C^CCGGG",0,0,"","N",""],' +
+    '["XmnI","GAANN^NNTTC",0,1,";2523,10","N",";2527"],' +
+    '["ZraI","GAC^GTC",0,1,";2695,6","N",";2697"]]';
+    return str;
+}
+
+function wdeTestDataString_020() {
+    var str = '[["AatII","GACGT^C",1,1,";2695,6","N",";2699"],' +
+    '["AccI","GT^MKAC",1,1,";2106,6","N",";2107"],' +
+    '["Acc65I","G^GTACC",0,0,"","C",""],' +
+    '["AciI","CCGC(-3/-1)",0,17,";98,4;511,4;866,4;1027,4;1122,4' +
+    ';1188,4;1233,4;1485,4;1521,4;1667,4;2076,4;2555,4;2568,4;263' +
+    '5,4;2691,4;2732,4;2822,4","N",";98;511;866;1027;1122;1188;12' +
+    '33;1485;1521;1667;2076;2555;2568;2635;2691;2732;2822"],' +
+    '["AclI","AA^CGTT",0,0,"","N",""],' +
+    '["AcuI","CTGAAG(16/14)",0,2,";74,6;1013,6","N",";59;998"],' +
+    '["AfeI","AGC^GCT",0,0,"","N",""],' +
+    '["AflII","C^TTAAG",0,0,"","N",""],' +
+    '["AflIII","A^CRYGT",0,0,"","N",""],' +
+    '["AgeI","A^CCGGT",0,0,"","N",""],' +
+    '["AhdI","GACNNN^NNGTC",1,1,";2825,11","N",";2830"],' +
+    '["AleI","CACNN^NNGTG",0,0,"","N",""],' +
+    '["AluI","AG^CT",0,6,";30,4;105,4;204,4;390,4;1091,4;3157,4"' +
+    ',"N",";31;106;205;391;1092;3158"],' +
+    '["AlwI","GGATC(4/5)",0,0,"","A",""],' +
+    '["AlwNI","CAGNNN^CTG",0,0,"","C",""],' +
+    '["ApaI","GGGCC^C",0,0,"","C",""],' +
+    '["ApaLI","G^TGCAC",1,1,";2861,6","N",";2861"],' +
+    '["ApeKI","G^CWGC",0,6,";1223,5;1697,5;2300,5;2583,5;2659,5;' +
+    '2672,5","N",";1223;1697;2300;2583;2659;2672"],' +
+    '["ApoI","R^AATTY",0,5,";22,6;1280,6;1589,6;1914,6;2152,6","' +
+    'N",";22;1280;1589;1914;2152"],' +
+    '["AscI","GG^CGCGCC",0,0,"","N",""],' +
+    '["AseI","AT^TAAT",0,0,"","N",""],' +
+    '["AsiSI","GCGAT^CGC",0,0,"","N",""],' +
+    '["Asp700I","GAANN^NNTTC",1,1,";2523,10","N",";2527"],' +
+    '["Asp718I","G^GTACC",0,0,"","C",""],' +
+    '["AvaI","C^YCGRG",0,3,";533,6;1409,6;2745,6","N",";533;1409' +
+    ';2745"],' +
+    '["AvaII","G^GWCC",0,7,";461,5;1421,5;1464,5;1791,5;1801,5;2' +
+    '184,5;2854,5","C",";461;1421;1464;1791;1801;2184;2854"],' +
+    '["AvrII","C^CTAGG",1,1,";1460,6","N",";1460"],' +
+    '["BaeGI","GKGCM^C",1,1,";2861,6","N",";2865"],' +
+    '["BamHI","G^GATCC",0,3,";1004,6;1770,6;2682,6","N",";1004;1' +
+    '770;2682"],' +
+    '["BanI","G^GYRCC",0,0,"","N",""],' +
+    '["BanII","GRGCY^C",1,1,";1145,6","N",";1149"],' +
+    '["BbrPI","CAC^GTG",0,0,"","N",""],' +
+    '["BbsI","GAAGAC(2/6)",0,0,"","N",""],' +
+    '["BbvI","GCAGC(8/12)",0,6,";1223,5;1697,5;2300,5;2583,5;265' +
+    '9,5;2672,5","N",";1235;1684;2287;2595;2646;2659"],' +
+    '["BbvCI","CCTCAGC(-5/-2)",0,2,";101,7;1933,7","N",";102;193' +
+    '4"],' +
+    '["BccI","CCATC(4/5)",0,5,";635,5;1888,5;1893,5;2136,5;2506,' +
+    '5","N",";643;1896;1901;2130;2514"],' +
+    '["BceAI","ACGGC(12/14)",0,2,";2443,5;2785,5","N",";2459;277' +
+    '0"],' +
+    '["BciVI","GTATCC(6/5)",1,1,";1835,6","N",";1846"],' +
+    '["BclI","T^GATCA",0,0,"","A",""],' +
+    '["BcoDI","GTCTC(1/5)",0,7,";129,5;245,5;320,5;433,5;501,5;1' +
+    '238,5;2893,5","N",";134;239;325;427;506;1243;2887"],' +
+    '["BfaI","C^TAG",0,14,";91,4;202,4;242,4;250,4;467,4;815,4;8' +
+    '37,4;1461,4;1530,4;1560,4;1962,4;2564,4;2663,4;3055,4","N","' +
+    ';91;202;242;250;467;815;837;1461;1530;1560;1962;2564;2663;30' +
+    '55"],' +
+    '["BfrI","C^TTAAG",0,0,"","N",""],' +
+    '["BfuAI","ACCTGC(4/8)",0,3,";458,6;1803,6;2586,6","N",";449' +
+    ';1812;2577"],' +
+    '["BfuCI","^GATC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,4' +
+    ';1771,4;2545,4;2683,4","N",";84;231;523;937;1004;1310;1770;2' +
+    '544;2682"],' +
+    '["BglI","GCCNNNN^NGGC",0,0,"","N",""],' +
+    '["BglII","A^GATCT",0,3,";84,6;523,6;937,6","N",";84;523;937' +
+    '"],' +
+    '["BlnI","C^CTAGG",1,1,";1460,6","N",";1460"],' +
+    '["BlpI","GC^TNAGC",0,0,"","N",""],' +
+    '["BmgBI","CACGTC(-3/-3)",1,1,";2882,6","N",";2884"],' +
+    '["BmrI","ACTGGG(5/4)",0,2,";584,6;3011,6","N",";594;3021"],' +
+    '["BmtI","GCTAG^C",0,0,"","N",""],' +
+    '["BpmI","CTGGAG(16/14)",0,4,";386,6;1093,6;1349,6;2592,6","' +
+    'N",";371;1114;1334;2613"],' +
+    '["Bpu10I","CCTNAGC(-5/-2)",0,4,";101,7;133,7;1155,7;1933,7"' +
+    ',"N",";102;134;1156;1934"],' +
+    '["BpuEI","CTTGAG(16/14)",0,3,";1819,6;2060,6;2977,6","N",";' +
+    '1804;2081;2998"],' +
+    '["BsaI","GGTCTC(1/5)",0,3,";245,6;500,6;2893,6","C",";239;5' +
+    '06;2887"],' +
+    '["BsaAI","YAC^GTR",0,0,"","N",""],' +
+    '["BsaBI","GATNN^NNATC",0,0,"","A",""],' +
+    '["BsaHI","GR^CGYC",0,2,";1074,6;2695,6","N",";1075;2696"],' +
+    '["BsaJI","C^CNNGG",0,8,";209,6;557,6;1460,6;1900,6;2654,6;2' +
+    '799,6;2924,6;3164,6","N",";209;557;1460;1900;2654;2799;2924;' +
+    '3164"],' +
+    '["BsaWI","W^CCGGW",1,1,";429,6","N",";429"],' +
+    '["BsaXI","(9/12)ACNNNNNCTCC(10/7)",0,4,";28,11;1383,11;2820' +
+    ',11;3030,11","N",";50;20;1373;1403;2810;2840;3052;3022"],' +
+    '["BseRI","GAGGAG(10/8)",0,4,";383,6;2535,6;3016,6;3028,6","' +
+    'N",";374;2526;3031;3043"],' +
+    '["BseYI","CCCAGC(-5/-1)",0,3,";182,6;1106,6;2487,6","N",";1' +
+    '82;1106;2487"],' +
+    '["BsgI","GTGCAG(16/14)",0,2,";158,6;2879,6","N",";143;2864"' +
+    '],' +
+    '["BsiEI","CGRY^CG",0,2,";2792,6;2969,6","N",";2795;2972"],' +
+    '["BsiHKAI","GWGCW^C",1,1,";2861,6","N",";2865"],' +
+    '["BsiWI","C^GTACG",0,0,"","N",""],' +
+    '["BslI","CCNNNNN^NNGG",0,14,";995,11;1119,11;1122,11;1270,1' +
+    '1;1338,11;1860,11;1999,11;2430,11;2436,11;2481,11;2548,11;27' +
+    '40,11;2741,11;2795,11","N",";1001;1125;1128;1276;1344;1866;2' +
+    '005;2436;2442;2487;2554;2746;2747;2801"],' +
+    '["BsmI","GAATGC(1/-1)",1,1,";1098,6","N",";1098"],' +
+    '["BsmAI","GTCTC(1/5)",0,7,";129,5;245,5;320,5;433,5;501,5;1' +
+    '238,5;2893,5","N",";134;239;325;427;506;1243;2887"],' +
+    '["BsmBI","CGTCTC(1/5)",0,0,"","N",""],' +
+    '["BsmFI","GGGAC(10/14)",0,11,";462,5;1042,5;1420,5;1598,5;1' +
+    '790,5;2065,5;2609,5;2693,5;2711,5;2758,5;2769,5","N",";447;1' +
+    '056;1434;1583;1804;2050;2623;2707;2696;2772;2754"],' +
+    '["BsoBI","C^YCGRG",0,3,";533,6;1409,6;2745,6","N",";533;140' +
+    '9;2745"],' +
+    '["Bsp1286I","GDGCH^C",0,2,";1145,6;2861,6","N",";1149;2865"' +
+    '],' +
+    '["BspCNI","CTCAG(9/7)",0,9,";102,5;134,5;163,5;1150,5;1156,' +
+    '5;1264,5;1934,5;1953,5;2955,5","N",";115;126;176;1163;1169;1' +
+    '277;1947;1966;2968"],' +
+    '["BspDI","AT^CGAT",0,0,"","A",""],' +
+    '["BspEI","T^CCGGA",1,1,";429,6","A",";429"],' +
+    '["BspHI","T^CATGA",0,0,"","A",""],' +
+    '["BspMI","ACCTGC(4/8)",0,3,";458,6;1803,6;2586,6","N",";449' +
+    ';1812;2577"],' +
+    '["BspQI","GCTCTTC(1/4)",0,0,"","N",""],' +
+    '["BsrI","ACTGG(1/-1)",0,7,";584,5;998,5;1211,5;1351,5;2483,' +
+    '5;2679,5;3011,5","N",";589;998;1211;1351;2488;2684;3016"],' +
+    '["BsrBI","CCGCTC(-3/-3)",0,0,"","N",""],' +
+    '["BsrDI","GCAATG(2/0)",1,1,";2959,6","N",";2966"],' +
+    '["BsrFI","R^CCGGY",0,0,"","N",""],' +
+    '["BsrGI","T^GTACA",1,1,";2050,6","N",";2050"],' +
+    '["BssHII","G^CGCGC",0,0,"","N",""],' +
+    '["BssSI","CACGAG(-5/-1)",0,2,";1473,6;1535,6","N",";1473;15' +
+    '35"],' +
+    '["BstAPI","GCANNNN^NTGC",0,0,"","N",""],' +
+    '["BstBI","TT^CGAA",0,0,"","N",""],' +
+    '["BstEII","G^GTNACC",0,2,";760,7;915,7","N",";760;915"],' +
+    '["BstNI","CC^WGG",0,8,";209,5;744,5;1066,5;1644,5;1767,5;19' +
+    '00,5;1948,5;2447,5","N",";210;745;1067;1645;1768;1901;1949;2' +
+    '448"],' +
+    '["BstUI","CG^CG",0,3,";512,4;2690,4;2821,4","N",";513;2691;' +
+    '2822"],' +
+    '["BstXI","CCANNNNN^NTGG",0,2,";920,12;1893,12","N",";927;19' +
+    '00"],' +
+    '["BstYI","R^GATCY",0,8,";84,6;231,6;523,6;937,6;1004,6;1310' +
+    ',6;1770,6;2682,6","N",";84;231;523;937;1004;1310;1770;2682"]' +
+    ',' +
+    '["BstZ17I","GTA^TAC",1,1,";2106,6","N",";2108"],' +
+    '["Bsu36I","CC^TNAGG",0,2,";1149,7;1263,7","N",";1150;1264"]' +
+    ',' +
+    '["BtgI","C^CRYGG",0,2,";2654,6;2799,6","N",";2654;2799"],' +
+    '["BtgZI","GCGATG(10/14)",0,0,"","N",""],' +
+    '["BtsI","GCAGTG(2/0)",1,1,";1274,6","N",";1281"],' +
+    '["BtsIMutI","CAGTG(2/0)",0,4,";1275,5;1977,5;2000,5;2482,5"' +
+    ',"N",";1281;1983;1999;2481"],' +
+    '["BtsCI","GGATG(2/0)",0,7,";1260,5;1657,5;1691,5;1889,5;189' +
+    '7,5;2023,5;2174,5","N",";1259;1663;1690;1888;1896;2029;2180"' +
+    '],' +
+    '["Cac8I","GCN^NGC",0,6,";168,6;739,6;1178,6;2365,6;2514,6;2' +
+    '579,6","N",";170;741;1180;2367;2516;2581"],' +
+    '["CfoI","GCG^C",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;280' +
+    '6,4;3083,4","N",";902;1430;2514;2691;2722;2808;3085"],' +
+    '["ClaI","AT^CGAT",0,0,"","A",""],' +
+    '["CviAII","C^ATG",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;' +
+    '2349,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N"' +
+    ',";947;1271;1436;1795;1808;2349;2500;2515;2655;2889;3095;313' +
+    '3;4"],' +
+    '["CviQI","G^TAC",0,5,";79,4;605,4;1852,4;2051,4;3052,4","N"' +
+    ',";79;605;1852;2051;3052"],' +
+    '["DdeI","C^TNAG",0,11,";102,5;123,5;134,5;163,5;1150,5;1156' +
+    ',5;1264,5;1934,5;1953,5;2361,5;2955,5","N",";102;123;134;163' +
+    ';1150;1156;1264;1934;1953;2361;2955"],' +
+    '["DpnI","GA^TC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,4;' +
+    '1771,4;2545,4;2683,4","N",";86;233;525;939;1006;1312;1772;25' +
+    '46;2684"],' +
+    '["DpnII","^GATC",0,0,"","A",""],' +
+    '["DraI","TTT^AAA",0,2,";2113,6;3004,6","N",";2115;3006"],' +
+    '["DraIII","CACNNN^GTG",1,1,";2313,9","N",";2318"],' +
+    '["DrdI","GACNNNN^NNGTC",0,2,";247,12;2760,12","N",";253;276' +
+    '6"],' +
+    '["EaeI","Y^GGCCR",1,1,";1583,6","C",";1583"],' +
+    '["EagI","C^GGCCG",0,0,"","N",""],' +
+    '["EarI","CTCTTC(1/4)",0,2,";332,6;1686,6","N",";327;1692"],' +
+    '["EciI","GGCGGA(11/9)",1,1,";1187,6","A",";1177"],' +
+    '["Eco47III","AGC^GCT",0,0,"","N",""],' +
+    '["EcoNI","CCTNN^NNNAGG",0,0,"","N",""],' +
+    '["EcoO109I","RG^GNCCY",0,4,";460,7;1420,7;1463,7;2183,7","N' +
+    '",";461;1421;1464;2184"],' +
+    '["EcoP15I","CAGCAG(25/27)",0,3,";1339,6;1695,6;2584,6","N",' +
+    '";1311;1667;2614"],' +
+    '["EcoRI","G^AATTC",1,1,";1280,6","N",";1280"],' +
+    '["EcoRV","GAT^ATC",0,0,"","N",""],' +
+    '["Eco53kI","GAG^CTC",0,0,"","N",""],' +
+    '["FatI","^CATG",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;23' +
+    '49,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N","' +
+    ';946;1270;1435;1794;1807;2348;2499;2514;2654;2888;3094;3132;' +
+    '3"],' +
+    '["FauI","CCCGC(4/6)",0,5,";866,5;1232,5;1485,5;2634,5;2691,' +
+    '5","N",";859;1240;1478;2642;2684"],' +
+    '["Fnu4HI","GC^NGC",0,9,";510,5;1223,5;1667,5;1697,5;2300,5;' +
+    '2567,5;2583,5;2659,5;2672,5","N",";511;1224;1668;1698;2301;2' +
+    '568;2584;2660;2673"],' +
+    '["FokI","GGATG(9/13)",0,7,";1260,5;1657,5;1691,5;1889,5;189' +
+    '7,5;2023,5;2174,5","N",";1246;1670;1677;1875;1883;2036;2187"' +
+    '],' +
+    '["FseI","GGCCGG^CC",0,0,"","N",""],' +
+    '["FspI","TGC^GCA",1,1,";3082,6","N",";3084"],' +
+    '["HaeII","RGCGC^Y",0,2,";899,6;2719,6","N",";903;2723"],' +
+    '["HaeIII","GG^CC",0,13,";280,4;695,4;1069,4;1131,4;1268,4;1' +
+    '326,4;1584,4;1931,4;2041,4;2250,4;2395,4;2445,4;2504,4","N",' +
+    '";281;696;1070;1132;1269;1327;1585;1932;2042;2251;2396;2446;' +
+    '2505"],' +
+    '["HgaI","GACGC(5/10)",0,4,";238,5;513,5;1074,5;2471,5","N",' +
+    '";227;502;1083;2480"],' +
+    '["HhaI","GCG^C",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;280' +
+    '6,4;3083,4","N",";902;1430;2514;2691;2722;2808;3085"],' +
+    '["HinP1I","G^CGC",0,7,";900,4;1428,4;2512,4;2689,4;2720,4;2' +
+    '806,4;3083,4","N",";900;1428;2512;2689;2720;2806;3083"],' +
+    '["HincII","GTY^RAC",0,4,";265,6;1499,6;2271,6;2964,6","N","' +
+    ';267;1501;2273;2966"],' +
+    '["HindII","GTY^RAC",0,4,";265,6;1499,6;2271,6;2964,6","N","' +
+    ';267;1501;2273;2966"],' +
+    '["HindIII","A^AGCTT",0,0,"","N",""],' +
+    '["HinfI","G^ANTC",0,17,";127,5;198,5;375,5;538,5;562,5;956,' +
+    '5;982,5;1456,5;1507,5;1526,5;1533,5;2063,5;2725,5;2760,5;282' +
+    '5,5;2943,5;2951,5","N",";127;198;375;538;562;956;982;1456;15' +
+    '07;1526;1533;2063;2725;2760;2825;2943;2951"],' +
+    '["HpaI","GTT^AAC",0,0,"","N",""],' +
+    '["HpaII","C^CGG",0,4,";430,4;1799,4;2437,4;2852,4","N",";43' +
+    '0;1799;2437;2852"],' +
+    '["HphI","GGTGA(8/7)",0,7,";145,5;150,5;917,5;1114,5;1617,5;' +
+    '2873,5;3107,5","A",";137;142;909;1106;1609;2865;3099"],' +
+    '["Hpy99I","CGWCG^",0,4,";451,5;514,5;2715,5;2884,5","N",";4' +
+    '55;518;2719;2888"],' +
+    '["Hpy166II","GTN^NAC",0,14,";143,6;265,6;681,6;1365,6;1499,' +
+    '6;1541,6;1957,6;2106,6;2271,6;2406,6;2705,6;2861,6;2902,6;29' +
+    '64,6","N",";145;267;683;1367;1501;1543;1959;2108;2273;2408;2' +
+    '707;2863;2904;2966"],' +
+    '["Hpy188I","TCN^GA",0,7,";61,5;365,5;1015,5;1376,5;1863,5;1' +
+    '909,5;2790,5","A",";63;367;1017;1378;1865;1911;2792"],' +
+    '["Hpy188III","TC^NNGA",0,18,";90,6;114,6;132,6;241,6;429,6;' +
+    '534,6;805,6;989,6;1034,6;1215,6;1356,6;1408,6;1452,6;1529,6;' +
+    '1727,6;2059,6;2591,6;2607,6","A",";91;115;133;242;430;535;80' +
+    '6;990;1035;1216;1357;1409;1453;1530;1728;2060;2592;2608"],' +
+    '["HpyAV","CCTTC(6/5)",0,12,";58,5;73,5;497,5;862,5;1012,5;1' +
+    '219,5;1291,5;1469,5;1860,5;2741,5;2773,5;2840,5","N",";68;83' +
+    ';491;856;1022;1213;1301;1479;1870;2751;2783;2850"],' +
+    '["HpyCH4III","ACN^GT",0,13,";34,5;340,5;439,5;602,5;685,5;7' +
+    '04,5;1362,5;1572,5;2001,5;2856,5;2899,5;2996,5;3141,5","N","' +
+    ';36;342;441;604;687;706;1364;1574;2003;2858;2901;2998;3143"]' +
+    ',' +
+    '["HpyCH4IV","A^CGT",0,3,";2696,4;2709,4;2883,4","N",";2696;' +
+    '2709;2883"],' +
+    '["HpyCH4V","TG^CA",0,10,";159,4;726,4;1273,4;1306,4;1806,4;' +
+    '1875,4;2347,4;2862,4;2880,4;3097,4","N",";160;727;1274;1307;' +
+    '1807;1876;2348;2863;2881;3098"],' +
+    '["KasI","G^GCGCC",0,0,"","N",""],' +
+    '["KpnI","GGTAC^C",0,0,"","N",""],' +
+    '["KspI","CCGC^GG",0,0,"","N",""],' +
+    '["MaeI","C^TAG",0,14,";91,4;202,4;242,4;250,4;467,4;815,4;8' +
+    '37,4;1461,4;1530,4;1560,4;1962,4;2564,4;2663,4;3055,4","N","' +
+    ';91;202;242;250;467;815;837;1461;1530;1560;1962;2564;2663;30' +
+    '55"],' +
+    '["MaeII","A^CGT",0,3,";2696,4;2709,4;2883,4","N",";2696;270' +
+    '9;2883"],' +
+    '["MaeIII","^GTNAC",0,6,";42,5;761,5;916,5;1478,5;2081,5;214' +
+    '2,5","N",";41;760;915;1477;2080;2141"],' +
+    '["MboI","^GATC",0,0,"","A",""],' +
+    '["MboII","GAAGA(8/7)",0,10,";332,5;470,5;473,5;596,5;720,5;' +
+    '1405,5;1681,5;1687,5;1711,5;1724,5","A",";344;482;485;588;73' +
+    '2;1397;1673;1679;1703;1716"],' +
+    '["MfeI","C^AATTG",1,1,";728,6","N",";728"],' +
+    '["MluI","A^CGCGT",0,0,"","N",""],' +
+    '["MluCI","^AATT",0,14,";23,4;174,4;223,4;729,4;1281,4;1554,' +
+    '4;1590,4;1763,4;1872,4;1915,4;2087,4;2153,4;2278,4;3074,4","' +
+    'N",";22;173;222;728;1280;1553;1589;1762;1871;1914;2086;2152;' +
+    '2277;3073"],' +
+    '["MluNI","TGG^CCA",0,2,";1068,6;1583,6","N",";1070;1585"],' +
+    '["MlyI","GAGTC(5/5)",0,10,";127,5;198,5;562,5;1526,5;1533,5' +
+    ';2063,5;2760,5;2825,5;2943,5;2951,5","N",";136;192;556;1535;' +
+    '1527;2072;2754;2819;2937;2945"],' +
+    '["MmeI","TCCRAC(20/18)",0,3,";1001,6;1634,6;2790,6","N",";9' +
+    '82;1659;2815"],' +
+    '["MnlI","CCTC(7/6)",0,38,";101,4;148,4;385,4;455,4;482,4;48' +
+    '7,4;620,4;903,4;975,4;1129,4;1149,4;1191,4;1198,4;1263,4;132' +
+    '4,4;1387,4;1412,4;1511,4;1606,4;1624,4;1632,4;1685,4;1706,4;' +
+    '1758,4;1774,4;1828,4;1840,4;1933,4;2537,4;2811,4;2876,4;2940' +
+    ',4;2980,4;3016,4;3028,4;3059,4;3110,4;3151,4","N",";111;158;' +
+    '395;448;492;497;630;913;985;1122;1159;1201;1208;1273;1317;13' +
+    '97;1405;1521;1616;1634;1642;1695;1716;1768;1784;1838;1850;19' +
+    '43;2547;2821;2886;2933;2973;3009;3021;3052;3120;3161"],' +
+    '["MroI","T^CCGGA",1,1,";429,6","N",";429"],' +
+    '["MscI","TGG^CCA",1,1,";1583,6","C",";1585"],' +
+    '["MseI","T^TAA",0,9,";221,4;615,4;708,4;792,4;819,4;2114,4;' +
+    '2244,4;3005,4;3040,4","N",";221;615;708;792;819;2114;2244;30' +
+    '05;3040"],' +
+    '["MslI","CAYNN^NNRTG",1,1,";270,10","N",";274"],' +
+    '["MspI","C^CGG",0,4,";430,4;1799,4;2437,4;2852,4","N",";430' +
+    ';1799;2437;2852"],' +
+    '["MspA1I","CMG^CKG",0,2,";1233,6;2076,6","N",";1235;2078"],' +
+    '["MunI","C^AATTG",1,1,";728,6","N",";728"],' +
+    '["MvaI","CC^WGG",0,8,";209,5;744,5;1066,5;1644,5;1767,5;190' +
+    '0,5;1948,5;2447,5","N",";210;745;1067;1645;1768;1901;1949;24' +
+    '48"],' +
+    '["MvnI","CG^CG",0,3,";512,4;2690,4;2821,4","N",";513;2691;2' +
+    '822"],' +
+    '["MwoI","GCNNNNN^NNGC",0,6,";1011,11;1020,11;1226,11;1798,1' +
+    '1;2505,11;2570,11","N",";1017;1026;1232;1804;2511;2576"],' +
+    '["NaeI","GCC^GGC",0,0,"","N",""],' +
+    '["NarI","GG^CGCC",0,0,"","N",""],' +
+    '["NciI","CC^SGG",1,1,";2436,5","N",";2437"],' +
+    '["NcoI","C^CATGG",1,1,";2654,6","N",";2654"],' +
+    '["NdeI","CA^TATG",0,0,"","N",""],' +
+    '["NdeII","^GATC",0,0,"","A",""],' +
+    '["NgoMIV","G^CCGGC",0,0,"","N",""],' +
+    '["NheI","G^CTAGC",0,0,"","N",""],' +
+    '["NlaIII","CATG^",0,13,";947,4;1271,4;1436,4;1795,4;1808,4;' +
+    '2349,4;2500,4;2515,4;2655,4;2889,4;3095,4;3133,4;3182,4","N"' +
+    ',";950;1274;1439;1798;1811;2352;2503;2518;2658;2892;3098;313' +
+    '6;7"],' +
+    '["NlaIV","GGN^NCC",0,14,";461,6;1004,6;1144,6;1347,6;1420,6' +
+    ';1421,6;1464,6;1790,6;1824,6;2039,6;2183,6;2522,6;2533,6;268' +
+    '2,6","C",";463;1006;1146;1349;1422;1423;1466;1792;1826;2041;' +
+    '2185;2524;2535;2684"],' +
+    '["NmeAIII","GCCGAG(21/19)",0,0,"","N",""],' +
+    '["NotI","GC^GGCCGC",0,0,"","N",""],' +
+    '["NruI","TCG^CGA",0,0,"","A",""],' +
+    '["NsiI","ATGCA^T",1,1,";2346,6","N",";2350"],' +
+    '["NspI","RCATG^Y",0,2,";2348,6;2514,6","N",";2352;2518"],' +
+    '["PacI","TTAAT^TAA",0,0,"","N",""],' +
+    '["PaeR7I","C^TCGAG",1,1,";1409,6","N",";1409"],' +
+    '["PciI","A^CATGT",0,0,"","N",""],' +
+    '["PflFI","GACN^NNGTC",0,0,"","N",""],' +
+    '["PflMI","CCANNNN^NTGG",0,4,";995,11;1270,11;1999,11;2481,1' +
+    '1","C",";1001;1276;2005;2487"],' +
+    '["PleI","GAGTC(4/5)",0,10,";127,5;198,5;562,5;1526,5;1533,5' +
+    ';2063,5;2760,5;2825,5;2943,5;2951,5","N",";135;192;556;1534;' +
+    '1527;2071;2754;2819;2937;2945"],' +
+    '["PluTI","GGCGC^C",0,0,"","N",""],' +
+    '["PmeI","GTTT^AAAC",0,0,"","N",""],' +
+    '["PmlI","CAC^GTG",0,0,"","N",""],' +
+    '["PpuMI","RG^GWCCY",0,4,";460,7;1420,7;1463,7;2183,7","C","' +
+    ';461;1421;1464;2184"],' +
+    '["PshAI","GACNN^NNGTC",1,1,";494,10","N",";498"],' +
+    '["PsiI","TTA^TAA",1,1,";15,6","N",";17"],' +
+    '["PspGI","^CCWGG",0,0,"","C",""],' +
+    '["PspOMI","G^GGCCC",0,0,"","C",""],' +
+    '["PspXI","VC^TCGAGB",0,0,"","N",""],' +
+    '["PstI","CTGCA^G",0,0,"","N",""],' +
+    '["PvuI","CGAT^CG",0,0,"","N",""],' +
+    '["PvuII","CAG^CTG",0,0,"","N",""],' +
+    '["RsaI","GT^AC",0,5,";79,4;605,4;1852,4;2051,4;3052,4","N",' +
+    '";80;606;1853;2052;3053"],' +
+    '["RsrII","CG^GWCCG",1,1,";2853,7","N",";2854"],' +
+    '["SacI","GAGCT^C",0,0,"","N",""],' +
+    '["SacII","CCGC^GG",0,0,"","N",""],' +
+    '["SalI","G^TCGAC",0,0,"","N",""],' +
+    '["SapI","GCTCTTC(1/4)",0,0,"","N",""],' +
+    '["Sau96I","G^GNCC",0,12,";279,5;461,5;695,5;1421,5;1464,5;1' +
+    '791,5;1801,5;1930,5;2040,5;2184,5;2503,5;2854,5","C",";279;4' +
+    '61;695;1421;1464;1791;1801;1930;2040;2184;2503;2854"],' +
+    '["Sau3AI","^GATC",0,9,";85,4;232,4;524,4;938,4;1005,4;1311,' +
+    '4;1771,4;2545,4;2683,4","N",";84;231;523;937;1004;1310;1770;' +
+    '2544;2682"],' +
+    '["SbfI","CCTGCA^GG",0,0,"","N",""],' +
+    '["ScaI","AGT^ACT",0,0,"","N",""],' +
+    '["ScrFI","CC^NGG",1,1,";2436,5","C",";2437"],' +
+    '["SexAI","A^CCWGGT",0,0,"","C",""],' +
+    '["SfaNI","GCATC(5/9)",0,2,";2056,5;2335,5","N",";2065;2325"' +
+    '],' +
+    '["SfcI","C^TRYAG",0,2,";941,6;3063,6","N",";941;3063"],' +
+    '["SfoI","GGC^GCC",0,0,"","N",""],' +
+    '["SfuI","TT^CGAA",0,0,"","N",""],' +
+    '["SgrAI","CR^CCGGYG",0,0,"","N",""],' +
+    '["SmaI","CCC^GGG",0,0,"","N",""],' +
+    '["SmlI","C^TYRAG",0,4,";1409,6;1819,6;2060,6;2977,6","N",";' +
+    '1409;1819;2060;2977"],' +
+    '["SnaBI","TAC^GTA",0,0,"","N",""],' +
+    '["SpeI","A^CTAGT",1,1,";1961,6","N",";1961"],' +
+    '["SphI","GCATG^C",1,1,";2514,6","N",";2518"],' +
+    '["SrfI","GCCC^GGGC",0,0,"","N",""],' +
+    '["SspI","AAT^ATT",0,2,";768,6;2916,6","N",";770;2918"],' +
+    '["StuI","AGG^CCT",0,4,";1130,6;1325,6;2249,6;2394,6","C",";' +
+    '1132;1327;2251;2396"],' +
+    '["StyI","C^CWWGG",0,5,";557,6;1460,6;2654,6;2924,6;3164,6",' +
+    '"N",";557;1460;2654;2924;3164"],' +
+    '["StyD4I","^CCNGG",1,1,";2436,5","C",";2435"],' +
+    '["SwaI","ATTT^AAAT",0,0,"","N",""],' +
+    '["TaqI","T^CGA",0,2,";8,4;1410,4","A",";8;1410"],' +
+    '["TfiI","G^AWTC",0,7,";375,5;538,5;956,5;982,5;1456,5;1507,' +
+    '5;2725,5","N",";375;538;956;982;1456;1507;2725"],' +
+    '["Tru9I","T^TAA",0,9,";221,4;615,4;708,4;792,4;819,4;2114,4' +
+    ';2244,4;3005,4;3040,4","N",";221;615;708;792;819;2114;2244;3' +
+    '005;3040"],' +
+    '["TseI","G^CWGC",0,6,";1223,5;1697,5;2300,5;2583,5;2659,5;2' +
+    '672,5","N",";1223;1697;2300;2583;2659;2672"],' +
+    '["Tsp45I","^GTSAC",1,1,";916,5","N",";915"],' +
+    '["TspMI","C^CCGGG",0,0,"","N",""],' +
+    '["TspRI","CASTGNN^",0,8,";1273,7;1275,7;1975,7;1977,7;1998,' +
+    '7;2000,7;2480,7;2482,7","N",";1281;1983;2006;2488"],' +
+    '["Tth111I","GACN^NNGTC",0,0,"","N",""],' +
+    '["XbaI","T^CTAGA",0,3,";90,6;241,6;1529,6","A",";90;241;152' +
+    '9"],' +
+    '["XhoI","C^TCGAG",1,1,";1409,6","N",";1409"],' +
+    '["XmaI","C^CCGGG",0,0,"","N",""],' +
+    '["XmnI","GAANN^NNTTC",1,1,";2523,10","N",";2527"],' +
+    '["ZraI","GAC^GTC",1,1,";2695,6","N",";2697"]]';
+    return str;
+}
+
+function wdeTestDataString_021() {
+    var str = "<pre id=\"wdeStartNode\"> \n    1  ATGGACATCG ACCC" +
+    "<span style=\"background-color:red\">TTATAA </span>AGAATTTGG" +
+    "A GCTACTGTGG AGTTACTCTC GTTTTTGCCT TCTGACTTCT TTCCTTCAGT\n  " +
+    " 81  ACGAGATCTT CTAGATACCG CCTCAGCTCT GTATCGGGAA GCCTTAGAGT " +
+    "CTCCTGAGCA TTGTTCACCT CACCATACTG\n  161  CACTCAGGCA AGCAATTC" +
+    "TT TGCTGGGGGG AACTAATGAC TCTAGCTACC TGGGTGGGTG TTAATTTGGA AG" +
+    "ATCCAGCG\n  241  TCTAGAGACC TAGTAGTCAG TTATGTCAA<span style=" +
+    "\"background-color:red\">C ACTAATATG</span>G GCCTAAAGTT CAGG" +
+    "CAACTC TTGTGGTTTC ACATTTCTTG\n  321  TCTCACTTTT GGAAGAGAAA C" +
+    "AGTTATAGA GTATTTGGTG TCTTTCGGAG TGTGGATTCG CACTCCTCCA GCTTAT" +
+    "AGAC\n  401  CACCAAATGC CCCTATCCTA TCAACACT<span style=\"bac" +
+    "kground-color:red\">TC CGGA</span>GACTAC TGTTGTTAGA CGACGAGG" +
+    "CA GGTCCCCTAG AAGAAGAACT\n  481  CCCTCGCCTC GCA<span style=\"" +
+    "background-color:red\">GACGAAG GTC</span>TCAATCG CCGCGTCGCA " +
+    "GAAGATCTCA ATCTCGGGAA TCTCAATGTT AGTATTCCTT\n  561  GGACTCAT" +
+    "AA GGTGGGGAAC TTTACTGGGC TTTATTCTTC TACTGTACCT GTCTTTAATC CT" +
+    "CATTGGAA AACACCATCT\n  641  TTTCCTAATA TACATTTACA CCAAGACATT" +
+    " ATCAAAAAAT GTGAACAGTT TGTAGGCCCA CTCACAGTTA ATGAGAAAAG\n  7" +
+    "21  AAGATTG<span style=\"background-color:red\">CAA TTG</spa" +
+    "n>ATTATGC CTGCCAGGTT TTATCCAAAG GTTACCAAAT ATTTACCATT GGATAA" +
+    "GGGT ATTAAACCTT\n  801  ATTATCCAGA ACATCTAGTT AATCATTACT TCC" +
+    "AAACTAG ACACTATTTA CACACTCTAT GGAAGGCGGG TATATTATAT\n  881  " +
+    "AAGAGAGAAA CAACACATAG CGCCTCATTT TGTGG<span style=\"backgrou" +
+    "nd-color:red\">GTCAC </span>CATATTCTTG GGAACAAGAT CTACAGCATG" +
+    " GGGCAGAATC\n  961  TTTCCACCAG CAATCCTCTG GGATTCTTTC CCGACCA" +
+    "CCA GTTGGATCCA GCCTTCAGAG CAAACACCGC AAATCCAGAT\n 1041  TGGG" +
+    "ACTTCA ATCCCAACAA GGACACCTGG CCAGACGCCA ACAAGGTAGG AGCTGGA<s" +
+    "pan style=\"background-color:red\">GCA TTC</span>GGGCTGG GTT" +
+    "TCACCCC\n 1121  ACCGCACGGA GGCCTTTTGG GGTG<span style=\"back" +
+    "ground-color:red\">GAGCCC </span>TCAGGCTCAG GGCATACTAC AAACT" +
+    "TTGCC AGCAAA<span style=\"background-color:red\">TCCG CC</sp" +
+    "an>TCCTGCCT\n 1201  CCACCAATCG CCAGTCAGGA AGGCAGCCTA CCCCGCT" +
+    "GTC TCCACCTTTG AGAAACACTC ATCCTCAGGC CAT<span style=\"backgr" +
+    "ound-color:red\">GCAGTGG</span>\n 1281  <span style=\"backgr" +
+    "ound-color:red\">AATTC</span>CACAA CCTTCCACCA AACTCTGCAA GAT" +
+    "CCCAGAG TGAGAGGCCT GTATTTCCCT GCTGGTGGCT CCAGTTCAGG\n 1361  " +
+    "AACAGTAAAC CCTGTTCTGA CTACTGCCTC TCCCTTATCG TCAATCTT<span st" +
+    "yle=\"background-color:red\">CT CGAG</span>GATTGG GGACCCTGCG" +
+    " CTGAACATGG\n 1441  AGAACATCAC ATCAGGATT<span style=\"backgr" +
+    "ound-color:red\">C CTAGG</span>ACCCC TTCTCGTGTT ACAGGCGGGG T" +
+    "TTTTCTTGT TGACAAGAAT CCTCACAATA\n 1521  CCGCAGAGTC TAGACTCGT" +
+    "G GTGGACTTCT CTCAATTTTC TAGGGGGAAC TACCGTGTGT CT<span style=" +
+    "\"background-color:red\">TGGCCA</span>AA ATTCGCAGTC\n 1601  " +
+    "CCCAACCTCC AATCACTCAC CAACCTCTTG TCCTCCAACT TGTCCTGGTT ATCGC" +
+    "TGGAT GTGTCTGCGG CGTTTTATCA\n 1681  TCTTCCTCTT CATCCTGCTG CT" +
+    "ATGCCTCA TCTTCTTGTT GGTTCTTCTG GACTATCAAG GTATGTTGCC CGTTTGT" +
+    "CCT\n 1761  CTAATTCCAG GATCCTCAAC AACCAGCACG GGACCATGCC GGAC" +
+    "CTGCAT GACTACTGCT CAAGGAACCT CTAT<span style=\"background-co" +
+    "lor:red\">GTATCC</span>\n 1841  <span style=\"background-col" +
+    "or:red\"></span>CTCCTGTTGC TGTACCAAAC CTTCGGACGG AAATTGCACC " +
+    "TGTATTCCCA TCCCATCATC CTGGGCTTTC GGAAAATTCC\n 1921  TATGGGAG" +
+    "TG GGCCTCAGCC CGTTTCTCCT GGCTCAGTTT <span style=\"background" +
+    "-color:red\">ACTAGT</span>GCCA TTTGTTCAGT GGTTCGTAGG GCTTTCC" +
+    "CCC\n 2001  ACTGTTTGGC TTTCAGTTAT ATGGATGATG TGGTATTGGG GGCC" +
+    "AAGTC<span style=\"background-color:red\">T GTACA</span>GCAT" +
+    "C TTGAGTCCCT TTTTACCGCT\n 2081  GTTACCAATT TTCTTTTGTC TTTGG<" +
+    "span style=\"background-color:red\">GTATA C</span>ATTTAAACC " +
+    "CTAACAAAAC AAAGAGATGG GGTTACTCTC TAAATTTTAT\n 2161  GGGTTATG" +
+    "TC ATTGGATGTT ATGGGTCCTT GCCACAAGAA CACATCATAC AAAAAATCAA AG" +
+    "AATGTTTT AGAAAACTTC\n 2241  CTATTAACAG GCCTATTGAT TGGAAAGTAT" +
+    " GTCAACGAAT TGTGGGTCTT TTGGGTTTTG CTGCCCCTTT TA<span style=\"" +
+    "background-color:red\">CACAATGT</span>\n 2321  <span style=\"" +
+    "background-color:red\">G</span>GTTATCCTG CGTTGATGCC TTTGT<sp" +
+    "an style=\"background-color:red\">ATGCA T</span>GTATTCAAT CT" +
+    "AAGCAGGC TTTCACTTTC TCGCCAACTT ACAAGGCCTT\n 2401  TCTGTGTAAA" +
+    " CAATACCTGA ACCTTTACCC CGTTG<span style=\"background-color:r" +
+    "ed\">CCCGG </span>CAACGGCCAG GTCTGTGCCA AGTGTTTGCT GACGCAACC" +
+    "C\n 2481  CCACTGGCTG GGGCTTGGTC ATGGGCCATC AGC<span style=\"" +
+    "background-color:red\">GCATGC</span>G TG<span style=\"backgr" +
+    "ound-color:red\">GAACCTTT TC</span>GGCTCCTC TGCCGATCCA TACTG" +
+    "CGGAA\n 2561  CTCCTAGCCG CTTGTTTTGC TCGCAGCAGG TCTGGAGCAA AC" +
+    "ATTATCGG GACTGATAAC TCTGTTGTCC TATCCCGCAA\n 2641  ATATACATCG" +
+    " TTT<span style=\"background-color:red\">CCATGG</span>C TGCT" +
+    "AGGCTG TGCTGCCAAC TGGATCCTGC GCGG<span style=\"background-co" +
+    "lor:red\">GACGTC </span>CTTTGTTTAC GTCCCGTCGG\n 2721  CGCTGA" +
+    "ATCC TGCGGACGAC CCTTCTCGGG GTCGCTTGGG ACTCTCTCGT CCCCTTCTCC " +
+    "GTCTGCCGTT CCGACCGACC\n 2801  ACGGGGCGCA CCTCTCTTTA CGCG<spa" +
+    "n style=\"background-color:red\">GACTCC CCGTC</span>TGTGC CT" +
+    "TCTCATCT GC<span style=\"background-color:red\">CGGACCG</spa" +
+    "n>T <span style=\"background-color:red\">GTGCAC</span>TTCG C" +
+    "TTCACCTCT\n 2881  G<span style=\"background-color:red\">CACG" +
+    "TC</span>GCA TGGAGACCAC CGTGAACGCC CACCAAATAT TGCCCAAGGT CTT" +
+    "ACATAAG AGGACTCTTG GACTCTCA<span style=\"background-color:re" +
+    "d\">GC</span>\n 2961  <span style=\"background-color:red\">A" +
+    "ATG</span>TCAACG ACCGACCTTG AGGCATACTT CAAAGACTGT TTGTTTAAAG" +
+    " ACTGGGAGGA GTTGGGGGAG GAGATTAGGT\n 3041  TAAAGGTCTT TGTACTA" +
+    "GGA GGCTGTAGGC ATAAATTGGT C<span style=\"background-color:re" +
+    "d\">TGCGCA</span>CCA GCACCATGCA ACTTTTTCAC CTCTGCCTAA\n 3121" +
+    "  TCATCTCTTG TTCATGTCCT ACTGTTCAAG CCTCCAAGCT GTGCCTTGGG TGG" +
+    "CTTTGGG GC </pre>";
+    return str;
+}
 
 
 function wdeTestLoadSmallSeq() {

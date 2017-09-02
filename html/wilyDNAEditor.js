@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.9.4";
+var wdeVVersion = "0.9.5";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -1589,7 +1589,7 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
     for (var i = 0; i < seq.length ; i++) {
         if (i % 80 == 0) {
             if (i != 0) {
-                outSeq += "\n";
+                outSeq += closeMark + closeFeat + "\n";
             }
             if (wdeNumbers != 0) {
                 var pIco = i + wdeZeroOne;
@@ -1599,6 +1599,7 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
                 }
                 outSeq += iStr + "  ";
             }
+            outSeq += openFeat + openMark;
         } else {
             if ((i % 10 == 0) && (wdeNumbers != 0)) {
                 outSeq += " ";
