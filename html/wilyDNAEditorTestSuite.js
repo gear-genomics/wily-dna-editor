@@ -128,9 +128,6 @@ function wdeTestAll() {
         wdeTestOutCompString(wdeTestDataString_011_chrome(), document.getElementById("WDE_enzymes_spacer").innerHTML);
     }
 
-    alert("The next test run for a few seconds,\n please be patient!");
-    wdeTestLastTime = new Date();
-
     if (browser != "chrome") {
 	    wdeTestAddToOutput("wdeFindRE() on LargeGeneBank - ");
 	    wdeTestLoadLargeGeneBank();
@@ -252,9 +249,42 @@ function wdeTestAll() {
 
     wdeTestAddToOutput("\nTest Translate Functions:\n\n");
 
+    wdeTestAddToOutput("wdeTransInAll() - ");
+    wdeTestLoadSmallGeneBank();
+    wdeTransInAll();
+    wdeTestOutCompString(wdeTestDataString_029(), window.frames['WDE_TRANS'].document.body.innerHTML);
+
+    wdeTestAddToOutput("wdeTransInAll() with one frame and letter - ");
+    wdeTGTransTreeOne(0,0);
+    wdeTGTransFrameNr(1,0);
+    wdeTGTransRevComp(0,0);
+    wdeTransInAll();
+    wdeTestOutCompString(wdeTestDataString_030(), window.frames['WDE_TRANS'].document.body.innerHTML);
+    wdeTGTransTreeOne(1,0);
+    wdeTGTransFrameNr(6,0);
+    wdeTGTransRevComp(1,0);
+
+    wdeTestAddToOutput("wdeTGOrfView() - ");
+    wdeTGOrfView(1,1);
+    wdeTestOutCompString(wdeTestDataString_031(), window.frames['WDE_TRANS'].document.body.innerHTML);
+
+    if (browser != "edge") {
+	    wdeTestAddToOutput("wdeTGOrfSort() - ");
+	    wdeTGOrfSort(0,1);
+	    wdeTestOutCompString(wdeTestDataString_032(), window.frames['WDE_TRANS'].document.body.innerHTML);
+    } else {
+	    wdeTestAddToOutput("wdeTGOrfSort() - [SKIPPED on EDGE]\n");
+    }
+    wdeTGOrfView(0,0);
+    wdeTGOrfSort(1,1);
+
+    wdeTestAddToOutput("\nTest Feature Functions:\n\n");
 
 
- // wdeTestPRString = document.getElementById("WDE_enzymes_spacer").innerHTML
+
+
+
+  //  wdeTestPRString = window.frames['WDE_TRANS'].document.body.innerHTML;
 
 
  // alert(wdeTestPRString);
@@ -12212,6 +12242,1558 @@ function wdeTestDataString_028() {
     return str;
 }
 
+function wdeTestDataString_029() {
+    var str = "<pre>         <span style=\"background-color:lime\"" +
+    ">GlyHisArgProLeu</span><span style=\"background-color:red\">" +
+    "***</span>ArgIleTrpSerTyrCysGlyValThrLeuValPheAlaPhe\n      " +
+    "  TrpThrSerThrLeuIleLysAsnLeuGluLeuLeuTrpSerTyrSerArgPheCysL" +
+    "eu\n       <span style=\"background-color:green\">Met</span>" +
+    "<span style=\"background-color:lime\">AspIleAspProTyrLysGluP" +
+    "heGlyAlaThrValGluLeuLeuSerPheLeuPro</span>\n       ATGGACATC" +
+    "GACCCTTATAAAGAATTTGGAGCTACTGTGGAGTTACTCTCGTTTTTGCCT\n    1 |" +
+    "         |         |         |         |         |         |" +
+    "\n       TACCTGTAGCTGGGAATATTTCTTAAACCTCGATGACACCTCAATGAGAGC" +
+    "AAAAACGGA\n         <span style=\"background-color:lime\">Se" +
+    "r</span><span style=\"background-color:green\">Met</span>Ser" +
+    "Gly<span style=\"background-color:red\">***</span>LeuSerAsnP" +
+    "roAlaValThrSerAsnSerGluAsnLysGlyGlu\n        ProCysArgGlyLys" +
+    "TyrLeuIleGlnLeu<span style=\"background-color:red\">***</spa" +
+    "n>GlnProThrValArgThrLysAlaLys\n       HisValAspValArgIlePheP" +
+    "heLysSerSerSerHisLeu<span style=\"background-color:red\">***" +
+    "</span>GluArgLysGlnArg\n\n\n         <span style=\"backgroun" +
+    "d-color:red\">***</span>LeuLeuSerPheSerThrArgSerSerArgTyrArg" +
+    "LeuSerSerValSerGlySer\n        LeuThrSerPheLeuGlnTyrGluIlePh" +
+    "e<span style=\"background-color:red\">***</span>IleProProGln" +
+    "LeuCysIleGlyLys\n       <span style=\"background-color:lime\"" +
+    ">SerAspPhePheProSerValArgAspLeuLeuAspThrAlaSerAlaLeuTyrArgGl" +
+    "u</span>\n       TCTGACTTCTTTCCTTCAGTACGAGATCTTCTAGATACCGCCT" +
+    "CAGCTCTGTATCGGGAA\n   61 |         |         |         |    " +
+    "     |         |         |\n       AGACTGAAGAAAGGAAGTCATGCTC" +
+    "TAGAAGATCTATGGCGGAGTCGAGACATAGCCCTT\n         SerLysLysGlyGl" +
+    "uThrArgSerArgArgSerValAlaGluAlaArgTyrArgSerAla\n        GlnS" +
+    "erArgGluLysLeuValLeuAspGluLeuTyrArgArgLeuGluThrAspProLeu\n  " +
+    "     ArgValGluLysArg<span style=\"background-color:red\">***" +
+    "</span>TyrSerIleLys<span style=\"background-color:red\">***<" +
+    "/span>IleGlyGly<span style=\"background-color:red\">***</spa" +
+    "n>SerGlnIleProPhe\n\n\n         LeuArgValSer<span style=\"ba" +
+    "ckground-color:red\">***</span>AlaLeuPheThrSerProTyrCysThrGl" +
+    "nAlaSerAsnSerLeu\n        Pro<span style=\"background-color:" +
+    "red\">***</span>SerLeuLeuSerIleValHisLeuThrIleLeuHisSerGlyLy" +
+    "sGlnPhePhe\n       <span style=\"background-color:lime\">Ala" +
+    "LeuGluSerProGluHisCysSerProHisHisThrAlaLeuArgGlnAlaIleLeu</s" +
+    "pan>\n       GCCTTAGAGTCTCCTGAGCATTGTTCACCTCACCATACTGCACTCAG" +
+    "GCAAGCAATTCTT\n  121 |         |         |         |        " +
+    " |         |         |\n       CGGAATCTCAGAGGACTCGTAACAAGTGG" +
+    "AGTGGTATGACGTGAGTCCGTTCGTTAAGAA\n         LysSerAspGlySerCys" +
+    "GlnGluGly<span style=\"background-color:red\">***</span>TrpV" +
+    "alAlaSerLeuCysAlaIleArgGln\n        ArgLeuThrGluGlnAlaAsnAsn" +
+    "ValGluGlyTyrGlnVal<span style=\"background-color:red\">***</" +
+    "span>AlaLeuLeuGluLys\n       Gly<span style=\"background-col" +
+    "or:red\">***</span><span style=\"background-color:lime\">Leu" +
+    "ArgArgLeu</span><span style=\"background-color:green\">Met</" +
+    "span>Thr<span style=\"background-color:red\">***</span><span" +
+    " style=\"background-color:lime\">ArgVal</span><span style=\"" +
+    "background-color:green\">Met</span>SerCysGluProLeuCysAsnLys\n" +
+    "\n\n         LeuGlyGlyThrAsnAspSerSerTyrLeuGlyGlyCys<span st" +
+    "yle=\"background-color:red\">***</span>PheGlyArgSerSerVal\n " +
+    "       AlaGlyGlyAsn<span style=\"background-color:red\">****" +
+    "**</span>Leu<span style=\"background-color:red\">***</span>L" +
+    "euProGlyTrpValLeuIleTrpLysIleGlnArg\n       <span style=\"ba" +
+    "ckground-color:lime\">CysTrpGlyGluLeu</span><span style=\"ba" +
+    "ckground-color:green\">Met</span><span style=\"background-co" +
+    "lor:lime\">ThrLeuAlaThrTrpValGlyValAsnLeuGluAspProAla</span>" +
+    "\n       TGCTGGGGGGAACTAATGACTCTAGCTACCTGGGTGGGTGTTAATTTGGAA" +
+    "GATCCAGCG\n  181 |         |         |         |         |  " +
+    "       |         |\n       ACGACCCCCCTTGATTACTGAGATCGATGGACC" +
+    "CACCCACAATTAAACCTTCTAGGTCGC\n         GlnProSerSerIleValArgA" +
+    "laValGlnThrProThrLeuLysSerSerGlyAlaAsp\n        SerProProVal" +
+    "LeuSerGluLeu<span style=\"background-color:red\">***</span>A" +
+    "rgProProHis<span style=\"background-color:red\">***</span>As" +
+    "nProLeuAspLeuThr\n       AlaProProPhe<span style=\"backgroun" +
+    "d-color:red\">***</span>HisSer<span style=\"background-color" +
+    ":red\">***</span>SerGlyProHisThrAsnIleGlnPheIleTrpArg\n\n\n " +
+    "        <span style=\"background-color:red\">***</span>ArgPr" +
+    "oSerSerGlnLeuCysGlnHis<span style=\"background-color:red\">*" +
+    "**</span>TyrGlyProLysValGlnAlaThrLeu\n        LeuGluThr<span" +
+    " style=\"background-color:red\">******</span>SerVal<span sty" +
+    "le=\"background-color:green\">Met</span><span style=\"backgr" +
+    "ound-color:lime\">SerThrLeuIleTrpAla</span><span style=\"bac" +
+    "kground-color:red\">***</span>SerSerGlyAsnSer\n       <span " +
+    "style=\"background-color:lime\">SerArgAspLeuValValSerTyrValA" +
+    "snThrAsn</span><span style=\"background-color:green\">Met</s" +
+    "pan><span style=\"background-color:lime\">GlyLeuLysPheArgGln" +
+    "Leu</span>\n       TCTAGAGACCTAGTAGTCAGTTATGTCAACACTAATATGGG" +
+    "CCTAAAGTTCAGGCAACTC\n  241 |         |         |         |  " +
+    "       |         |         |\n       AGATCTCTGGATCATCAGTCAAT" +
+    "ACAGTTGTGATTATACCCGGATTTCAAGTCCGTTGAG\n         LeuSerArgThr" +
+    "ThrLeu<span style=\"background-color:red\">***</span>ThrLeuV" +
+    "alLeuIleProArgPheAsnLeuCysSerLys\n        <span style=\"back" +
+    "ground-color:red\">***</span>LeuGlyLeuLeu<span style=\"backg" +
+    "round-color:red\">***</span>AsnHis<span style=\"background-c" +
+    "olor:red\">***</span>Cys<span style=\"background-color:red\"" +
+    ">***</span>TyrProGlyLeuThr<span style=\"background-color:red" +
+    "\">***</span>AlaValArg\n       ArgSerVal<span style=\"backgr" +
+    "ound-color:red\">***</span>TyrAspThrIleAspValSerIleHisAla<sp" +
+    "an style=\"background-color:red\">***</span>LeuGluProLeuGlu\n" +
+    "\n\n         ValValSerHisPheLeuSerHisPheTrpLysArgAsnSerTyrAr" +
+    "gValPheGlyVal\n        CysGlyPheThrPheLeuValSerLeuLeuGluGluL" +
+    "ysGlnLeu<span style=\"background-color:red\">***</span>SerIl" +
+    "eTrpCys\n       <span style=\"background-color:lime\">LeuTrp" +
+    "PheHisIleSerCysLeuThrPheGlyArgGluThrValIleGluTyrLeuVal</span" +
+    ">\n       TTGTGGTTTCACATTTCTTGTCTCACTTTTGGAAGAGAAACAGTTATAGA" +
+    "GTATTTGGTG\n  301 |         |         |         |         | " +
+    "        |         |\n       AACACCAAAGTGTAAAGAACAGAGTGAAAACC" +
+    "TTCTCTTTGTCAATATCTCATAAACCAC\n         HisAsn<span style=\"b" +
+    "ackground-color:red\">***</span><span style=\"background-col" +
+    "or:green\">Met</span>GluGlnArgValLysProLeuSerValThrIleSerTyr" +
+    "LysThrAsp\n        ThrThrGluCysLysLysAsp<span style=\"backgr" +
+    "ound-color:red\">***</span>LysGlnPheLeuPheLeu<span style=\"b" +
+    "ackground-color:red\">***</span>LeuThrAsnProThr\n       GlnP" +
+    "roLysValAsnArgThrGluSerLysSerSerPheCysAsnTyrLeuIleGlnHis\n\n" +
+    "\n         PheArgSerValAspSerHisSerSerSerLeu<span style=\"ba" +
+    "ckground-color:red\">***</span>ThrThrLysCysProTyrProIle\n   " +
+    "     LeuSerGluCysGlyPheAlaLeuLeuGlnLeuIleAspHisGln<span styl" +
+    "e=\"background-color:green\">Met</span><span style=\"backgro" +
+    "und-color:lime\">ProLeuSerTyr</span>\n       <span style=\"b" +
+    "ackground-color:lime\">SerPheGlyValTrpIleArgThrProProAlaTyrA" +
+    "rgProProAsnAlaProIleLeu</span>\n       TCTTTCGGAGTGTGGATTCGC" +
+    "ACTCCTCCAGCTTATAGACCACCAAATGCCCCTATCCTA\n  361 |         |  " +
+    "       |         |         |         |         |\n       AGA" +
+    "AAGCCTCACACCTAAGCGTGAGGAGGTCGAATATCTGGTGGTTTACGGGGATAGGAT\n " +
+    "        LysProThrHisIleArgValGlyGlyAla<span style=\"backgrou" +
+    "nd-color:red\">***</span>LeuGlyGlyPheAlaGlyIleArgAsp\n      " +
+    "  LysArgLeuThrSerGluCysGluGluLeuLysTyrValValLeuHisGly<span s" +
+    "tyle=\"background-color:red\">***</span>GlyIle\n       ArgGl" +
+    "uSerHisProAsnAlaSerArgTrpSerIleSerTrpTrpIleGlyArgAsp<span st" +
+    "yle=\"background-color:red\">***</span>\n\n\n         AsnThr" +
+    "SerGlyAspTyrCysCys<span style=\"background-color:red\">***</" +
+    "span>ThrThrArgGlnValPro<span style=\"background-color:red\">" +
+    "***</span>LysLysAsnSer\n        <span style=\"background-col" +
+    "or:lime\">GlnHisPheArgArgLeuLeuLeuLeuAspAspGluAlaGlyProLeuGl" +
+    "uGluGluLeu</span>\n       <span style=\"background-color:lim" +
+    "e\">SerThrLeuProGluThrThrValValArgArgArgGlyArgSerProArgArgAr" +
+    "gThr</span>\n       TCAACACTTCCGGAGACTACTGTTGTTAGACGACGAGGCA" +
+    "GGTCCCCTAGAAGAAGAACT\n  421 |         |         |         | " +
+    "        |         |         |\n       AGTTGTGAAGGCCTCTGATGAC" +
+    "AACAATCTGCTGCTCCGTCCAGGGGATCTTCTTCTTGA\n         ValSerGlySe" +
+    "rValValThrThrLeuArgArgProLeuAspGlyLeuLeuLeuValGly\n        L" +
+    "euValGluProSer<span style=\"background-color:red\">***</span" +
+    ">GlnGln<span style=\"background-color:red\">***</span>ValVal" +
+    "LeuCysThrGly<span style=\"background-color:red\">***</span><" +
+    "span style=\"background-color:lime\">PhePhePheGlu</span>\n  " +
+    "     <span style=\"background-color:red\">***</span>CysLysAr" +
+    "gLeuSerSerAsnAsnSerSerSerAlaProGlyArgSerSerSerSer\n\n\n     " +
+    "    LeuAlaSerGlnThrLysValSerIleAlaAlaSerGlnLysIleSerIleSerGl" +
+    "yIle\n        <span style=\"background-color:lime\">ProArgLe" +
+    "uAlaAspGluGlyLeuAsnArgArgValAlaGluAspLeuAsnLeuGlyAsn</span>\n" +
+    "       <span style=\"background-color:lime\">ProSerProArgArg" +
+    "ArgArgSerGlnSerProArgArgArgArgSerGlnSerArgGlu</span>\n      " +
+    " CCCTCGCCTCGCAGACGAAGGTCTCAATCGCCGCGTCGCAGAAGATCTCAATCTCGGGA" +
+    "A\n  481 |         |         |         |         |         |" +
+    "         |\n       GGGAGCGGAGCGTCTGCTTCCAGAGTTAGCGGCGCAGCGTC" +
+    "TTCTAGAGTTAGAGCCCTT\n         GluGlyArgLeuArgLeuAsp<span sty" +
+    "le=\"background-color:red\">***</span>AspGlyArgArgLeuLeuAsp<" +
+    "span style=\"background-color:red\">***</span>AspArgSerAsp\n" +
+    "        <span style=\"background-color:lime\">ArgAlaGluCysVa" +
+    "lPheThrGluIleAlaAlaAspCysPheIleGluIleGluProIle</span>\n     " +
+    "  GlyArgArgAlaSerSerProArgLeuArgArgThrAlaSerSerArgLeuArgProP" +
+    "he\n\n\n         Ser<span style=\"background-color:green\">M" +
+    "et</span><span style=\"background-color:lime\">LeuValPheLeuG" +
+    "lyLeuIleArgTrpGlyThrLeuLeuGlyPheIleLeuLeu</span>\n        <s" +
+    "pan style=\"background-color:lime\">LeuAsnValSerIleProTrpThr" +
+    "HisLysValGlyAsnPheThrGlyLeuTyrSerSer</span>\n       <span st" +
+    "yle=\"background-color:lime\">SerGlnCys</span><span style=\"" +
+    "background-color:red\">***</span>TyrSerLeuAspSer<span style=" +
+    "\"background-color:red\">***</span>GlyGlyGluLeuTyrTrpAlaLeuP" +
+    "hePhe\n       TCTCAATGTTAGTATTCCTTGGACTCATAAGGTGGGGAACTTTACT" +
+    "GGGCTTTATTCTTC\n  541 |         |         |         |       " +
+    "  |         |         |\n       AGAGTTACAATCATAAGGAACCTGAGTA" +
+    "TTCCACCCCTTGAAATGACCCGAAATAAGAAG\n         <span style=\"bac" +
+    "kground-color:red\">***</span>His<span style=\"background-co" +
+    "lor:red\">***</span>TyrGluLysSerGluTyrProProSerSer<span styl" +
+    "e=\"background-color:red\">***</span>GlnAlaLysAsnLys<span st" +
+    "yle=\"background-color:red\">***</span>\n        <span style" +
+    "=\"background-color:lime\">GluIleAsnThrAsnArgProSer</span><s" +
+    "pan style=\"background-color:green\">Met</span><span style=\"" +
+    "background-color:lime\">LeuHisProValLysSerProLysIleArgArg</s" +
+    "pan>\n       ArgLeuThrLeuIleGlyGlnVal<span style=\"backgroun" +
+    "d-color:red\">***</span>LeuThrProPheLysValProSer<span style=" +
+    "\"background-color:red\">***</span>GluGlu\n\n\n         <spa" +
+    "n style=\"background-color:lime\">LeuTyrLeuSerLeuIleLeuIleGl" +
+    "yLysHisHisLeuPheLeuIleTyrIleTyrThr</span>\n        <span sty" +
+    "le=\"background-color:lime\">ThrValProValPheAsnProHisTrpLysT" +
+    "hrProSerPheProAsnIleHisLeuHis</span>\n       TyrCysThrCysLeu" +
+    "<span style=\"background-color:red\">***</span>SerSerLeuGluA" +
+    "snThrIlePheSer<span style=\"background-color:red\">***</span" +
+    ">TyrThrPheThr\n       TACTGTACCTGTCTTTAATCCTCATTGGAAAACACCAT" +
+    "CTTTTCCTAATATACATTTACA\n  601 |         |         |         " +
+    "|         |         |         |\n       ATGACATGGACAGAAATTAG" +
+    "GAGTAACCTTTTGTGGTAGAAAAGGATTATATGTAAATGT\n         GlnValGln" +
+    "Arg<span style=\"background-color:red\">***</span><span styl" +
+    "e=\"background-color:lime\">AspGluAsnSerPheVal</span><span s" +
+    "tyle=\"background-color:green\">Met</span>LysGlu<span style=" +
+    "\"background-color:red\">***</span>TyrValAsnValGly\n        " +
+    "<span style=\"background-color:lime\">SerTyrArgAspLysIleArg<" +
+    "/span><span style=\"background-color:green\">Met</span><span" +
+    " style=\"background-color:lime\">ProPheCysTrpArgLysArgIleTyr" +
+    "</span><span style=\"background-color:green\">Met</span><spa" +
+    "n style=\"background-color:red\">***</span>Val\n       ValTh" +
+    "rGlyThrLysLeuGly<span style=\"background-color:red\">***</sp" +
+    "an><span style=\"background-color:lime\">GlnPheValGlyAspLysG" +
+    "lyLeuIleCysLysCys</span>\n\n\n         <span style=\"backgro" +
+    "und-color:lime\">LysThrLeuSerLysAsnValAsnSerLeu</span><span " +
+    "style=\"background-color:red\">***</span>AlaHisSerGlnLeu<spa" +
+    "n style=\"background-color:green\">Met</span><span style=\"b" +
+    "ackground-color:lime\">ArgLysGlu</span>\n        <span style" +
+    "=\"background-color:lime\">GlnAspIleIleLysLysCysGluGlnPheVal" +
+    "GlyProLeuThrValAsnGluLysArg</span>\n       ProArgHisTyrGlnLy" +
+    "s<span style=\"background-color:green\">Met</span><span styl" +
+    "e=\"background-color:red\">***</span>ThrValCysArgProThrHisSe" +
+    "r<span style=\"background-color:red\">******</span>GluLys\n " +
+    "      CCAAGACATTATCAAAAAATGTGAACAGTTTGTAGGCCCACTCACAGTTAATGA" +
+    "GAAAAG\n  661 |         |         |         |         |     " +
+    "    |         |\n       GGTTCTGTAATAGTTTTTTACACTTGTCAAACATCC" +
+    "GGGTGAGTGTCAATTACTCTTTTC\n         LeuCys<span style=\"backg" +
+    "round-color:red\">******</span>PheIleHisValThrGlnLeuGlyVal<s" +
+    "pan style=\"background-color:red\">***</span>Leu<span style=" +
+    "\"background-color:red\">***</span>HisSerPhePhe\n        Leu" +
+    "ValAsnAspPhePheThrPheLeuLysTyrAlaTrpGluCysAsnIleLeuPheSer\n " +
+    "      <span style=\"background-color:lime\">TrpSer</span><sp" +
+    "an style=\"background-color:green\">Met</span>IleLeuPheHisSe" +
+    "rCysAsnThrProGlySerValThrLeuSerPheLeu\n\n\n         <span st" +
+    "yle=\"background-color:lime\">AspCysAsn</span><span style=\"" +
+    "background-color:red\">***</span>LeuCysLeuProGlyPheIleGlnArg" +
+    "LeuProAsnIleTyrHisTrp\n        <span style=\"background-colo" +
+    "r:lime\">ArgLeuGlnLeuIle</span><span style=\"background-colo" +
+    "r:green\">Met</span><span style=\"background-color:lime\">Pr" +
+    "oAlaArgPheTyrProLysValThrLysTyrLeuProLeu</span>\n       LysI" +
+    "leAlaIleAspTyrAlaCysGlnValLeuSerLysGlyTyrGlnIlePheThrIle\n  " +
+    "     AAGATTGCAATTGATTATGCCTGCCAGGTTTTATCCAAAGGTTACCAAATATTTA" +
+    "CCATT\n  721 |         |         |         |         |      " +
+    "   |         |\n       TTCTAACGTTAACTAATACGGACGGTCCAAAATAGGT" +
+    "TTCCAATGGTTTATAAATGGTAA\n         IleAlaIleSer<span style=\"" +
+    "background-color:red\">***</span>AlaGlnTrpThrLysAspLeuPro<sp" +
+    "an style=\"background-color:red\">***</span><span style=\"ba" +
+    "ckground-color:lime\">TrpIleAsnVal</span><span style=\"backg" +
+    "round-color:green\">Met</span>Pro\n        SerGlnLeuGlnAsnHi" +
+    "sArgGlyProLysIleTrpLeuAsnGlyPheIle<span style=\"background-c" +
+    "olor:red\">***</span><span style=\"background-color:lime\">T" +
+    "rpGln</span>\n       LeuAsnCysAsnIleIleGlyAlaLeuAsn<span sty" +
+    "le=\"background-color:red\">***</span>GlyPheThrValLeuTyrLysG" +
+    "lyAsn\n\n\n         IleArgValLeuAsnLeuIleIleGlnAsnIle<span s" +
+    "tyle=\"background-color:red\">***</span>LeuIleIleThrSerLysLe" +
+    "uAsp\n        <span style=\"background-color:lime\">AspLysGl" +
+    "yIleLysProTyrTyrProGluHisLeuValAsnHisTyrPheGlnThrArg</span>\n" +
+    "       Gly<span style=\"background-color:red\">***</span>Gly" +
+    "Tyr<span style=\"background-color:red\">***</span>ThrLeuLeuS" +
+    "erArgThrSerSer<span style=\"background-color:red\">***</span" +
+    ">SerLeuLeuProAsn<span style=\"background-color:red\">***</sp" +
+    "an>\n       GGATAAGGGTATTAAACCTTATTATCCAGAACATCTAGTTAATCATTA" +
+    "CTTCCAAACTAG\n  781 |         |         |         |         " +
+    "|         |         |\n       CCTATTCCCATAATTTGGAATAATAGGTCT" +
+    "TGTAGATCAATTAGTAATGAAGGTTTGATC\n         TyrProTyr<span styl" +
+    "e=\"background-color:red\">***</span>ValLysAsnAspLeuValAspLe" +
+    "u<span style=\"background-color:red\">***</span>AspAsnSerGly" +
+    "Phe<span style=\"background-color:red\">***</span><span styl" +
+    "e=\"background-color:lime\">Val</span>\n        <span style=" +
+    "\"background-color:lime\">IleLeuThrAsnPheArgIleIleTrpPhe</sp" +
+    "an><span style=\"background-color:green\">Met</span><span st" +
+    "yle=\"background-color:red\">***</span><span style=\"backgro" +
+    "und-color:lime\">AsnIle</span><span style=\"background-color" +
+    ":green\">Met</span>ValGluLeuSerSer\n       SerLeuProIleLeuGl" +
+    "y<span style=\"background-color:red\">******</span>GlySerCys" +
+    "ArgThrLeu<span style=\"background-color:red\">******</span>L" +
+    "ysTrpValLeu\n\n\n         ThrIleTyrThrLeuTyrGlyArgArgValTyrT" +
+    "yrIleArgGluLysGlnHisIleAla\n        <span style=\"background" +
+    "-color:lime\">HisTyrLeuHisThrLeuTrpLysAlaGlyIleLeuTyrLysArgG" +
+    "luThrThrHisSer</span>\n       ThrLeuPheThrHisSer<span style=" +
+    "\"background-color:green\">Met</span><span style=\"backgroun" +
+    "d-color:lime\">GluGlyGlyTyrIleIle</span><span style=\"backgr" +
+    "ound-color:red\">***</span>GluArgAsnAsnThr<span style=\"back" +
+    "ground-color:red\">***</span>\n       ACACTATTTACACACTCTATGG" +
+    "AAGGCGGGTATATTATATAAGAGAGAAACAACACATAG\n  841 |         |   " +
+    "      |         |         |         |         |\n       TGTG" +
+    "ATAAATGTGTGAGATACCTTCCGCCCATATAATATATTCTCTCTTTGTTGTGTATC\n  " +
+    "       <span style=\"background-color:lime\">SerAsnValCysGlu" +
+    "IleSerProProTyrIleIleTyrSerLeuPheLeuValTyrArg</span>\n      " +
+    "  ValIle<span style=\"background-color:red\">***</span>ValSe" +
+    "r<span style=\"background-color:red\">***</span>ProLeuArgThr" +
+    "Tyr<span style=\"background-color:red\">***</span><span styl" +
+    "e=\"background-color:lime\">IleLeuSerPheCysCys</span><span s" +
+    "tyle=\"background-color:green\">Met</span>Ala\n       Cys<sp" +
+    "an style=\"background-color:red\">***</span>LysCysValArgHisP" +
+    "heAlaProIleAsnTyrLeuLeuSerValValCysLeu\n\n\n         ProHisP" +
+    "heValGlyHisHisIleLeuGlyAsnLysIleTyrSer<span style=\"backgrou" +
+    "nd-color:green\">Met</span><span style=\"background-color:li" +
+    "me\">GlyGlnAsnLeu</span>\n        <span style=\"background-c" +
+    "olor:lime\">AlaSerPheCysGlySerProTyrSerTrpGluGlnAspLeuGlnHis" +
+    "GlyAlaGluSer</span>\n       ArgLeuIleLeuTrpValThrIlePheLeuGl" +
+    "yThrArgSerThrAlaTrpGlyArgIle\n       CGCCTCATTTTGTGGGTCACCAT" +
+    "ATTCTTGGGAACAAGATCTACAGCATGGGGCAGAATC\n  901 |         |    " +
+    "     |         |         |         |         |\n       GCGGA" +
+    "GTAAAACACCCAGTGGTATAAGAACCCTTGTTCTAGATGTCGTACCCCGTCTTAG\n   " +
+    "      <span style=\"background-color:lime\">Arg</span><span " +
+    "style=\"background-color:green\">Met</span><span style=\"bac" +
+    "kground-color:lime\">LysHisThrVal</span><span style=\"backgr" +
+    "ound-color:green\">Met</span>AsnLysProValLeuAspValAlaHisProL" +
+    "euIleLys\n        Gly<span style=\"background-color:red\">**" +
+    "*</span>LysThrPro<span style=\"background-color:red\">***</s" +
+    "pan>TrpIleArgProPheLeuIle<span style=\"background-color:red\"" +
+    ">***</span><span style=\"background-color:lime\">Leu</span><" +
+    "span style=\"background-color:green\">Met</span>ProCysPheArg" +
+    "\n       AlaGluAsnGlnProAspGlyTyrGluGlnSerCysSerArgCysCysPro" +
+    "AlaSerAsp\n\n\n         <span style=\"background-color:lime\"" +
+    ">SerThrSerAsnProLeuGlyPhePheProAspHisGlnLeuAspProAlaPheArgAl" +
+    "a</span>\n        <span style=\"background-color:lime\">PheH" +
+    "isGlnGlnSerSerGlyIleLeuSerArgProProValGlySerSerLeuGlnSer</sp" +
+    "an>\n       PheProProAlaIleLeuTrpAspSerPheProThrThrSerTrpIle" +
+    "GlnProSerGlu\n       TTTCCACCAGCAATCCTCTGGGATTCTTTCCCGACCACC" +
+    "AGTTGGATCCAGCCTTCAGAG\n  961 |         |         |         |" +
+    "         |         |         |\n       AAAGGTGGTCGTTAGGAGACC" +
+    "CTAAGAAAGGGCTGGTGGTCAACCTAGGTCGGAAGTCTC\n         GlyGlyAlaI" +
+    "leArgGlnSerGluLysGlyValValLeuGlnIleTrpGlyGluSerCys\n        " +
+    "GluValLeuLeuGlyArgProAsnLysGlySerTrpTrpAsnSerGlyAlaLysLeuAla" +
+    "\n       LysTrpTrpCysAspGluProIleArgGluArgGlyGlyThrProAspLeu" +
+    "Arg<span style=\"background-color:red\">***</span>Leu\n\n\n " +
+    "        <span style=\"background-color:lime\">AsnThrAlaAsnPr" +
+    "oAspTrpAspPheAsnProAsnLysAspThrTrpProAspAlaAsn</span>\n     " +
+    "   <span style=\"background-color:lime\">LysHisArgLysSerArgL" +
+    "euGlyLeuGlnSerGlnGlnGlyHisLeuAlaArgArgGln</span>\n       Gln" +
+    "ThrProGlnIleGlnIleGlyThrSerIleProThrArgThrProGlyGlnThrPro\n " +
+    "      CAAACACCGCAAATCCAGATTGGGACTTCAATCCCAACAAGGACACCTGGCCAG" +
+    "ACGCCA\n 1021 |         |         |         |         |     " +
+    "    |         |\n       GTTTGTGGCGTTTAGGTCTAACCCTGAAGTTAGGGT" +
+    "TGTTCCTGTGGACCGGTCTGCGGT\n         ValGlyCysIleTrpIleProValG" +
+    "luIleGlyValLeuValGlyProTrpValGlyVal\n        PheValAlaPheGly" +
+    "SerGlnSerLysLeuGlyLeuLeuSerValGlnGlySerAlaLeu\n       LeuCys" +
+    "ArgLeuAspLeuAsnProSer<span style=\"background-color:red\">**" +
+    "*</span><span style=\"background-color:lime\">AspTrpCysProCy" +
+    "sArgAlaLeuArgTrp</span>\n\n\n         <span style=\"backgrou" +
+    "nd-color:lime\">LysValGlyAlaGlyAlaPheGlyLeuGlyPheThrProProHi" +
+    "sGlyGlyLeuLeuGly</span>\n        <span style=\"background-co" +
+    "lor:lime\">GlnGlyArgSerTrpSerIleArgAlaGlyPheHisProThrAlaArgA" +
+    "rgProPheGly</span>\n       ThrArg<span style=\"background-co" +
+    "lor:red\">***</span>GluLeuGluHisSerGlyTrpValSerProHisArgThrG" +
+    "luAlaPheTrp\n       ACAAGGTAGGAGCTGGAGCATTCGGGCTGGGTTTCACCCC" +
+    "ACCGCACGGAGGCCTTTTGG\n 1081 |         |         |         | " +
+    "        |         |         |\n       TGTTCCATCCTCGACCTCGTAA" +
+    "GCCCGACCCAAAGTGGGGTGGCGTGCCTCCGGAAAACC\n         LeuTyrSerSe" +
+    "rSerCysGluProGlnThrGluGlyTrpArgValSerAlaLysGlnPro\n        L" +
+    "euThrProAlaProAlaAsnProSerProLysValGlyGlyCysProProArgLysPro\n" +
+    "       <span style=\"background-color:lime\">CysProLeuLeuGln" +
+    "Leu</span><span style=\"background-color:green\">Met</span>A" +
+    "rgAlaProAsn<span style=\"background-color:red\">***</span>Gl" +
+    "yValAlaArgLeuGlyLysPro\n\n\n         <span style=\"backgroun" +
+    "d-color:lime\">TrpSerProGlnAlaGlnGlyIleLeuGlnThrLeuProAlaAsn" +
+    "ProProProAlaSer</span>\n        <span style=\"background-col" +
+    "or:lime\">ValGluProSerGlySerGlyHisThrThrAsnPheAlaSerLysSerAl" +
+    "aSerCysLeu</span>\n       GlyGlyAlaLeuArgLeuArgAlaTyrTyrLysL" +
+    "euCysGlnGlnIleArgLeuLeuPro\n       GGTGGAGCCCTCAGGCTCAGGGCAT" +
+    "ACTACAAACTTTGCCAGCAAATCCGCCTCCTGCCT\n 1141 |         |      " +
+    "   |         |         |         |         |\n       CCACCTC" +
+    "GGGAGTCCGAGTCCCGTATGATGTTTGAAACGGTCGTTTAGGCGGAGGACGGA\n     " +
+    "    ProAlaArgLeuSerLeuAlaTyr<span style=\"background-color:r" +
+    "ed\">***</span>LeuSerGlnTrpCysIleArgArgArgGlyGly\n        Hi" +
+    "sLeuGly<span style=\"background-color:red\">***</span>Ala<sp" +
+    "an style=\"background-color:red\">***</span><span style=\"ba" +
+    "ckground-color:lime\">Pro</span><span style=\"background-col" +
+    "or:green\">Met</span>SerCysValLysGlyAlaPheGlyGlyGlyAlaGlu\n " +
+    "      ThrSerGlyGluProGluProCysValValPheLysAlaLeuLeuAspAlaGlu" +
+    "GlnArg\n\n\n         <span style=\"background-color:lime\">T" +
+    "hrAsnArgGlnSerGlyArgGlnProThrProLeuSerProProLeuArgAsnThrHis<" +
+    "/span>\n        <span style=\"background-color:lime\">HisGln" +
+    "SerProValArgLysAlaAlaTyrProAlaValSerThrPheGluLysHisSer</span" +
+    ">\n       ProProIleAlaSerGlnGluGlySerLeuProArgCysLeuHisLeu<s" +
+    "pan style=\"background-color:red\">***</span>GluThrLeu\n    " +
+    "   CCACCAATCGCCAGTCAGGAAGGCAGCCTACCCCGCTGTCTCCACCTTTGAGAAACA" +
+    "CTC\n 1201 |         |         |         |         |        " +
+    " |         |\n       GGTGGTTAGCGGTCAGTCCTTCCGTCGGATGGGGCGACA" +
+    "GAGGTGGAAACTCTTTGTGAG\n         GlyIleAlaLeu<span style=\"ba" +
+    "ckground-color:red\">***</span><span style=\"background-colo" +
+    "r:lime\">SerProLeuArgGlyArgGlnArgTrpArgGlnSerValSer</span><s" +
+    "pan style=\"background-color:green\">Met</span>\n        Val" +
+    "LeuArgTrpAspProLeuCysGlyValGlySerAspGlyGlyLysLeuPheVal<span " +
+    "style=\"background-color:red\">***</span>\n       TrpTrpAspG" +
+    "lyThrLeuPheAlaAla<span style=\"background-color:red\">***</s" +
+    "pan>GlyAlaThrGluValLysSerPheCysGlu\n\n\n         <span style" +
+    "=\"background-color:lime\">ProGlnAla</span><span style=\"bac" +
+    "kground-color:green\">Met</span><span style=\"background-col" +
+    "or:lime\">GlnTrpAsnSerThrThrPheHisGlnThrLeuGlnAspProArgVal</" +
+    "span>\n        <span style=\"background-color:lime\">SerSerG" +
+    "lyHisAlaValGluPheHisAsnLeuProProAsnSerAlaArgSerGlnSer</span>" +
+    "\n       IleLeuArgProCysSerGlyIleProGlnProSerThrLysLeuCysLys" +
+    "IleProGlu\n       ATCCTCAGGCCATGCAGTGGAATTCCACAACCTTCCACCAAA" +
+    "CTCTGCAAGATCCCAGAG\n 1261 |         |         |         |   " +
+    "      |         |         |\n       TAGGAGTCCGGTACGTCACCTTAA" +
+    "GGTGTTGGAAGGTGGTTTGAGACGTTCTAGGGTCTC\n         ArgLeuGlyHisL" +
+    "euProIleGlyCysGlyGluValLeuSerGlnLeuIleGlySerHis\n        Gly" +
+    "<span style=\"background-color:red\">***</span><span style=\"" +
+    "background-color:lime\">Ala</span><span style=\"background-c" +
+    "olor:green\">Met</span><span style=\"background-color:lime\"" +
+    ">CysHisPheGluValValLysTrpTrpValArgCysSerGlyLeuThr</span>\n  " +
+    "     AspGluProTrpAlaThrSerAsnTrpLeuArgGlyGlyPheGluAlaLeuAspT" +
+    "rpLeu\n\n\n         <span style=\"background-color:lime\">Ar" +
+    "gGlyLeuTyrPheProAlaGlyGlySerSerSerGlyThrValAsnProValLeuThr</" +
+    "span>\n        <span style=\"background-color:lime\">GluArgP" +
+    "roValPheProCysTrpTrpLeuGlnPheArgAsnSerLysProCysSerAsp</span>" +
+    "\n       <span style=\"background-color:red\">***</span>GluA" +
+    "laCysIleSerLeuLeuValAlaProValGlnGluGln<span style=\"backgrou" +
+    "nd-color:red\">***</span>ThrLeuPhe<span style=\"background-c" +
+    "olor:red\">***</span>\n       TGAGAGGCCTGTATTTCCCTGCTGGTGGCT" +
+    "CCAGTTCAGGAACAGTAAACCCTGTTCTGA\n 1321 |         |         | " +
+    "        |         |         |         |\n       ACTCTCCGGACA" +
+    "TAAAGGGACGACCACCGAGGTCAAGTCCTTGTCATTTGGGACAAGACT\n         S" +
+    "erAlaGlnIleGluArgSerThrAlaGlyThr<span style=\"background-col" +
+    "or:red\">***</span>SerCysTyrValArgAsnGlnSer\n        <span s" +
+    "tyle=\"background-color:lime\">LeuProArgTyrLysGlyAlaProProGl" +
+    "uLeuGluProValThrPheGlyThrArgVal</span>\n       SerLeuGlyThrA" +
+    "snGlyGlnGlnHisSerTrpAsnLeuPheLeuLeuGlyGlnGluSer\n\n\n       " +
+    "  <span style=\"background-color:lime\">ThrAlaSerProLeuSerSe" +
+    "rIlePheSerArgIleGlyAspProAlaLeuAsn</span><span style=\"backg" +
+    "round-color:green\">Met</span><span style=\"background-color" +
+    ":lime\">Glu</span>\n        <span style=\"background-color:l" +
+    "ime\">TyrCysLeuSerLeuIleValAsnLeuLeuGluAspTrpGlyProCysAlaGlu" +
+    "HisGly</span>\n       LeuLeuProLeuProTyrArgGlnSerSerArgGlyLe" +
+    "uGlyThrLeuArg<span style=\"background-color:red\">***</span>" +
+    "ThrTrp\n       CTACTGCCTCTCCCTTATCGTCAATCTTCTCGAGGATTGGGGACC" +
+    "CTGCGCTGAACATGG\n 1381 |         |         |         |      " +
+    "   |         |         |\n       GATGACGGAGAGGGAATAGCAGTTAGA" +
+    "AGAGCTCCTAACCCCTGGGACGCGACTTGTACC\n         SerGlyArgGly<spa" +
+    "n style=\"background-color:red\">***</span>Arg<span style=\"" +
+    "background-color:red\">***</span>AspGluArgProAsnProValArgArg" +
+    "GlnValHisLeu\n        <span style=\"background-color:lime\">" +
+    "ValAlaGluGlyLysAspAspIleLysGluLeuIleProSerGlyAlaSerPhe</span" +
+    "><span style=\"background-color:green\">Met</span><span styl" +
+    "e=\"background-color:lime\">Ser</span>\n       <span style=\"" +
+    "background-color:red\">***</span>GlnArgGluArgIleThrLeuArgArg" +
+    "SerSerGlnProGlyGlnAlaSerCysPro\n\n\n         <span style=\"b" +
+    "ackground-color:lime\">AsnIleThrSerGlyPheLeuGlyProLeuLeuValL" +
+    "euGlnAlaGlyPhePheLeuLeu</span>\n        <span style=\"backgr" +
+    "ound-color:lime\">GluHisHisIleArgIleProArgThrProSerArgValThr" +
+    "GlyGlyValPheLeuVal</span>\n       ArgThrSerHisGlnAspSer<span" +
+    " style=\"background-color:red\">***</span>AspProPheSerCysTyr" +
+    "ArgArgGlyPheSerCys\n       AGAACATCACATCAGGATTCCTAGGACCCCTTC" +
+    "TCGTGTTACAGGCGGGGTTTTTCTTGT\n 1441 |         |         |    " +
+    "     |         |         |         |\n       TCTTGTAGTGTAGTC" +
+    "CTAAGGATCCTGGGGAAGAGCACAATGTCCGCCCCAAAAAGAACA\n         ValA" +
+    "spCys<span style=\"background-color:red\">***</span>SerGlu<s" +
+    "pan style=\"background-color:red\">***</span>SerGlyLysGluHis" +
+    "<span style=\"background-color:red\">***</span>LeuArgProLysG" +
+    "luGlnGln\n        <span style=\"background-color:lime\">Phe<" +
+    "/span><span style=\"background-color:green\">Met</span>ValAs" +
+    "pProAsnArgProGlyArgArgThrAsnCysAlaProAsnLysLysAsn\n       Se" +
+    "rCys<span style=\"background-color:red\">***</span><span sty" +
+    "le=\"background-color:green\">Met</span>LeuIleGlyLeuValGlyGl" +
+    "uArgThrValProProThrLysArgThr\n\n\n         <span style=\"bac" +
+    "kground-color:lime\">ThrArgIleLeuThrIleProGlnSerLeuAspSerTrp" +
+    "TrpThrSerLeuAsnPheLeu</span>\n        <span style=\"backgrou" +
+    "nd-color:lime\">AspLysAsnProHisAsnThrAlaGluSerArgLeuValValAs" +
+    "pPheSerGlnPheSer</span>\n       <span style=\"background-col" +
+    "or:red\">***</span>GlnGluSerSerGlnTyrArgArgVal<span style=\"" +
+    "background-color:red\">***</span>ThrArgGlyGlyLeuLeuSerIlePhe" +
+    "\n       TGACAAGAATCCTCACAATACCGCAGAGTCTAGACTCGTGGTGGACTTCTC" +
+    "TCAATTTTC\n 1501 |         |         |         |         |  " +
+    "       |         |\n       ACTGTTCTTAGGAGTGTTATGGCGTCTCAGATC" +
+    "TGAGCACCACCTGAAGAGAGTTAAAAG\n         CysSerAspGluCysTyrArgL" +
+    "euThr<span style=\"background-color:red\">***</span>ValArgPr" +
+    "oProSerArgGluIleLys<span style=\"background-color:red\">***<" +
+    "/span>\n        ValLeuIleArgValIleGlyCysLeuArgSerGluHisHisVa" +
+    "lGluArgLeuLysArg\n       SerLeuPheGly<span style=\"backgroun" +
+    "d-color:red\">***</span>LeuValAlaSerAspLeuSerThrThrSerLysGlu" +
+    "<span style=\"background-color:red\">***</span>AsnGlu\n\n\n " +
+    "        <span style=\"background-color:lime\">GlyGlyThrThrVa" +
+    "lCysLeuGlyGlnAsnSerGlnSerProThrSerAsnHisSerPro</span>\n     " +
+    "   <span style=\"background-color:lime\">ArgGlyAsnTyrArgValS" +
+    "erTrpProLysPheAlaValProAsnLeuGlnSerLeuThr</span>\n       <sp" +
+    "an style=\"background-color:red\">***</span>GlyGluLeuProCysV" +
+    "alLeuAlaLysIleArgSerProGlnProProIleThrHis\n       TAGGGGGAAC" +
+    "TACCGTGTGTCTTGGCCAAAATTCGCAGTCCCCAACCTCCAATCACTCAC\n 1561 | " +
+    "        |         |         |         |         |         |\n" +
+    "       ATCCCCCTTGATGGCACACAGAACCGGTTTTAAGCGTCAGGGGTTGGAGGTTA" +
+    "GTGAGTG\n         ProSerSerGlyHisThrLysAlaLeuIleArgLeuGlyTrp" +
+    "GlyGlyIleVal<span style=\"background-color:red\">***</span>T" +
+    "rp\n        ProProValValThrHisArgProTrpPheGluCysAspGlyValGlu" +
+    "Leu<span style=\"background-color:red\">***</span>GluGly\n  " +
+    "     LeuProPhe<span style=\"background-color:red\">***</span" +
+    ">ArgThrAspGlnGlyPheAsnAlaThrGlyLeuArgTrpAspSerVal\n\n\n     " +
+    "    <span style=\"background-color:lime\">ThrSerCysProProThr" +
+    "CysProGlyTyrArgTrp</span><span style=\"background-color:gree" +
+    "n\">Met</span><span style=\"background-color:lime\">CysLeuAr" +
+    "gArgPheIleIle</span>\n        <span style=\"background-color" +
+    ":lime\">AsnLeuLeuSerSerAsnLeuSerTrpLeuSerLeuAspValSerAlaAlaP" +
+    "heTyrHis</span>\n       GlnProLeuValLeuGlnLeuValLeuValIleAla" +
+    "GlyCysValCysGlyValLeuSer\n       CAACCTCTTGTCCTCCAACTTGTCCTG" +
+    "GTTATCGCTGGATGTGTCTGCGGCGTTTTATCA\n 1621 |         |        " +
+    " |         |         |         |         |\n       GTTGGAGAA" +
+    "CAGGAGGTTGAACAGGACCAATAGCGACCTACACAGACGCCGCAAAATAGT\n       " +
+    "  GlyArgThrArgTrpSerThrArgThrIleAlaProHisThrGlnProThrLysAspA" +
+    "sp\n        ValGluGlnGlyGlyValGlnGlyPro<span style=\"backgro" +
+    "und-color:red\">***</span><span style=\"background-color:lim" +
+    "e\">ArgGlnIleHisArgArgArgLysIle</span><span style=\"backgrou" +
+    "nd-color:green\">Met</span>\n       LeuArgLysAspGluLeuLysAsp" +
+    "GlnAsnAspSerSerThrAspAlaAlaAsn<span style=\"background-color" +
+    ":red\">******</span>\n\n\n         <span style=\"background-" +
+    "color:lime\">PheLeuPheIleLeuLeuLeuCysLeuIlePheLeuLeuValLeuLe" +
+    "uAspTyrGlnGly</span>\n        <span style=\"background-color" +
+    ":lime\">LeuProLeuHisProAlaAla</span><span style=\"background" +
+    "-color:green\">Met</span><span style=\"background-color:lime" +
+    "\">ProHisLeuLeuValGlySerSerGlyLeuSerArg</span>\n       SerSe" +
+    "rSerSerSerCysCysTyrAlaSerSerSerCysTrpPhePheTrpThrIleLys\n   " +
+    "    TCTTCCTCTTCATCCTGCTGCTATGCCTCATCTTCTTGTTGGTTCTTCTGGACTAT" +
+    "CAAG\n 1681 |         |         |         |         |       " +
+    "  |         |\n       AGAAGGAGAAGTAGGACGACGATACGGAGTAGAAGAAC" +
+    "AACCAAGAAGACCTGATAGTTC\n         GluGluGluAspGlnGln<span sty" +
+    "le=\"background-color:red\">***</span>AlaGluAspGluGlnGlnAsnL" +
+    "ysGlnValIleLeuThr\n        <span style=\"background-color:li" +
+    "me\">LysArgLys</span><span style=\"background-color:green\">" +
+    "Met</span><span style=\"background-color:lime\">ArgSerSerHis" +
+    "Arg</span><span style=\"background-color:green\">Met</span>L" +
+    "ysLysAsnThrArgArgSer<span style=\"background-color:red\">***" +
+    "***</span><span style=\"background-color:lime\">Pro</span>\n" +
+    "       ArgGlyArg<span style=\"background-color:red\">***</sp" +
+    "an>GlyAlaAlaIleGly<span style=\"background-color:red\">***</" +
+    "span><span style=\"background-color:lime\">ArgArgThrProGluGl" +
+    "uProSerAspLeu</span>\n\n\n         <span style=\"background-" +
+    "color:green\">Met</span><span style=\"background-color:lime\"" +
+    ">LeuProValCysProLeuIleProGlySerSerThrThrSerThrGlyProCysArg</" +
+    "span>\n        <span style=\"background-color:lime\">TyrValA" +
+    "laArgLeuSerSerAsnSerArgIleLeuAsnAsnGlnHisGlyThr</span><span " +
+    "style=\"background-color:green\">Met</span><span style=\"bac" +
+    "kground-color:lime\">Pro</span>\n       ValCysCysProPheValLe" +
+    "u<span style=\"background-color:red\">***</span>PheGlnAspPro" +
+    "GlnGlnProAlaArgAspHisAla\n       GTATGTTGCCCGTTTGTCCTCTAATTC" +
+    "CAGGATCCTCAACAACCAGCACGGGACCATGCC\n 1741 |         |        " +
+    " |         |         |         |         |\n       CATACAACG" +
+    "GGCAAACAGGAGATTAAGGTCCTAGGAGTTGTTGGTCGTGCCCTGGTACGG\n       " +
+    "  HisGlnGlyAsnThrArg<span style=\"background-color:red\">***" +
+    "</span>AsnTrpSerGly<span style=\"background-color:red\">***<" +
+    "/span>CysGlyAlaArgSerTrpAlaPro\n        <span style=\"backgr" +
+    "ound-color:lime\">IleAsnGlyThrGlnGlyArgIleGlyProAspGluValVal" +
+    "LeuValProGlyHisArg</span>\n       <span style=\"background-c" +
+    "olor:lime\">TyrThrAlaArgLysAspGluLeuGluLeuIleArgLeuLeuTrpCys" +
+    "ProVal</span><span style=\"background-color:green\">Met</spa" +
+    "n>Gly\n\n\n         <span style=\"background-color:lime\">Th" +
+    "rCys</span><span style=\"background-color:green\">Met</span>" +
+    "<span style=\"background-color:lime\">ThrThrAlaGlnGlyThrSer<" +
+    "/span><span style=\"background-color:green\">Met</span><span" +
+    " style=\"background-color:lime\">TyrProSerCysCysCysThrLysPro" +
+    "</span>\n        <span style=\"background-color:lime\">AspLe" +
+    "uHisAspTyrCysSerArgAsnLeuTyrValSerLeuLeuLeuLeuTyrGlnThr</spa" +
+    "n>\n       GlyProAla<span style=\"background-color:red\">***" +
+    "</span>LeuLeuLeuLysGluProLeuCysIleProProValAlaValProAsn\n   " +
+    "    GGACCTGCATGACTACTGCTCAAGGAACCTCTATGTATCCCTCCTGTTGCTGTACC" +
+    "AAAC\n 1801 |         |         |         |         |       " +
+    "  |         |\n       CCTGGACGTACTGATGACGAGTTCCTTGGAGATACATA" +
+    "GGGAGGACAACGACATGGTTTG\n         GlyAlaHisSerSerSerLeuSerGly" +
+    "ArgHisIleGlyGlyThrAlaThrGlyPheArg\n        <span style=\"bac" +
+    "kground-color:lime\">ValGln</span><span style=\"background-c" +
+    "olor:green\">Met</span>ValValAla<span style=\"background-col" +
+    "or:red\">***</span><span style=\"background-color:lime\">Pro" +
+    "ValGluIleTyrGlyGluGlnGlnGlnValLeuGly</span>\n       SerArgCy" +
+    "sSer<span style=\"background-color:red\">***</span>GlnGluLeu" +
+    "PheArg<span style=\"background-color:red\">***</span><span s" +
+    "tyle=\"background-color:lime\">ThrAspArgArgAsnSerTyrTrpVal</" +
+    "span>\n\n\n         <span style=\"background-color:lime\">Se" +
+    "rAspGlyAsnCysThrCysIleProIleProSerSerTrpAlaPheGlyLysPheLeu</" +
+    "span>\n        <span style=\"background-color:lime\">PheGlyA" +
+    "rgLysLeuHisLeuTyrSerHisProIleIleLeuGlyPheArgLysIlePro</span>" +
+    "\n       LeuArgThrGluIleAlaProValPheProSerHisHisProGlyLeuSer" +
+    "GluAsnSer\n       CTTCGGACGGAAATTGCACCTGTATTCCCATCCCATCATCCT" +
+    "GGGCTTTCGGAAAATTCC\n 1861 |         |         |         |   " +
+    "      |         |         |\n       GAAGCCTGCCTTTAACGTGGACAT" +
+    "AAGGGTAGGGTAGTAGGACCCGAAAGCCTTTTAAGG\n         ArgValSerIleA" +
+    "laGlyThrAsnGlyAspTrp<span style=\"background-color:red\">***" +
+    "</span>GlyProSerGluSerPheGlu<span style=\"background-color:r" +
+    "ed\">***</span>\n        <span style=\"background-color:lime" +
+    "\">GluSerProPheGlnValGlnIleGly</span><span style=\"backgroun" +
+    "d-color:green\">Met</span>GlyAspAspGlnAlaLysProPheAsnArg\n  " +
+    "     <span style=\"background-color:lime\">LysProArgPheAsnCy" +
+    "sArgTyrGluTrpGly</span><span style=\"background-color:green\"" +
+    ">MetMet</span>ArgProLysArgPheIleGly\n\n\n         <span styl" +
+    "e=\"background-color:lime\">TrpGluTrpAlaSerAlaArgPheSerTrpLe" +
+    "uSerLeuLeuValProPheValGlnTrp</span>\n        <span style=\"b" +
+    "ackground-color:green\">Met</span><span style=\"background-c" +
+    "olor:lime\">GlyValGlyLeuSerProPheLeuLeuAlaGlnPheThrSerAlaIle" +
+    "CysSerVal</span>\n       TyrGlySerGlyProGlnProValSerProGlySe" +
+    "rValTyr<span style=\"background-color:red\">***</span>CysHis" +
+    "LeuPheSer\n       TATGGGAGTGGGCCTCAGCCCGTTTCTCCTGGCTCAGTTTAC" +
+    "TAGTGCCATTTGTTCAGT\n 1921 |         |         |         |   " +
+    "      |         |         |\n       ATACCCTCACCCGGAGTCGGGCAA" +
+    "AGAGGACCGAGTCAAATGATCACGGTAAACAAGTCA\n         ProLeuProGly<" +
+    "span style=\"background-color:red\">***</span>GlyThrGluGlyPr" +
+    "oGluThr<span style=\"background-color:red\">******</span>His" +
+    "TrpLysAsnLeuPro\n        HisSerHisAlaGluAlaArgLysGluGlnSerLe" +
+    "uLysSerThrGlyAsnThr<span style=\"background-color:red\">***<" +
+    "/span><span style=\"background-color:lime\">His</span>\n    " +
+    "   IleProThrProArgLeuGlyAsnArgArgAla<span style=\"background" +
+    "-color:red\">***</span><span style=\"background-color:lime\"" +
+    ">AsnValLeuAla</span><span style=\"background-color:green\">M" +
+    "et</span>GlnGluThr\n\n\n         <span style=\"background-co" +
+    "lor:lime\">PheValGlyLeuSerProThrValTrpLeuSerValIleTrp</span>" +
+    "<span style=\"background-color:green\">MetMet</span><span st" +
+    "yle=\"background-color:lime\">TrpTyrTrpGly</span>\n        <" +
+    "span style=\"background-color:lime\">ValArgArgAlaPheProHisCy" +
+    "sLeuAlaPheSerTyr</span><span style=\"background-color:green\"" +
+    ">Met</span><span style=\"background-color:lime\">AspAspValVa" +
+    "lLeuGly</span>\n       GlySer<span style=\"background-color:" +
+    "red\">***</span>GlyPheProProLeuPheGlyPheGlnLeuTyrGly<span st" +
+    "yle=\"background-color:red\">***</span>CysGlyIleGly\n       " +
+    "GGTTCGTAGGGCTTTCCCCCACTGTTTGGCTTTCAGTTATATGGATGATGTGGTATTGGG" +
+    "\n 1981 |         |         |         |         |         | " +
+    "        |\n       CCAAGCATCCCGAAAGGGGGTGACAAACCGAAAGTCAATATA" +
+    "CCTACTACACCATAACCC\n         GluTyrProLysGlyGlySerAsnProLys<" +
+    "span style=\"background-color:red\">***</span>AsnTyrProHisHi" +
+    "sProIleProPro\n        <span style=\"background-color:lime\"" +
+    ">AsnThrProSerGluGlyValThrGlnSerGluThrIleHisIleIleHisTyrGlnPr" +
+    "o</span>\n       ThrArgLeuAlaLysGlyTrpGlnLysAlaLysLeu<span s" +
+    "tyle=\"background-color:red\">***</span>IleSerSerThrThrAsnPr" +
+    "o\n\n\n         <span style=\"background-color:lime\">ProSer" +
+    "LeuTyrSerIleLeuSerProPheLeuProLeuLeuProIlePhePheCysLeu</span" +
+    ">\n        <span style=\"background-color:lime\">AlaLysSerVa" +
+    "lGlnHisLeuGluSerLeuPheThrAlaValThrAsnPheLeuLeuSer</span>\n  " +
+    "     GlyGlnValCysThrAlaSer<span style=\"background-color:red" +
+    "\">***</span>ValProPheTyrArgCysTyrGlnPheSerPheVal\n       GG" +
+    "CCAAGTCTGTACAGCATCTTGAGTCCCTTTTTACCGCTGTTACCAATTTTCTTTTGTC\n" +
+    " 2041 |         |         |         |         |         |   " +
+    "      |\n       CCGGTTCAGACATGTCGTAGAACTCAGGGAAAAATGGCGACAAT" +
+    "GGTTAAAAGAAAACAG\n         TrpThrGlnValAlaAspGlnThrGlyLys<sp" +
+    "an style=\"background-color:red\">***</span>ArgGln<span styl" +
+    "e=\"background-color:red\">***</span>TrpAsnGluLysThrLys\n   " +
+    "     <span style=\"background-color:lime\">GlyLeuArgTyrLeu</" +
+    "span><span style=\"background-color:green\">Met</span><span " +
+    "style=\"background-color:lime\">LysLeuGlyLysLysGlySerAsnGlyI" +
+    "leLysLysGlnArg</span>\n       AlaLeuAspThrCysCysArgSerAspArg" +
+    "LysValAlaThrValLeuLysArgLysAsp\n\n\n         <span style=\"b" +
+    "ackground-color:lime\">TrpValTyrIle</span><span style=\"back" +
+    "ground-color:red\">***</span>ThrLeuThrLysGlnArgAspGlyValThrL" +
+    "eu<span style=\"background-color:red\">***</span>IleLeuTrp\n" +
+    "        <span style=\"background-color:lime\">LeuGlyIleHisLe" +
+    "uAsnProAsnLysThrLysArgTrpGlyTyrSerLeuAsnPhe</span><span styl" +
+    "e=\"background-color:green\">Met</span>\n       PheGlyTyrThr" +
+    "PheLysPro<span style=\"background-color:red\">***</span>GlnA" +
+    "snLysGlu<span style=\"background-color:green\">Met</span><sp" +
+    "an style=\"background-color:lime\">GlyLeuLeuSerLysPheTyr</sp" +
+    "an>\n       TTTGGGTATACATTTAAACCCTAACAAAACAAAGAGATGGGGTTACTC" +
+    "TCTAAATTTTAT\n 2101 |         |         |         |         " +
+    "|         |         |\n       AAACCCATATGTAAATTTGGGATTGTTTTG" +
+    "TTTCTCTACCCCAATGAGAGATTTAAAATA\n         ProTyrValAsnLeuGly<" +
+    "span style=\"background-color:red\">***</span>CysPheLeuSerIl" +
+    "eProAsnSerGluLeuAsn<span style=\"background-color:red\">***<" +
+    "/span>Pro\n        <span style=\"background-color:lime\">Gln" +
+    "ThrTyr</span><span style=\"background-color:green\">Met</spa" +
+    "n><span style=\"background-color:red\">***</span>ValArgValPh" +
+    "eCysLeuSerProThrValArg<span style=\"background-color:red\">*" +
+    "**</span><span style=\"background-color:lime\">IleLysHis</sp" +
+    "an>\n       LysProIleCysLysPheGlyLeuLeuValPheLeuHisPro<span " +
+    "style=\"background-color:red\">***</span>GluArgPheLysIle\n\n" +
+    "\n         Val<span style=\"background-color:green\">Met</sp" +
+    "an><span style=\"background-color:lime\">SerLeuAspVal</span>" +
+    "<span style=\"background-color:green\">Met</span><span style" +
+    "=\"background-color:lime\">GlyProCysHisLysAsnThrSerTyrLysLys" +
+    "SerLys</span>\n        <span style=\"background-color:lime\"" +
+    ">GlyTyrValIleGlyCysTyrGlySerLeuProGlnGluHisIleIleGlnLysIleLy" +
+    "s</span>\n       <span style=\"background-color:lime\">GlyLe" +
+    "uCysHisTrp</span><span style=\"background-color:green\">Met<" +
+    "/span><span style=\"background-color:lime\">LeuTrpValLeuAlaT" +
+    "hrArgThrHisHisThrLysAsnGln</span>\n       GGGTTATGTCATTGGATG" +
+    "TTATGGGTCCTTGCCACAAGAACACATCATACAAAAAATCAA\n 2161 |         " +
+    "|         |         |         |         |         |\n       " +
+    "CCCAATACAGTAACCTACAATACCCAGGAACGGTGTTCTTGTGTAGTATGTTTTTTAGTT" +
+    "\n         AsnHis<span style=\"background-color:red\">***</s" +
+    "pan>GlnIleAsnHisThrArgAlaValLeuValCys<span style=\"backgroun" +
+    "d-color:red\">***</span>ValPhePhe<span style=\"background-co" +
+    "lor:red\">***</span>Leu\n        <span style=\"background-co" +
+    "lor:lime\">ThrIleAspAsnSerThrIleProGlyGlnTrpLeuPheValAspTyrL" +
+    "euPheAspPhe</span>\n       Pro<span style=\"background-color" +
+    ":red\">***</span><span style=\"background-color:lime\">Thr</" +
+    "span><span style=\"background-color:green\">Met</span>ProHis" +
+    "<span style=\"background-color:red\">***</span><span style=\"" +
+    "background-color:lime\">ProAspLysGlyCysSerCys</span><span st" +
+    "yle=\"background-color:green\">MetMet</span>CysPheIleLeu\n\n" +
+    "\n         <span style=\"background-color:lime\">AsnValLeuGl" +
+    "uAsnPheLeuLeuThrGlyLeuLeuIleGlyLysTyrValAsnGluLeu</span>\n  " +
+    "      <span style=\"background-color:lime\">GluCysPheArgLysL" +
+    "euProIleAsnArgProIleAspTrpLysValCysGlnArgIle</span>\n       " +
+    "<span style=\"background-color:lime\">Arg</span><span style=" +
+    "\"background-color:green\">Met</span><span style=\"backgroun" +
+    "d-color:lime\">Phe</span><span style=\"background-color:red\"" +
+    ">***</span>LysThrSerTyr<span style=\"background-color:red\">" +
+    "***</span>GlnAlaTyr<span style=\"background-color:red\">***<" +
+    "/span>LeuGluSer<span style=\"background-color:green\">Met</s" +
+    "pan><span style=\"background-color:lime\">SerThrAsn</span>\n" +
+    "       AGAATGTTTTAGAAAACTTCCTATTAACAGGCCTATTGATTGGAAAGTATGTC" +
+    "AACGAAT\n 2221 |         |         |         |         |    " +
+    "     |         |\n       TCTTACAAAATCTTTTGAAGGATAATTGTCCGGAT" +
+    "AACTAACCTTTCATACAGTTGCTTA\n         IleAsn<span style=\"back" +
+    "ground-color:red\">***</span>PheValGlu<span style=\"backgrou" +
+    "nd-color:red\">******</span>CysAla<span style=\"background-c" +
+    "olor:red\">***</span>GlnAsnSerLeuIleAspValPheGln\n        <s" +
+    "pan style=\"background-color:lime\">PheThrLysSerPheLysArgAsn" +
+    "ValProArgAsnIleProPheTyrThrLeuSerAsn</span>\n       SerHisLy" +
+    "sLeuPheSerGlyIleLeuLeuGlyIleSerGlnPheThrHis<span style=\"bac" +
+    "kground-color:red\">***</span>ArgIle\n\n\n         <span sty" +
+    "le=\"background-color:lime\">TrpValPheTrpValLeuLeuProLeuLeuH" +
+    "isAsnValValIleLeuArg</span><span style=\"background-color:re" +
+    "d\">***</span>CysLeu\n        <span style=\"background-color" +
+    ":lime\">ValGlyLeuLeuGlyPheAlaAlaProPheThrGlnCysGlyTyrProAlaL" +
+    "eu</span><span style=\"background-color:green\">Met</span><s" +
+    "pan style=\"background-color:lime\">Pro</span>\n       <span" +
+    " style=\"background-color:lime\">CysGlySerPheGlyPheCysCysPro" +
+    "PheTyrThr</span><span style=\"background-color:green\">Met</" +
+    "span><span style=\"background-color:lime\">TrpLeuSerCysValAs" +
+    "pAla</span>\n       TGTGGGTCTTTTGGGTTTTGCTGCCCCTTTTACACAATGT" +
+    "GGTTATCCTGCGTTGATGCC\n 2281 |         |         |         | " +
+    "        |         |         |\n       ACACCCAGAAAACCCAAAACGA" +
+    "CGGGGAAAATGTGTTACACCAATAGGACGCAACTACGG\n         ProAspLysPr" +
+    "oAsnGlnGlnGlyLys<span style=\"background-color:red\">***</sp" +
+    "an><span style=\"background-color:lime\">ValIleHisAsnAspGlnT" +
+    "hrSerAlaLys</span>\n        <span style=\"background-color:l" +
+    "ime\">HisThrLysGlnThrLysSerGlyArgLysCysLeuThrThrIleArgArgGln" +
+    "HisArg</span>\n       ThrProArgLysProLysAlaAlaGlyLysValCysHi" +
+    "sPro<span style=\"background-color:red\">***</span>GlyAlaAsn" +
+    "IleGly\n\n\n         Cys<span style=\"background-color:green" +
+    "\">Met</span><span style=\"background-color:lime\">HisValPhe" +
+    "AsnLeuSerArgLeuSerLeuSerArgGlnLeuThrArgProPhe</span>\n      " +
+    "  <span style=\"background-color:lime\">LeuTyrAlaCysIleGlnSe" +
+    "rLysGlnAlaPheThrPheSerProThrTyrLysAlaPhe</span>\n       <spa" +
+    "n style=\"background-color:lime\">PheValCys</span><span styl" +
+    "e=\"background-color:green\">Met</span><span style=\"backgro" +
+    "und-color:lime\">TyrSerIle</span><span style=\"background-co" +
+    "lor:red\">***</span>AlaGlyPheHisPheLeuAlaAsnLeuGlnGlyLeu\n  " +
+    "     TTTGTATGCATGTATTCAATCTAAGCAGGCTTTCACTTTCTCGCCAACTTACAAG" +
+    "GCCTT\n 2341 |         |         |         |         |      " +
+    "   |         |\n       AAACATACGTACATAAGTTAGATTCGTCCGAAAGTGA" +
+    "AAGAGCGGTTGAATGTTCCGGAA\n         <span style=\"background-c" +
+    "olor:lime\">ThrHis</span><span style=\"background-color:gree" +
+    "n\">Met</span>TyrGluIle<span style=\"background-color:red\">" +
+    "***</span>AlaProLys<span style=\"background-color:red\">***<" +
+    "/span>LysArgAlaLeuLysCysProArgGlu\n        <span style=\"bac" +
+    "kground-color:lime\">GlnIleCysThrAsnLeuArgLeuLeuSerGluSerGlu" +
+    "ArgTrpSerValLeuGlyLys</span>\n       LysTyrAlaHisIle<span st" +
+    "yle=\"background-color:red\">***</span>AspLeuCysAlaLysValLys" +
+    "GluGlyVal<span style=\"background-color:red\">***</span>LeuA" +
+    "laLys\n\n\n         <span style=\"background-color:lime\">Cy" +
+    "sValAsnAsnThr</span><span style=\"background-color:red\">***" +
+    "</span>ThrPheThrProLeuProGlyAsnGlyGlnValCysAlaLys\n        <" +
+    "span style=\"background-color:lime\">LeuCysLysGlnTyrLeuAsnLe" +
+    "uTyrProValAlaArgGlnArgProGlyLeuCysGln</span>\n       SerVal<" +
+    "span style=\"background-color:red\">***</span>ThrIleProGluPr" +
+    "oLeuProArgCysProAlaThrAlaArgSerValPro\n       TCTGTGTAAACAAT" +
+    "ACCTGAACCTTTACCCCGTTGCCCGGCAACGGCCAGGTCTGTGCCA\n 2401 |     " +
+    "    |         |         |         |         |         |\n   " +
+    "    AGACACATTTGTTATGGACTTGGAAATGGGGCAACGGGCCGTTGCCGGTCCAGACA" +
+    "CGGT\n         ThrTyrValIleGlySerGlyLysGlyArgGlnGlyAlaValAla" +
+    "LeuAspThrGlyLeu\n        <span style=\"background-color:lime" +
+    "\">GlnThrPheLeuValGlnValLysValGlyAsnGlyProLeuProTrpThrGlnAla" +
+    "Leu</span>\n       ArgHisLeuCysTyrArgPheArg<span style=\"bac" +
+    "kground-color:red\">***</span><span style=\"background-color" +
+    ":lime\">GlyThrAlaArgCysArgGlyProArgHisTrp</span>\n\n\n      " +
+    "   CysLeuLeuThrGlnProProLeuAlaGlyAlaTrpSerTrpAlaIleSerAlaCys" +
+    "Val\n        <span style=\"background-color:lime\">ValPheAla" +
+    "AspAlaThrProThrGlyTrpGlyLeuVal</span><span style=\"backgroun" +
+    "d-color:green\">Met</span><span style=\"background-color:lim" +
+    "e\">GlyHisGlnArg</span><span style=\"background-color:green\"" +
+    ">Met</span><span style=\"background-color:lime\">Arg</span>\n" +
+    "       SerValCys<span style=\"background-color:red\">***</sp" +
+    "an>ArgAsnProHisTrpLeuGlyLeuGlyHisGlyProSerAlaHisAla\n       " +
+    "AGTGTTTGCTGACGCAACCCCCACTGGCTGGGGCTTGGTCATGGGCCATCAGCGCATGCG" +
+    "\n 2461 |         |         |         |         |         | " +
+    "        |\n       TCACAAACGACTGCGTTGGGGGTGACCGACCCCGAACCAGTA" +
+    "CCCGGTAGTCGCGTACGC\n         ThrGlnGlnArgLeuGlyTrpGlnSerProS" +
+    "erPro<span style=\"background-color:red\">***</span>ProGlyAs" +
+    "pAlaCysAlaHis\n        <span style=\"background-color:lime\"" +
+    ">HisLysSerValCysGlyGlySerAlaProAlaGlnAspHisAla</span><span s" +
+    "tyle=\"background-color:green\">Met</span><span style=\"back" +
+    "ground-color:lime\">LeuAlaHisThr</span>\n       <span style=" +
+    "\"background-color:lime\">ThrAsnAlaSerAlaValGlyValProGlnProL" +
+    "ysThr</span><span style=\"background-color:green\">Met</span" +
+    ">ProTrp<span style=\"background-color:red\">***</span><span " +
+    "style=\"background-color:lime\">Arg</span><span style=\"back" +
+    "ground-color:green\">Met</span><span style=\"background-colo" +
+    "r:lime\">Arg</span>\n\n\n         GluProPheArgLeuLeuCysArgSe" +
+    "rIleLeuArgAsnSer<span style=\"background-color:red\">***</sp" +
+    "an>ProLeuValLeuLeu\n        <span style=\"background-color:l" +
+    "ime\">GlyThrPheSerAlaProLeuProIleHisThrAlaGluLeuLeuAlaAlaCys" +
+    "PheAla</span>\n       TrpAsnLeuPheGlySerSerAlaAspProTyrCysGl" +
+    "yThrProSerArgLeuPheCys\n       TGGAACCTTTTCGGCTCCTCTGCCGATCC" +
+    "ATACTGCGGAACTCCTAGCCGCTTGTTTTGC\n 2521 |         |         |" +
+    "         |         |         |         |\n       ACCTTGGAAAA" +
+    "GCCGAGGAGACGGCTAGGTATGACGCCTTGAGGATCGGCGAACAAAACG\n         " +
+    "PheArgLysProGluGluAlaSerGlyTyrGlnProValGlyLeuArgLysAsnGlnGlu" +
+    "\n        <span style=\"background-color:lime\">SerGlyLysArg" +
+    "SerArgGlnArgAsp</span><span style=\"background-color:green\"" +
+    ">Met</span>SerArgPheGlu<span style=\"background-color:red\">" +
+    "***</span>GlySerThrLysSer\n       <span style=\"background-c" +
+    "olor:lime\">ProValLysGluAlaGlyArgGlyIleTrpValAlaSerSerArgAla" +
+    "AlaGlnLysAla</span>\n\n\n         AlaAlaGlyLeuGluGlnThrLeuSe" +
+    "rGlyLeuIleThrLeuLeuSerTyrProAlaAsn\n        <span style=\"ba" +
+    "ckground-color:lime\">ArgSerArgSerGlyAlaAsnIleIleGlyThrAspAs" +
+    "nSerValValLeuSerArgLys</span>\n       SerGlnGlnValTrpSerLysH" +
+    "isTyrArgAsp<span style=\"background-color:red\">******</span" +
+    ">LeuCysCysProIleProGln\n       TCGCAGCAGGTCTGGAGCAAACATTATCG" +
+    "GGACTGATAACTCTGTTGTCCTATCCCGCAA\n 2581 |         |         |" +
+    "         |         |         |         |\n       AGCGTCGTCCA" +
+    "GACCTCGTTTGTAATAGCCCTGACTATTGAGACAACAGGATAGGGCGTT\n         " +
+    "CysCysThrGlnLeuLeuCys<span style=\"background-color:red\">**" +
+    "*</span><span style=\"background-color:lime\">ArgSerGlnTyrSe" +
+    "rGlnGlnGlyIleGlyCysIle</span>\n        AlaAlaProArgSerCysVal" +
+    "AsnAspProSerIleValArgAsnAsp<span style=\"background-color:re" +
+    "d\">***</span>GlyAlaPhe\n       <span style=\"background-col" +
+    "or:lime\">ArgLeuLeuAspProAlaPhe</span><span style=\"backgrou" +
+    "nd-color:green\">Met</span>IleProValSerLeuGluThrThrArgAspArg" +
+    "Leu\n\n\n         IleHisArgPheHisGlyCys<span style=\"backgro" +
+    "und-color:red\">***</span>AlaValLeuProThrGlySerCysAlaGlyArgP" +
+    "ro\n        <span style=\"background-color:lime\">TyrThrSerP" +
+    "heProTrpLeuLeuGlyCysAlaAlaAsnTrpIleLeuArgGlyThrSer</span>\n " +
+    "      IleTyrIleValSer<span style=\"background-color:green\">" +
+    "Met</span><span style=\"background-color:lime\">AlaAlaArgLeu" +
+    "CysCysGlnLeuAspProAlaArgAspVal</span>\n       ATATACATCGTTTC" +
+    "CATGGCTGCTAGGCTGTGCTGCCAACTGGATCCTGCGCGGGACGTC\n 2641 |     " +
+    "    |         |         |         |         |         |\n   " +
+    "    TATATGTAGCAAAGGTACCGACGATCCGACACGACGGTTGACCTAGGACGCGCCCT" +
+    "GCAG\n         <span style=\"background-color:lime\">Tyr</sp" +
+    "an><span style=\"background-color:green\">Met</span><span st" +
+    "yle=\"background-color:lime\">ThrGlu</span><span style=\"bac" +
+    "kground-color:green\">Met</span><span style=\"background-col" +
+    "or:lime\">AlaAlaLeuSerHisGlnTrpSerSerGlyAlaArgSerThrArg</spa" +
+    "n>\n        IleCysArgLysTrpProGln<span style=\"background-co" +
+    "lor:red\">***</span><span style=\"background-color:lime\">Al" +
+    "aThrSerGlyValProAspGlnAlaProArgGly</span>\n       TyrValAspA" +
+    "snGlyHisSerSerProGlnAlaAlaLeuGlnIleArgArgProValAsp\n\n\n    " +
+    "     LeuPheThrSerArgArgArg<span style=\"background-color:red" +
+    "\">***</span>IleLeuArgThrThrLeuLeuGlyValAlaTrpAsp\n        <" +
+    "span style=\"background-color:lime\">PheValTyrValProSerAlaLe" +
+    "uAsnProAlaAspAspProSerArgGlyArgLeuGly</span>\n       <span s" +
+    "tyle=\"background-color:lime\">LeuCysLeuArgProValGlyAlaGluSe" +
+    "rCysGlyArgProPheSerGlySerLeuGly</span>\n       CTTTGTTTACGTC" +
+    "CCGTCGGCGCTGAATCCTGCGGACGACCCTTCTCGGGGTCGCTTGGG\n 2701 |    " +
+    "     |         |         |         |         |         |\n  " +
+    "     GAAACAAATGCAGGGCAGCCGCGACTTAGGACGCCTGCTGGGAAGAGCCCCAGCG" +
+    "AACCC\n         <span style=\"background-color:lime\">GlnLys" +
+    "ArgGlyThrProAlaSerAspGlnProArgGlyLysGluProAspSerProVal</span" +
+    ">\n        <span style=\"background-color:lime\">LysAsnValAs" +
+    "pArgArgArgGlnIleArgArgValValArgArgProThrAlaGlnSer</span>\n  " +
+    "     LysThr<span style=\"background-color:red\">***</span>Th" +
+    "rGlyAspAlaSerPheGlyAlaSerSerGlyGluArgProArgLysPro\n\n\n     " +
+    "    SerLeuValProPheSerValCysArgSerAspArgProArgGlyAlaProLeuPh" +
+    "eThr\n        <span style=\"background-color:lime\">LeuSerAr" +
+    "gProLeuLeuArgLeuProPheArgProThrThrGlyArgThrSerLeuTyr</span>\n" +
+    "       <span style=\"background-color:lime\">ThrLeuSerSerPro" +
+    "SerProSerAlaValProThrAspHisGlyAlaHisLeuSerLeu</span>\n      " +
+    " ACTCTCTCGTCCCCTTCTCCGTCTGCCGTTCCGACCGACCACGGGGCGCACCTCTCTTT" +
+    "A\n 2761 |         |         |         |         |         |" +
+    "         |\n       TGAGAGAGCAGGGGAAGAGGCAGACGGCAAGGCTGGCTGGT" +
+    "GCCCCGCGTGGAGAGAAAT\n         <span style=\"background-color" +
+    ":lime\">ArgGluAspGlyGluGlyAspAlaThrGlyValSerTrpProAlaCysArgG" +
+    "luLysArg</span>\n        <span style=\"background-color:lime" +
+    "\">GluArgThrGlyLysGluThrGlnArgGluSerArgGlyArgProAlaGlyArgLys" +
+    "Val</span>\n       SerGluArgGlyArgArgArgArgGlyAsnArgGlyValVa" +
+    "lProArgValGluArg<span style=\"background-color:red\">***</sp" +
+    "an>\n\n\n         ArgThrProArgLeuCysLeuLeuIleCysArgThrValCys" +
+    "ThrSerLeuHisLeuCys\n        <span style=\"background-color:l" +
+    "ime\">AlaAspSerProSerValProSerHisLeuProAspArgValHisPheAlaSer" +
+    "ProLeu</span>\n       <span style=\"background-color:lime\">" +
+    "ArgGlyLeuProValCysAlaPheSerSerAlaGlyProCysAlaLeuArgPheThrSer" +
+    "</span>\n       CGCGGACTCCCCGTCTGTGCCTTCTCATCTGCCGGACCGTGTGC" +
+    "ACTTCGCTTCACCTCT\n 2821 |         |         |         |     " +
+    "    |         |         |\n       GCGCCTGAGGGGCAGACACGGAAGAG" +
+    "TAGACGGCCTGGCACACGTGAAGCGAAGTGGAGA\n         <span style=\"b" +
+    "ackground-color:lime\">ProSerGlyThrGlnAlaLysGluAspAlaProGlyH" +
+    "isAlaSerArgLysValGluAla</span>\n        <span style=\"backgr" +
+    "ound-color:lime\">ArgValGlyArgArgHisArgArg</span><span style" +
+    "=\"background-color:green\">Met</span>GlnArgValThrHisValGluS" +
+    "er<span style=\"background-color:red\">***</span><span style" +
+    "=\"background-color:lime\">ArgGln</span>\n       AlaSerGluGl" +
+    "yAspThrGlyGlu<span style=\"background-color:red\">***</span>" +
+    "ArgGlySerArgThrCysLysAlaGluGlyArg\n\n\n         ThrSerHisGly" +
+    "AspHisArgGluArgProProAsnIleAlaGlnGlyLeuThr<span style=\"back" +
+    "ground-color:red\">***</span>Glu\n        <span style=\"back" +
+    "ground-color:lime\">HisValAlaTrpArgProPro</span><span style=" +
+    "\"background-color:red\">***</span>ThrProThrLysTyrCysProArgS" +
+    "erTyrIleArg\n       <span style=\"background-color:lime\">Al" +
+    "aArgArg</span><span style=\"background-color:green\">Met</sp" +
+    "an><span style=\"background-color:lime\">GluThrThrValAsnAlaH" +
+    "isGlnIleLeuProLysValLeuHisLys</span>\n       GCACGTCGCATGGAG" +
+    "ACCACCGTGAACGCCCACCAAATATTGCCCAAGGTCTTACATAAG\n 2881 |      " +
+    "   |         |         |         |         |         |\n    " +
+    "   CGTGCAGCGTACCTCTGGTGGCACTTGCGGGTGGTTTATAACGGGTTCCAGAATGTA" +
+    "TTC\n         <span style=\"background-color:lime\">ArgArg</" +
+    "span><span style=\"background-color:green\">Met</span>SerVal" +
+    "ValThrPheAlaTrpTrpIleAsnGlyLeuThrLysCysLeuLeu\n        <span" +
+    " style=\"background-color:lime\">ValAspCysProSerTrpArgSerArg" +
+    "GlyGlyPheIleAlaTrpProArgValTyrSer</span>\n       CysThrAlaHi" +
+    "sLeuGlyGlyHisValGlyValLeuTyrGlnGlyLeuAsp<span style=\"backgr" +
+    "ound-color:red\">***</span><span style=\"background-color:gr" +
+    "een\">Met</span>Leu\n\n\n         AspSerTrpThrLeuSerAsnValAs" +
+    "nAspArgPro<span style=\"background-color:red\">***</span>Gly" +
+    "IleLeuGlnArgLeuPhe\n        GlyLeuLeuAspSerGlnGlnCysGlnArgPr" +
+    "oThrLeuArgHisThrSerLysThrVal\n       <span style=\"backgroun" +
+    "d-color:lime\">ArgThrLeuGlyLeuSerAla</span><span style=\"bac" +
+    "kground-color:green\">Met</span><span style=\"background-col" +
+    "or:lime\">SerThrThrAspLeuGluAlaTyrPheLysAspCys</span>\n     " +
+    "  AGGACTCTTGGACTCTCAGCAATGTCAACGACCGACCTTGAGGCATACTTCAAAGACT" +
+    "GT\n 2941 |         |         |         |         |         " +
+    "|         |\n       TCCTGAGAACCTGAGAGTCGTTACAGTTGCTGGCTGGAAC" +
+    "TCCGTATGAAGTTTCTGACA\n         ValArgProSerGluAlaIleAspValVa" +
+    "lSerArgSerAlaTyrLysLeuSerGlnLys\n        <span style=\"backg" +
+    "round-color:lime\">SerGluGlnValArgLeuLeuThrLeuSerArgGlyGlnPr" +
+    "o</span><span style=\"background-color:green\">Met</span>Ser" +
+    "<span style=\"background-color:red\">***</span>LeuSerAsn\n  " +
+    "     ProSerLysSerGlu<span style=\"background-color:red\">***" +
+    "</span>CysHis<span style=\"background-color:red\">***</span>" +
+    "ArgGlyValLysLeuCysValGluPheValThr\n\n\n         Val<span sty" +
+    "le=\"background-color:red\">***</span>ArgLeuGlyGlyValGlyGlyG" +
+    "lyAsp<span style=\"background-color:red\">***</span>ValLysGl" +
+    "yLeuCysThrArgArg\n        CysLeuLysThrGlyArgSerTrpGlyArgArgL" +
+    "euGly<span style=\"background-color:red\">***</span>ArgSerLe" +
+    "uTyr<span style=\"background-color:red\">***</span>Glu\n    " +
+    "   <span style=\"background-color:lime\">LeuPheLysAspTrpGluG" +
+    "luLeuGlyGluGluIleArgLeuLysValPheValLeuGly</span>\n       TTG" +
+    "TTTAAAGACTGGGAGGAGTTGGGGGAGGAGATTAGGTTAAAGGTCTTTGTACTAGGA\n " +
+    "3001 |         |         |         |         |         |    " +
+    "     |\n       AACAAATTTCTGACCCTCCTCAACCCCCTCCTCTAATCCAATTTC" +
+    "CAGAAACATGATCCT\n         AsnLeuSerGlnSerSerAsnProSerSerIleL" +
+    "euAsnPheThrLysThrSerProPro\n        Thr<span style=\"backgro" +
+    "und-color:red\">***</span>LeuSerProProThrProProProSer<span s" +
+    "tyle=\"background-color:red\">***</span><span style=\"backgr" +
+    "ound-color:lime\">ThrLeuProArgGlnValLeuLeu</span>\n       Gl" +
+    "nLysPheValProLeuLeuGlnProLeuLeuAsnPro<span style=\"backgroun" +
+    "d-color:red\">***</span>LeuAspLysTyr<span style=\"background" +
+    "-color:red\">***</span><span style=\"background-color:lime\"" +
+    ">Ser</span>\n\n\n         Leu<span style=\"background-color:" +
+    "red\">***</span>Ala<span style=\"background-color:red\">***<" +
+    "/span>IleGlyLeuArgThrSerThr<span style=\"background-color:gr" +
+    "een\">Met</span><span style=\"background-color:lime\">GlnLeu" +
+    "PheHisLeuCysLeuIle</span>\n        AlaValGlyIleAsnTrpSerAlaH" +
+    "isGlnHisHisAlaThrPheSerProLeuProAsn\n       <span style=\"ba" +
+    "ckground-color:lime\">GlyCysArgHisLysLeuValCysAlaProAlaProCy" +
+    "sAsnPhePheThrSerAla</span><span style=\"background-color:red" +
+    "\">***</span>\n       GGCTGTAGGCATAAATTGGTCTGCGCACCAGCACCATG" +
+    "CAACTTTTTCACCTCTGCCTAA\n 3061 |         |         |         " +
+    "|         |         |         |\n       CCGACATCCGTATTTAACCA" +
+    "GACGCGTGGTCGTGGTACGTTGAAAAAGTGGAGACGGATT\n         GlnLeuCys" +
+    "LeuAsnThrGlnAlaGlyAlaGlyHisLeuLysLysValGluAla<span style=\"b" +
+    "ackground-color:red\">***</span>Asp\n        <span style=\"b" +
+    "ackground-color:lime\">SerTyrAlaTyrIleProArgArgValLeuVal</sp" +
+    "an><span style=\"background-color:green\">Met</span>CysSerLy" +
+    "s<span style=\"background-color:red\">***</span><span style=" +
+    "\"background-color:lime\">ArgGlnArgIle</span>\n       <span " +
+    "style=\"background-color:lime\">AlaThrPro</span><span style=" +
+    "\"background-color:green\">Met</span>PheGlnAspAlaCysTrpCysTr" +
+    "pAlaValLysGluGlyArgGlyLeu\n\n\n         <span style=\"backgr" +
+    "ound-color:lime\">IleSerCysSerCysProThrValGlnAlaSerLysLeuCys" +
+    "LeuGlyTrpLeuTrpGly</span>\n        HisLeuLeuPhe<span style=\"" +
+    "background-color:green\">Met</span><span style=\"background-" +
+    "color:lime\">SerTyrCysSerSerLeuGlnAlaValProTrpValAlaLeuGly</" +
+    "span>\n       SerSerLeuValHisValLeuLeuPheLysProProSerCysAlaL" +
+    "euGlyGlyPheGly\n       TCATCTCTTGTTCATGTCCTACTGTTCAAGCCTCCAA" +
+    "GCTGTGCCTTGGGTGGCTTTGGG\n 3121 |         |         |        " +
+    " |         |         |         |\n       AGTAGAGAACAAGTACAGG" +
+    "ATGACAAGTTCGGAGGTTCGACACGGAACCCACCGAAACCC\n         AspArgTh" +
+    "r<span style=\"background-color:red\">***</span>ThrArgSerAsn" +
+    "LeuGlyGlyLeuGlnAlaLysProProLysProAla\n        <span style=\"" +
+    "background-color:green\">Met</span>GluGlnGluHisGlyValThr<spa" +
+    "n style=\"background-color:red\">***</span><span style=\"bac" +
+    "kground-color:lime\">AlaGluLeuSerHisArgProHisSerGlnPro</span" +
+    ">\n       <span style=\"background-color:red\">***</span><sp" +
+    "an style=\"background-color:lime\">ArgLysAsn</span><span sty" +
+    "le=\"background-color:green\">Met</span>Asp<span style=\"bac" +
+    "kground-color:red\">***</span>GlnGluLeuArgTrpAlaThrGlyGlnThr" +
+    "AlaLysPro\n\n\n         <span style=\"background-color:lime\"" +
+    ">  3</span> -&gt;  1\n        <span style=\"background-color" +
+    ":lime\">His  2</span> -&gt;  3\n       Ala  1 -&gt;  2\n    " +
+    "   GC\n 3181 |  \n       CG\n           3 &lt;-  1\n        " +
+    "<span style=\"background-color:green\">Met</span>  2 &lt;-  " +
+    "3\n       Cys  1 &lt;-  2\n\n\n</pre>";
+    return str;
+}
+
+function wdeTestDataString_030() {
+    var str = "<pre>       <span style=\"background-color:green\"" +
+    ">M  </span><span style=\"background-color:lime\">D  I  D  P " +
+    " Y  K  E  F  G  A  T  V  E  L  L  S  F  L  P  </span>\n     " +
+    "  ATGGACATCGACCCTTATAAAGAATTTGGAGCTACTGTGGAGTTACTCTCGTTTTTGC" +
+    "CT\n    1 |         |         |         |         |         " +
+    "|         |\n\n\n       <span style=\"background-color:lime\"" +
+    ">S  D  F  F  P  S  V  R  D  L  L  D  T  A  S  A  L  Y  R  E " +
+    " </span>\n       TCTGACTTCTTTCCTTCAGTACGAGATCTTCTAGATACCGCCT" +
+    "CAGCTCTGTATCGGGAA\n   61 |         |         |         |    " +
+    "     |         |         |\n\n\n       <span style=\"backgro" +
+    "und-color:lime\">A  L  E  S  P  E  H  C  S  P  H  H  T  A  L" +
+    "  R  Q  A  I  L  </span>\n       GCCTTAGAGTCTCCTGAGCATTGTTCA" +
+    "CCTCACCATACTGCACTCAGGCAAGCAATTCTT\n  121 |         |        " +
+    " |         |         |         |         |\n\n\n       <span" +
+    " style=\"background-color:lime\">C  W  G  E  L  </span><span" +
+    " style=\"background-color:green\">M  </span><span style=\"ba" +
+    "ckground-color:lime\">T  L  A  T  W  V  G  V  N  L  E  D  P " +
+    " A  </span>\n       TGCTGGGGGGAACTAATGACTCTAGCTACCTGGGTGGGTG" +
+    "TTAATTTGGAAGATCCAGCG\n  181 |         |         |         | " +
+    "        |         |         |\n\n\n       <span style=\"back" +
+    "ground-color:lime\">S  R  D  L  V  V  S  Y  V  N  T  N  </sp" +
+    "an><span style=\"background-color:green\">M  </span><span st" +
+    "yle=\"background-color:lime\">G  L  K  F  R  Q  L  </span>\n" +
+    "       TCTAGAGACCTAGTAGTCAGTTATGTCAACACTAATATGGGCCTAAAGTTCAG" +
+    "GCAACTC\n  241 |         |         |         |         |    " +
+    "     |         |\n\n\n       <span style=\"background-color:" +
+    "lime\">L  W  F  H  I  S  C  L  T  F  G  R  E  T  V  I  E  Y " +
+    " L  V  </span>\n       TTGTGGTTTCACATTTCTTGTCTCACTTTTGGAAGAG" +
+    "AAACAGTTATAGAGTATTTGGTG\n  301 |         |         |        " +
+    " |         |         |         |\n\n\n       <span style=\"b" +
+    "ackground-color:lime\">S  F  G  V  W  I  R  T  P  P  A  Y  R" +
+    "  P  P  N  A  P  I  L  </span>\n       TCTTTCGGAGTGTGGATTCGC" +
+    "ACTCCTCCAGCTTATAGACCACCAAATGCCCCTATCCTA\n  361 |         |  " +
+    "       |         |         |         |         |\n\n\n      " +
+    " <span style=\"background-color:lime\">S  T  L  P  E  T  T  " +
+    "V  V  R  R  R  G  R  S  P  R  R  R  T  </span>\n       TCAAC" +
+    "ACTTCCGGAGACTACTGTTGTTAGACGACGAGGCAGGTCCCCTAGAAGAAGAACT\n  4" +
+    "21 |         |         |         |         |         |      " +
+    "   |\n\n\n       <span style=\"background-color:lime\">P  S " +
+    " P  R  R  R  R  S  Q  S  P  R  R  R  R  S  Q  S  R  E  </spa" +
+    "n>\n       CCCTCGCCTCGCAGACGAAGGTCTCAATCGCCGCGTCGCAGAAGATCTC" +
+    "AATCTCGGGAA\n  481 |         |         |         |         |" +
+    "         |         |\n\n\n       <span style=\"background-co" +
+    "lor:lime\">S  Q  C  </span><span style=\"background-color:re" +
+    "d\">*  </span>Y  S  L  D  S  <span style=\"background-color:" +
+    "red\">*  </span>G  G  E  L  Y  W  A  L  F  F  \n       TCTCA" +
+    "ATGTTAGTATTCCTTGGACTCATAAGGTGGGGAACTTTACTGGGCTTTATTCTTC\n  5" +
+    "41 |         |         |         |         |         |      " +
+    "   |\n\n\n       Y  C  T  C  L  <span style=\"background-col" +
+    "or:red\">*  </span>S  S  L  E  N  T  I  F  S  <span style=\"" +
+    "background-color:red\">*  </span>Y  T  F  T  \n       TACTGT" +
+    "ACCTGTCTTTAATCCTCATTGGAAAACACCATCTTTTCCTAATATACATTTACA\n  60" +
+    "1 |         |         |         |         |         |       " +
+    "  |\n\n\n       P  R  H  Y  Q  K  <span style=\"background-c" +
+    "olor:green\">M  </span><span style=\"background-color:red\">" +
+    "*  </span>T  V  C  R  P  T  H  S  <span style=\"background-c" +
+    "olor:red\">*  *  </span>E  K  \n       CCAAGACATTATCAAAAAATG" +
+    "TGAACAGTTTGTAGGCCCACTCACAGTTAATGAGAAAAG\n  661 |         |  " +
+    "       |         |         |         |         |\n\n\n      " +
+    " K  I  A  I  D  Y  A  C  Q  V  L  S  K  G  Y  Q  I  F  T  I " +
+    " \n       AAGATTGCAATTGATTATGCCTGCCAGGTTTTATCCAAAGGTTACCAAAT" +
+    "ATTTACCATT\n  721 |         |         |         |         | " +
+    "        |         |\n\n\n       G  <span style=\"background-" +
+    "color:red\">*  </span>G  Y  <span style=\"background-color:r" +
+    "ed\">*  </span>T  L  L  S  R  T  S  S  <span style=\"backgro" +
+    "und-color:red\">*  </span>S  L  L  P  N  <span style=\"backg" +
+    "round-color:red\">*  </span>\n       GGATAAGGGTATTAAACCTTATT" +
+    "ATCCAGAACATCTAGTTAATCATTACTTCCAAACTAG\n  781 |         |    " +
+    "     |         |         |         |         |\n\n\n       T" +
+    "  L  F  T  H  S  <span style=\"background-color:green\">M  <" +
+    "/span><span style=\"background-color:lime\">E  G  G  Y  I  I" +
+    "  </span><span style=\"background-color:red\">*  </span>E  R" +
+    "  N  N  T  <span style=\"background-color:red\">*  </span>\n" +
+    "       ACACTATTTACACACTCTATGGAAGGCGGGTATATTATATAAGAGAGAAACAA" +
+    "CACATAG\n  841 |         |         |         |         |    " +
+    "     |         |\n\n\n       R  L  I  L  W  V  T  I  F  L  G" +
+    "  T  R  S  T  A  W  G  R  I  \n       CGCCTCATTTTGTGGGTCACCA" +
+    "TATTCTTGGGAACAAGATCTACAGCATGGGGCAGAATC\n  901 |         |   " +
+    "      |         |         |         |         |\n\n\n       " +
+    "F  P  P  A  I  L  W  D  S  F  P  T  T  S  W  I  Q  P  S  E  " +
+    "\n       TTTCCACCAGCAATCCTCTGGGATTCTTTCCCGACCACCAGTTGGATCCAG" +
+    "CCTTCAGAG\n  961 |         |         |         |         |  " +
+    "       |         |\n\n\n       Q  T  P  Q  I  Q  I  G  T  S " +
+    " I  P  T  R  T  P  G  Q  T  P  \n       CAAACACCGCAAATCCAGAT" +
+    "TGGGACTTCAATCCCAACAAGGACACCTGGCCAGACGCCA\n 1021 |         | " +
+    "        |         |         |         |         |\n\n\n     " +
+    "  T  R  <span style=\"background-color:red\">*  </span>E  L " +
+    " E  H  S  G  W  V  S  P  H  R  T  E  A  F  W  \n       ACAAG" +
+    "GTAGGAGCTGGAGCATTCGGGCTGGGTTTCACCCCACCGCACGGAGGCCTTTTGG\n 10" +
+    "81 |         |         |         |         |         |      " +
+    "   |\n\n\n       G  G  A  L  R  L  R  A  Y  Y  K  L  C  Q  Q" +
+    "  I  R  L  L  P  \n       GGTGGAGCCCTCAGGCTCAGGGCATACTACAAAC" +
+    "TTTGCCAGCAAATCCGCCTCCTGCCT\n 1141 |         |         |     " +
+    "    |         |         |         |\n\n\n       P  P  I  A  " +
+    "S  Q  E  G  S  L  P  R  C  L  H  L  <span style=\"background" +
+    "-color:red\">*  </span>E  T  L  \n       CCACCAATCGCCAGTCAGG" +
+    "AAGGCAGCCTACCCCGCTGTCTCCACCTTTGAGAAACACTC\n 1201 |         |" +
+    "         |         |         |         |         |\n\n\n    " +
+    "   I  L  R  P  C  S  G  I  P  Q  P  S  T  K  L  C  K  I  P  " +
+    "E  \n       ATCCTCAGGCCATGCAGTGGAATTCCACAACCTTCCACCAAACTCTGC" +
+    "AAGATCCCAGAG\n 1261 |         |         |         |         " +
+    "|         |         |\n\n\n       <span style=\"background-c" +
+    "olor:red\">*  </span>E  A  C  I  S  L  L  V  A  P  V  Q  E  " +
+    "Q  <span style=\"background-color:red\">*  </span>T  L  F  <" +
+    "span style=\"background-color:red\">*  </span>\n       TGAGA" +
+    "GGCCTGTATTTCCCTGCTGGTGGCTCCAGTTCAGGAACAGTAAACCCTGTTCTGA\n 13" +
+    "21 |         |         |         |         |         |      " +
+    "   |\n\n\n       L  L  P  L  P  Y  R  Q  S  S  R  G  L  G  T" +
+    "  L  R  <span style=\"background-color:red\">*  </span>T  W " +
+    " \n       CTACTGCCTCTCCCTTATCGTCAATCTTCTCGAGGATTGGGGACCCTGCG" +
+    "CTGAACATGG\n 1381 |         |         |         |         | " +
+    "        |         |\n\n\n       R  T  S  H  Q  D  S  <span s" +
+    "tyle=\"background-color:red\">*  </span>D  P  F  S  C  Y  R " +
+    " R  G  F  S  C  \n       AGAACATCACATCAGGATTCCTAGGACCCCTTCTC" +
+    "GTGTTACAGGCGGGGTTTTTCTTGT\n 1441 |         |         |      " +
+    "   |         |         |         |\n\n\n       <span style=\"" +
+    "background-color:red\">*  </span>Q  E  S  S  Q  Y  R  R  V  " +
+    "<span style=\"background-color:red\">*  </span>T  R  G  G  L" +
+    "  L  S  I  F  \n       TGACAAGAATCCTCACAATACCGCAGAGTCTAGACTC" +
+    "GTGGTGGACTTCTCTCAATTTTC\n 1501 |         |         |        " +
+    " |         |         |         |\n\n\n       <span style=\"b" +
+    "ackground-color:red\">*  </span>G  E  L  P  C  V  L  A  K  I" +
+    "  R  S  P  Q  P  P  I  T  H  \n       TAGGGGGAACTACCGTGTGTCT" +
+    "TGGCCAAAATTCGCAGTCCCCAACCTCCAATCACTCAC\n 1561 |         |   " +
+    "      |         |         |         |         |\n\n\n       " +
+    "Q  P  L  V  L  Q  L  V  L  V  I  A  G  C  V  C  G  V  L  S  " +
+    "\n       CAACCTCTTGTCCTCCAACTTGTCCTGGTTATCGCTGGATGTGTCTGCGGC" +
+    "GTTTTATCA\n 1621 |         |         |         |         |  " +
+    "       |         |\n\n\n       S  S  S  S  S  C  C  Y  A  S " +
+    " S  S  C  W  F  F  W  T  I  K  \n       TCTTCCTCTTCATCCTGCTG" +
+    "CTATGCCTCATCTTCTTGTTGGTTCTTCTGGACTATCAAG\n 1681 |         | " +
+    "        |         |         |         |         |\n\n\n     " +
+    "  V  C  C  P  F  V  L  <span style=\"background-color:red\">" +
+    "*  </span>F  Q  D  P  Q  Q  P  A  R  D  H  A  \n       GTATG" +
+    "TTGCCCGTTTGTCCTCTAATTCCAGGATCCTCAACAACCAGCACGGGACCATGCC\n 17" +
+    "41 |         |         |         |         |         |      " +
+    "   |\n\n\n       G  P  A  <span style=\"background-color:red" +
+    "\">*  </span>L  L  L  K  E  P  L  C  I  P  P  V  A  V  P  N " +
+    " \n       GGACCTGCATGACTACTGCTCAAGGAACCTCTATGTATCCCTCCTGTTGC" +
+    "TGTACCAAAC\n 1801 |         |         |         |         | " +
+    "        |         |\n\n\n       L  R  T  E  I  A  P  V  F  P" +
+    "  S  H  H  P  G  L  S  E  N  S  \n       CTTCGGACGGAAATTGCAC" +
+    "CTGTATTCCCATCCCATCATCCTGGGCTTTCGGAAAATTCC\n 1861 |         |" +
+    "         |         |         |         |         |\n\n\n    " +
+    "   Y  G  S  G  P  Q  P  V  S  P  G  S  V  Y  <span style=\"b" +
+    "ackground-color:red\">*  </span>C  H  L  F  S  \n       TATG" +
+    "GGAGTGGGCCTCAGCCCGTTTCTCCTGGCTCAGTTTACTAGTGCCATTTGTTCAGT\n 1" +
+    "921 |         |         |         |         |         |     " +
+    "    |\n\n\n       G  S  <span style=\"background-color:red\"" +
+    ">*  </span>G  F  P  P  L  F  G  F  Q  L  Y  G  <span style=\"" +
+    "background-color:red\">*  </span>C  G  I  G  \n       GGTTCG" +
+    "TAGGGCTTTCCCCCACTGTTTGGCTTTCAGTTATATGGATGATGTGGTATTGGG\n 198" +
+    "1 |         |         |         |         |         |       " +
+    "  |\n\n\n       G  Q  V  C  T  A  S  <span style=\"backgroun" +
+    "d-color:red\">*  </span>V  P  F  Y  R  C  Y  Q  F  S  F  V  " +
+    "\n       GGCCAAGTCTGTACAGCATCTTGAGTCCCTTTTTACCGCTGTTACCAATTT" +
+    "TCTTTTGTC\n 2041 |         |         |         |         |  " +
+    "       |         |\n\n\n       F  G  Y  T  F  K  P  <span st" +
+    "yle=\"background-color:red\">*  </span>Q  N  K  E  <span sty" +
+    "le=\"background-color:green\">M  </span><span style=\"backgr" +
+    "ound-color:lime\">G  L  L  S  K  F  Y  </span>\n       TTTGG" +
+    "GTATACATTTAAACCCTAACAAAACAAAGAGATGGGGTTACTCTCTAAATTTTAT\n 21" +
+    "01 |         |         |         |         |         |      " +
+    "   |\n\n\n       <span style=\"background-color:lime\">G  L " +
+    " C  H  W  </span><span style=\"background-color:green\">M  <" +
+    "/span><span style=\"background-color:lime\">L  W  V  L  A  T" +
+    "  R  T  H  H  T  K  N  Q  </span>\n       GGGTTATGTCATTGGATG" +
+    "TTATGGGTCCTTGCCACAAGAACACATCATACAAAAAATCAA\n 2161 |         " +
+    "|         |         |         |         |         |\n\n\n   " +
+    "    <span style=\"background-color:lime\">R  </span><span st" +
+    "yle=\"background-color:green\">M  </span><span style=\"backg" +
+    "round-color:lime\">F  </span><span style=\"background-color:" +
+    "red\">*  </span>K  T  S  Y  <span style=\"background-color:r" +
+    "ed\">*  </span>Q  A  Y  <span style=\"background-color:red\"" +
+    ">*  </span>L  E  S  <span style=\"background-color:green\">M" +
+    "  </span><span style=\"background-color:lime\">S  T  N  </sp" +
+    "an>\n       AGAATGTTTTAGAAAACTTCCTATTAACAGGCCTATTGATTGGAAAGT" +
+    "ATGTCAACGAAT\n 2221 |         |         |         |         " +
+    "|         |         |\n\n\n       <span style=\"background-c" +
+    "olor:lime\">C  G  S  F  G  F  C  C  P  F  Y  T  </span><span" +
+    " style=\"background-color:green\">M  </span><span style=\"ba" +
+    "ckground-color:lime\">W  L  S  C  V  D  A  </span>\n       T" +
+    "GTGGGTCTTTTGGGTTTTGCTGCCCCTTTTACACAATGTGGTTATCCTGCGTTGATGCC\n" +
+    " 2281 |         |         |         |         |         |   " +
+    "      |\n\n\n       <span style=\"background-color:lime\">F " +
+    " V  C  </span><span style=\"background-color:green\">M  </sp" +
+    "an><span style=\"background-color:lime\">Y  S  I  </span><sp" +
+    "an style=\"background-color:red\">*  </span>A  G  F  H  F  L" +
+    "  A  N  L  Q  G  L  \n       TTTGTATGCATGTATTCAATCTAAGCAGGCT" +
+    "TTCACTTTCTCGCCAACTTACAAGGCCTT\n 2341 |         |         |  " +
+    "       |         |         |         |\n\n\n       S  V  <sp" +
+    "an style=\"background-color:red\">*  </span>T  I  P  E  P  L" +
+    "  P  R  C  P  A  T  A  R  S  V  P  \n       TCTGTGTAAACAATAC" +
+    "CTGAACCTTTACCCCGTTGCCCGGCAACGGCCAGGTCTGTGCCA\n 2401 |       " +
+    "  |         |         |         |         |         |\n\n\n " +
+    "      S  V  C  <span style=\"background-color:red\">*  </spa" +
+    "n>R  N  P  H  W  L  G  L  G  H  G  P  S  A  H  A  \n       A" +
+    "GTGTTTGCTGACGCAACCCCCACTGGCTGGGGCTTGGTCATGGGCCATCAGCGCATGCG\n" +
+    " 2461 |         |         |         |         |         |   " +
+    "      |\n\n\n       W  N  L  F  G  S  S  A  D  P  Y  C  G  T" +
+    "  P  S  R  L  F  C  \n       TGGAACCTTTTCGGCTCCTCTGCCGATCCAT" +
+    "ACTGCGGAACTCCTAGCCGCTTGTTTTGC\n 2521 |         |         |  " +
+    "       |         |         |         |\n\n\n       S  Q  Q  " +
+    "V  W  S  K  H  Y  R  D  <span style=\"background-color:red\"" +
+    ">*  *  </span>L  C  C  P  I  P  Q  \n       TCGCAGCAGGTCTGGA" +
+    "GCAAACATTATCGGGACTGATAACTCTGTTGTCCTATCCCGCAA\n 2581 |       " +
+    "  |         |         |         |         |         |\n\n\n " +
+    "      I  Y  I  V  S  <span style=\"background-color:green\">" +
+    "M  </span><span style=\"background-color:lime\">A  A  R  L  " +
+    "C  C  Q  L  D  P  A  R  D  V  </span>\n       ATATACATCGTTTC" +
+    "CATGGCTGCTAGGCTGTGCTGCCAACTGGATCCTGCGCGGGACGTC\n 2641 |     " +
+    "    |         |         |         |         |         |\n\n\n" +
+    "       <span style=\"background-color:lime\">L  C  L  R  P  " +
+    "V  G  A  E  S  C  G  R  P  F  S  G  S  L  G  </span>\n      " +
+    " CTTTGTTTACGTCCCGTCGGCGCTGAATCCTGCGGACGACCCTTCTCGGGGTCGCTTGG" +
+    "G\n 2701 |         |         |         |         |         |" +
+    "         |\n\n\n       <span style=\"background-color:lime\"" +
+    ">T  L  S  S  P  S  P  S  A  V  P  T  D  H  G  A  H  L  S  L " +
+    " </span>\n       ACTCTCTCGTCCCCTTCTCCGTCTGCCGTTCCGACCGACCACG" +
+    "GGGCGCACCTCTCTTTA\n 2761 |         |         |         |    " +
+    "     |         |         |\n\n\n       <span style=\"backgro" +
+    "und-color:lime\">R  G  L  P  V  C  A  F  S  S  A  G  P  C  A" +
+    "  L  R  F  T  S  </span>\n       CGCGGACTCCCCGTCTGTGCCTTCTCA" +
+    "TCTGCCGGACCGTGTGCACTTCGCTTCACCTCT\n 2821 |         |        " +
+    " |         |         |         |         |\n\n\n       <span" +
+    " style=\"background-color:lime\">A  R  R  </span><span style" +
+    "=\"background-color:green\">M  </span><span style=\"backgrou" +
+    "nd-color:lime\">E  T  T  V  N  A  H  Q  I  L  P  K  V  L  H " +
+    " K  </span>\n       GCACGTCGCATGGAGACCACCGTGAACGCCCACCAAATAT" +
+    "TGCCCAAGGTCTTACATAAG\n 2881 |         |         |         | " +
+    "        |         |         |\n\n\n       <span style=\"back" +
+    "ground-color:lime\">R  T  L  G  L  S  A  </span><span style=" +
+    "\"background-color:green\">M  </span><span style=\"backgroun" +
+    "d-color:lime\">S  T  T  D  L  E  A  Y  F  K  D  C  </span>\n" +
+    "       AGGACTCTTGGACTCTCAGCAATGTCAACGACCGACCTTGAGGCATACTTCAA" +
+    "AGACTGT\n 2941 |         |         |         |         |    " +
+    "     |         |\n\n\n       <span style=\"background-color:" +
+    "lime\">L  F  K  D  W  E  E  L  G  E  E  I  R  L  K  V  F  V " +
+    " L  G  </span>\n       TTGTTTAAAGACTGGGAGGAGTTGGGGGAGGAGATTA" +
+    "GGTTAAAGGTCTTTGTACTAGGA\n 3001 |         |         |        " +
+    " |         |         |         |\n\n\n       <span style=\"b" +
+    "ackground-color:lime\">G  C  R  H  K  L  V  C  A  P  A  P  C" +
+    "  N  F  F  T  S  A  </span><span style=\"background-color:re" +
+    "d\">*  </span>\n       GGCTGTAGGCATAAATTGGTCTGCGCACCAGCACCAT" +
+    "GCAACTTTTTCACCTCTGCCTAA\n 3061 |         |         |        " +
+    " |         |         |         |\n\n\n       S  S  L  V  H  " +
+    "V  L  L  F  K  P  P  S  C  A  L  G  G  F  G  \n       TCATCT" +
+    "CTTGTTCATGTCCTACTGTTCAAGCCTCCAAGCTGTGCCTTGGGTGGCTTTGGG\n 312" +
+    "1 |         |         |         |         |         |       " +
+    "  |\n\n\n       A    1 -&gt;  2\n       GC\n 3181 |  \n\n\n<" +
+    "/pre>";
+    return str;
+}
+
+function wdeTestDataString_031() {
+    var str = "<pre>&gt;test_406_832_F\nMetProLeuSerTyrGlnHisPheA" +
+    "rgArgLeuLeuLeuLeuAspAspGluAlaGlyPro\nLeuGluGluGluLeuProArgLe" +
+    "uAlaAspGluGlyLeuAsnArgArgValAlaGluAsp\nLeuAsnLeuGlyAsnLeuAsn" +
+    "ValSerIleProTrpThrHisLysValGlyAsnPheThr\nGlyLeuTyrSerSerThrV" +
+    "alProValPheAsnProHisTrpLysThrProSerPhePro\nAsnIleHisLeuHisGl" +
+    "nAspIleIleLysLysCysGluGlnPheValGlyProLeuThr\nValAsnGluLysArg" +
+    "ArgLeuGlnLeuIleMetProAlaArgPheTyrProLysValThr\nLysTyrLeuProL" +
+    "euAspLysGlyIleLysProTyrTyrProGluHisLeuValAsnHis\nTyrPheGlnTh" +
+    "rArgHisTyrLeuHisThrLeuTrpLysAlaGlyIleLeuTyrLysArg\nGluThrThr" +
+    "HisSerAlaSerPheCysGlySerProTyrSerTrpGluGlnAspLeuGln\nHisGlyA" +
+    "laGluSerPheHisGlnGlnSerSerGlyIleLeuSerArgProProValGly\nSerSe" +
+    "rLeuGlnSerLysHisArgLysSerArgLeuGlyLeuGlnSerGlnGlnGlyHis\nLeu" +
+    "AlaArgArgGlnGlnGlyArgSerTrpSerIleArgAlaGlyPheHisProThrAla\nA" +
+    "rgArgProPheGlyValGluProSerGlySerGlyHisThrThrAsnPheAlaSerLys\n" +
+    "SerAlaSerCysLeuHisGlnSerProValArgLysAlaAlaTyrProAlaValSerThr" +
+    "\nPheGluLysHisSerSerSerGlyHisAlaValGluPheHisAsnLeuProProAsnS" +
+    "er\nAlaArgSerGlnSerGluArgProValPheProCysTrpTrpLeuGlnPheArgAs" +
+    "nSer\nLysProCysSerAspTyrCysLeuSerLeuIleValAsnLeuLeuGluAspTrp" +
+    "GlyPro\nCysAlaGluHisGlyGluHisHisIleArgIleProArgThrProSerArgV" +
+    "alThrGly\nGlyValPheLeuValAspLysAsnProHisAsnThrAlaGluSerArgLe" +
+    "uValValAsp\nPheSerGlnPheSerArgGlyAsnTyrArgValSerTrpProLysPhe" +
+    "AlaValProAsn\nLeuGlnSerLeuThrAsnLeuLeuSerSerAsnLeuSerTrpLeuS" +
+    "erLeuAspValSer\nAlaAlaPheTyrHisLeuProLeuHisProAlaAlaMetProHi" +
+    "sLeuLeuValGlySer\nSerGlyLeuSerArgTyrValAlaArgLeuSerSerAsnSer" +
+    "ArgIleLeuAsnAsnGln\nHisGlyThrMetProAspLeuHisAspTyrCysSerArgA" +
+    "snLeuTyrValSerLeuLeu\nLeuLeuTyrGlnThrPheGlyArgLysLeuHisLeuTy" +
+    "rSerHisProIleIleLeuGly\nPheArgLysIleProMetGlyValGlyLeuSerPro" +
+    "PheLeuLeuAlaGlnPheThrSer\nAlaIleCysSerValValArgArgAlaPheProH" +
+    "isCysLeuAlaPheSerTyrMetAsp\nAspValValLeuGlyAlaLysSerValGlnHi" +
+    "sLeuGluSerLeuPheThrAlaValThr\nAsnPheLeuLeuSerLeuGlyIleHisLeu" +
+    "AsnProAsnLysThrLysArgTrpGlyTyr\nSerLeuAsnPheMetGlyTyrValIleG" +
+    "lyCysTyrGlySerLeuProGlnGluHisIle\nIleGlnLysIleLysGluCysPheAr" +
+    "gLysLeuProIleAsnArgProIleAspTrpLys\nValCysGlnArgIleValGlyLeu" +
+    "LeuGlyPheAlaAlaProPheThrGlnCysGlyTyr\nProAlaLeuMetProLeuTyrA" +
+    "laCysIleGlnSerLysGlnAlaPheThrPheSerPro\nThrTyrLysAlaPheLeuCy" +
+    "sLysGlnTyrLeuAsnLeuTyrProValAlaArgGlnArg\nProGlyLeuCysGlnVal" +
+    "PheAlaAspAlaThrProThrGlyTrpGlyLeuValMetGly\nHisGlnArgMetArgG" +
+    "lyThrPheSerAlaProLeuProIleHisThrAlaGluLeuLeu\nAlaAlaCysPheAl" +
+    "aArgSerArgSerGlyAlaAsnIleIleGlyThrAspAsnSerVal\nValLeuSerArg" +
+    "LysTyrThrSerPheProTrpLeuLeuGlyCysAlaAlaAsnTrpIle\nLeuArgGlyT" +
+    "hrSerPheValTyrValProSerAlaLeuAsnProAlaAspAspProSer\nArgGlyAr" +
+    "gLeuGlyLeuSerArgProLeuLeuArgLeuProPheArgProThrThrGly\nArgThr" +
+    "SerLeuTyrAlaAspSerProSerValProSerHisLeuProAspArgValHis\nPheA" +
+    "laSerProLeuHisValAlaTrpArgProPro***\n\n&gt;test_946_389_F\nM" +
+    "etGlyGlnAsnLeuSerThrSerAsnProLeuGlyPhePheProAspHisGlnLeuAsp\n" +
+    "ProAlaPheArgAlaAsnThrAlaAsnProAspTrpAspPheAsnProAsnLysAspThr" +
+    "\nTrpProAspAlaAsnLysValGlyAlaGlyAlaPheGlyLeuGlyPheThrProProH" +
+    "is\nGlyGlyLeuLeuGlyTrpSerProGlnAlaGlnGlyIleLeuGlnThrLeuProAl" +
+    "aAsn\nProProProAlaSerThrAsnArgGlnSerGlyArgGlnProThrProLeuSer" +
+    "ProPro\nLeuArgAsnThrHisProGlnAlaMetGlnTrpAsnSerThrThrPheHisG" +
+    "lnThrLeu\nGlnAspProArgValArgGlyLeuTyrPheProAlaGlyGlySerSerSe" +
+    "rGlyThrVal\nAsnProValLeuThrThrAlaSerProLeuSerSerIlePheSerArg" +
+    "IleGlyAspPro\nAlaLeuAsnMetGluAsnIleThrSerGlyPheLeuGlyProLeuL" +
+    "euValLeuGlnAla\nGlyPhePheLeuLeuThrArgIleLeuThrIleProGlnSerLe" +
+    "uAspSerTrpTrpThr\nSerLeuAsnPheLeuGlyGlyThrThrValCysLeuGlyGln" +
+    "AsnSerGlnSerProThr\nSerAsnHisSerProThrSerCysProProThrCysProG" +
+    "lyTyrArgTrpMetCysLeu\nArgArgPheIleIlePheLeuPheIleLeuLeuLeuCy" +
+    "sLeuIlePheLeuLeuValLeu\nLeuAspTyrGlnGlyMetLeuProValCysProLeu" +
+    "IleProGlySerSerThrThrSer\nThrGlyProCysArgThrCysMetThrThrAlaG" +
+    "lnGlyThrSerMetTyrProSerCys\nCysCysThrLysProSerAspGlyAsnCysTh" +
+    "rCysIleProIleProSerSerTrpAla\nPheGlyLysPheLeuTrpGluTrpAlaSer" +
+    "AlaArgPheSerTrpLeuSerLeuLeuVal\nProPheValGlnTrpPheValGlyLeuS" +
+    "erProThrValTrpLeuSerValIleTrpMet\nMetTrpTyrTrpGlyProSerLeuTy" +
+    "rSerIleLeuSerProPheLeuProLeuLeuPro\nIlePhePheCysLeuTrpValTyr" +
+    "Ile***\n\n&gt;test_3094_212_F\nMetGlnLeuPheHisLeuCysLeuIleIl" +
+    "eSerCysSerCysProThrValGlnAlaSer\nLysLeuCysLeuGlyTrpLeuTrpGly" +
+    "MetAspIleAspProTyrLysGluPheGlyAla\nThrValGluLeuLeuSerPheLeuP" +
+    "roSerAspPhePheProSerValArgAspLeuLeu\nAspThrAlaSerAlaLeuTyrAr" +
+    "gGluAlaLeuGluSerProGluHisCysSerProHis\nHisThrAlaLeuArgGlnAla" +
+    "IleLeuCysTrpGlyGluLeuMetThrLeuAlaThrTrp\nValGlyValAsnLeuGluA" +
+    "spProAlaSerArgAspLeuValValSerTyrValAsnThr\nAsnMetGlyLeuLysPh" +
+    "eArgGlnLeuLeuTrpPheHisIleSerCysLeuThrPheGly\nArgGluThrValIle" +
+    "GluTyrLeuValSerPheGlyValTrpIleArgThrProProAla\nTyrArgProProA" +
+    "snAlaProIleLeuSerThrLeuProGluThrThrValValArgArg\nArgGlyArgSe" +
+    "rProArgArgArgThrProSerProArgArgArgArgSerGlnSerPro\nArgArgArg" +
+    "ArgSerGlnSerArgGluSerGlnCys***\n\n&gt;test_1_183_F\nMetAspIl" +
+    "eAspProTyrLysGluPheGlyAlaThrValGluLeuLeuSerPheLeuPro\nSerAsp" +
+    "PhePheProSerValArgAspLeuLeuAspThrAlaSerAlaLeuTyrArgGlu\nAlaL" +
+    "euGluSerProGluHisCysSerProHisHisThrAlaLeuArgGlnAlaIleLeu\nCy" +
+    "sTrpGlyGluLeuMetThrLeuAlaThrTrpValGlyValAsnLeuGluAspProAla\n" +
+    "SerArgAspLeuValValSerTyrValAsnThrAsnMetGlyLeuLysPheArgGlnLeu" +
+    "\nLeuTrpPheHisIleSerCysLeuThrPheGlyArgGluThrValIleGluTyrLeuV" +
+    "al\nSerPheGlyValTrpIleArgThrProProAlaTyrArgProProAsnAlaProIl" +
+    "eLeu\nSerThrLeuProGluThrThrValValArgArgArgGlyArgSerProArgArg" +
+    "ArgThr\nProSerProArgArgArgArgSerGlnSerProArgArgArgArgSerGlnS" +
+    "erArgGlu\nSerGlnCys***\n\n&gt;test_2656_154_F\nMetAlaAlaArgL" +
+    "euCysCysGlnLeuAspProAlaArgAspValLeuCysLeuArgPro\nValGlyAlaGl" +
+    "uSerCysGlyArgProPheSerGlySerLeuGlyThrLeuSerSerPro\nSerProSer" +
+    "AlaValProThrAspHisGlyAlaHisLeuSerLeuArgGlyLeuProVal\nCysAlaP" +
+    "heSerSerAlaGlyProCysAlaLeuArgPheThrSerAlaArgArgMetGlu\nThrTh" +
+    "rValAsnAlaHisGlnIleLeuProLysValLeuHisLysArgThrLeuGlyLeu\nSer" +
+    "AlaMetSerThrThrAspLeuGluAlaTyrPheLysAspCysLeuPheLysAspTrp\nG" +
+    "luGluLeuGlyGluGluIleArgLeuLysValPheValLeuGlyGlyCysArgHisLys\n" +
+    "LeuValCysAlaProAlaProCysAsnPhePheThrSerAla***\n\n&gt;test_25" +
+    "50_133_R\nMetAspArgGlnArgSerArgLysGlySerThrHisAlaLeuMetAlaHi" +
+    "sAspGlnAla\nProAlaSerGlyGlyCysValSerLysHisLeuAlaGlnThrTrpPro" +
+    "LeuProGlyAsn\nGlyValLysValGlnValLeuPheThrGlnLysGlyLeuValSerT" +
+    "rpArgGluSerGlu\nSerLeuLeuArgLeuAsnThrCysIleGlnArgHisGlnArgAr" +
+    "gIleThrThrLeuCys\nLysArgGlySerLysThrGlnLysThrHisAsnSerLeuThr" +
+    "TyrPheProIleAsnArg\nProValAsnArgLysPheSerLysThrPhePheAspPheL" +
+    "euTyrAspValPheLeuTrp\nGlnGlyProIleThrSerAsnAspIleThrHisLysIl" +
+    "e***\n\n&gt;test_2889_95_R\nMetArgArgAlaGluValLysArgSerAlaHi" +
+    "sGlyProAlaAspGluLysAlaGlnThr\nGlySerProArgLysGluArgCysAlaPro" +
+    "TrpSerValGlyThrAlaAspGlyGluGly\nAspGluArgValProSerAspProGluL" +
+    "ysGlyArgProGlnAspSerAlaProThrGly\nArgLysGlnArgThrSerArgAlaGl" +
+    "ySerSerTrpGlnHisSerLeuAlaAlaMetGlu\nThrMetTyrIleCysGlyIleGly" +
+    "GlnGlnSerTyrGlnSerArg***\n\n&gt;test_654_62_R\nMetTyrIleArgL" +
+    "ysArgTrpCysPheProMetArgIleLysAspArgTyrSerArgArg\nIleLysProSe" +
+    "rLysValProHisLeuMetSerProArgAsnThrAsnIleGluIlePro\nGluIleGlu" +
+    "IlePheCysAspAlaAlaIleGluThrPheValCysGluAlaArgGluPhe\nPhePhe*" +
+    "**\n\n&gt;test_2847_61_R\nMetArgArgHisArgArgGlyValArgValLysA" +
+    "rgGlyAlaProArgGlyArgSerGlu\nArgGlnThrGluLysGlyThrArgGluSerGl" +
+    "nAlaThrProArgArgValValArgArg\nIleGlnArgArgArgAspValAsnLysGly" +
+    "ArgProAlaGlnAspProValGlySerThr\nAla***\n\n&gt;test_1446_60_R" +
+    "\nMetPheSerMetPheSerAlaGlySerProIleLeuGluLysIleAspAspLysGlyG" +
+    "lu\nAlaValValArgThrGlyPheThrValProGluLeuGluProProAlaGlyLysTy" +
+    "rArg\nProLeuThrLeuGlySerCysArgValTrpTrpLysValValGluPheHisCys" +
+    "MetAla\n***\n\n&gt;test_2164_56_F\nMetSerLeuAspValMetGlyProC" +
+    "ysHisLysAsnThrSerTyrLysLysSerLysAsn\nValLeuGluAsnPheLeuLeuTh" +
+    "rGlyLeuLeuIleGlyLysTyrValAsnGluLeuTrp\nValPheTrpValLeuLeuPro" +
+    "LeuLeuHisAsnValValIleLeuArg***\n\n&gt;test_544_49_F\nMetLeuV" +
+    "alPheLeuGlyLeuIleArgTrpGlyThrLeuLeuGlyPheIleLeuLeuLeu\nTyrLe" +
+    "uSerLeuIleLeuIleGlyLysHisHisLeuPheLeuIleTyrIleTyrThrLys\nThr" +
+    "LeuSerLysAsnValAsnSerLeu***\n\n&gt;test_2112_45_R\nMetTyrThr" +
+    "GlnArgGlnLysLysIleGlyAsnSerGlyLysLysGlyLeuLysMetLeu\nTyrArgL" +
+    "euGlyProGlnTyrHisIleIleHisIleThrGluSerGlnThrValGlyGlu\nSerPr" +
+    "oThrAsnHis***\n\n&gt;test_2985_37_R\nMetProGlnGlyArgSerLeuTh" +
+    "rLeuLeuArgValGlnGluSerSerTyrValArgPro\nTrpAlaIlePheGlyGlyArg" +
+    "SerArgTrpSerProCysAspValGlnArg***\n\n&gt;test_2137_31_F\nMet" +
+    "GlyLeuLeuSerLysPheTyrGlyLeuCysHisTrpMetLeuTrpValLeuAlaThr\nA" +
+    "rgThrHisHisThrLysAsnGlnArgMetPhe***\n\n&gt;test_2269_31_F\nM" +
+    "etSerThrAsnCysGlySerPheGlyPheCysCysProPheTyrThrMetTrpLeuSer\n" +
+    "CysValAspAlaPheValCysMetTyrSerIle***\n\n&gt;test_2604_31_R\n" +
+    "MetPheAlaProAspLeuLeuArgAlaLysGlnAlaAlaArgSerSerAlaValTrpIle" +
+    "\nGlyArgGlyAlaGluLysValProArgMetArg***\n\n&gt;test_1797_29_R" +
+    "\nMetValProCysTrpLeuLeuArgIleLeuGluLeuGluAspLysArgAlaThrTyrL" +
+    "eu\nAspSerProGluGluProThrArgArg***\n\n&gt;test_921_28_R\nMet" +
+    "ValThrHisLysMetArgArgTyrValLeuPheLeuSerTyrIleIleTyrProPro\nS" +
+    "erIleGluCysValAsnSerVal***\n\n&gt;test_2502_25_R\nMetThrLysP" +
+    "roGlnProValGlyValAlaSerAlaAsnThrTrpHisArgProGlyArg\nCysArgAl" +
+    "aThrGly***\n\n&gt;test_1809_24_R\nMetGlnValArgHisGlyProValLe" +
+    "uValValGluAspProGlyIleArgGlyGlnThr\nGlyAsnIlePro***\n\n&gt;t" +
+    "est_2344_24_F\nMetHisValPheAsnLeuSerArgLeuSerLeuSerArgGlnLeu" +
+    "ThrArgProPheCys\nValAsnAsnThr***\n\n&gt;test_1890_23_R\nMetG" +
+    "lyIleGlnValGlnPheProSerGluGlyLeuValGlnGlnGlnGluGlyTyrIle\nGl" +
+    "uValPro***\n\n&gt;test_1899_22_R\nMetMetGlyTrpGluTyrArgCysAs" +
+    "nPheArgProLysValTrpTyrSerAsnArgArg\nAspThr***\n\n&gt;test_31" +
+    "33_22_F\nMetSerTyrCysSerSerLeuGlnAlaValProTrpValAlaLeuGlyHis" +
+    "GlyHisArg\nProLeu***\n\n&gt;test_1710_20_R\nMetArgHisSerSerA" +
+    "rgMetLysArgLysMetIleLysArgArgArgHisIleGlnArg\n***\n\n&gt;tes" +
+    "t_3096_20_R\nMetValLeuValArgArgProIleTyrAlaTyrSerLeuLeuValGl" +
+    "nArgProLeuThr\n***\n\n&gt;test_1101_17_R\nMetLeuGlnLeuLeuPro" +
+    "CysTrpArgLeuAlaArgCysProCysTrpAsp***\n\n&gt;test_669_15_R\nM" +
+    "etSerTrpCysLysCysIleLeuGlyLysAspGlyValPheGln***\n\n&gt;test_" +
+    "1260_15_R\nMetSerValSerGlnArgTrpArgGlnArgGlyArgLeuProSer***\n" +
+    "\n&gt;test_6_14_R\nMetSerMetProGlnSerHisProArgHisSerLeuGluAl" +
+    "a***\n\n&gt;test_813_13_R\nMetPheTrpIleIleArgPheAsnThrLeuIle" +
+    "GlnTrp***\n\n&gt;test_2349_13_R\nMetHisThrLysAlaSerThrGlnAsp" +
+    "AsnHisIleVal***\n\n&gt;test_3183_12_R\nMetProGlnSerHisProArg" +
+    "HisSerLeuGluAla***\n\n</pre>";
+    return str;
+}
+
+function wdeTestDataString_032() {
+    var str = "<pre>&gt;test_1_183_F\nMetAspIleAspProTyrLysGluPhe" +
+    "GlyAlaThrValGluLeuLeuSerPheLeuPro\nSerAspPhePheProSerValArgA" +
+    "spLeuLeuAspThrAlaSerAlaLeuTyrArgGlu\nAlaLeuGluSerProGluHisCy" +
+    "sSerProHisHisThrAlaLeuArgGlnAlaIleLeu\nCysTrpGlyGluLeuMetThr" +
+    "LeuAlaThrTrpValGlyValAsnLeuGluAspProAla\nSerArgAspLeuValValS" +
+    "erTyrValAsnThrAsnMetGlyLeuLysPheArgGlnLeu\nLeuTrpPheHisIleSe" +
+    "rCysLeuThrPheGlyArgGluThrValIleGluTyrLeuVal\nSerPheGlyValTrp" +
+    "IleArgThrProProAlaTyrArgProProAsnAlaProIleLeu\nSerThrLeuProG" +
+    "luThrThrValValArgArgArgGlyArgSerProArgArgArgThr\nProSerProAr" +
+    "gArgArgArgSerGlnSerProArgArgArgArgSerGlnSerArgGlu\nSerGlnCys" +
+    "***\n\n&gt;test_406_832_F\nMetProLeuSerTyrGlnHisPheArgArgLeu" +
+    "LeuLeuLeuAspAspGluAlaGlyPro\nLeuGluGluGluLeuProArgLeuAlaAspG" +
+    "luGlyLeuAsnArgArgValAlaGluAsp\nLeuAsnLeuGlyAsnLeuAsnValSerIl" +
+    "eProTrpThrHisLysValGlyAsnPheThr\nGlyLeuTyrSerSerThrValProVal" +
+    "PheAsnProHisTrpLysThrProSerPhePro\nAsnIleHisLeuHisGlnAspIleI" +
+    "leLysLysCysGluGlnPheValGlyProLeuThr\nValAsnGluLysArgArgLeuGl" +
+    "nLeuIleMetProAlaArgPheTyrProLysValThr\nLysTyrLeuProLeuAspLys" +
+    "GlyIleLysProTyrTyrProGluHisLeuValAsnHis\nTyrPheGlnThrArgHisT" +
+    "yrLeuHisThrLeuTrpLysAlaGlyIleLeuTyrLysArg\nGluThrThrHisSerAl" +
+    "aSerPheCysGlySerProTyrSerTrpGluGlnAspLeuGln\nHisGlyAlaGluSer" +
+    "PheHisGlnGlnSerSerGlyIleLeuSerArgProProValGly\nSerSerLeuGlnS" +
+    "erLysHisArgLysSerArgLeuGlyLeuGlnSerGlnGlnGlyHis\nLeuAlaArgAr" +
+    "gGlnGlnGlyArgSerTrpSerIleArgAlaGlyPheHisProThrAla\nArgArgPro" +
+    "PheGlyValGluProSerGlySerGlyHisThrThrAsnPheAlaSerLys\nSerAlaS" +
+    "erCysLeuHisGlnSerProValArgLysAlaAlaTyrProAlaValSerThr\nPheGl" +
+    "uLysHisSerSerSerGlyHisAlaValGluPheHisAsnLeuProProAsnSer\nAla" +
+    "ArgSerGlnSerGluArgProValPheProCysTrpTrpLeuGlnPheArgAsnSer\nL" +
+    "ysProCysSerAspTyrCysLeuSerLeuIleValAsnLeuLeuGluAspTrpGlyPro\n" +
+    "CysAlaGluHisGlyGluHisHisIleArgIleProArgThrProSerArgValThrGly" +
+    "\nGlyValPheLeuValAspLysAsnProHisAsnThrAlaGluSerArgLeuValValA" +
+    "sp\nPheSerGlnPheSerArgGlyAsnTyrArgValSerTrpProLysPheAlaValPr" +
+    "oAsn\nLeuGlnSerLeuThrAsnLeuLeuSerSerAsnLeuSerTrpLeuSerLeuAsp" +
+    "ValSer\nAlaAlaPheTyrHisLeuProLeuHisProAlaAlaMetProHisLeuLeuV" +
+    "alGlySer\nSerGlyLeuSerArgTyrValAlaArgLeuSerSerAsnSerArgIleLe" +
+    "uAsnAsnGln\nHisGlyThrMetProAspLeuHisAspTyrCysSerArgAsnLeuTyr" +
+    "ValSerLeuLeu\nLeuLeuTyrGlnThrPheGlyArgLysLeuHisLeuTyrSerHisP" +
+    "roIleIleLeuGly\nPheArgLysIleProMetGlyValGlyLeuSerProPheLeuLe" +
+    "uAlaGlnPheThrSer\nAlaIleCysSerValValArgArgAlaPheProHisCysLeu" +
+    "AlaPheSerTyrMetAsp\nAspValValLeuGlyAlaLysSerValGlnHisLeuGluS" +
+    "erLeuPheThrAlaValThr\nAsnPheLeuLeuSerLeuGlyIleHisLeuAsnProAs" +
+    "nLysThrLysArgTrpGlyTyr\nSerLeuAsnPheMetGlyTyrValIleGlyCysTyr" +
+    "GlySerLeuProGlnGluHisIle\nIleGlnLysIleLysGluCysPheArgLysLeuP" +
+    "roIleAsnArgProIleAspTrpLys\nValCysGlnArgIleValGlyLeuLeuGlyPh" +
+    "eAlaAlaProPheThrGlnCysGlyTyr\nProAlaLeuMetProLeuTyrAlaCysIle" +
+    "GlnSerLysGlnAlaPheThrPheSerPro\nThrTyrLysAlaPheLeuCysLysGlnT" +
+    "yrLeuAsnLeuTyrProValAlaArgGlnArg\nProGlyLeuCysGlnValPheAlaAs" +
+    "pAlaThrProThrGlyTrpGlyLeuValMetGly\nHisGlnArgMetArgGlyThrPhe" +
+    "SerAlaProLeuProIleHisThrAlaGluLeuLeu\nAlaAlaCysPheAlaArgSerA" +
+    "rgSerGlyAlaAsnIleIleGlyThrAspAsnSerVal\nValLeuSerArgLysTyrTh" +
+    "rSerPheProTrpLeuLeuGlyCysAlaAlaAsnTrpIle\nLeuArgGlyThrSerPhe" +
+    "ValTyrValProSerAlaLeuAsnProAlaAspAspProSer\nArgGlyArgLeuGlyL" +
+    "euSerArgProLeuLeuArgLeuProPheArgProThrThrGly\nArgThrSerLeuTy" +
+    "rAlaAspSerProSerValProSerHisLeuProAspArgValHis\nPheAlaSerPro" +
+    "LeuHisValAlaTrpArgProPro***\n\n&gt;test_544_49_F\nMetLeuValP" +
+    "heLeuGlyLeuIleArgTrpGlyThrLeuLeuGlyPheIleLeuLeuLeu\nTyrLeuSe" +
+    "rLeuIleLeuIleGlyLysHisHisLeuPheLeuIleTyrIleTyrThrLys\nThrLeu" +
+    "SerLysAsnValAsnSerLeu***\n\n&gt;test_946_389_F\nMetGlyGlnAsn" +
+    "LeuSerThrSerAsnProLeuGlyPhePheProAspHisGlnLeuAsp\nProAlaPheA" +
+    "rgAlaAsnThrAlaAsnProAspTrpAspPheAsnProAsnLysAspThr\nTrpProAs" +
+    "pAlaAsnLysValGlyAlaGlyAlaPheGlyLeuGlyPheThrProProHis\nGlyGly" +
+    "LeuLeuGlyTrpSerProGlnAlaGlnGlyIleLeuGlnThrLeuProAlaAsn\nProP" +
+    "roProAlaSerThrAsnArgGlnSerGlyArgGlnProThrProLeuSerProPro\nLe" +
+    "uArgAsnThrHisProGlnAlaMetGlnTrpAsnSerThrThrPheHisGlnThrLeu\n" +
+    "GlnAspProArgValArgGlyLeuTyrPheProAlaGlyGlySerSerSerGlyThrVal" +
+    "\nAsnProValLeuThrThrAlaSerProLeuSerSerIlePheSerArgIleGlyAspP" +
+    "ro\nAlaLeuAsnMetGluAsnIleThrSerGlyPheLeuGlyProLeuLeuValLeuGl" +
+    "nAla\nGlyPhePheLeuLeuThrArgIleLeuThrIleProGlnSerLeuAspSerTrp" +
+    "TrpThr\nSerLeuAsnPheLeuGlyGlyThrThrValCysLeuGlyGlnAsnSerGlnS" +
+    "erProThr\nSerAsnHisSerProThrSerCysProProThrCysProGlyTyrArgTr" +
+    "pMetCysLeu\nArgArgPheIleIlePheLeuPheIleLeuLeuLeuCysLeuIlePhe" +
+    "LeuLeuValLeu\nLeuAspTyrGlnGlyMetLeuProValCysProLeuIleProGlyS" +
+    "erSerThrThrSer\nThrGlyProCysArgThrCysMetThrThrAlaGlnGlyThrSe" +
+    "rMetTyrProSerCys\nCysCysThrLysProSerAspGlyAsnCysThrCysIlePro" +
+    "IleProSerSerTrpAla\nPheGlyLysPheLeuTrpGluTrpAlaSerAlaArgPheS" +
+    "erTrpLeuSerLeuLeuVal\nProPheValGlnTrpPheValGlyLeuSerProThrVa" +
+    "lTrpLeuSerValIleTrpMet\nMetTrpTyrTrpGlyProSerLeuTyrSerIleLeu" +
+    "SerProPheLeuProLeuLeuPro\nIlePhePheCysLeuTrpValTyrIle***\n\n" +
+    "&gt;test_2137_31_F\nMetGlyLeuLeuSerLysPheTyrGlyLeuCysHisTrpM" +
+    "etLeuTrpValLeuAlaThr\nArgThrHisHisThrLysAsnGlnArgMetPhe***\n" +
+    "\n&gt;test_2164_56_F\nMetSerLeuAspValMetGlyProCysHisLysAsnTh" +
+    "rSerTyrLysLysSerLysAsn\nValLeuGluAsnPheLeuLeuThrGlyLeuLeuIle" +
+    "GlyLysTyrValAsnGluLeuTrp\nValPheTrpValLeuLeuProLeuLeuHisAsnV" +
+    "alValIleLeuArg***\n\n&gt;test_2269_31_F\nMetSerThrAsnCysGlyS" +
+    "erPheGlyPheCysCysProPheTyrThrMetTrpLeuSer\nCysValAspAlaPheVa" +
+    "lCysMetTyrSerIle***\n\n&gt;test_2344_24_F\nMetHisValPheAsnLe" +
+    "uSerArgLeuSerLeuSerArgGlnLeuThrArgProPheCys\nValAsnAsnThr***" +
+    "\n\n&gt;test_2656_154_F\nMetAlaAlaArgLeuCysCysGlnLeuAspProAl" +
+    "aArgAspValLeuCysLeuArgPro\nValGlyAlaGluSerCysGlyArgProPheSer" +
+    "GlySerLeuGlyThrLeuSerSerPro\nSerProSerAlaValProThrAspHisGlyA" +
+    "laHisLeuSerLeuArgGlyLeuProVal\nCysAlaPheSerSerAlaGlyProCysAl" +
+    "aLeuArgPheThrSerAlaArgArgMetGlu\nThrThrValAsnAlaHisGlnIleLeu" +
+    "ProLysValLeuHisLysArgThrLeuGlyLeu\nSerAlaMetSerThrThrAspLeuG" +
+    "luAlaTyrPheLysAspCysLeuPheLysAspTrp\nGluGluLeuGlyGluGluIleAr" +
+    "gLeuLysValPheValLeuGlyGlyCysArgHisLys\nLeuValCysAlaProAlaPro" +
+    "CysAsnPhePheThrSerAla***\n\n&gt;test_3094_212_F\nMetGlnLeuPh" +
+    "eHisLeuCysLeuIleIleSerCysSerCysProThrValGlnAlaSer\nLysLeuCys" +
+    "LeuGlyTrpLeuTrpGlyMetAspIleAspProTyrLysGluPheGlyAla\nThrValG" +
+    "luLeuLeuSerPheLeuProSerAspPhePheProSerValArgAspLeuLeu\nAspTh" +
+    "rAlaSerAlaLeuTyrArgGluAlaLeuGluSerProGluHisCysSerProHis\nHis" +
+    "ThrAlaLeuArgGlnAlaIleLeuCysTrpGlyGluLeuMetThrLeuAlaThrTrp\nV" +
+    "alGlyValAsnLeuGluAspProAlaSerArgAspLeuValValSerTyrValAsnThr\n" +
+    "AsnMetGlyLeuLysPheArgGlnLeuLeuTrpPheHisIleSerCysLeuThrPheGly" +
+    "\nArgGluThrValIleGluTyrLeuValSerPheGlyValTrpIleArgThrProProA" +
+    "la\nTyrArgProProAsnAlaProIleLeuSerThrLeuProGluThrThrValValAr" +
+    "gArg\nArgGlyArgSerProArgArgArgThrProSerProArgArgArgArgSerGln" +
+    "SerPro\nArgArgArgArgSerGlnSerArgGluSerGlnCys***\n\n&gt;test_" +
+    "3133_22_F\nMetSerTyrCysSerSerLeuGlnAlaValProTrpValAlaLeuGlyH" +
+    "isGlyHisArg\nProLeu***\n\n&gt;test_6_14_R\nMetSerMetProGlnSe" +
+    "rHisProArgHisSerLeuGluAla***\n\n&gt;test_654_62_R\nMetTyrIle" +
+    "ArgLysArgTrpCysPheProMetArgIleLysAspArgTyrSerArgArg\nIleLysP" +
+    "roSerLysValProHisLeuMetSerProArgAsnThrAsnIleGluIlePro\nGluIl" +
+    "eGluIlePheCysAspAlaAlaIleGluThrPheValCysGluAlaArgGluPhe\nPhe" +
+    "Phe***\n\n&gt;test_669_15_R\nMetSerTrpCysLysCysIleLeuGlyLysA" +
+    "spGlyValPheGln***\n\n&gt;test_813_13_R\nMetPheTrpIleIleArgPh" +
+    "eAsnThrLeuIleGlnTrp***\n\n&gt;test_921_28_R\nMetValThrHisLys" +
+    "MetArgArgTyrValLeuPheLeuSerTyrIleIleTyrProPro\nSerIleGluCysV" +
+    "alAsnSerVal***\n\n&gt;test_1101_17_R\nMetLeuGlnLeuLeuProCysT" +
+    "rpArgLeuAlaArgCysProCysTrpAsp***\n\n&gt;test_1260_15_R\nMetS" +
+    "erValSerGlnArgTrpArgGlnArgGlyArgLeuProSer***\n\n&gt;test_144" +
+    "6_60_R\nMetPheSerMetPheSerAlaGlySerProIleLeuGluLysIleAspAspL" +
+    "ysGlyGlu\nAlaValValArgThrGlyPheThrValProGluLeuGluProProAlaGl" +
+    "yLysTyrArg\nProLeuThrLeuGlySerCysArgValTrpTrpLysValValGluPhe" +
+    "HisCysMetAla\n***\n\n&gt;test_1710_20_R\nMetArgHisSerSerArgM" +
+    "etLysArgLysMetIleLysArgArgArgHisIleGlnArg\n***\n\n&gt;test_1" +
+    "797_29_R\nMetValProCysTrpLeuLeuArgIleLeuGluLeuGluAspLysArgAl" +
+    "aThrTyrLeu\nAspSerProGluGluProThrArgArg***\n\n&gt;test_1809_" +
+    "24_R\nMetGlnValArgHisGlyProValLeuValValGluAspProGlyIleArgGly" +
+    "GlnThr\nGlyAsnIlePro***\n\n&gt;test_1890_23_R\nMetGlyIleGlnV" +
+    "alGlnPheProSerGluGlyLeuValGlnGlnGlnGluGlyTyrIle\nGluValPro**" +
+    "*\n\n&gt;test_1899_22_R\nMetMetGlyTrpGluTyrArgCysAsnPheArgPr" +
+    "oLysValTrpTyrSerAsnArgArg\nAspThr***\n\n&gt;test_2112_45_R\n" +
+    "MetTyrThrGlnArgGlnLysLysIleGlyAsnSerGlyLysLysGlyLeuLysMetLeu" +
+    "\nTyrArgLeuGlyProGlnTyrHisIleIleHisIleThrGluSerGlnThrValGlyG" +
+    "lu\nSerProThrAsnHis***\n\n&gt;test_2349_13_R\nMetHisThrLysAl" +
+    "aSerThrGlnAspAsnHisIleVal***\n\n&gt;test_2502_25_R\nMetThrLy" +
+    "sProGlnProValGlyValAlaSerAlaAsnThrTrpHisArgProGlyArg\nCysArg" +
+    "AlaThrGly***\n\n&gt;test_2550_133_R\nMetAspArgGlnArgSerArgLy" +
+    "sGlySerThrHisAlaLeuMetAlaHisAspGlnAla\nProAlaSerGlyGlyCysVal" +
+    "SerLysHisLeuAlaGlnThrTrpProLeuProGlyAsn\nGlyValLysValGlnValL" +
+    "euPheThrGlnLysGlyLeuValSerTrpArgGluSerGlu\nSerLeuLeuArgLeuAs" +
+    "nThrCysIleGlnArgHisGlnArgArgIleThrThrLeuCys\nLysArgGlySerLys" +
+    "ThrGlnLysThrHisAsnSerLeuThrTyrPheProIleAsnArg\nProValAsnArgL" +
+    "ysPheSerLysThrPhePheAspPheLeuTyrAspValPheLeuTrp\nGlnGlyProIl" +
+    "eThrSerAsnAspIleThrHisLysIle***\n\n&gt;test_2604_31_R\nMetPh" +
+    "eAlaProAspLeuLeuArgAlaLysGlnAlaAlaArgSerSerAlaValTrpIle\nGly" +
+    "ArgGlyAlaGluLysValProArgMetArg***\n\n&gt;test_2847_61_R\nMet" +
+    "ArgArgHisArgArgGlyValArgValLysArgGlyAlaProArgGlyArgSerGlu\nA" +
+    "rgGlnThrGluLysGlyThrArgGluSerGlnAlaThrProArgArgValValArgArg\n" +
+    "IleGlnArgArgArgAspValAsnLysGlyArgProAlaGlnAspProValGlySerThr" +
+    "\nAla***\n\n&gt;test_2889_95_R\nMetArgArgAlaGluValLysArgSerA" +
+    "laHisGlyProAlaAspGluLysAlaGlnThr\nGlySerProArgLysGluArgCysAl" +
+    "aProTrpSerValGlyThrAlaAspGlyGluGly\nAspGluArgValProSerAspPro" +
+    "GluLysGlyArgProGlnAspSerAlaProThrGly\nArgLysGlnArgThrSerArgA" +
+    "laGlySerSerTrpGlnHisSerLeuAlaAlaMetGlu\nThrMetTyrIleCysGlyIl" +
+    "eGlyGlnGlnSerTyrGlnSerArg***\n\n&gt;test_2985_37_R\nMetProGl" +
+    "nGlyArgSerLeuThrLeuLeuArgValGlnGluSerSerTyrValArgPro\nTrpAla" +
+    "IlePheGlyGlyArgSerArgTrpSerProCysAspValGlnArg***\n\n&gt;test" +
+    "_3096_20_R\nMetValLeuValArgArgProIleTyrAlaTyrSerLeuLeuValGln" +
+    "ArgProLeuThr\n***\n\n&gt;test_3183_12_R\nMetProGlnSerHisProA" +
+    "rgHisSerLeuGluAla***\n\n</pre>";
+    return str;
+}
+
+
+
+// function wdeTestDataString_030() 
 
 function wdeTestLoadSmallSeq() {
     var seq = "ATGGACATCGACCCTTATAAAGAATTTGGAGCTACTGTGGAGTTACTCTCGTTTTTGCCT" +

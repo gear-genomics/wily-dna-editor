@@ -4441,6 +4441,9 @@ function wdeTransDrawFrame() {
 
 function wdeTransSortOrf(a, b) {
     if (wdeVTransOrfSortSize) {
+        if (b[3] == a[3]) {
+            return a[1] - b[1];
+        }
         return b[3] - a[3];
     } else {
 	    if (a[2] != b[2]) {
@@ -4449,6 +4452,9 @@ function wdeTransSortOrf(a, b) {
 	        } else {
 	            return -1;
 	        }
+	    }
+	    if (a[1] == b[1]) {
+            return b[3] - a[3];
 	    }
 	    return a[1] - b[1];
     }    
