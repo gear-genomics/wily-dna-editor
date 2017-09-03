@@ -133,7 +133,6 @@ function wdeTestAll() {
 	    wdeTestLoadLargeGeneBank();
 	    wdeFindRE();
 	    currentTestOut = JSON.stringify(wdeEnzy);
-	    // var myObj = JSON.parse(currentTestOut);
 	    wdeTestOutCompString(wdeTestDataString_012(), currentTestOut);
     } else {
 	    wdeTestAddToOutput("wdeFindRE() on LargeGeneBank - [SKIPPED on CHOME]\n");
@@ -143,14 +142,12 @@ function wdeTestAll() {
     wdeTestLoadSmallGeneBank();
     wdeFindRE();
     currentTestOut = JSON.stringify(wdeEnzy);
-    // var myObj = JSON.parse(currentTestOut);
     wdeTestOutCompString(wdeTestDataString_013(), currentTestOut);
     
     wdeTestAddToOutput("wdeTGDamDcm() on SmallGeneBank - ");
     wdeTGDamDcm(0);
     wdeFindRE();
     currentTestOut = JSON.stringify(wdeEnzy);
-    // var myObj = JSON.parse(currentTestOut);
     wdeTestOutCompString(wdeTestDataString_014(), currentTestOut);
     wdeTGDamDcm(1);
     
@@ -159,34 +156,29 @@ function wdeTestAll() {
     wdeFindRE();
     wdeSelREsel('E', 0);
     currentTestOut = JSON.stringify(wdeEnzy);
-    // var myObj = JSON.parse(currentTestOut);
     wdeTestOutCompString(wdeTestDataString_015(), currentTestOut);
 
     wdeTestAddToOutput("wdeSelREdeselect() - ");
     wdeSelREdeselect();
     currentTestOut = JSON.stringify(wdeEnzy);
-    // var myObj = JSON.parse(currentTestOut);
     wdeTestOutCompString(wdeTestDataString_013(), currentTestOut);
     
     wdeTestAddToOutput("wdeSelREselMLE(MORE) - ");
     wdeSelREdeselect();
     wdeSelREselMLE('M');
     currentTestOut = JSON.stringify(wdeEnzy);
-    // var myObj = JSON.parse(currentTestOut);
     wdeTestOutCompString(wdeTestDataString_016(), currentTestOut);
 
     wdeTestAddToOutput("wdeSelREselMLE(EXACT) - ");
     wdeSelREdeselect();
     wdeSelREselMLE('E');
     currentTestOut = JSON.stringify(wdeEnzy);
-    // var myObj = JSON.parse(currentTestOut);
     wdeTestOutCompString(wdeTestDataString_017(), currentTestOut);
 
     wdeTestAddToOutput("wdeSelREselMLE(LESS) - ");
     wdeSelREdeselect();
     wdeSelREselMLE('L');
     currentTestOut = JSON.stringify(wdeEnzy);
-    // var myObj = JSON.parse(currentTestOut);
     wdeTestOutCompString(wdeTestDataString_018(), currentTestOut);
     
     wdeTestAddToOutput("wdeSelREListDS() - ");
@@ -194,7 +186,6 @@ function wdeTestAll() {
     mainForm.elements["RESTRICTION_LIST"].value = "KpnI, BstBI, HindIII, BamHI, BstXI";
     wdeSelREListDS('S');
     currentTestOut = JSON.stringify(wdeEnzy);
-    // var myObj = JSON.parse(currentTestOut);
     wdeTestOutCompString(wdeTestDataString_019(), currentTestOut);
     mainForm.elements["RESTRICTION_LIST"].value = "KpnI, BstBI, HindIII, BamHI";
 
@@ -202,7 +193,6 @@ function wdeTestAll() {
     wdeSelREdeselect();
     wdeSelREsel('E', 1);
     currentTestOut = JSON.stringify(wdeEnzy);
-    // var myObj = JSON.parse(currentTestOut);
     wdeTestOutCompString(wdeTestDataString_020(), currentTestOut);
 
     wdeTestAddToOutput("wdeHighlight() - ");
@@ -280,24 +270,36 @@ function wdeTestAll() {
 
     wdeTestAddToOutput("\nTest Feature Functions:\n\n");
 
+    wdeTestAddToOutput("wdeFeatFocUpdate(-1) as TABLE - ");
+    if (browser == "firefox") {
+        wdeTestOutCompString(wdeTestDataString_033(), window.frames['WDE_FEAT_L'].document.body.innerHTML);
+    } else if (browser == "chrome") {
+        wdeTestOutCompString(wdeTestDataString_034(), window.frames['WDE_FEAT_L'].document.body.innerHTML);
+    } else {
+        wdeTestOutCompString(wdeTestDataString_035(), window.frames['WDE_FEAT_L'].document.body.innerHTML);
+    }
+  
+    wdeTestAddToOutput("wdeFeatFocUpdate(-1) as JSON - ");
+    currentTestOut = JSON.stringify(wdeFeatures);
+    wdeTestOutCompString(wdeTestDataString_036(), currentTestOut);
 
 
 
 
-  //  wdeTestPRString = window.frames['WDE_TRANS'].document.body.innerHTML;
+ //   wdeTestPRString = window.frames['WDE_FEAT_L'].document.body.innerHTML;
 
 
  // alert(wdeTestPRString);
  // alert(window.frames['WDE_RTF'].document.body.innerHTML);
-  //  wdeTestPRString = currentTestOut;
+ // wdeTestPRString = currentTestOut;
  // wdeTestPRString = window.frames['WDE_RTF'].document.body.innerHTML;
 
-
- //   wdeInTestRun = 0;
- //   wdeSaveFile("Bla", wdeTestStringSmallGeneBank(), "text");
- //   wdeSaveFile("Bla2", wdeTestDataString_006(), "text");
- //   wdeInTestRun = 1;
-
+if (0) {
+    wdeInTestRun = 0;
+    wdeSaveFile("OUT.txt", currentTestOut, "text");
+    wdeSaveFile("String.txt", wdeTestDataString_033(), "text");
+    wdeInTestRun = 1;
+}
     
     wdeInTestRun = 0;
     
@@ -382,8 +384,10 @@ function wdeTestPRStringAsFunction() {
     var j = 10;
     for (var i = 0 ; i < wdeTestPRString.length ; i++) {
         if (j > 59) {
-            retStr += "\" +\n    \"";
-            j = 0;
+            if (wdeTestPRString.charAt(i-1) != "\\") {
+                retStr += "\" +\n    \"";
+                j = 0;
+            }
         }
         if (wdeTestPRString.charAt(i) == "\n") {
             retStr += "\\n";
@@ -416,8 +420,10 @@ function wdeTestPRStringAsFunction2() {
     var j = 10;
     for (var i = 0 ; i < wdeTestPRString.length ; i++) {
         if (j > 59) {
-            retStr += "' +\n    '";
-            j = 0;
+            if (wdeTestPRString.charAt(i-1) != "\\") {
+	            retStr += "' +\n    '";
+	            j = 0;
+            }
         }
         if (wdeTestPRString.charAt(i) == "\n") {
             retStr += "\\n";
@@ -446,6 +452,44 @@ function wdeTestPRStringAsFunction2() {
     wdeShowTab('tab7','WDE_settings');
 }
 
+function wdeTestPRStringAsFunction3() {
+    if (wdeTestPRString == "") {
+        return;
+    }
+    var retStr = "function wdeTestDataString_000() {\n    var str = '";
+    var j = 10;
+    for (var i = 0 ; i < wdeTestPRString.length ; i++) {
+        if (j > 59) {
+            if (wdeTestPRString.charAt(i-1) != "\\") {
+                retStr += "' +\n    '";
+                j = 0;
+            }
+        }
+        if (wdeTestPRString.charAt(i) == "\n") {
+            retStr += "\\n";
+            j++;
+        } else if (wdeTestPRString.charAt(i) == "<") {
+            retStr += "&lt;";
+        } else if (wdeTestPRString.charAt(i) == ">") {
+            retStr += "&gt;";
+        } else if (wdeTestPRString.charAt(i) == "&") {
+            retStr += "&amp;";
+        } else if (wdeTestPRString.charAt(i) == "\\") {
+            retStr += "\\\\";
+            j++;
+        } else if (wdeTestPRString.charAt(i) == "'") {
+            retStr += "\\'";
+            j++;
+        } else{
+            retStr += wdeTestPRString.charAt(i);
+        }
+        j++;
+    }
+    retStr += "';\n    return str;\n}\n";
+    
+    window.frames['WDE_TEST_OUT'].document.body.innerHTML = "<pre>\n" + retStr + "\n</pre>";
+    wdeShowTab('tab7','WDE_settings');
+}
 
 function wdeTestLoadLargeGeneBank() {
     var seq = wdeTestStringLargeGeneBank();
@@ -13790,6 +13834,258 @@ function wdeTestDataString_032() {
     "rgHisSerLeuGluAla***\n\n</pre>";
     return str;
 }
+
+function wdeTestDataString_033() {
+    var str = "<table border=\"0\"><tbody><tr><th style=\"text-al" +
+    "ign: left\">Show&nbsp;&nbsp;</th><th style=\"text-align: lef" +
+    "t\">Type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs" +
+    "p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs" +
+    "p;&nbsp;&nbsp;</th><th style=\"text-align: left\">Tag&nbsp;&" +
+    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;</th><th style=\"text-align: left\">Orientation&nbsp;&n" +
+    "bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th><th style=\"text-alig" +
+    "n: left\">Location</th></tr>\n<tr>\n<td style=\"text-align: " +
+    "center; background-color:#ff3333\"><input id=\"WDE_FEA_0\" o" +
+    "nclick=\"parent.wdeSelFeatures(this, 0)\" checked=\"\" type=" +
+    "\"checkbox\"></td><td style=\"background-color:#ff3333\" onc" +
+    "lick=\"parent.wdeFeatFocUpdate(0)\">gene</td><td style=\"bac" +
+    "kground-color:#ff3333\" onclick=\"parent.wdeFeatFocUpdate(0)" +
+    "\">Core-Antigen</td><td style=\"background-color:#ff3333\" o" +
+    "nclick=\"parent.wdeFeatFocUpdate(0)\">Forward</td><td style=" +
+    "\"background-color:#ff3333\" onclick=\"parent.wdeFeatFocUpda" +
+    "te(0)\">1..552</td></tr>\n<tr>\n<td style=\"text-align: cent" +
+    "er; background-color:#2db300\"><input id=\"WDE_FEA_1\" oncli" +
+    "ck=\"parent.wdeSelFeatures(this, 1)\" checked=\"\" type=\"ch" +
+    "eckbox\"></td><td style=\"background-color:#2db300\" onclick" +
+    "=\"parent.wdeFeatFocUpdate(1)\">CDS</td><td style=\"backgrou" +
+    "nd-color:#ffff00\" onclick=\"parent.wdeFeatFocUpdate(1)\">Co" +
+    "re-Antigen</td><td style=\"background-color:#ffff00\" onclic" +
+    "k=\"parent.wdeFeatFocUpdate(1)\">Forward</td><td style=\"bac" +
+    "kground-color:#ffff00\" onclick=\"parent.wdeFeatFocUpdate(1)" +
+    "\">1..552</td></tr>\n<tr>\n<td style=\"text-align: center; b" +
+    "ackground-color:#ff3333\"><input id=\"WDE_FEA_2\" onclick=\"" +
+    "parent.wdeSelFeatures(this, 2)\" checked=\"\" type=\"checkbo" +
+    "x\"></td><td style=\"background-color:#ff3333\" onclick=\"pa" +
+    "rent.wdeFeatFocUpdate(2)\">gene</td><td style=\"background-c" +
+    "olor:#ff3333\" onclick=\"parent.wdeFeatFocUpdate(2)\">Polyme" +
+    "rase</td><td style=\"background-color:#ff3333\" onclick=\"pa" +
+    "rent.wdeFeatFocUpdate(2)\">Forward</td><td style=\"backgroun" +
+    "d-color:#ff3333\" onclick=\"parent.wdeFeatFocUpdate(2)\">407" +
+    "..2905</td></tr>\n<tr>\n<td style=\"text-align: center; back" +
+    "ground-color:#2db300\"><input id=\"WDE_FEA_3\" onclick=\"par" +
+    "ent.wdeSelFeatures(this, 3)\" checked=\"\" type=\"checkbox\"" +
+    "></td><td style=\"background-color:#2db300\" onclick=\"paren" +
+    "t.wdeFeatFocUpdate(3)\">CDS</td><td style=\"background-color" +
+    ":#6464ff\" onclick=\"parent.wdeFeatFocUpdate(3)\">Polymerase" +
+    "</td><td style=\"background-color:#6464ff\" onclick=\"parent" +
+    ".wdeFeatFocUpdate(3)\">Forward</td><td style=\"background-co" +
+    "lor:#6464ff\" onclick=\"parent.wdeFeatFocUpdate(3)\">407..29" +
+    "05</td></tr>\n<tr>\n<td style=\"text-align: center; backgrou" +
+    "nd-color:#ff3333\"><input id=\"WDE_FEA_4\" onclick=\"parent." +
+    "wdeSelFeatures(this, 4)\" checked=\"\" type=\"checkbox\"></t" +
+    "d><td style=\"background-color:#ff3333\" onclick=\"parent.wd" +
+    "eFeatFocUpdate(4)\">gene</td><td style=\"background-color:#f" +
+    "f3333\" onclick=\"parent.wdeFeatFocUpdate(4)\">S-Antigen</td" +
+    "><td style=\"background-color:#ff3333\" onclick=\"parent.wde" +
+    "FeatFocUpdate(4)\">Forward</td><td style=\"background-color:" +
+    "#ff3333\" onclick=\"parent.wdeFeatFocUpdate(4)\">1437..2117<" +
+    "/td></tr>\n<tr>\n<td style=\"text-align: center; background-" +
+    "color:#2db300\"><input id=\"WDE_FEA_5\" onclick=\"parent.wde" +
+    "SelFeatures(this, 5)\" checked=\"\" type=\"checkbox\"></td><" +
+    "td style=\"background-color:#2db300\" onclick=\"parent.wdeFe" +
+    "atFocUpdate(5)\">CDS</td><td style=\"background-color:#2db30" +
+    "0\" onclick=\"parent.wdeFeatFocUpdate(5)\">S-Antigen</td><td" +
+    " style=\"background-color:#2db300\" onclick=\"parent.wdeFeat" +
+    "FocUpdate(5)\">Forward</td><td style=\"background-color:#2db" +
+    "300\" onclick=\"parent.wdeFeatFocUpdate(5)\">1437..2117</td>" +
+    "</tr>\n</tbody></table>";
+    return str;
+}
+
+function wdeTestDataString_034() {
+    var str = "<table border=\"0\"><tbody><tr><th style=\"text-al" +
+    "ign: left\">Show&nbsp;&nbsp;</th><th style=\"text-align: lef" +
+    "t\">Type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs" +
+    "p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs" +
+    "p;&nbsp;&nbsp;</th><th style=\"text-align: left\">Tag&nbsp;&" +
+    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;</th><th style=\"text-align: left\">Orientation&nbsp;&n" +
+    "bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th><th style=\"text-alig" +
+    "n: left\">Location</th></tr>\n<tr>\n<td style=\"text-align: " +
+    "center; background-color:#ff3333\"><input type=\"checkbox\" " +
+    "id=\"WDE_FEA_0\" onclick=\"parent.wdeSelFeatures(this, 0)\" " +
+    "checked=\"\"></td><td style=\"background-color:#ff3333\" onc" +
+    "lick=\"parent.wdeFeatFocUpdate(0)\">gene</td><td style=\"bac" +
+    "kground-color:#ff3333\" onclick=\"parent.wdeFeatFocUpdate(0)" +
+    "\">Core-Antigen</td><td style=\"background-color:#ff3333\" o" +
+    "nclick=\"parent.wdeFeatFocUpdate(0)\">Forward</td><td style=" +
+    "\"background-color:#ff3333\" onclick=\"parent.wdeFeatFocUpda" +
+    "te(0)\">1..552</td></tr>\n<tr>\n<td style=\"text-align: cent" +
+    "er; background-color:#2db300\"><input type=\"checkbox\" id=\"" +
+    "WDE_FEA_1\" onclick=\"parent.wdeSelFeatures(this, 1)\" check" +
+    "ed=\"\"></td><td style=\"background-color:#2db300\" onclick=" +
+    "\"parent.wdeFeatFocUpdate(1)\">CDS</td><td style=\"backgroun" +
+    "d-color:#ffff00\" onclick=\"parent.wdeFeatFocUpdate(1)\">Cor" +
+    "e-Antigen</td><td style=\"background-color:#ffff00\" onclick" +
+    "=\"parent.wdeFeatFocUpdate(1)\">Forward</td><td style=\"back" +
+    "ground-color:#ffff00\" onclick=\"parent.wdeFeatFocUpdate(1)\"" +
+    ">1..552</td></tr>\n<tr>\n<td style=\"text-align: center; bac" +
+    "kground-color:#ff3333\"><input type=\"checkbox\" id=\"WDE_FE" +
+    "A_2\" onclick=\"parent.wdeSelFeatures(this, 2)\" checked=\"\"" +
+    "></td><td style=\"background-color:#ff3333\" onclick=\"paren" +
+    "t.wdeFeatFocUpdate(2)\">gene</td><td style=\"background-colo" +
+    "r:#ff3333\" onclick=\"parent.wdeFeatFocUpdate(2)\">Polymeras" +
+    "e</td><td style=\"background-color:#ff3333\" onclick=\"paren" +
+    "t.wdeFeatFocUpdate(2)\">Forward</td><td style=\"background-c" +
+    "olor:#ff3333\" onclick=\"parent.wdeFeatFocUpdate(2)\">407..2" +
+    "905</td></tr>\n<tr>\n<td style=\"text-align: center; backgro" +
+    "und-color:#2db300\"><input type=\"checkbox\" id=\"WDE_FEA_3\"" +
+    " onclick=\"parent.wdeSelFeatures(this, 3)\" checked=\"\"></t" +
+    "d><td style=\"background-color:#2db300\" onclick=\"parent.wd" +
+    "eFeatFocUpdate(3)\">CDS</td><td style=\"background-color:#64" +
+    "64ff\" onclick=\"parent.wdeFeatFocUpdate(3)\">Polymerase</td" +
+    "><td style=\"background-color:#6464ff\" onclick=\"parent.wde" +
+    "FeatFocUpdate(3)\">Forward</td><td style=\"background-color:" +
+    "#6464ff\" onclick=\"parent.wdeFeatFocUpdate(3)\">407..2905</" +
+    "td></tr>\n<tr>\n<td style=\"text-align: center; background-c" +
+    "olor:#ff3333\"><input type=\"checkbox\" id=\"WDE_FEA_4\" onc" +
+    "lick=\"parent.wdeSelFeatures(this, 4)\" checked=\"\"></td><t" +
+    "d style=\"background-color:#ff3333\" onclick=\"parent.wdeFea" +
+    "tFocUpdate(4)\">gene</td><td style=\"background-color:#ff333" +
+    "3\" onclick=\"parent.wdeFeatFocUpdate(4)\">S-Antigen</td><td" +
+    " style=\"background-color:#ff3333\" onclick=\"parent.wdeFeat" +
+    "FocUpdate(4)\">Forward</td><td style=\"background-color:#ff3" +
+    "333\" onclick=\"parent.wdeFeatFocUpdate(4)\">1437..2117</td>" +
+    "</tr>\n<tr>\n<td style=\"text-align: center; background-colo" +
+    "r:#2db300\"><input type=\"checkbox\" id=\"WDE_FEA_5\" onclic" +
+    "k=\"parent.wdeSelFeatures(this, 5)\" checked=\"\"></td><td s" +
+    "tyle=\"background-color:#2db300\" onclick=\"parent.wdeFeatFo" +
+    "cUpdate(5)\">CDS</td><td style=\"background-color:#2db300\" " +
+    "onclick=\"parent.wdeFeatFocUpdate(5)\">S-Antigen</td><td sty" +
+    "le=\"background-color:#2db300\" onclick=\"parent.wdeFeatFocU" +
+    "pdate(5)\">Forward</td><td style=\"background-color:#2db300\"" +
+    " onclick=\"parent.wdeFeatFocUpdate(5)\">1437..2117</td></tr>" +
+    "\n</tbody></table>";
+    return str;
+}
+
+function wdeTestDataString_035() {
+    var str = "<table border=\"0\"><tbody><tr><th style=\"text-al" +
+    "ign: left\">Show&nbsp;&nbsp;</th><th style=\"text-align: lef" +
+    "t\">Type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs" +
+    "p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs" +
+    "p;&nbsp;&nbsp;</th><th style=\"text-align: left\">Tag&nbsp;&" +
+    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;</th><th style=\"text-align: left\">Orientation&nbsp;&n" +
+    "bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th><th style=\"text-alig" +
+    "n: left\">Location</th></tr>\n<tr>\n<td style=\"text-align: " +
+    "center; background-color:#ff3333\"><input id=\"WDE_FEA_0\" o" +
+    "nclick=\"parent.wdeSelFeatures(this, 0)\" type=\"checkbox\" " +
+    "checked=\"\"></td><td style=\"background-color:#ff3333\" onc" +
+    "lick=\"parent.wdeFeatFocUpdate(0)\">gene</td><td style=\"bac" +
+    "kground-color:#ff3333\" onclick=\"parent.wdeFeatFocUpdate(0)" +
+    "\">Core-Antigen</td><td style=\"background-color:#ff3333\" o" +
+    "nclick=\"parent.wdeFeatFocUpdate(0)\">Forward</td><td style=" +
+    "\"background-color:#ff3333\" onclick=\"parent.wdeFeatFocUpda" +
+    "te(0)\">1..552</td></tr>\n<tr>\n<td style=\"text-align: cent" +
+    "er; background-color:#2db300\"><input id=\"WDE_FEA_1\" oncli" +
+    "ck=\"parent.wdeSelFeatures(this, 1)\" type=\"checkbox\" chec" +
+    "ked=\"\"></td><td style=\"background-color:#2db300\" onclick" +
+    "=\"parent.wdeFeatFocUpdate(1)\">CDS</td><td style=\"backgrou" +
+    "nd-color:#ffff00\" onclick=\"parent.wdeFeatFocUpdate(1)\">Co" +
+    "re-Antigen</td><td style=\"background-color:#ffff00\" onclic" +
+    "k=\"parent.wdeFeatFocUpdate(1)\">Forward</td><td style=\"bac" +
+    "kground-color:#ffff00\" onclick=\"parent.wdeFeatFocUpdate(1)" +
+    "\">1..552</td></tr>\n<tr>\n<td style=\"text-align: center; b" +
+    "ackground-color:#ff3333\"><input id=\"WDE_FEA_2\" onclick=\"" +
+    "parent.wdeSelFeatures(this, 2)\" type=\"checkbox\" checked=\"" +
+    "\"></td><td style=\"background-color:#ff3333\" onclick=\"par" +
+    "ent.wdeFeatFocUpdate(2)\">gene</td><td style=\"background-co" +
+    "lor:#ff3333\" onclick=\"parent.wdeFeatFocUpdate(2)\">Polymer" +
+    "ase</td><td style=\"background-color:#ff3333\" onclick=\"par" +
+    "ent.wdeFeatFocUpdate(2)\">Forward</td><td style=\"background" +
+    "-color:#ff3333\" onclick=\"parent.wdeFeatFocUpdate(2)\">407." +
+    ".2905</td></tr>\n<tr>\n<td style=\"text-align: center; backg" +
+    "round-color:#2db300\"><input id=\"WDE_FEA_3\" onclick=\"pare" +
+    "nt.wdeSelFeatures(this, 3)\" type=\"checkbox\" checked=\"\">" +
+    "</td><td style=\"background-color:#2db300\" onclick=\"parent" +
+    ".wdeFeatFocUpdate(3)\">CDS</td><td style=\"background-color:" +
+    "#6464ff\" onclick=\"parent.wdeFeatFocUpdate(3)\">Polymerase<" +
+    "/td><td style=\"background-color:#6464ff\" onclick=\"parent." +
+    "wdeFeatFocUpdate(3)\">Forward</td><td style=\"background-col" +
+    "or:#6464ff\" onclick=\"parent.wdeFeatFocUpdate(3)\">407..290" +
+    "5</td></tr>\n<tr>\n<td style=\"text-align: center; backgroun" +
+    "d-color:#ff3333\"><input id=\"WDE_FEA_4\" onclick=\"parent.w" +
+    "deSelFeatures(this, 4)\" type=\"checkbox\" checked=\"\"></td" +
+    "><td style=\"background-color:#ff3333\" onclick=\"parent.wde" +
+    "FeatFocUpdate(4)\">gene</td><td style=\"background-color:#ff" +
+    "3333\" onclick=\"parent.wdeFeatFocUpdate(4)\">S-Antigen</td>" +
+    "<td style=\"background-color:#ff3333\" onclick=\"parent.wdeF" +
+    "eatFocUpdate(4)\">Forward</td><td style=\"background-color:#" +
+    "ff3333\" onclick=\"parent.wdeFeatFocUpdate(4)\">1437..2117</" +
+    "td></tr>\n<tr>\n<td style=\"text-align: center; background-c" +
+    "olor:#2db300\"><input id=\"WDE_FEA_5\" onclick=\"parent.wdeS" +
+    "elFeatures(this, 5)\" type=\"checkbox\" checked=\"\"></td><t" +
+    "d style=\"background-color:#2db300\" onclick=\"parent.wdeFea" +
+    "tFocUpdate(5)\">CDS</td><td style=\"background-color:#2db300" +
+    "\" onclick=\"parent.wdeFeatFocUpdate(5)\">S-Antigen</td><td " +
+    "style=\"background-color:#2db300\" onclick=\"parent.wdeFeatF" +
+    "ocUpdate(5)\">Forward</td><td style=\"background-color:#2db3" +
+    "00\" onclick=\"parent.wdeFeatFocUpdate(5)\">1437..2117</td><" +
+    "/tr>\n</tbody></table>";
+    return str;
+}
+
+function wdeTestDataString_036() {
+    var str = '[["gene","1..552","Core-Antigen","E","D","D","D","' +
+    '","/gene=\\"Core-Antigen\\"\\n",1],["CDS","1..552","Core-Ant' +
+    'igen","E","ffff00","ffff00","D","/note=\\"\\"","/note=\\"Spa' +
+    'cer for note information\\"\\n/gene=\\"Core-Antigen\\"\\n/co' +
+    'don_start=1\\n/transl_table=11\\n/product=\\"Core-Antigen\\"' +
+    '\\n/translation=\\"MDIDPYKEFGATVELLSFLPSDFFPSVRDLLDTASALYREA' +
+    'LES\\nPEHCSPHHTALRQAILCWGELMTLATWVGVNLEDPASRDLVVSYVNTNMGLKFR' +
+    'QLLW\\nFHISCLTFGRETVIEYLVSFGVWIRTPPAYRPPNAPILSTLPETTVVRRRGRS' +
+    'PRRRT\\nPSPRRRRSQSPRRRRSQSRESQC\\"\\n",1],["gene","407..2905' +
+    '","Polymerase","E","D","D","D","","/gene=\\"Polymerase\\"\\n' +
+    '",1],["CDS","407..2905","Polymerase","E","6464ff","6464ff","' +
+    'D","/note=\\"\\"","/note=\\"Spacer for note information\\"\\n' +
+    '/gene=\\"Polymerase\\"\\n/codon_start=1\\n/transl_table=11\\n' +
+    '/product=\\"Polymerase\\"\\n/translation=\\"MPLSYQHFRRLLLLDD' +
+    'EAGPLEEELPRLADEGLNRRVAEDLNLG\\nNLNVSIPWTHKVGNFTGLYSSTVPVFNPH' +
+    'WKTPSFPNIHLHQDIIKKCEQFVGPLTVN\\nEKRRLQLIMPARFYPKVTKYLPLDKGIK' +
+    'PYYPEHLVNHYFQTRHYLHTLWKAGILYKR\\nETTHSASFCGSPYSWEQDLQHGAESFH' +
+    'QQSSGILSRPPVGSSLQSKHRKSRLGLQSQQ\\nGHLARRQQGRSWSIRAGFHPTARRPF' +
+    'GVEPSGSGHTTNFASKSASCLHQSPVRKAAYP\\nAVSTFEKHSSSGHAVEFHNLPPNSA' +
+    'RSQSERPVFPCWWLQFRNSKPCSDYCLSLIVNL\\nLEDWGPCAEHGEHHIRIPRTPSRV' +
+    'TGGVFLVDKNPHNTAESRLVVDFSQFSRGNYRVS\\nWPKFAVPNLQSLTNLLSSNLSWL' +
+    'SLDVSAAFYHLPLHPAAMPHLLVGSSGLSRYVARL\\nSSNSRILNNQHGTMPDLHDYCS' +
+    'RNLYVSLLLLYQTFGRKLHLYSHPIILGFRKIPMGV\\nGLSPFLLAQFTSAICSVVRRA' +
+    'FPHCLAFSYMDDVVLGAKSVQHLESLFTAVTNFLLSL\\nGIHLNPNKTKRWGYSLNFMG' +
+    'YVIGCYGSLPQEHIIQKIKECFRKLPINRPIDWKVCQR\\nIVGLLGFAAPFTQCGYPAL' +
+    'MPLYACIQSKQAFTFSPTYKAFLCKQYLNLYPVARQRPG\\nLCQVFADATPTGWGLVMG' +
+    'HQRMRGTFSAPLPIHTAELLAACFARSRSGANIIGTDNSV\\nVLSRKYTSFPWLLGCAA' +
+    'NWILRGTSFVYVPSALNPADDPSRGRLGLSRPLLRLPFRPT\\nTGRTSLYADSPSVPSH' +
+    'LPDRVHFASPLHVAWRPP\\"\\n",1],["gene","1437..2117","S-Antigen' +
+    '","E","D","D","D","","/gene=\\"S-Antigen\\"\\n",1],["CDS","1' +
+    '437..2117","S-Antigen","E","D","D","D","","/gene=\\"S-Antige' +
+    'n\\"\\n/codon_start=1\\n/transl_table=11\\n/product=\\"S-Ant' +
+    'igen\\"\\n/translation=\\"MENITSGFLGPLLVLQAGFFLLTRILTIPQSLDS' +
+    'WWTSLNFLGG\\nTTVCLGQNSQSPTSNHSPTSCPPTCPGYRWMCLRRFIIFLFILLLCL' +
+    'IFLLVLLDYQG\\nMLPVCPLIPGSSTTSTGPCRTCMTTAQGTSMYPSCCCTKPSDGNCT' +
+    'CIPIPSSWAFGK\\nFLWEWASARFSWLSLLVPFVQWFVGLSPTVWLSVIWMMWYWGPSL' +
+    'YSILSPFLPLLPI\\nFFCLWVYI\\"\\n",1]]';
+    return str;
+}
+
 
 
 
