@@ -238,7 +238,19 @@ function wdeTestAll() {
     wdeTestOutCompString(wdeTestDataString_025(), currentTestOut[0]);
     wdeTGDigShowFeatures(1,0);
 
+    wdeTestAddToOutput("wdeDigList() - ");
+    wdeDigList();
+    wdeTestOutCompString(wdeTestDataString_026(), window.frames['WDE_DIGEST'].document.body.innerHTML);
 
+    wdeTestAddToOutput("wdeDigCreateSVG() with grey bands - ");
+    wdeTestOutCompString(wdeTestDataString_027(), wdeDigCreateSVG());
+ 
+    wdeTestAddToOutput("wdeDigCreateSVG() with black bands - ");
+    wdeTGDigGelBandBlack(1,0);
+    wdeTestOutCompString(wdeTestDataString_028(), wdeDigCreateSVG());
+    wdeTGDigGelBandBlack(0,0);
+
+    wdeTestAddToOutput("\nTest Translate Functions:\n\n");
 
 
 
@@ -11800,6 +11812,403 @@ function wdeTestDataString_025() {
     "troke-width:5;fill:none' /><text x='-126' y='-838' font-fami" +
     "ly='Courier' font-size='40' fill='#000000' text-anchor='end'" +
     ">3084 FspI(1)</text></svg>";
+    return str;
+}
+
+function wdeTestDataString_026() {
+    var str = "<table border=\"0\"><tbody><tr><th>Fragment Length" +
+    "&nbsp;&nbsp;</th><th>Enzyme 1&nbsp;&nbsp;</th><th>Cut Site 1" +
+    "&nbsp;&nbsp;</th><th>Enzyme 2&nbsp;&nbsp;</th><th>Cut Site 2" +
+    "&nbsp;&nbsp;</th><th>Band Weight&nbsp;&nbsp;</th></tr>\n<tr>" +
+    "<td style=\"text-align:right\">261&nbsp;&nbsp;&nbsp;&nbsp;&n" +
+    "bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp" +
+    ";&nbsp;&nbsp;MscI(1)</td><td style=\"text-align:right\">1585" +
+    "&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;BciVI(1)</td><t" +
+    "d style=\"text-align:right\">1846&nbsp;&nbsp;&nbsp;</td><td " +
+    "style=\"text-align:right\">41.01 ng&nbsp;&nbsp;&nbsp;</td></" +
+    "tr>\n<tr><td style=\"text-align:right\">257&nbsp;&nbsp;&nbsp" +
+    ";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>" +
+    "<td>&nbsp;&nbsp;&nbsp;PsiI(1)</td><td style=\"text-align:rig" +
+    "ht\">17&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;MslI(1)<" +
+    "/td><td style=\"text-align:right\">274&nbsp;&nbsp;&nbsp;</td" +
+    "><td style=\"text-align:right\">40.38 ng&nbsp;&nbsp;&nbsp;</" +
+    "td></tr>\n<tr><td style=\"text-align:right\">230&nbsp;&nbsp;" +
+    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+    "</td><td>&nbsp;&nbsp;&nbsp;PshAI(1)</td><td style=\"text-ali" +
+    "gn:right\">498&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;M" +
+    "feI(1)</td><td style=\"text-align:right\">728&nbsp;&nbsp;&nb" +
+    "sp;</td><td style=\"text-align:right\">36.14 ng&nbsp;&nbsp;&" +
+    "nbsp;</td></tr>\n<tr><td style=\"text-align:right\">210&nbsp" +
+    ";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp" +
+    ";&nbsp;</td><td>&nbsp;&nbsp;&nbsp;BstZ17I(1)</td><td style=\"" +
+    "text-align:right\">2108&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbs" +
+    "p;&nbsp;DraIII(1)</td><td style=\"text-align:right\">2318&nb" +
+    "sp;&nbsp;&nbsp;</td><td style=\"text-align:right\">33.00 ng&" +
+    "nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td style=\"text-align:righ" +
+    "t\">187&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp" +
+    ";&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;MunI(1)</td><t" +
+    "d style=\"text-align:right\">728&nbsp;&nbsp;&nbsp;</td><td>&" +
+    "nbsp;&nbsp;&nbsp;Tsp45I(1)</td><td style=\"text-align:right\"" +
+    ">915&nbsp;&nbsp;&nbsp;</td><td style=\"text-align:right\">29" +
+    ".38 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td style=\"text-ali" +
+    "gn:right\">183&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs" +
+    "p;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;Tsp45I(" +
+    "1)</td><td style=\"text-align:right\">915&nbsp;&nbsp;&nbsp;<" +
+    "/td><td>&nbsp;&nbsp;&nbsp;BsmI(1)</td><td style=\"text-align" +
+    ":right\">1098&nbsp;&nbsp;&nbsp;</td><td style=\"text-align:r" +
+    "ight\">28.76 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td style=\"" +
+    "text-align:right\">155&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n" +
+    "bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp" +
+    ";MslI(1)</td><td style=\"text-align:right\">274&nbsp;&nbsp;&" +
+    "nbsp;</td><td>&nbsp;&nbsp;&nbsp;BsaWI(1)</td><td style=\"tex" +
+    "t-align:right\">429&nbsp;&nbsp;&nbsp;</td><td style=\"text-a" +
+    "lign:right\">24.36 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td s" +
+    "tyle=\"text-align:right\">131&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbs" +
+    "p;&nbsp;AatII(1)</td><td style=\"text-align:right\">2699&nbs" +
+    "p;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;AhdI(1)</td><td sty" +
+    "le=\"text-align:right\">2830&nbsp;&nbsp;&nbsp;</td><td style" +
+    "=\"text-align:right\">20.58 ng&nbsp;&nbsp;&nbsp;</td></tr>\n" +
+    "<tr><td style=\"text-align:right\">128&nbsp;&nbsp;&nbsp;&nbs" +
+    "p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&" +
+    "nbsp;&nbsp;&nbsp;BtsI(1)</td><td style=\"text-align:right\">" +
+    "1281&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;PaeR7I(1)</" +
+    "td><td style=\"text-align:right\">1409&nbsp;&nbsp;&nbsp;</td" +
+    "><td style=\"text-align:right\">20.11 ng&nbsp;&nbsp;&nbsp;</" +
+    "td></tr>\n<tr><td style=\"text-align:right\">127&nbsp;&nbsp;" +
+    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+    "</td><td>&nbsp;&nbsp;&nbsp;XmnI(1)</td><td style=\"text-alig" +
+    "n:right\">2527&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;N" +
+    "coI(1)</td><td style=\"text-align:right\">2654&nbsp;&nbsp;&n" +
+    "bsp;</td><td style=\"text-align:right\">19.96 ng&nbsp;&nbsp;" +
+    "&nbsp;</td></tr>\n<tr><td style=\"text-align:right\">123&nbs" +
+    "p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs" +
+    "p;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;BlnI(1)</td><td style=\"t" +
+    "ext-align:right\">1460&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp" +
+    ";&nbsp;EaeI(1)</td><td style=\"text-align:right\">1583&nbsp;" +
+    "&nbsp;&nbsp;</td><td style=\"text-align:right\">19.33 ng&nbs" +
+    "p;&nbsp;&nbsp;</td></tr>\n<tr><td style=\"text-align:right\"" +
+    ">118&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n" +
+    "bsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;BsrDI(1)</td><td " +
+    "style=\"text-align:right\">2966&nbsp;&nbsp;&nbsp;</td><td>&n" +
+    "bsp;&nbsp;&nbsp;FspI(1)</td><td style=\"text-align:right\">3" +
+    "084&nbsp;&nbsp;&nbsp;</td><td style=\"text-align:right\">18." +
+    "54 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td style=\"text-alig" +
+    "n:right\">115&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp" +
+    ";&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;FspI(1)<" +
+    "/td><td style=\"text-align:right\">3084&nbsp;&nbsp;&nbsp;</t" +
+    "d><td>&nbsp;&nbsp;&nbsp;PsiI(1)</td><td style=\"text-align:r" +
+    "ight\">17&nbsp;&nbsp;&nbsp;</td><td style=\"text-align:right" +
+    "\">18.07 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td style=\"tex" +
+    "t-align:right\">115&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp" +
+    ";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;Bc" +
+    "iVI(1)</td><td style=\"text-align:right\">1846&nbsp;&nbsp;&n" +
+    "bsp;</td><td>&nbsp;&nbsp;&nbsp;SpeI(1)</td><td style=\"text-" +
+    "align:right\">1961&nbsp;&nbsp;&nbsp;</td><td style=\"text-al" +
+    "ign:right\">18.07 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td st" +
+    "yle=\"text-align:right\">103&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n" +
+    "bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp" +
+    ";&nbsp;EciI(1)</td><td style=\"text-align:right\">1177&nbsp;" +
+    "&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;EcoRI(1)</td><td styl" +
+    "e=\"text-align:right\">1280&nbsp;&nbsp;&nbsp;</td><td style=" +
+    "\"text-align:right\">16.18 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<" +
+    "tr><td style=\"text-align:right\">89&nbsp;&nbsp;&nbsp;&nbsp;" +
+    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nb" +
+    "sp;&nbsp;&nbsp;SpeI(1)</td><td style=\"text-align:right\">19" +
+    "61&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;BsrGI(1)</td>" +
+    "<td style=\"text-align:right\">2050&nbsp;&nbsp;&nbsp;</td><t" +
+    "d style=\"text-align:right\">13.98 ng&nbsp;&nbsp;&nbsp;</td>" +
+    "</tr>\n<tr><td style=\"text-align:right\">85&nbsp;&nbsp;&nbs" +
+    "p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td" +
+    "><td>&nbsp;&nbsp;&nbsp;NsiI(1)</td><td style=\"text-align:ri" +
+    "ght\">2350&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;StyD4" +
+    "I(1)</td><td style=\"text-align:right\">2435&nbsp;&nbsp;&nbs" +
+    "p;</td><td style=\"text-align:right\">13.36 ng&nbsp;&nbsp;&n" +
+    "bsp;</td></tr>\n<tr><td style=\"text-align:right\">82&nbsp;&" +
+    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;</td><td>&nbsp;&nbsp;&nbsp;BmgBI(1)</td><td style=\"tex" +
+    "t-align:right\">2884&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&" +
+    "nbsp;BsrDI(1)</td><td style=\"text-align:right\">2966&nbsp;&" +
+    "nbsp;&nbsp;</td><td style=\"text-align:right\">12.88 ng&nbsp" +
+    ";&nbsp;&nbsp;</td></tr>\n<tr><td style=\"text-align:right\">" +
+    "81&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs" +
+    "p;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;ScrFI(1)</td><td st" +
+    "yle=\"text-align:right\">2437&nbsp;&nbsp;&nbsp;</td><td>&nbs" +
+    "p;&nbsp;&nbsp;SphI(1)</td><td style=\"text-align:right\">251" +
+    "8&nbsp;&nbsp;&nbsp;</td><td style=\"text-align:right\">12.73" +
+    " ng&nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td style=\"text-align:" +
+    "right\">69&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n" +
+    "bsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;MroI(1)</td" +
+    "><td style=\"text-align:right\">429&nbsp;&nbsp;&nbsp;</td><t" +
+    "d>&nbsp;&nbsp;&nbsp;PshAI(1)</td><td style=\"text-align:righ" +
+    "t\">498&nbsp;&nbsp;&nbsp;</td><td style=\"text-align:right\"" +
+    ">10.84 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td style=\"text-" +
+    "align:right\">57&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n" +
+    "bsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;BsrGI" +
+    "(1)</td><td style=\"text-align:right\">2050&nbsp;&nbsp;&nbsp" +
+    ";</td><td>&nbsp;&nbsp;&nbsp;AccI(1)</td><td style=\"text-ali" +
+    "gn:right\">2107&nbsp;&nbsp;&nbsp;</td><td style=\"text-align" +
+    ":right\">8.96 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td style=" +
+    "\"text-align:right\">51&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbs" +
+    "p;XhoI(1)</td><td style=\"text-align:right\">1409&nbsp;&nbsp" +
+    ";&nbsp;</td><td>&nbsp;&nbsp;&nbsp;AvrII(1)</td><td style=\"t" +
+    "ext-align:right\">1460&nbsp;&nbsp;&nbsp;</td><td style=\"tex" +
+    "t-align:right\">8.01 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td" +
+    " style=\"text-align:right\">51&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nb" +
+    "sp;&nbsp;BsmI(1)</td><td style=\"text-align:right\">1098&nbs" +
+    "p;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;BanII(1)</td><td st" +
+    "yle=\"text-align:right\">1149&nbsp;&nbsp;&nbsp;</td><td styl" +
+    "e=\"text-align:right\">8.01 ng&nbsp;&nbsp;&nbsp;</td></tr>\n" +
+    "<tr><td style=\"text-align:right\">43&nbsp;&nbsp;&nbsp;&nbsp" +
+    ";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&n" +
+    "bsp;&nbsp;&nbsp;NcoI(1)</td><td style=\"text-align:right\">2" +
+    "654&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;ZraI(1)</td>" +
+    "<td style=\"text-align:right\">2697&nbsp;&nbsp;&nbsp;</td><t" +
+    "d style=\"text-align:right\">6.76 ng&nbsp;&nbsp;&nbsp;</td><" +
+    "/tr>\n<tr><td style=\"text-align:right\">32&nbsp;&nbsp;&nbsp" +
+    ";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>" +
+    "<td>&nbsp;&nbsp;&nbsp;DraIII(1)</td><td style=\"text-align:r" +
+    "ight\">2318&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;NsiI" +
+    "(1)</td><td style=\"text-align:right\">2350&nbsp;&nbsp;&nbsp" +
+    ";</td><td style=\"text-align:right\">5.03 ng&nbsp;&nbsp;&nbs" +
+    "p;</td></tr>\n<tr><td style=\"text-align:right\">28&nbsp;&nb" +
+    "sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb" +
+    "sp;</td><td>&nbsp;&nbsp;&nbsp;BanII(1)</td><td style=\"text-" +
+    "align:right\">1149&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nb" +
+    "sp;EciI(1)</td><td style=\"text-align:right\">1177&nbsp;&nbs" +
+    "p;&nbsp;</td><td style=\"text-align:right\">4.40 ng&nbsp;&nb" +
+    "sp;&nbsp;</td></tr>\n<tr><td style=\"text-align:right\">24&n" +
+    "bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n" +
+    "bsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;AhdI(1)</td><td style=\"" +
+    "text-align:right\">2830&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbs" +
+    "p;&nbsp;RsrII(1)</td><td style=\"text-align:right\">2854&nbs" +
+    "p;&nbsp;&nbsp;</td><td style=\"text-align:right\">3.77 ng&nb" +
+    "sp;&nbsp;&nbsp;</td></tr>\n<tr><td style=\"text-align:right\"" +
+    ">19&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb" +
+    "sp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;BsiHKAI(1)</td><td" +
+    " style=\"text-align:right\">2865&nbsp;&nbsp;&nbsp;</td><td>&" +
+    "nbsp;&nbsp;&nbsp;BmgBI(1)</td><td style=\"text-align:right\"" +
+    ">2884&nbsp;&nbsp;&nbsp;</td><td style=\"text-align:right\">2" +
+    ".99 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td style=\"text-ali" +
+    "gn:right\">9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+    "&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;SphI(1)</" +
+    "td><td style=\"text-align:right\">2518&nbsp;&nbsp;&nbsp;</td" +
+    "><td>&nbsp;&nbsp;&nbsp;Asp700I(1)</td><td style=\"text-align" +
+    ":right\">2527&nbsp;&nbsp;&nbsp;</td><td style=\"text-align:r" +
+    "ight\">1.41 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td style=\"" +
+    "text-align:right\">7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs" +
+    "p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;R" +
+    "srII(1)</td><td style=\"text-align:right\">2854&nbsp;&nbsp;&" +
+    "nbsp;</td><td>&nbsp;&nbsp;&nbsp;ApaLI(1)</td><td style=\"tex" +
+    "t-align:right\">2861&nbsp;&nbsp;&nbsp;</td><td style=\"text-" +
+    "align:right\">1.10 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td s" +
+    "tyle=\"text-align:right\">4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb" +
+    "sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;" +
+    "&nbsp;ApaLI(1)</td><td style=\"text-align:right\">2861&nbsp;" +
+    "&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;BaeGI(1)</td><td styl" +
+    "e=\"text-align:right\">2865&nbsp;&nbsp;&nbsp;</td><td style=" +
+    "\"text-align:right\">0.63 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<t" +
+    "r><td style=\"text-align:right\">2&nbsp;&nbsp;&nbsp;&nbsp;&n" +
+    "bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp" +
+    ";&nbsp;&nbsp;ZraI(1)</td><td style=\"text-align:right\">2697" +
+    "&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;AatII(1)</td><t" +
+    "d style=\"text-align:right\">2699&nbsp;&nbsp;&nbsp;</td><td " +
+    "style=\"text-align:right\">0.31 ng&nbsp;&nbsp;&nbsp;</td></t" +
+    "r>\n<tr><td style=\"text-align:right\">2&nbsp;&nbsp;&nbsp;&n" +
+    "bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td" +
+    ">&nbsp;&nbsp;&nbsp;EaeI(1)</td><td style=\"text-align:right\"" +
+    ">1583&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;MscI(1)</t" +
+    "d><td style=\"text-align:right\">1585&nbsp;&nbsp;&nbsp;</td>" +
+    "<td style=\"text-align:right\">0.31 ng&nbsp;&nbsp;&nbsp;</td" +
+    "></tr>\n<tr><td style=\"text-align:right\">2&nbsp;&nbsp;&nbs" +
+    "p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td" +
+    "><td>&nbsp;&nbsp;&nbsp;StyD4I(1)</td><td style=\"text-align:" +
+    "right\">2435&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;Nci" +
+    "I(1)</td><td style=\"text-align:right\">2437&nbsp;&nbsp;&nbs" +
+    "p;</td><td style=\"text-align:right\">0.31 ng&nbsp;&nbsp;&nb" +
+    "sp;</td></tr>\n<tr><td style=\"text-align:right\">1&nbsp;&nb" +
+    "sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb" +
+    "sp;</td><td>&nbsp;&nbsp;&nbsp;AccI(1)</td><td style=\"text-a" +
+    "lign:right\">2107&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbs" +
+    "p;BstZ17I(1)</td><td style=\"text-align:right\">2108&nbsp;&n" +
+    "bsp;&nbsp;</td><td style=\"text-align:right\">0.16 ng&nbsp;&" +
+    "nbsp;&nbsp;</td></tr>\n<tr><td style=\"text-align:right\">1&" +
+    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;EcoRI(1)</td><td style" +
+    "=\"text-align:right\">1280&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&" +
+    "nbsp;&nbsp;BtsI(1)</td><td style=\"text-align:right\">1281&n" +
+    "bsp;&nbsp;&nbsp;</td><td style=\"text-align:right\">0.16 ng&" +
+    "nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td style=\"text-align:righ" +
+    "t\">0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;AvrII(1)</td><td" +
+    " style=\"text-align:right\">1460&nbsp;&nbsp;&nbsp;</td><td>&" +
+    "nbsp;&nbsp;&nbsp;BlnI(1)</td><td style=\"text-align:right\">" +
+    "1460&nbsp;&nbsp;&nbsp;</td><td style=\"text-align:right\">0." +
+    "00 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td style=\"text-alig" +
+    "n:right\">0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;BaeGI(1)</" +
+    "td><td style=\"text-align:right\">2865&nbsp;&nbsp;&nbsp;</td" +
+    "><td>&nbsp;&nbsp;&nbsp;BsiHKAI(1)</td><td style=\"text-align" +
+    ":right\">2865&nbsp;&nbsp;&nbsp;</td><td style=\"text-align:r" +
+    "ight\">0.00 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td style=\"" +
+    "text-align:right\">0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs" +
+    "p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;B" +
+    "saWI(1)</td><td style=\"text-align:right\">429&nbsp;&nbsp;&n" +
+    "bsp;</td><td>&nbsp;&nbsp;&nbsp;BspEI(1)</td><td style=\"text" +
+    "-align:right\">429&nbsp;&nbsp;&nbsp;</td><td style=\"text-al" +
+    "ign:right\">0.00 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td sty" +
+    "le=\"text-align:right\">0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp" +
+    ";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&n" +
+    "bsp;BspEI(1)</td><td style=\"text-align:right\">429&nbsp;&nb" +
+    "sp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;MroI(1)</td><td style=\"" +
+    "text-align:right\">429&nbsp;&nbsp;&nbsp;</td><td style=\"tex" +
+    "t-align:right\">0.00 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<tr><td" +
+    " style=\"text-align:right\">0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
+    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbs" +
+    "p;&nbsp;MfeI(1)</td><td style=\"text-align:right\">728&nbsp;" +
+    "&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;MunI(1)</td><td style" +
+    "=\"text-align:right\">728&nbsp;&nbsp;&nbsp;</td><td style=\"" +
+    "text-align:right\">0.00 ng&nbsp;&nbsp;&nbsp;</td></tr>\n<tr>" +
+    "<td style=\"text-align:right\">0&nbsp;&nbsp;&nbsp;&nbsp;&nbs" +
+    "p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&" +
+    "nbsp;&nbsp;NciI(1)</td><td style=\"text-align:right\">2437&n" +
+    "bsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;ScrFI(1)</td><td " +
+    "style=\"text-align:right\">2437&nbsp;&nbsp;&nbsp;</td><td st" +
+    "yle=\"text-align:right\">0.00 ng&nbsp;&nbsp;&nbsp;</td></tr>" +
+    "\n<tr><td style=\"text-align:right\">0&nbsp;&nbsp;&nbsp;&nbs" +
+    "p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&" +
+    "nbsp;&nbsp;&nbsp;PaeR7I(1)</td><td style=\"text-align:right\"" +
+    ">1409&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;XhoI(1)</t" +
+    "d><td style=\"text-align:right\">1409&nbsp;&nbsp;&nbsp;</td>" +
+    "<td style=\"text-align:right\">0.00 ng&nbsp;&nbsp;&nbsp;</td" +
+    "></tr>\n<tr><td style=\"text-align:right\">0&nbsp;&nbsp;&nbs" +
+    "p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td" +
+    "><td>&nbsp;&nbsp;&nbsp;Asp700I(1)</td><td style=\"text-align" +
+    ":right\">2527&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;Xm" +
+    "nI(1)</td><td style=\"text-align:right\">2527&nbsp;&nbsp;&nb" +
+    "sp;</td><td style=\"text-align:right\">0.00 ng&nbsp;&nbsp;&n" +
+    "bsp;</td></tr>\n</tbody></table>";
+    return str;
+}
+
+function wdeTestDataString_027() {
+    var str = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-" +
+    "800 -100 2080 1200'><text x='12' y='-50' font-family='Arial'" +
+    " font-size='40' fill='black'>Digest</text><text x='212' y='-" +
+    "50' font-family='Arial' font-size='40' fill='black'>Marker</" +
+    "text><rect x='0' y='-15' width='150' height='30' style='fill" +
+    ":white;stroke:black;stroke-width:5' /><rect x='200' y='-15' " +
+    "width='150' height='30' style='fill:white;stroke:black;strok" +
+    "e-width:5' /><line x1='210' y1='100' x2='340' y2='100' style" +
+    "='stroke:rgb(170,170,170);stroke-width:8' /><line x1='210' y" +
+    "1='143' x2='340' y2='143' style='stroke:rgb(170,170,170);str" +
+    "oke-width:8' /><line x1='210' y1='199' x2='340' y2='199' sty" +
+    "le='stroke:rgb(170,170,170);stroke-width:8' /><line x1='210'" +
+    " y1='235' x2='340' y2='235' style='stroke:rgb(170,170,170);s" +
+    "troke-width:8' /><line x1='210' y1='279' x2='340' y2='279' s" +
+    "tyle='stroke:rgb(170,170,170);stroke-width:8' /><line x1='21" +
+    "0' y1='335' x2='340' y2='335' style='stroke:rgb(0,0,0);strok" +
+    "e-width:8' /><line x1='210' y1='414' x2='340' y2='414' style" +
+    "='stroke:rgb(170,170,170);stroke-width:8' /><line x1='210' y" +
+    "1='470' x2='340' y2='470' style='stroke:rgb(170,170,170);str" +
+    "oke-width:8' /><line x1='210' y1='514' x2='340' y2='514' sty" +
+    "le='stroke:rgb(170,170,170);stroke-width:8' /><line x1='210'" +
+    " y1='550' x2='340' y2='550' style='stroke:rgb(0,0,0);stroke-" +
+    "width:8' /><line x1='210' y1='570' x2='340' y2='570' style='" +
+    "stroke:rgb(170,170,170);stroke-width:8' /><line x1='210' y1=" +
+    "'593' x2='340' y2='593' style='stroke:rgb(170,170,170);strok" +
+    "e-width:8' /><line x1='210' y1='619' x2='340' y2='619' style" +
+    "='stroke:rgb(170,170,170);stroke-width:8' /><line x1='210' y" +
+    "1='649' x2='340' y2='649' style='stroke:rgb(170,170,170);str" +
+    "oke-width:8' /><line x1='210' y1='685' x2='340' y2='685' sty" +
+    "le='stroke:rgb(0,0,0);stroke-width:8' /><line x1='210' y1='7" +
+    "29' x2='340' y2='729' style='stroke:rgb(170,170,170);stroke-" +
+    "width:8' /><line x1='210' y1='785' x2='340' y2='785' style='" +
+    "stroke:rgb(170,170,170);stroke-width:8' /><line x1='210' y1=" +
+    "'864' x2='340' y2='864' style='stroke:rgb(170,170,170);strok" +
+    "e-width:8' /><line x1='210' y1='1000' x2='340' y2='1000' sty" +
+    "le='stroke:rgb(170,170,170);stroke-width:8' /><line x1='10' " +
+    "y1='812' x2='140' y2='812' style='stroke:rgb(185,185,185);st" +
+    "roke-width:8' /><line x1='10' y1='815' x2='140' y2='815' sty" +
+    "le='stroke:rgb(187,187,187);stroke-width:8' /><line x1='10' " +
+    "y1='837' x2='140' y2='837' style='stroke:rgb(193,193,193);st" +
+    "roke-width:8' /><line x1='10' y1='855' x2='140' y2='855' sty" +
+    "le='stroke:rgb(198,198,198);stroke-width:8' /><line x1='10' " +
+    "y1='877' x2='140' y2='877' style='stroke:rgb(205,205,205);st" +
+    "roke-width:8' /><line x1='10' y1='881' x2='140' y2='881' sty" +
+    "le='stroke:rgb(207,207,207);stroke-width:8' /><line x1='10' " +
+    "y1='914' x2='140' y2='914' style='stroke:rgb(214,214,214);st" +
+    "roke-width:8' /><line x1='10' y1='947' x2='140' y2='947' sty" +
+    "le='stroke:rgb(221,221,221);stroke-width:8' /><line x1='10' " +
+    "y1='951' x2='140' y2='951' style='stroke:rgb(221,221,221);st" +
+    "roke-width:8' /><line x1='10' y1='953' x2='140' y2='953' sty" +
+    "le='stroke:rgb(222,222,222);stroke-width:8' /><line x1='10' " +
+    "y1='959' x2='140' y2='959' style='stroke:rgb(222,222,222);st" +
+    "roke-width:8' /><line x1='10' y1='967' x2='140' y2='967' sty" +
+    "le='stroke:rgb(224,224,224);stroke-width:8' /><line x1='10' " +
+    "y1='972' x2='140' y2='972' style='stroke:rgb(193,193,193);st" +
+    "roke-width:8' /><line x1='10' y1='994' x2='140' y2='994' sty" +
+    "le='stroke:rgb(227,227,227);stroke-width:8' /></svg>";
+    return str;
+}
+
+function wdeTestDataString_028() {
+    var str = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-" +
+    "800 -100 2080 1200'><text x='12' y='-50' font-family='Arial'" +
+    " font-size='40' fill='black'>Digest</text><text x='212' y='-" +
+    "50' font-family='Arial' font-size='40' fill='black'>Marker</" +
+    "text><rect x='0' y='-15' width='150' height='30' style='fill" +
+    ":white;stroke:black;stroke-width:5' /><rect x='200' y='-15' " +
+    "width='150' height='30' style='fill:white;stroke:black;strok" +
+    "e-width:5' /><line x1='210' y1='100' x2='340' y2='100' style" +
+    "='stroke:rgb(0,0,0);stroke-width:8' /><line x1='210' y1='143" +
+    "' x2='340' y2='143' style='stroke:rgb(0,0,0);stroke-width:8'" +
+    " /><line x1='210' y1='199' x2='340' y2='199' style='stroke:r" +
+    "gb(0,0,0);stroke-width:8' /><line x1='210' y1='235' x2='340'" +
+    " y2='235' style='stroke:rgb(0,0,0);stroke-width:8' /><line x" +
+    "1='210' y1='279' x2='340' y2='279' style='stroke:rgb(0,0,0);" +
+    "stroke-width:8' /><line x1='210' y1='335' x2='340' y2='335' " +
+    "style='stroke:rgb(0,0,0);stroke-width:8' /><line x1='210' y1" +
+    "='414' x2='340' y2='414' style='stroke:rgb(0,0,0);stroke-wid" +
+    "th:8' /><line x1='210' y1='470' x2='340' y2='470' style='str" +
+    "oke:rgb(0,0,0);stroke-width:8' /><line x1='210' y1='514' x2=" +
+    "'340' y2='514' style='stroke:rgb(0,0,0);stroke-width:8' /><l" +
+    "ine x1='210' y1='550' x2='340' y2='550' style='stroke:rgb(0," +
+    "0,0);stroke-width:8' /><line x1='210' y1='570' x2='340' y2='" +
+    "570' style='stroke:rgb(0,0,0);stroke-width:8' /><line x1='21" +
+    "0' y1='593' x2='340' y2='593' style='stroke:rgb(0,0,0);strok" +
+    "e-width:8' /><line x1='210' y1='619' x2='340' y2='619' style" +
+    "='stroke:rgb(0,0,0);stroke-width:8' /><line x1='210' y1='649" +
+    "' x2='340' y2='649' style='stroke:rgb(0,0,0);stroke-width:8'" +
+    " /><line x1='210' y1='685' x2='340' y2='685' style='stroke:r" +
+    "gb(0,0,0);stroke-width:8' /><line x1='210' y1='729' x2='340'" +
+    " y2='729' style='stroke:rgb(0,0,0);stroke-width:8' /><line x" +
+    "1='210' y1='785' x2='340' y2='785' style='stroke:rgb(0,0,0);" +
+    "stroke-width:8' /><line x1='210' y1='864' x2='340' y2='864' " +
+    "style='stroke:rgb(0,0,0);stroke-width:8' /><line x1='210' y1" +
+    "='1000' x2='340' y2='1000' style='stroke:rgb(0,0,0);stroke-w" +
+    "idth:8' /><line x1='10' y1='812' x2='140' y2='812' style='st" +
+    "roke:rgb(0,0,0);stroke-width:8' /><line x1='10' y1='815' x2=" +
+    "'140' y2='815' style='stroke:rgb(0,0,0);stroke-width:8' /><l" +
+    "ine x1='10' y1='837' x2='140' y2='837' style='stroke:rgb(0,0" +
+    ",0);stroke-width:8' /><line x1='10' y1='855' x2='140' y2='85" +
+    "5' style='stroke:rgb(0,0,0);stroke-width:8' /><line x1='10' " +
+    "y1='877' x2='140' y2='877' style='stroke:rgb(0,0,0);stroke-w" +
+    "idth:8' /><line x1='10' y1='881' x2='140' y2='881' style='st" +
+    "roke:rgb(0,0,0);stroke-width:8' /><line x1='10' y1='914' x2=" +
+    "'140' y2='914' style='stroke:rgb(0,0,0);stroke-width:8' /><l" +
+    "ine x1='10' y1='947' x2='140' y2='947' style='stroke:rgb(0,0" +
+    ",0);stroke-width:8' /><line x1='10' y1='951' x2='140' y2='95" +
+    "1' style='stroke:rgb(0,0,0);stroke-width:8' /><line x1='10' " +
+    "y1='953' x2='140' y2='953' style='stroke:rgb(0,0,0);stroke-w" +
+    "idth:8' /><line x1='10' y1='959' x2='140' y2='959' style='st" +
+    "roke:rgb(0,0,0);stroke-width:8' /><line x1='10' y1='967' x2=" +
+    "'140' y2='967' style='stroke:rgb(0,0,0);stroke-width:8' /><l" +
+    "ine x1='10' y1='972' x2='140' y2='972' style='stroke:rgb(0,0" +
+    ",0);stroke-width:8' /><line x1='10' y1='994' x2='140' y2='99" +
+    "4' style='stroke:rgb(0,0,0);stroke-width:8' /></svg>";
     return str;
 }
 
