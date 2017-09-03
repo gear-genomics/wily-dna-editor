@@ -198,6 +198,7 @@ function wdeTestAll() {
     wdeTestAddToOutput("wdeHighlight() - ");
     wdeHighlight();
     wdeTestOutCompString(wdeTestDataString_021(), window.frames['WDE_RTF'].document.body.innerHTML);
+    wdeHighlight();
 
     wdeTestAddToOutput("\nTest Digest Functions:\n\n");
     
@@ -270,7 +271,8 @@ function wdeTestAll() {
 
     wdeTestAddToOutput("\nTest Feature Functions:\n\n");
 
-    wdeTestAddToOutput("wdeFeatFocUpdate(-1) as TABLE - ");
+    wdeTestAddToOutput("wdeFeatFocUpdate() as TABLE - ");
+    wdeTestLoadSmallGeneBank();
     if (browser == "firefox") {
         wdeTestOutCompString(wdeTestDataString_033(), window.frames['WDE_FEAT_L'].document.body.innerHTML);
     } else if (browser == "chrome") {
@@ -279,14 +281,51 @@ function wdeTestAll() {
         wdeTestOutCompString(wdeTestDataString_035(), window.frames['WDE_FEAT_L'].document.body.innerHTML);
     }
   
-    wdeTestAddToOutput("wdeFeatFocUpdate(-1) as JSON - ");
+    wdeTestAddToOutput("wdeFeatFocUpdate() as JSON - ");
     currentTestOut = JSON.stringify(wdeFeatures);
     wdeTestOutCompString(wdeTestDataString_036(), currentTestOut);
 
+    wdeTestAddToOutput("wdeNewFeaturesFromSel() as JSON - ");
+    wdeTestLoadSmallGeneBank();
+    wdeTestSimulateSelection(118, 223); //in Seq 96-185
+    wdeNewFeaturesFromSel();
+    mainForm.elements["WDE_FEAT_TAG"].value = "Test Feature";
+    wdeSelFFeatMTag();
+    mainForm.elements["WDE_FEAT_FCOL"].value = "#00fff0";
+    wdeSetFFeatForVar();
+    mainForm.elements["WDE_FEAT_RCOL"].value = "#ff00f0";
+    wdeSetFFeatRevVar();
+    mainForm.elements["WDE_FEAT_NOTE"].value = "Test Note this.";
+    wdeSelFFeatNote();
+    mainForm.elements["WDE_FEAT_QUALIF"].value = "Qualifyer test information";
+    wdeSelFFeatQualif();
+    wdeSetFFeatSave();
+    currentTestOut = JSON.stringify(wdeFeatures);
+    wdeTestOutCompString(wdeTestDataString_037(), currentTestOut);
+
+    wdeTestAddToOutput("wdeShowFeatures() - ");
+    wdeShowFeatures();
+    if (browser != "edge") {
+        wdeTestOutCompString(wdeTestDataString_038(), window.frames['WDE_RTF'].document.body.innerHTML);
+    } else {
+        wdeTestOutCompString(wdeTestDataString_039(), window.frames['WDE_RTF'].document.body.innerHTML);
+    }
+  
+    wdeTestAddToOutput("\nTest Feature Library Functions:\n\n");
+
+    wdeTestAddToOutput("wdeAllAddLib() as TABLE - ");
+    wdeTestLoadLargeGeneBank();
+    wdeAllAddLib();
+    wdeTestOutCompString(wdeTestDataString_040(), window.frames['WDE_LIB_L'].document.body.innerHTML);
+ 
+    wdeTestAddToOutput("wdeAllAddLib() as JSON - ");
+    currentTestOut = JSON.stringify(wdeFeatureLib);
+    wdeTestOutCompString(wdeTestDataString_041(), currentTestOut);
 
 
 
- //   wdeTestPRString = window.frames['WDE_FEAT_L'].document.body.innerHTML;
+
+ //   wdeTestPRString = window.frames['WDE_LIB_L'].document.body.innerHTML;
 
 
  // alert(wdeTestPRString);
@@ -297,7 +336,7 @@ function wdeTestAll() {
 if (0) {
     wdeInTestRun = 0;
     wdeSaveFile("OUT.txt", currentTestOut, "text");
-    wdeSaveFile("String.txt", wdeTestDataString_033(), "text");
+    wdeSaveFile("String.txt", wdeTestDataString_042(), "text");
     wdeInTestRun = 1;
 }
     
@@ -318,7 +357,7 @@ if (0) {
     wdeTestAddToOutput("Tests Runtime: " + seconds + " s\n");
 
     // See if there is something else for output
-    wdeTestPRStringAsFunction();
+    wdeTestPRStringAsFunction3();
 }
 
 function wdeTestDetectBorwser() {
@@ -14086,10 +14125,2257 @@ function wdeTestDataString_036() {
     return str;
 }
 
+function wdeTestDataString_037() {
+    var str = '[["gene","1..552","Core-Antigen","E","D","D","D","' +
+    '","/gene=\\"Core-Antigen\\"\\n",1],["CDS","1..552","Core-Ant' +
+    'igen","E","ffff00","ffff00","D","/note=\\"\\"","/note=\\"Spa' +
+    'cer for note information\\"\\n/gene=\\"Core-Antigen\\"\\n/co' +
+    'don_start=1\\n/transl_table=11\\n/product=\\"Core-Antigen\\"' +
+    '\\n/translation=\\"MDIDPYKEFGATVELLSFLPSDFFPSVRDLLDTASALYREA' +
+    'LES\\nPEHCSPHHTALRQAILCWGELMTLATWVGVNLEDPASRDLVVSYVNTNMGLKFR' +
+    'QLLW\\nFHISCLTFGRETVIEYLVSFGVWIRTPPAYRPPNAPILSTLPETTVVRRRGRS' +
+    'PRRRT\\nPSPRRRRSQSPRRRRSQSRESQC\\"\\n",1],["gene","94..182",' +
+    '"Test Feature","U","00fff0","ff00f0","arrow","/note=\\"Test ' +
+    'Note this.\\"","Qualifyer test information",1,""],["gene","4' +
+    '07..2905","Polymerase","E","D","D","D","","/gene=\\"Polymera' +
+    'se\\"\\n",1],["CDS","407..2905","Polymerase","E","6464ff","6' +
+    '464ff","D","/note=\\"\\"","/note=\\"Spacer for note informat' +
+    'ion\\"\\n/gene=\\"Polymerase\\"\\n/codon_start=1\\n/transl_t' +
+    'able=11\\n/product=\\"Polymerase\\"\\n/translation=\\"MPLSYQ' +
+    'HFRRLLLLDDEAGPLEEELPRLADEGLNRRVAEDLNLG\\nNLNVSIPWTHKVGNFTGLY' +
+    'SSTVPVFNPHWKTPSFPNIHLHQDIIKKCEQFVGPLTVN\\nEKRRLQLIMPARFYPKVT' +
+    'KYLPLDKGIKPYYPEHLVNHYFQTRHYLHTLWKAGILYKR\\nETTHSASFCGSPYSWEQ' +
+    'DLQHGAESFHQQSSGILSRPPVGSSLQSKHRKSRLGLQSQQ\\nGHLARRQQGRSWSIRA' +
+    'GFHPTARRPFGVEPSGSGHTTNFASKSASCLHQSPVRKAAYP\\nAVSTFEKHSSSGHAV' +
+    'EFHNLPPNSARSQSERPVFPCWWLQFRNSKPCSDYCLSLIVNL\\nLEDWGPCAEHGEHH' +
+    'IRIPRTPSRVTGGVFLVDKNPHNTAESRLVVDFSQFSRGNYRVS\\nWPKFAVPNLQSLT' +
+    'NLLSSNLSWLSLDVSAAFYHLPLHPAAMPHLLVGSSGLSRYVARL\\nSSNSRILNNQHG' +
+    'TMPDLHDYCSRNLYVSLLLLYQTFGRKLHLYSHPIILGFRKIPMGV\\nGLSPFLLAQFT' +
+    'SAICSVVRRAFPHCLAFSYMDDVVLGAKSVQHLESLFTAVTNFLLSL\\nGIHLNPNKTK' +
+    'RWGYSLNFMGYVIGCYGSLPQEHIIQKIKECFRKLPINRPIDWKVCQR\\nIVGLLGFAA' +
+    'PFTQCGYPALMPLYACIQSKQAFTFSPTYKAFLCKQYLNLYPVARQRPG\\nLCQVFADA' +
+    'TPTGWGLVMGHQRMRGTFSAPLPIHTAELLAACFARSRSGANIIGTDNSV\\nVLSRKYT' +
+    'SFPWLLGCAANWILRGTSFVYVPSALNPADDPSRGRLGLSRPLLRLPFRPT\\nTGRTSL' +
+    'YADSPSVPSHLPDRVHFASPLHVAWRPP\\"\\n",1],["gene","1437..2117",' +
+    '"S-Antigen","E","D","D","D","","/gene=\\"S-Antigen\\"\\n",1]' +
+    ',["CDS","1437..2117","S-Antigen","E","D","D","D","","/gene=\\"' +
+    'S-Antigen\\"\\n/codon_start=1\\n/transl_table=11\\n/product=' +
+    '\\"S-Antigen\\"\\n/translation=\\"MENITSGFLGPLLVLQAGFFLLTRIL' +
+    'TIPQSLDSWWTSLNFLGG\\nTTVCLGQNSQSPTSNHSPTSCPPTCPGYRWMCLRRFIIF' +
+    'LFILLLCLIFLLVLLDYQG\\nMLPVCPLIPGSSTTSTGPCRTCMTTAQGTSMYPSCCCT' +
+    'KPSDGNCTCIPIPSSWAFGK\\nFLWEWASARFSWLSLLVPFVQWFVGLSPTVWLSVIWM' +
+    'MWYWGPSLYSILSPFLPLLPI\\nFFCLWVYI\\"\\n",1]]';
+    return str;
+}
+
+function wdeTestDataString_038() {
+    var str = '<pre id="wdeStartNode"> \n    1  <a onclick="paren' +
+    't.wdeFeatInfoUpdate(0)" style="background-color:#ffff00">ATG' +
+    'GACATCG ACCCTTATAA AGAATTTGGA GCTACTGTGG AGTTACTCTC GTTTTTGC' +
+    'CT TCTGACTTCT TTCCTTCAGT</a>\n   81  <a onclick="parent.wdeF' +
+    'eatInfoUpdate(0)" style="background-color:#ffff00">ACGAGATCT' +
+    'T CTA</a><a onclick="parent.wdeFeatInfoUpdate(1)" style="bac' +
+    'kground-color:#00fff0">GATACCG CCTCAGCTCT GTATCGGGAA GCCTTAG' +
+    'AGT CTCCTGAGCA TTGTTCACCT CACCATACTG</a>\n  161  <a onclick=' +
+    '"parent.wdeFeatInfoUpdate(1)" style="background-color:#00fff' +
+    '0">CACTCAGGCA AGCAATTCTT TG</a><a onclick="parent.wdeFeatInf' +
+    'oUpdate(2)" style="background-color:#ffff00">CTGGGGGG AACTAA' +
+    'TGAC TCTAGCTACC TGGGTGGGTG TTAATTTGGA AGATCCAGCG</a>\n  241 ' +
+    ' <a onclick="parent.wdeFeatInfoUpdate(2)" style="background-' +
+    'color:#ffff00">TCTAGAGACC TAGTAGTCAG TTATGTCAAC ACTAATATGG G' +
+    'CCTAAAGTT CAGGCAACTC TTGTGGTTTC ACATTTCTTG</a>\n  321  <a on' +
+    'click="parent.wdeFeatInfoUpdate(2)" style="background-color:' +
+    '#ffff00">TCTCACTTTT GGAAGAGAAA CAGTTATAGA GTATTTGGTG TCTTTCG' +
+    'GAG TGTGGATTCG CACTCCTCCA GCTTATAGAC</a>\n  401  <a onclick=' +
+    '"parent.wdeFeatInfoUpdate(2)" style="background-color:#ffff0' +
+    '0">CACCAA</a><a onclick="parent.wdeFeatInfoUpdate(3)" style=' +
+    '"background-color:#ffff00">ATGC CCCTATCCTA TCAACACTTC CGGAGA' +
+    'CTAC TGTTGTTAGA CGACGAGGCA GGTCCCCTAG AAGAAGAACT</a>\n  481 ' +
+    ' <a onclick="parent.wdeFeatInfoUpdate(3)" style="background-' +
+    'color:#ffff00">CCCTCGCCTC GCAGACGAAG GTCTCAATCG CCGCGTCGCA G' +
+    'AAGATCTCA ATCTCGGGAA TCTCAATGTT AG</a><a onclick="parent.wde' +
+    'FeatInfoUpdate(4)" style="background-color:#6464ff">TATTCCTT' +
+    '</a>\n  561  <a onclick="parent.wdeFeatInfoUpdate(4)" style=' +
+    '"background-color:#6464ff">GGACTCATAA GGTGGGGAAC TTTACTGGGC ' +
+    'TTTATTCTTC TACTGTACCT GTCTTTAATC CTCATTGGAA AACACCATCT</a>\n' +
+    '  641  <a onclick="parent.wdeFeatInfoUpdate(4)" style="backg' +
+    'round-color:#6464ff">TTTCCTAATA TACATTTACA CCAAGACATT ATCAAA' +
+    'AAAT GTGAACAGTT TGTAGGCCCA CTCACAGTTA ATGAGAAAAG</a>\n  721 ' +
+    ' <a onclick="parent.wdeFeatInfoUpdate(4)" style="background-' +
+    'color:#6464ff">AAGATTGCAA TTGATTATGC CTGCCAGGTT TTATCCAAAG G' +
+    'TTACCAAAT ATTTACCATT GGATAAGGGT ATTAAACCTT</a>\n  801  <a on' +
+    'click="parent.wdeFeatInfoUpdate(4)" style="background-color:' +
+    '#6464ff">ATTATCCAGA ACATCTAGTT AATCATTACT TCCAAACTAG ACACTAT' +
+    'TTA CACACTCTAT GGAAGGCGGG TATATTATAT</a>\n  881  <a onclick=' +
+    '"parent.wdeFeatInfoUpdate(4)" style="background-color:#6464f' +
+    'f">AAGAGAGAAA CAACACATAG CGCCTCATTT TGTGGGTCAC CATATTCTTG GG' +
+    'AACAAGAT CTACAGCATG GGGCAGAATC</a>\n  961  <a onclick="paren' +
+    't.wdeFeatInfoUpdate(4)" style="background-color:#6464ff">TTT' +
+    'CCACCAG CAATCCTCTG GGATTCTTTC CCGACCACCA GTTGGATCCA GCCTTCAG' +
+    'AG CAAACACCGC AAATCCAGAT</a>\n 1041  <a onclick="parent.wdeF' +
+    'eatInfoUpdate(4)" style="background-color:#6464ff">TGGGACTTC' +
+    'A ATCCCAACAA GGACACCTGG CCAGACGCCA ACAAGGTAGG AGCTGGAGCA TTC' +
+    'GGGCTGG GTTTCACCCC</a>\n 1121  <a onclick="parent.wdeFeatInf' +
+    'oUpdate(4)" style="background-color:#6464ff">ACCGCACGGA GGCC' +
+    'TTTTGG GGTGGAGCCC TCAGGCTCAG GGCATACTAC AAACTTTGCC AGCAAATCC' +
+    'G CCTCCTGCCT</a>\n 1201  <a onclick="parent.wdeFeatInfoUpdat' +
+    'e(4)" style="background-color:#6464ff">CCACCAATCG CCAGTCAGGA' +
+    ' AGGCAGCCTA CCCCGCTGTC TCCACCTTTG AGAAACACTC ATCCTCAGGC CATG' +
+    'CAGTGG</a>\n 1281  <a onclick="parent.wdeFeatInfoUpdate(4)" ' +
+    'style="background-color:#6464ff">AATTCCACAA CCTTCCACCA AACTC' +
+    'TGCAA GATCCCAGAG TGAGAGGCCT GTATTTCCCT GCTGGTGGCT CCAGTTCAGG' +
+    '</a>\n 1361  <a onclick="parent.wdeFeatInfoUpdate(4)" style=' +
+    '"background-color:#6464ff">AACAGTAAAC CCTGTTCTGA CTACTGCCTC ' +
+    'TCCCTTATCG TCAATCTTCT CGAGGATTGG GGACCCTGCG CTGAAC</a><a onc' +
+    'lick="parent.wdeFeatInfoUpdate(5)" style="background-color:#' +
+    '2db300">ATGG</a>\n 1441  <a onclick="parent.wdeFeatInfoUpdat' +
+    'e(5)" style="background-color:#2db300">AGAACATCAC ATCAGGATTC' +
+    ' CTAGGACCCC TTCTCGTGTT ACAGGCGGGG TTTTTCTTGT TGACAAGAAT CCTC' +
+    'ACAATA</a>\n 1521  <a onclick="parent.wdeFeatInfoUpdate(5)" ' +
+    'style="background-color:#2db300">CCGCAGAGTC TAGACTCGTG GTGGA' +
+    'CTTCT CTCAATTTTC TAGGGGGAAC TACCGTGTGT CTTGGCCAAA ATTCGCAGTC' +
+    '</a>\n 1601  <a onclick="parent.wdeFeatInfoUpdate(5)" style=' +
+    '"background-color:#2db300">CCCAACCTCC AATCACTCAC CAACCTCTTG ' +
+    'TCCTCCAACT TGTCCTGGTT ATCGCTGGAT GTGTCTGCGG CGTTTTATCA</a>\n' +
+    ' 1681  <a onclick="parent.wdeFeatInfoUpdate(5)" style="backg' +
+    'round-color:#2db300">TCTTCCTCTT CATCCTGCTG CTATGCCTCA TCTTCT' +
+    'TGTT GGTTCTTCTG GACTATCAAG GTATGTTGCC CGTTTGTCCT</a>\n 1761 ' +
+    ' <a onclick="parent.wdeFeatInfoUpdate(5)" style="background-' +
+    'color:#2db300">CTAATTCCAG GATCCTCAAC AACCAGCACG GGACCATGCC G' +
+    'GACCTGCAT GACTACTGCT CAAGGAACCT CTATGTATCC</a>\n 1841  <a on' +
+    'click="parent.wdeFeatInfoUpdate(5)" style="background-color:' +
+    '#2db300">CTCCTGTTGC TGTACCAAAC CTTCGGACGG AAATTGCACC TGTATTC' +
+    'CCA TCCCATCATC CTGGGCTTTC GGAAAATTCC</a>\n 1921  <a onclick=' +
+    '"parent.wdeFeatInfoUpdate(5)" style="background-color:#2db30' +
+    '0">TATGGGAGTG GGCCTCAGCC CGTTTCTCCT GGCTCAGTTT ACTAGTGCCA TT' +
+    'TGTTCAGT GGTTCGTAGG GCTTTCCCCC</a>\n 2001  <a onclick="paren' +
+    't.wdeFeatInfoUpdate(5)" style="background-color:#2db300">ACT' +
+    'GTTTGGC TTTCAGTTAT ATGGATGATG TGGTATTGGG GGCCAAGTCT GTACAGCA' +
+    'TC TTGAGTCCCT TTTTACCGCT</a>\n 2081  <a onclick="parent.wdeF' +
+    'eatInfoUpdate(5)" style="background-color:#2db300">GTTACCAAT' +
+    'T TTCTTTTGTC TTTGGGTATA CATTTAA</a><a onclick="parent.wdeFea' +
+    'tInfoUpdate(6)" style="background-color:#6464ff">ACC CTAACAA' +
+    'AAC AAAGAGATGG GGTTACTCTC TAAATTTTAT</a>\n 2161  <a onclick=' +
+    '"parent.wdeFeatInfoUpdate(6)" style="background-color:#6464f' +
+    'f">GGGTTATGTC ATTGGATGTT ATGGGTCCTT GCCACAAGAA CACATCATAC AA' +
+    'AAAATCAA AGAATGTTTT AGAAAACTTC</a>\n 2241  <a onclick="paren' +
+    't.wdeFeatInfoUpdate(6)" style="background-color:#6464ff">CTA' +
+    'TTAACAG GCCTATTGAT TGGAAAGTAT GTCAACGAAT TGTGGGTCTT TTGGGTTT' +
+    'TG CTGCCCCTTT TACACAATGT</a>\n 2321  <a onclick="parent.wdeF' +
+    'eatInfoUpdate(6)" style="background-color:#6464ff">GGTTATCCT' +
+    'G CGTTGATGCC TTTGTATGCA TGTATTCAAT CTAAGCAGGC TTTCACTTTC TCG' +
+    'CCAACTT ACAAGGCCTT</a>\n 2401  <a onclick="parent.wdeFeatInf' +
+    'oUpdate(6)" style="background-color:#6464ff">TCTGTGTAAA CAAT' +
+    'ACCTGA ACCTTTACCC CGTTGCCCGG CAACGGCCAG GTCTGTGCCA AGTGTTTGC' +
+    'T GACGCAACCC</a>\n 2481  <a onclick="parent.wdeFeatInfoUpdat' +
+    'e(6)" style="background-color:#6464ff">CCACTGGCTG GGGCTTGGTC' +
+    ' ATGGGCCATC AGCGCATGCG TGGAACCTTT TCGGCTCCTC TGCCGATCCA TACT' +
+    'GCGGAA</a>\n 2561  <a onclick="parent.wdeFeatInfoUpdate(6)" ' +
+    'style="background-color:#6464ff">CTCCTAGCCG CTTGTTTTGC TCGCA' +
+    'GCAGG TCTGGAGCAA ACATTATCGG GACTGATAAC TCTGTTGTCC TATCCCGCAA' +
+    '</a>\n 2641  <a onclick="parent.wdeFeatInfoUpdate(6)" style=' +
+    '"background-color:#6464ff">ATATACATCG TTTCCATGGC TGCTAGGCTG ' +
+    'TGCTGCCAAC TGGATCCTGC GCGGGACGTC CTTTGTTTAC GTCCCGTCGG</a>\n' +
+    ' 2721  <a onclick="parent.wdeFeatInfoUpdate(6)" style="backg' +
+    'round-color:#6464ff">CGCTGAATCC TGCGGACGAC CCTTCTCGGG GTCGCT' +
+    'TGGG ACTCTCTCGT CCCCTTCTCC GTCTGCCGTT CCGACCGACC</a>\n 2801 ' +
+    ' <a onclick="parent.wdeFeatInfoUpdate(6)" style="background-' +
+    'color:#6464ff">ACGGGGCGCA CCTCTCTTTA CGCGGACTCC CCGTCTGTGC C' +
+    'TTCTCATCT GCCGGACCGT GTGCACTTCG CTTCACCTCT</a>\n 2881  <a on' +
+    'click="parent.wdeFeatInfoUpdate(6)" style="background-color:' +
+    '#6464ff">GCACGTCGCA TGGAGACCAC CGTGA</a>ACGCC CACCAAATAT TGC' +
+    'CCAAGGT CTTACATAAG AGGACTCTTG GACTCTCAGC\n 2961  AATGTCAACG ' +
+    'ACCGACCTTG AGGCATACTT CAAAGACTGT TTGTTTAAAG ACTGGGAGGA GTTGG' +
+    'GGGAG GAGATTAGGT\n 3041  TAAAGGTCTT TGTACTAGGA GGCTGTAGGC AT' +
+    'AAATTGGT CTGCGCACCA GCACCATGCA ACTTTTTCAC CTCTGCCTAA\n 3121 ' +
+    ' TCATCTCTTG TTCATGTCCT ACTGTTCAAG CCTCCAAGCT GTGCCTTGGG TGGC' +
+    'TTTGGG GC </pre>';
+    return str;
+}
+
+function wdeTestDataString_039() {
+    var str = '<pre id="wdeStartNode"> \n    1  <a style="backgro' +
+    'und-color:#ffff00" onclick="parent.wdeFeatInfoUpdate(0)">ATG' +
+    'GACATCG ACCCTTATAA AGAATTTGGA GCTACTGTGG AGTTACTCTC GTTTTTGC' +
+    'CT TCTGACTTCT TTCCTTCAGT</a>\n   81  <a style="background-co' +
+    'lor:#ffff00" onclick="parent.wdeFeatInfoUpdate(0)">ACGAGATCT' +
+    'T CTA</a><a style="background-color:#00fff0" onclick="parent' +
+    '.wdeFeatInfoUpdate(1)">GATACCG CCTCAGCTCT GTATCGGGAA GCCTTAG' +
+    'AGT CTCCTGAGCA TTGTTCACCT CACCATACTG</a>\n  161  <a style="b' +
+    'ackground-color:#00fff0" onclick="parent.wdeFeatInfoUpdate(1' +
+    ')">CACTCAGGCA AGCAATTCTT TG</a><a style="background-color:#f' +
+    'fff00" onclick="parent.wdeFeatInfoUpdate(2)">CTGGGGGG AACTAA' +
+    'TGAC TCTAGCTACC TGGGTGGGTG TTAATTTGGA AGATCCAGCG</a>\n  241 ' +
+    ' <a style="background-color:#ffff00" onclick="parent.wdeFeat' +
+    'InfoUpdate(2)">TCTAGAGACC TAGTAGTCAG TTATGTCAAC ACTAATATGG G' +
+    'CCTAAAGTT CAGGCAACTC TTGTGGTTTC ACATTTCTTG</a>\n  321  <a st' +
+    'yle="background-color:#ffff00" onclick="parent.wdeFeatInfoUp' +
+    'date(2)">TCTCACTTTT GGAAGAGAAA CAGTTATAGA GTATTTGGTG TCTTTCG' +
+    'GAG TGTGGATTCG CACTCCTCCA GCTTATAGAC</a>\n  401  <a style="b' +
+    'ackground-color:#ffff00" onclick="parent.wdeFeatInfoUpdate(2' +
+    ')">CACCAA</a><a style="background-color:#ffff00" onclick="pa' +
+    'rent.wdeFeatInfoUpdate(3)">ATGC CCCTATCCTA TCAACACTTC CGGAGA' +
+    'CTAC TGTTGTTAGA CGACGAGGCA GGTCCCCTAG AAGAAGAACT</a>\n  481 ' +
+    ' <a style="background-color:#ffff00" onclick="parent.wdeFeat' +
+    'InfoUpdate(3)">CCCTCGCCTC GCAGACGAAG GTCTCAATCG CCGCGTCGCA G' +
+    'AAGATCTCA ATCTCGGGAA TCTCAATGTT AG</a><a style="background-c' +
+    'olor:#6464ff" onclick="parent.wdeFeatInfoUpdate(4)">TATTCCTT' +
+    '</a>\n  561  <a style="background-color:#6464ff" onclick="pa' +
+    'rent.wdeFeatInfoUpdate(4)">GGACTCATAA GGTGGGGAAC TTTACTGGGC ' +
+    'TTTATTCTTC TACTGTACCT GTCTTTAATC CTCATTGGAA AACACCATCT</a>\n' +
+    '  641  <a style="background-color:#6464ff" onclick="parent.w' +
+    'deFeatInfoUpdate(4)">TTTCCTAATA TACATTTACA CCAAGACATT ATCAAA' +
+    'AAAT GTGAACAGTT TGTAGGCCCA CTCACAGTTA ATGAGAAAAG</a>\n  721 ' +
+    ' <a style="background-color:#6464ff" onclick="parent.wdeFeat' +
+    'InfoUpdate(4)">AAGATTGCAA TTGATTATGC CTGCCAGGTT TTATCCAAAG G' +
+    'TTACCAAAT ATTTACCATT GGATAAGGGT ATTAAACCTT</a>\n  801  <a st' +
+    'yle="background-color:#6464ff" onclick="parent.wdeFeatInfoUp' +
+    'date(4)">ATTATCCAGA ACATCTAGTT AATCATTACT TCCAAACTAG ACACTAT' +
+    'TTA CACACTCTAT GGAAGGCGGG TATATTATAT</a>\n  881  <a style="b' +
+    'ackground-color:#6464ff" onclick="parent.wdeFeatInfoUpdate(4' +
+    ')">AAGAGAGAAA CAACACATAG CGCCTCATTT TGTGGGTCAC CATATTCTTG GG' +
+    'AACAAGAT CTACAGCATG GGGCAGAATC</a>\n  961  <a style="backgro' +
+    'und-color:#6464ff" onclick="parent.wdeFeatInfoUpdate(4)">TTT' +
+    'CCACCAG CAATCCTCTG GGATTCTTTC CCGACCACCA GTTGGATCCA GCCTTCAG' +
+    'AG CAAACACCGC AAATCCAGAT</a>\n 1041  <a style="background-co' +
+    'lor:#6464ff" onclick="parent.wdeFeatInfoUpdate(4)">TGGGACTTC' +
+    'A ATCCCAACAA GGACACCTGG CCAGACGCCA ACAAGGTAGG AGCTGGAGCA TTC' +
+    'GGGCTGG GTTTCACCCC</a>\n 1121  <a style="background-color:#6' +
+    '464ff" onclick="parent.wdeFeatInfoUpdate(4)">ACCGCACGGA GGCC' +
+    'TTTTGG GGTGGAGCCC TCAGGCTCAG GGCATACTAC AAACTTTGCC AGCAAATCC' +
+    'G CCTCCTGCCT</a>\n 1201  <a style="background-color:#6464ff"' +
+    ' onclick="parent.wdeFeatInfoUpdate(4)">CCACCAATCG CCAGTCAGGA' +
+    ' AGGCAGCCTA CCCCGCTGTC TCCACCTTTG AGAAACACTC ATCCTCAGGC CATG' +
+    'CAGTGG</a>\n 1281  <a style="background-color:#6464ff" oncli' +
+    'ck="parent.wdeFeatInfoUpdate(4)">AATTCCACAA CCTTCCACCA AACTC' +
+    'TGCAA GATCCCAGAG TGAGAGGCCT GTATTTCCCT GCTGGTGGCT CCAGTTCAGG' +
+    '</a>\n 1361  <a style="background-color:#6464ff" onclick="pa' +
+    'rent.wdeFeatInfoUpdate(4)">AACAGTAAAC CCTGTTCTGA CTACTGCCTC ' +
+    'TCCCTTATCG TCAATCTTCT CGAGGATTGG GGACCCTGCG CTGAAC</a><a sty' +
+    'le="background-color:#2db300" onclick="parent.wdeFeatInfoUpd' +
+    'ate(5)">ATGG</a>\n 1441  <a style="background-color:#2db300"' +
+    ' onclick="parent.wdeFeatInfoUpdate(5)">AGAACATCAC ATCAGGATTC' +
+    ' CTAGGACCCC TTCTCGTGTT ACAGGCGGGG TTTTTCTTGT TGACAAGAAT CCTC' +
+    'ACAATA</a>\n 1521  <a style="background-color:#2db300" oncli' +
+    'ck="parent.wdeFeatInfoUpdate(5)">CCGCAGAGTC TAGACTCGTG GTGGA' +
+    'CTTCT CTCAATTTTC TAGGGGGAAC TACCGTGTGT CTTGGCCAAA ATTCGCAGTC' +
+    '</a>\n 1601  <a style="background-color:#2db300" onclick="pa' +
+    'rent.wdeFeatInfoUpdate(5)">CCCAACCTCC AATCACTCAC CAACCTCTTG ' +
+    'TCCTCCAACT TGTCCTGGTT ATCGCTGGAT GTGTCTGCGG CGTTTTATCA</a>\n' +
+    ' 1681  <a style="background-color:#2db300" onclick="parent.w' +
+    'deFeatInfoUpdate(5)">TCTTCCTCTT CATCCTGCTG CTATGCCTCA TCTTCT' +
+    'TGTT GGTTCTTCTG GACTATCAAG GTATGTTGCC CGTTTGTCCT</a>\n 1761 ' +
+    ' <a style="background-color:#2db300" onclick="parent.wdeFeat' +
+    'InfoUpdate(5)">CTAATTCCAG GATCCTCAAC AACCAGCACG GGACCATGCC G' +
+    'GACCTGCAT GACTACTGCT CAAGGAACCT CTATGTATCC</a>\n 1841  <a st' +
+    'yle="background-color:#2db300" onclick="parent.wdeFeatInfoUp' +
+    'date(5)">CTCCTGTTGC TGTACCAAAC CTTCGGACGG AAATTGCACC TGTATTC' +
+    'CCA TCCCATCATC CTGGGCTTTC GGAAAATTCC</a>\n 1921  <a style="b' +
+    'ackground-color:#2db300" onclick="parent.wdeFeatInfoUpdate(5' +
+    ')">TATGGGAGTG GGCCTCAGCC CGTTTCTCCT GGCTCAGTTT ACTAGTGCCA TT' +
+    'TGTTCAGT GGTTCGTAGG GCTTTCCCCC</a>\n 2001  <a style="backgro' +
+    'und-color:#2db300" onclick="parent.wdeFeatInfoUpdate(5)">ACT' +
+    'GTTTGGC TTTCAGTTAT ATGGATGATG TGGTATTGGG GGCCAAGTCT GTACAGCA' +
+    'TC TTGAGTCCCT TTTTACCGCT</a>\n 2081  <a style="background-co' +
+    'lor:#2db300" onclick="parent.wdeFeatInfoUpdate(5)">GTTACCAAT' +
+    'T TTCTTTTGTC TTTGGGTATA CATTTAA</a><a style="background-colo' +
+    'r:#6464ff" onclick="parent.wdeFeatInfoUpdate(6)">ACC CTAACAA' +
+    'AAC AAAGAGATGG GGTTACTCTC TAAATTTTAT</a>\n 2161  <a style="b' +
+    'ackground-color:#6464ff" onclick="parent.wdeFeatInfoUpdate(6' +
+    ')">GGGTTATGTC ATTGGATGTT ATGGGTCCTT GCCACAAGAA CACATCATAC AA' +
+    'AAAATCAA AGAATGTTTT AGAAAACTTC</a>\n 2241  <a style="backgro' +
+    'und-color:#6464ff" onclick="parent.wdeFeatInfoUpdate(6)">CTA' +
+    'TTAACAG GCCTATTGAT TGGAAAGTAT GTCAACGAAT TGTGGGTCTT TTGGGTTT' +
+    'TG CTGCCCCTTT TACACAATGT</a>\n 2321  <a style="background-co' +
+    'lor:#6464ff" onclick="parent.wdeFeatInfoUpdate(6)">GGTTATCCT' +
+    'G CGTTGATGCC TTTGTATGCA TGTATTCAAT CTAAGCAGGC TTTCACTTTC TCG' +
+    'CCAACTT ACAAGGCCTT</a>\n 2401  <a style="background-color:#6' +
+    '464ff" onclick="parent.wdeFeatInfoUpdate(6)">TCTGTGTAAA CAAT' +
+    'ACCTGA ACCTTTACCC CGTTGCCCGG CAACGGCCAG GTCTGTGCCA AGTGTTTGC' +
+    'T GACGCAACCC</a>\n 2481  <a style="background-color:#6464ff"' +
+    ' onclick="parent.wdeFeatInfoUpdate(6)">CCACTGGCTG GGGCTTGGTC' +
+    ' ATGGGCCATC AGCGCATGCG TGGAACCTTT TCGGCTCCTC TGCCGATCCA TACT' +
+    'GCGGAA</a>\n 2561  <a style="background-color:#6464ff" oncli' +
+    'ck="parent.wdeFeatInfoUpdate(6)">CTCCTAGCCG CTTGTTTTGC TCGCA' +
+    'GCAGG TCTGGAGCAA ACATTATCGG GACTGATAAC TCTGTTGTCC TATCCCGCAA' +
+    '</a>\n 2641  <a style="background-color:#6464ff" onclick="pa' +
+    'rent.wdeFeatInfoUpdate(6)">ATATACATCG TTTCCATGGC TGCTAGGCTG ' +
+    'TGCTGCCAAC TGGATCCTGC GCGGGACGTC CTTTGTTTAC GTCCCGTCGG</a>\n' +
+    ' 2721  <a style="background-color:#6464ff" onclick="parent.w' +
+    'deFeatInfoUpdate(6)">CGCTGAATCC TGCGGACGAC CCTTCTCGGG GTCGCT' +
+    'TGGG ACTCTCTCGT CCCCTTCTCC GTCTGCCGTT CCGACCGACC</a>\n 2801 ' +
+    ' <a style="background-color:#6464ff" onclick="parent.wdeFeat' +
+    'InfoUpdate(6)">ACGGGGCGCA CCTCTCTTTA CGCGGACTCC CCGTCTGTGC C' +
+    'TTCTCATCT GCCGGACCGT GTGCACTTCG CTTCACCTCT</a>\n 2881  <a st' +
+    'yle="background-color:#6464ff" onclick="parent.wdeFeatInfoUp' +
+    'date(6)">GCACGTCGCA TGGAGACCAC CGTGA</a>ACGCC CACCAAATAT TGC' +
+    'CCAAGGT CTTACATAAG AGGACTCTTG GACTCTCAGC\n 2961  AATGTCAACG ' +
+    'ACCGACCTTG AGGCATACTT CAAAGACTGT TTGTTTAAAG ACTGGGAGGA GTTGG' +
+    'GGGAG GAGATTAGGT\n 3041  TAAAGGTCTT TGTACTAGGA GGCTGTAGGC AT' +
+    'AAATTGGT CTGCGCACCA GCACCATGCA ACTTTTTCAC CTCTGCCTAA\n 3121 ' +
+    ' TCATCTCTTG TTCATGTCCT ACTGTTCAAG CCTCCAAGCT GTGCCTTGGG TGGC' +
+    'TTTGGG GC </pre>';
+    return str;
+}
+
+function wdeTestDataString_040() {
+    var str = '<table border="0"><tbody><tr><th style="text-align' +
+    ': left">Tag&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&' +
+    'nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&' +
+    'nbsp;&nbsp;&nbsp;</th><th style="text-align: left">Size&nbsp' +
+    ';&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp' +
+    ';&nbsp;&nbsp;&nbsp;</th><th style="text-align: left">Type&nb' +
+    'sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb' +
+    'sp;&nbsp;&nbsp;&nbsp;</th></tr>\n<tr>\n<td style="background' +
+    '-color:#ffd24d" onclick="parent.wdeLibFocUpdate(0)">35S</td>' +
+    '<td style="background-color:#ffd24d" onclick="parent.wdeLibF' +
+    'ocUpdate(0)">843 bp</td><td style="background-color:#ffd24d"' +
+    ' onclick="parent.wdeLibFocUpdate(0)">regulatory</td></tr>\n<' +
+    'tr>\n<td style="background-color:#b3b3b3" onclick="parent.wd' +
+    'eLibFocUpdate(1)">attB1</td><td style="background-color:#b3b' +
+    '3b3" onclick="parent.wdeLibFocUpdate(1)">24 bp</td><td style' +
+    '="background-color:#b3b3b3" onclick="parent.wdeLibFocUpdate(' +
+    '1)">misc_feature</td></tr>\n<tr>\n<td style="background-colo' +
+    'r:#b3b3b3" onclick="parent.wdeLibFocUpdate(2)">attB2</td><td' +
+    ' style="background-color:#b3b3b3" onclick="parent.wdeLibFocU' +
+    'pdate(2)">24 bp</td><td style="background-color:#b3b3b3" onc' +
+    'lick="parent.wdeLibFocUpdate(2)">misc_feature</td></tr>\n<tr' +
+    '>\n<td style="background-color:#b3b3b3" onclick="parent.wdeL' +
+    'ibFocUpdate(3)">attB3</td><td style="background-color:#b3b3b' +
+    '3" onclick="parent.wdeLibFocUpdate(3)">21 bp</td><td style="' +
+    'background-color:#b3b3b3" onclick="parent.wdeLibFocUpdate(3)' +
+    '">misc_feature</td></tr>\n<tr>\n<td style="background-color:' +
+    '#b3b3b3" onclick="parent.wdeLibFocUpdate(4)">attB4</td><td s' +
+    'tyle="background-color:#b3b3b3" onclick="parent.wdeLibFocUpd' +
+    'ate(4)">23 bp</td><td style="background-color:#b3b3b3" oncli' +
+    'ck="parent.wdeLibFocUpdate(4)">misc_feature</td></tr>\n<tr>\n' +
+    '<td style="background-color:#ffd24d" onclick="parent.wdeLibF' +
+    'ocUpdate(5)">CaMV 35S</td><td style="background-color:#ffd24' +
+    'd" onclick="parent.wdeLibFocUpdate(5)">817 bp</td><td style=' +
+    '"background-color:#ffd24d" onclick="parent.wdeLibFocUpdate(5' +
+    ')">regulatory</td></tr>\n<tr>\n<td style="background-color:#' +
+    '2db300" onclick="parent.wdeLibFocUpdate(6)">CodAnptII</td><t' +
+    'd style="background-color:#2db300" onclick="parent.wdeLibFoc' +
+    'Update(6)">2076 bp</td><td style="background-color:#2db300" ' +
+    'onclick="parent.wdeLibFocUpdate(6)">CDS</td></tr>\n<tr>\n<td' +
+    ' style="background-color:#ff3333" onclick="parent.wdeLibFocU' +
+    'pdate(7)">CodAnptII</td><td style="background-color:#ff3333"' +
+    ' onclick="parent.wdeLibFocUpdate(7)">2076 bp</td><td style="' +
+    'background-color:#ff3333" onclick="parent.wdeLibFocUpdate(7)' +
+    '">gene</td></tr>\n<tr>\n<td style="background-color:#b3b3b3"' +
+    ' onclick="parent.wdeLibFocUpdate(8)">Cop</td><td style="back' +
+    'ground-color:#b3b3b3" onclick="parent.wdeLibFocUpdate(8)">69' +
+    ' bp</td><td style="background-color:#b3b3b3" onclick="parent' +
+    '.wdeLibFocUpdate(8)">misc_feature</td></tr>\n<tr>\n<td style' +
+    '="background-color:#2db300" onclick="parent.wdeLibFocUpdate(' +
+    '9)">DMI1</td><td style="background-color:#2db300" onclick="p' +
+    'arent.wdeLibFocUpdate(9)">5420 bp</td><td style="background-' +
+    'color:#2db300" onclick="parent.wdeLibFocUpdate(9)">CDS</td><' +
+    '/tr>\n<tr>\n<td style="background-color:#ff3333" onclick="pa' +
+    'rent.wdeLibFocUpdate(10)">DMI1</td><td style="background-col' +
+    'or:#ff3333" onclick="parent.wdeLibFocUpdate(10)">5420 bp</td' +
+    '><td style="background-color:#ff3333" onclick="parent.wdeLib' +
+    'FocUpdate(10)">gene</td></tr>\n<tr>\n<td style="background-c' +
+    'olor:#2db300" onclick="parent.wdeLibFocUpdate(11)">DMI2</td>' +
+    '<td style="background-color:#2db300" onclick="parent.wdeLibF' +
+    'ocUpdate(11)">6810 bp</td><td style="background-color:#2db30' +
+    '0" onclick="parent.wdeLibFocUpdate(11)">CDS</td></tr>\n<tr>\n' +
+    '<td style="background-color:#ff3333" onclick="parent.wdeLibF' +
+    'ocUpdate(12)">DMI2</td><td style="background-color:#ff3333" ' +
+    'onclick="parent.wdeLibFocUpdate(12)">6810 bp</td><td style="' +
+    'background-color:#ff3333" onclick="parent.wdeLibFocUpdate(12' +
+    ')">gene</td></tr>\n<tr>\n<td style="background-color:#2db300' +
+    '" onclick="parent.wdeLibFocUpdate(13)">DMI3</td><td style="b' +
+    'ackground-color:#2db300" onclick="parent.wdeLibFocUpdate(13)' +
+    '">3772 bp</td><td style="background-color:#2db300" onclick="' +
+    'parent.wdeLibFocUpdate(13)">CDS</td></tr>\n<tr>\n<td style="' +
+    'background-color:#ff3333" onclick="parent.wdeLibFocUpdate(14' +
+    ')">DMI3</td><td style="background-color:#ff3333" onclick="pa' +
+    'rent.wdeLibFocUpdate(14)">3772 bp</td><td style="background-' +
+    'color:#ff3333" onclick="parent.wdeLibFocUpdate(14)">gene</td' +
+    '></tr>\n<tr>\n<td style="background-color:#2db300" onclick="' +
+    'parent.wdeLibFocUpdate(15)">DsRed</td><td style="background-' +
+    'color:#2db300" onclick="parent.wdeLibFocUpdate(15)">753 bp</' +
+    'td><td style="background-color:#2db300" onclick="parent.wdeL' +
+    'ibFocUpdate(15)">CDS</td></tr>\n<tr>\n<td style="background-' +
+    'color:#ff3333" onclick="parent.wdeLibFocUpdate(16)">DsRed</t' +
+    'd><td style="background-color:#ff3333" onclick="parent.wdeLi' +
+    'bFocUpdate(16)">753 bp</td><td style="background-color:#ff33' +
+    '33" onclick="parent.wdeLibFocUpdate(16)">gene</td></tr>\n<tr' +
+    '>\n<td style="background-color:#2db300" onclick="parent.wdeL' +
+    'ibFocUpdate(17)">kanamycin resistance protein</td><td style=' +
+    '"background-color:#2db300" onclick="parent.wdeLibFocUpdate(1' +
+    '7)">819 bp</td><td style="background-color:#2db300" onclick=' +
+    '"parent.wdeLibFocUpdate(17)">CDS</td></tr>\n<tr>\n<td style=' +
+    '"background-color:#b3b3b3" onclick="parent.wdeLibFocUpdate(1' +
+    '8)">LB (left border)</td><td style="background-color:#b3b3b3' +
+    '" onclick="parent.wdeLibFocUpdate(18)">491 bp</td><td style=' +
+    '"background-color:#b3b3b3" onclick="parent.wdeLibFocUpdate(1' +
+    '8)">misc_feature</td></tr>\n<tr>\n<td style="background-colo' +
+    'r:#2db300" onclick="parent.wdeLibFocUpdate(19)">NFR1</td><td' +
+    ' style="background-color:#2db300" onclick="parent.wdeLibFocU' +
+    'pdate(19)">5691 bp</td><td style="background-color:#2db300" ' +
+    'onclick="parent.wdeLibFocUpdate(19)">CDS</td></tr>\n<tr>\n<t' +
+    'd style="background-color:#ff3333" onclick="parent.wdeLibFoc' +
+    'Update(20)">NFR1</td><td style="background-color:#ff3333" on' +
+    'click="parent.wdeLibFocUpdate(20)">5691 bp</td><td style="ba' +
+    'ckground-color:#ff3333" onclick="parent.wdeLibFocUpdate(20)"' +
+    '>gene</td></tr>\n<tr>\n<td style="background-color:#2db300" ' +
+    'onclick="parent.wdeLibFocUpdate(21)">NFR5</td><td style="bac' +
+    'kground-color:#2db300" onclick="parent.wdeLibFocUpdate(21)">' +
+    '1788 bp</td><td style="background-color:#2db300" onclick="pa' +
+    'rent.wdeLibFocUpdate(21)">CDS</td></tr>\n<tr>\n<td style="ba' +
+    'ckground-color:#ff3333" onclick="parent.wdeLibFocUpdate(22)"' +
+    '>NFR5</td><td style="background-color:#ff3333" onclick="pare' +
+    'nt.wdeLibFocUpdate(22)">1788 bp</td><td style="background-co' +
+    'lor:#ff3333" onclick="parent.wdeLibFocUpdate(22)">gene</td><' +
+    '/tr>\n<tr>\n<td style="background-color:#2db300" onclick="pa' +
+    'rent.wdeLibFocUpdate(23)">NIN</td><td style="background-colo' +
+    'r:#2db300" onclick="parent.wdeLibFocUpdate(23)">3130 bp</td>' +
+    '<td style="background-color:#2db300" onclick="parent.wdeLibF' +
+    'ocUpdate(23)">CDS</td></tr>\n<tr>\n<td style="background-col' +
+    'or:#ff3333" onclick="parent.wdeLibFocUpdate(24)">NIN</td><td' +
+    ' style="background-color:#ff3333" onclick="parent.wdeLibFocU' +
+    'pdate(24)">3130 bp</td><td style="background-color:#ff3333" ' +
+    'onclick="parent.wdeLibFocUpdate(24)">gene</td></tr>\n<tr>\n<' +
+    'td style="background-color:#2db300" onclick="parent.wdeLibFo' +
+    'cUpdate(25)">NSP1</td><td style="background-color:#2db300" o' +
+    'nclick="parent.wdeLibFocUpdate(25)">1665 bp</td><td style="b' +
+    'ackground-color:#2db300" onclick="parent.wdeLibFocUpdate(25)' +
+    '">CDS</td></tr>\n<tr>\n<td style="background-color:#ff3333" ' +
+    'onclick="parent.wdeLibFocUpdate(26)">NSP1</td><td style="bac' +
+    'kground-color:#ff3333" onclick="parent.wdeLibFocUpdate(26)">' +
+    '1665 bp</td><td style="background-color:#ff3333" onclick="pa' +
+    'rent.wdeLibFocUpdate(26)">gene</td></tr>\n<tr>\n<td style="b' +
+    'ackground-color:#2db300" onclick="parent.wdeLibFocUpdate(27)' +
+    '">NSP2</td><td style="background-color:#2db300" onclick="par' +
+    'ent.wdeLibFocUpdate(27)">1527 bp</td><td style="background-c' +
+    'olor:#2db300" onclick="parent.wdeLibFocUpdate(27)">CDS</td><' +
+    '/tr>\n<tr>\n<td style="background-color:#ff3333" onclick="pa' +
+    'rent.wdeLibFocUpdate(28)">NSP2</td><td style="background-col' +
+    'or:#ff3333" onclick="parent.wdeLibFocUpdate(28)">1527 bp</td' +
+    '><td style="background-color:#ff3333" onclick="parent.wdeLib' +
+    'FocUpdate(28)">gene</td></tr>\n<tr>\n<td style="background-c' +
+    'olor:#b3b3b3" onclick="parent.wdeLibFocUpdate(29)">P1 lytic ' +
+    'replicon</td><td style="background-color:#b3b3b3" onclick="p' +
+    'arent.wdeLibFocUpdate(29)">1691 bp</td><td style="background' +
+    '-color:#b3b3b3" onclick="parent.wdeLibFocUpdate(29)">misc_fe' +
+    'ature</td></tr>\n<tr>\n<td style="background-color:#b3b3b3" ' +
+    'onclick="parent.wdeLibFocUpdate(30)">P1 plasmid replicon</td' +
+    '><td style="background-color:#b3b3b3" onclick="parent.wdeLib' +
+    'FocUpdate(30)">5759 bp</td><td style="background-color:#b3b3' +
+    'b3" onclick="parent.wdeLibFocUpdate(30)">misc_feature</td></' +
+    'tr>\n<tr>\n<td style="background-color:#b3b3b3" onclick="par' +
+    'ent.wdeLibFocUpdate(31)">pRiA4 replicon</td><td style="backg' +
+    'round-color:#b3b3b3" onclick="parent.wdeLibFocUpdate(31)">46' +
+    '35 bp</td><td style="background-color:#b3b3b3" onclick="pare' +
+    'nt.wdeLibFocUpdate(31)">misc_feature</td></tr>\n<tr>\n<td st' +
+    'yle="background-color:#b3b3b3" onclick="parent.wdeLibFocUpda' +
+    'te(32)">R/Rs recombination site</td><td style="background-co' +
+    'lor:#b3b3b3" onclick="parent.wdeLibFocUpdate(32)">81 bp</td>' +
+    '<td style="background-color:#b3b3b3" onclick="parent.wdeLibF' +
+    'ocUpdate(32)">misc_feature</td></tr>\n<tr>\n<td style="backg' +
+    'round-color:#b3b3b3" onclick="parent.wdeLibFocUpdate(33)">RB' +
+    ' (right border); Overdrive Sequence</td><td style="backgroun' +
+    'd-color:#b3b3b3" onclick="parent.wdeLibFocUpdate(33)">544 bp' +
+    '</td><td style="background-color:#b3b3b3" onclick="parent.wd' +
+    'eLibFocUpdate(33)">misc_feature</td></tr>\n<tr>\n<td style="' +
+    'background-color:#2db300" onclick="parent.wdeLibFocUpdate(34' +
+    ')">recLDB</td><td style="background-color:#2db300" onclick="' +
+    'parent.wdeLibFocUpdate(34)">2331 bp</td><td style="backgroun' +
+    'd-color:#2db300" onclick="parent.wdeLibFocUpdate(34)">CDS</t' +
+    'd></tr>\n<tr>\n<td style="background-color:#ff3333" onclick=' +
+    '"parent.wdeLibFocUpdate(35)">recLDB</td><td style="backgroun' +
+    'd-color:#ff3333" onclick="parent.wdeLibFocUpdate(35)">2331 b' +
+    'p</td><td style="background-color:#ff3333" onclick="parent.w' +
+    'deLibFocUpdate(35)">gene</td></tr>\n<tr>\n<td style="backgro' +
+    'und-color:#ffff33" onclick="parent.wdeLibFocUpdate(36)">Tnos' +
+    '</td><td style="background-color:#ffff33" onclick="parent.wd' +
+    'eLibFocUpdate(36)">253 bp</td><td style="background-color:#f' +
+    'fff33" onclick="parent.wdeLibFocUpdate(36)">regulatory</td><' +
+    '/tr>\n<tr>\n<td style="background-color:#ffff33" onclick="pa' +
+    'rent.wdeLibFocUpdate(37)">TNos</td><td style="background-col' +
+    'or:#ffff33" onclick="parent.wdeLibFocUpdate(37)">269 bp</td>' +
+    '<td style="background-color:#ffff33" onclick="parent.wdeLibF' +
+    'ocUpdate(37)">regulatory</td></tr>\n<tr>\n<td style="backgro' +
+    'und-color:#ffd24d" onclick="parent.wdeLibFocUpdate(38)">Ubq1' +
+    '0</td><td style="background-color:#ffd24d" onclick="parent.w' +
+    'deLibFocUpdate(38)">1467 bp</td><td style="background-color:' +
+    '#ffd24d" onclick="parent.wdeLibFocUpdate(38)">regulatory</td' +
+    '></tr>\n</tbody></table>';
+    return str;
+}
+
+function wdeTestDataString_041() {
+    var str = '[["regulatory","1..843","35S","E","D","D","D","/no' +
+    'te=\\"35S\\"","/regulatory_class=\\"promoter\\"\\n/note=\\"S' +
+    'pacer for note information\\"\\n",1,"ctagtgatctggaattccctttc' +
+    'agaaagaatgctaacccacagatggttagagaggctt\\nacgcagcaggtctcatcaag' +
+    'acgatctacccgagcaataatctccaggaaatcaaatacc\\nttcccaagaaggttaaa' +
+    'gatgcagtcaaaagattcaggactaactgcatcaagaacacag\\nagaaagatatattt' +
+    'ctcaagatcagaagtactattccagtatggacgattcaaggcttgc\\nttcacaaacca' +
+    'aggcaagtaatagagattggagtctctaaaaaggtagttcccactgaat\\ncaaaggcc' +
+    'atggagtcaaagattcaaatagaggacctaacagaactcgccgtaaagactg\\ngcgaa' +
+    'cagttcatacagagtctcttacgactcaatgacaagaagaaaatcttcgtcaaca\\ntg' +
+    'gtggagcacgacacacttgtctactccaaaaatatcaaagatacagtctcagaagacc\\n' +
+    'aaagggcaattgagacttttcaacaaagggtaatatccggaaacctcctcggattccatt' +
+    '\\ngcccagctatctgtcactttattgtgaagatagtggaaaaggaaggtggctcctaca' +
+    'aat\\ngccatcattgcgataaaggaaaggccatcgttgaagatgcctctgccgacagtg' +
+    'gtccca\\naagatggacccccacccacgaggagcatcgtggaaaaagaagacgttccaa' +
+    'ccacgtctt\\ncaaagcaagtggattgatgtgatatctccactgacgtaagggatgacg' +
+    'cacaatcccact\\natccttcgcaagacccttcctctatataaggaagttcatttcatt' +
+    'tggagaggggatctg\\ngac"],["misc_feature","1..24","attB1","E",' +
+    '"D","D","D","/note=\\"attB1\\"","/note=\\"Spacer for note in' +
+    'formation\\"\\n",1,"agcctgcttttttgtacaaacttg"],["misc_featur' +
+    'e","1..24","attB2","E","D","D","D","/note=\\"attB2\\"","/not' +
+    'e=\\"Spacer for note information\\"\\n",1,"ccactttgtacaagaaa' +
+    'gctgggt"],["misc_feature","1..21","attB3","E","D","D","D","/' +
+    'note=\\"attB3\\"","/note=\\"Spacer for note information\\"\\n' +
+    '",1,"caactatgtataataaagttg"],["misc_feature","1..23","attB4"' +
+    ',"E","D","D","D","/note=\\"attB4\\"","/note=\\"Spacer for no' +
+    'te information\\"\\n",1,"ccaacttttctatacaaagttga"],["regulat' +
+    'ory","1..817","CaMV 35S","E","D","D","D","/note=\\"CaMV 35S\\"' +
+    '","/regulatory_class=\\"promoter\\"\\n/note=\\"Spacer for no' +
+    'te information\\"\\n",1,"tctaatgctaacccacagatggttagagaggctta' +
+    'cgcagcaggtctcatcaagacgatc\\ntacccgagcaataatctccaggaaatcaaata' +
+    'ccttcccaagaaggttaaagatgcagtc\\naaaagattcaggactaactgcatcaagaa' +
+    'cacagagaaagatatatttctcaagatcaga\\nagtactattccagtatggacgattca' +
+    'aggcttgcttcacaaaccaaggcaagtaatagag\\nattggagtctctaaaaaggtagt' +
+    'tcccactgaatcaaaggccatggagtcaaagattcaa\\natagaggacctaacagaact' +
+    'cgccgtaaagactggcgaacagttcatacagagtctctta\\ncgactcaatgacaagaa' +
+    'gaaaatcttcgtcaacatggtggagcacgacacacttgtctac\\ntccaaaaatatcaa' +
+    'agatacagtctcagaagaccaaagggcaattgagacttttcaacaa\\nagggtaatatc' +
+    'cggaaacctcctcggattccattgcccagctatctgtcactttattgtg\\naagatagt' +
+    'ggaaaaggaaggtggctcctacaaatgccatcattgcgataaaggaaaggcc\\natcgt' +
+    'tgaagatgcctctgccgacagtggtcccaaagatggacccccacccacgaggagc\\nat' +
+    'cgtggaaaaagaagacgttccaaccacgtcttcaaagcaagtggattgatgtgatatc\\n' +
+    'tccactgacgtaagggatgacgcacaatcccactatccttcgcaagacccttcctctata' +
+    '\\ntaaggaagttcatttcatttggagaggggatctggac"],["CDS","1..2076",' +
+    '"CodAnptII","E","D","D","D","","/gene=\\"CodAnptII\\"\\n/cod' +
+    'on_start=1\\n/transl_table=11\\n/product=\\"CodAnptII\\"\\n/' +
+    'protein_id=\\"AET75791.1\\"\\n/translation=\\"MANNALQTIINARL' +
+    'PGEEGLWQIHLQDGKISAIDAQSGVMPITE\\nNSLDAEQGLVIPPFVEPHIHLDTTQTA' +
+    'GQPNWNQSGTLFEGIERWAERKALLTHDDVK\\nQRAWQTLKWQIANGIQHVRTHVDVSD' +
+    'ATLTALKAMLEVKQEVAPWIDLQIVAFPQEGI\\nLSYPNGEALLEEALRLGADVVGAIP' +
+    'HFEFTREYGVESLHKTFALAQKYDRLIDVHCDE\\nIDDEQSRFVETVAALAHHEGMGAR' +
+    'VTASHTTAMHSYNGAYTSRLFRLLKMSGINFVAN\\nPLVNIHLQGRFDTYPKRRGITRV' +
+    'KEMLESGINVCFGHDDVFDPWYPLGTANMLQVLHM\\nGLHVCQLMGYGQINDGLNLITH' +
+    'HSARTLNLQDYGIAAGNSANLIILPAENGFDALRRQ\\nVPVRYSVRGGKVIASTQPAQT' +
+    'TVYLEQPEAIDYKRGSEQDGLHAGSPAAWVERLFGYD\\nWAQQTIGCSDAAVFRLSAQG' +
+    'RPVLFVKTDLSGALNELQDEAARLSWLATTGVPCAAVL\\nDVVTEAGRDWLLLGEVPGQ' +
+    'DLLSSHLAPAEKVSIMADAMRRLHTLDPATCPFDHQAKH\\nRIERARTRMEAGLVDQDD' +
+    'LDEEHQGLAPAELFARLKARMPDGDDLVVTHGDACLPNIM\\nVENGRFSGFIDCGRLGV' +
+    'ADRYQDIALATRDIAEELGGEWADRFLVLYGIAAPDSQRIA\\nFYRLLDEFF\\"\\n"' +
+    ',1,"atggctaataacgctttacaaacaattattaacgcccggttaccaggcgaagaggg' +
+    'gctg\\ntggcagattcatctgcaggacggaaaaatcagcgccattgatgcgcaatccgg' +
+    'cgtgatg\\ncccataactgaaaacagcctggatgccgaacaaggtttagttataccgcc' +
+    'gtttgtggag\\nccacatattcacctggacaccacgcaaaccgccggacaaccgaactg' +
+    'gaatcagtccggc\\nacgctgtttgaaggcattgaacgctgggccgagcgcaaagcgtt' +
+    'attaacccatgacgat\\ngtgaaacaacgcgcatggcaaacgctgaaatggcagattgc' +
+    'caacggcattcagcatgtg\\ncgtacccatgtcgatgtttcggatgcaacgctaactgc' +
+    'gctgaaagcaatgctggaagtg\\naagcaggaagtcgcgccgtggattgatctgcaaat' +
+    'cgtcgccttccctcaggaagggatt\\nttgtcgtatcccaacggtgaagcgttgctgga' +
+    'agaggcgttacgcttaggggcagatgta\\ngtgggggcgattccgcattttgaatttac' +
+    'ccgtgaatacggcgtggagtcgctgcataaa\\naccttcgccctggcgcaaaaatacga' +
+    'ccgtctcatcgacgttcactgtgatgagatcgat\\ngacgagcagtcgcgctttgtcga' +
+    'aaccgttgctgccctggcgcaccatgaaggcatgggc\\ngcgcgagtcaccgccagcca' +
+    'caccacggcaatgcactcctataacggggcgtatacctca\\ncgcctgttccgcttgct' +
+    'gaaaatgtccggtattaactttgtcgccaacccgctggtcaat\\nattcatctgcaagg' +
+    'acgtttcgatacgtatccaaaacgtcgcggcatcacgcgcgttaaa\\ngagatgctgga' +
+    'gtccggcattaacgtctgctttggtcacgatgatgtcttcgatccgtgg\\ntatccgct' +
+    'gggaacggcgaatatgctgcaagtgctgcatatggggctgcatgtttgccag\\nttgat' +
+    'gggctacgggcagattaacgatggcctgaatttaatcacccaccacagcgcaagg\\nac' +
+    'gttgaatttgcaggattacggcattgccgccggaaacagcgccaacctgattatcctg\\n' +
+    'ccggctgaaaatgggtttgatgcgctgcgccgtcaggttccggtacgttattcggtacgc' +
+    '\\nggcggcaaggtgattgccagcacacaaccggcacaaaccaccgtatatctggagcag' +
+    'cca\\ngaagccatcgattacaaacgtggatctgaacaagatggattgcacgcaggttct' +
+    'ccggcc\\ngcttgggtggagaggctattcggctatgactgggcacaacagacaatcggc' +
+    'tgctctgat\\ngccgccgtgttccggctgtcagcgcaggggcgcccggttctttttgtc' +
+    'aagaccgacctg\\ntccggtgccctgaatgaactgcaggacgaggcagcgcggctatcg' +
+    'tggctggccacgacg\\nggcgttccttgcgcagctgtgctcgacgttgtcactgaagcg' +
+    'ggaagggactggctgcta\\nttgggcgaagtgccggggcaggatctcctgtcatctcac' +
+    'cttgctcctgccgagaaagta\\ntccatcatggctgatgcaatgcggcggctgcatacg' +
+    'cttgatccggctacctgcccattc\\ngaccaccaagcgaaacatcgcatcgagcgagca' +
+    'cgtactcggatggaagccggtcttgtc\\ngatcaggatgatctggacgaagagcatcag' +
+    'gggctcgcgccagccgaactgttcgccagg\\nctcaaggcgcgcatgcccgacggcgat' +
+    'gatctcgtcgtgacccatggcgatgcctgcttg\\nccgaatatcatggtggaaaatggc' +
+    'cgcttttctggattcatcgactgtggccggctgggt\\ngtggcggaccgctatcaggac' +
+    'atagcgttggctacccgtgatattgctgaagagcttggc\\nggcgaatgggctgaccgc' +
+    'ttcctcgtgctttacggtatcgccgctcccgattcgcagcgc\\natcgccttctatcgc' +
+    'cttcttgacgagttcttctga"],["gene","1..2076","CodAnptII","E","D' +
+    '","D","D","","/gene=\\"CodAnptII\\"\\n",1,"atggctaataacgcttt' +
+    'acaaacaattattaacgcccggttaccaggcgaagaggggctg\\ntggcagattcatct' +
+    'gcaggacggaaaaatcagcgccattgatgcgcaatccggcgtgatg\\ncccataactga' +
+    'aaacagcctggatgccgaacaaggtttagttataccgccgtttgtggag\\nccacatat' +
+    'tcacctggacaccacgcaaaccgccggacaaccgaactggaatcagtccggc\\nacgct' +
+    'gtttgaaggcattgaacgctgggccgagcgcaaagcgttattaacccatgacgat\\ngt' +
+    'gaaacaacgcgcatggcaaacgctgaaatggcagattgccaacggcattcagcatgtg\\n' +
+    'cgtacccatgtcgatgtttcggatgcaacgctaactgcgctgaaagcaatgctggaagtg' +
+    '\\naagcaggaagtcgcgccgtggattgatctgcaaatcgtcgccttccctcaggaaggg' +
+    'att\\nttgtcgtatcccaacggtgaagcgttgctggaagaggcgttacgcttaggggca' +
+    'gatgta\\ngtgggggcgattccgcattttgaatttacccgtgaatacggcgtggagtcg' +
+    'ctgcataaa\\naccttcgccctggcgcaaaaatacgaccgtctcatcgacgttcactgt' +
+    'gatgagatcgat\\ngacgagcagtcgcgctttgtcgaaaccgttgctgccctggcgcac' +
+    'catgaaggcatgggc\\ngcgcgagtcaccgccagccacaccacggcaatgcactcctat' +
+    'aacggggcgtatacctca\\ncgcctgttccgcttgctgaaaatgtccggtattaacttt' +
+    'gtcgccaacccgctggtcaat\\nattcatctgcaaggacgtttcgatacgtatccaaaa' +
+    'cgtcgcggcatcacgcgcgttaaa\\ngagatgctggagtccggcattaacgtctgcttt' +
+    'ggtcacgatgatgtcttcgatccgtgg\\ntatccgctgggaacggcgaatatgctgcaa' +
+    'gtgctgcatatggggctgcatgtttgccag\\nttgatgggctacgggcagattaacgat' +
+    'ggcctgaatttaatcacccaccacagcgcaagg\\nacgttgaatttgcaggattacggc' +
+    'attgccgccggaaacagcgccaacctgattatcctg\\nccggctgaaaatgggtttgat' +
+    'gcgctgcgccgtcaggttccggtacgttattcggtacgc\\nggcggcaaggtgattgcc' +
+    'agcacacaaccggcacaaaccaccgtatatctggagcagcca\\ngaagccatcgattac' +
+    'aaacgtggatctgaacaagatggattgcacgcaggttctccggcc\\ngcttgggtggag' +
+    'aggctattcggctatgactgggcacaacagacaatcggctgctctgat\\ngccgccgtg' +
+    'ttccggctgtcagcgcaggggcgcccggttctttttgtcaagaccgacctg\\ntccggt' +
+    'gccctgaatgaactgcaggacgaggcagcgcggctatcgtggctggccacgacg\\nggc' +
+    'gttccttgcgcagctgtgctcgacgttgtcactgaagcgggaagggactggctgcta\\n' +
+    'ttgggcgaagtgccggggcaggatctcctgtcatctcaccttgctcctgccgagaaagta' +
+    '\\ntccatcatggctgatgcaatgcggcggctgcatacgcttgatccggctacctgccca' +
+    'ttc\\ngaccaccaagcgaaacatcgcatcgagcgagcacgtactcggatggaagccggt' +
+    'cttgtc\\ngatcaggatgatctggacgaagagcatcaggggctcgcgccagccgaactg' +
+    'ttcgccagg\\nctcaaggcgcgcatgcccgacggcgatgatctcgtcgtgacccatggc' +
+    'gatgcctgcttg\\nccgaatatcatggtggaaaatggccgcttttctggattcatcgac' +
+    'tgtggccggctgggt\\ngtggcggaccgctatcaggacatagcgttggctacccgtgat' +
+    'attgctgaagagcttggc\\nggcgaatgggctgaccgcttcctcgtgctttacggtatc' +
+    'gccgctcccgattcgcagcgc\\natcgccttctatcgccttcttgacgagttcttctga' +
+    '"],["misc_feature","1..69","Cop","E","D","D","D","/note=\\"C' +
+    'op\\"","/note=\\"Spacer for note information\\"\\n",1,"ctagg' +
+    'taatttactcatcagccatttacctctcagagctagcaccacgttcagtattaac\\ntt' +
+    'aagctta"],["CDS","join(1..402,500..568,655..1263,1432..1614,' +
+    '1709..1768,1869..2072,2233..2481,2697..2795,3971..4165,4539.' +
+    '.4631,4739..5005,5202..5420)","DMI1","E","D","D","D","","/ge' +
+    'ne=\\"DMI1\\"\\n/codon_start=1\\n/transl_table=11\\n/product' +
+    '=\\"DMI1\\"\\n/protein_id=\\"AET75800.1\\"\\n/translation=\\"' +
+    'MAKSNEESSNLNVMNKPPLKKTKTLPSLNLRVSVTPPNPNDNNG\\nIGGTSTTKTDFSE' +
+    'QQWNYPSFLGIGSTSRKRRQPPPPPSKPPVNLIPPHPRPLSVNDH\\nNKTTSSLLPQPS' +
+    'SSSITKQQQQHSTSSPIFYLLVICCIILVPYSAYLQYKLAKLKDMK\\nLQLCGQIDFCS' +
+    'RNGKTSIQEEVDDDDNADSRTIALYIVLFTLILPFVLYKYLDYLPQI\\nINFLRRTESN' +
+    'KEDVPLKKRVAYMVDVFFSIYPYAKLLALLCATLFLIAFGGLALYAVT\\nGGSMAEALW' +
+    'HSWTYVADAGNHAETEGTGQRIVSVSISAGGMLIFAMMLGLVSDAISEK\\nVDSLRKGK' +
+    'SEVIERNHVLILGWSDKLGSLLKQLAIANKSVGGGVIVVLAEKEKEEMEM\\nDIAKLEF' +
+    'DFMGTSVICRSGSPLILADLKKVSVSKARAIIVLAADENADQSDARALRVV\\nLSLAGV' +
+    'KEGLRGHVVVEMSDLDNEPLVKLVGGELIETVVAHDVIGRLMIQCALQPGLA\\nQIWED' +
+    'ILGFENAEFYIKRWPELDDLLFKDILISFPDAIPCGVKVAADGGKIVINPDDN\\nYVLR' +
+    'DGDEVLVIAEDDDTYAPGPLPEVRKGYFPRIRDPPKYPEKILFCGWRRDIDDMI\\nMVL' +
+    'EAFLAPGSELWMFNEVPEKERERKLAAGELDVFGLENIKLVHREGNAVIRRHLES\\nLP' +
+    'LETFDSILILADESVEDSVAHSDSRSLATLLLIRDIQSRRLPYRDTKSTSLRLSGF\\nS' +
+    'HNSWIREMQQASDKSIIISEILDSRTRNLVSVSRISDYVLSNELVSMALAMVAEDKQ\\n' +
+    'INRVLEELFAEEGNEMCIKPAEFYLFDQEELCFYDIMIRGRTRKEIVIGYRLANQERA\\n' +
+    'IINPSEKSVPRKWSLDDVFVVLASGE\\"\\n",1,"atggcaaagagcaatgaagaatc' +
+    'atcgaatctgaatgtgatgaacaaaccacctttgaag\\naagacaaagacacttccttc' +
+    'cctcaatctcagagtttctgttactcctcccaatcccaat\\ngacaacaatggaattgg' +
+    'aggaacttcaactactaaaactgatttctcagaacaacaatgg\\naactacccttcttt' +
+    'ccttggcattggcagcacctccagaaaaagaagacaaccaccccct\\ncctccttccaa' +
+    'acctcctgtaaacctcattcctcctcatccccgtcccctctccgtcaac\\ngaccacaa' +
+    'caaaaccacctcctcacttcttccacaaccttcctcttcctccatcaccaaa\\ncaaca' +
+    'acaacaacactctacctcctctcccatcttctatcttgttagtttattactttta\\nca' +
+    'ctttttcagttttcactctattaacttataatgttcatacttcattttcaatcatttc\\n' +
+    'taatttttattttttgcagttagttatctgttgtattattcttgtaccctattcagctta' +
+    '\\ntttacaatacaaacttgccaaactcaaggtattactgattgcaccctttaaatttct' +
+    'tgt\\nttgtgttggattgaatccattgtttatttatcaattcaatttctttggctccag' +
+    'gatatg\\naaacttcaactctgtggtcaaattgatttttgttcccgtaacggaaaaaca' +
+    'tccatacaa\\ngaagaggttgatgacgatgataatgcagatagtagaacaatagcttta' +
+    'tatattgtgctt\\nttcacattgattttgccttttgtattgtacaaatatcttgattat' +
+    'cttcctcaaataatt\\naatttcttgaggagaacagaaagtaacaaggaggatgtacca' +
+    'ttaaagaagagagttgct\\ntatatggtagatgtatttttctccatatatccttatgca' +
+    'aagctacttgcacttctttgt\\ngcaactctctttcttatagcatttggtggtttagcg' +
+    'ttgtatgcggttactggtggtagc\\natggctgaagcactttggcattcttggacttat' +
+    'gtagctgacgcaggaaatcacgctgaa\\nacagaaggaaccggccagagaatcgtctct' +
+    'gtctcaattagtgcgggtggcatgcttata\\ntttgccatgatgcttgggcttgtttcg' +
+    'gatgctatatcagagaaggttgattcacttaga\\naaaggaaagagcgaagtcatcgaa' +
+    'agaaaccatgtactcatccttggctggagtgacaaa\\nttggtaatcccctcgttggtt' +
+    'ttcttagaaacatttagagtttttgaaattgaattagaa\\ntttgatgctcaggaattt' +
+    'agtttatatgatgagggccattcaactgagtgcattagttat\\nttttcttgataaata' +
+    'tgacacaaaaaagctgatagtgatattttactgcagggctcactt\\nttgaagcagcta' +
+    'gcaatagccaataagagtgttggtggtggtgttattgtggtgcttgca\\ngaaaaggaa' +
+    'aaggaggaaatggaaatggatattgcaaagctcgaattcgatttcatgggg\\nacatca' +
+    'gtaatatgtagaagtggcagtccactaatacttgctgacctaaagaaggtattg\\nccg' +
+    'tggtattttgttctttattcatggaaaggataactcttagcatagtctgtgtgatca\\n' +
+    'ttcttagttcttcattatttatttgtaggtttcagtttcaaaggcacgtgcaatcattgt' +
+    '\\ntttagctgcggacgaaaatgcagatcaggtcagttgctatattcgtcacccttttgt' +
+    'tgt\\ntttgttggtgactatttcttgcatagaaacttattcttagtcagtgttttcctc' +
+    'gaattt\\ngtctccagagtgatgcacgtgctttgagagttgttcttagcttagctggtg' +
+    'taaaggagg\\ngcttaagggggcatgttgttgtagagatgagcgacctagacaatgaac' +
+    'ccctagtgaaac\\nttgttggtggagaactcattgaaacagttgttgcacatgatgtga' +
+    'ttggacgtttgatga\\nttcagtgtgctctacagcctggccttgcacaggtttttattc' +
+    'aaataacttgatcccttt\\natgcattactgaaattggtagtggctcaaatgttatgga' +
+    'tttgatgacttaaccgtcaca\\ntctggtttccagttacctaaacttggtatcgtaccg' +
+    'tgtttgtttgttcatttgtttttt\\ntctcttggccagatatgggaggacattctagga' +
+    'tttgagaatgctgagttttacataaaa\\nagatggcctgaactggatgatcttcttttc' +
+    'aaagacatattaatttcatttcctgatgca\\nataccgtgtggagttaaggttgctgca' +
+    'gatggagggaagattgtcataaatccagatgat\\naattatgttctgagagatggtgat' +
+    'gaagtccttgttatagctgaggatgatgacacttat\\ngccccaggccctctgccagag' +
+    'gtcatctttctgttctagtttgcctttcaatattgggtc\\ncatttaatgtttgaataa' +
+    'tttggaaaatatgctaataaggttttagaatgtcgtatatct\\nggcgcattttcttgg' +
+    'atttattaaatcaatgatcataggtgacttagtcaatacattttt\\ngtagccagaaac' +
+    'cagcattacatattacatggtttaacagtgtatagtttgtataggtac\\ngcaagggtt' +
+    'atttccctaggatacgtgatccccctaaatatccagagaagatactgtttt\\ngtggct' +
+    'ggcgccgtgacattgatgatatgatcatggtaattccctaaattttgtccattc\\ncat' +
+    'attactgccttaaatatccttatattattgctattatgcaccatcaaattgatgtgt\\n' +
+    'aagaagaactggtttaccctttcaagaaacataaaacatgtcaaatcaagctacatttaa' +
+    '\\naagatcttgactactgtgtattagaggaatgagtaaaattctcaatagcttagctta' +
+    'cac\\ntatctataagagtaaaattcccaacactctacacacattggatagaacccattg' +
+    'taacaa\\ncctctaactaactgaagttagtgaggttcatcctattggggaatctagtaa' +
+    'tagattcat\\ntcctctttgtaatcattctcaagaatcagaaatacaaaatcacattct' +
+    'catgaactagat\\ntctctcttcaacagtatagattctctctaagagaagattcaaact' +
+    'tctaatactgtggaa\\nttattactaaagaatattgaattttgacactctcaaaggttg' +
+    'tatctgaaaatacaaaat\\ntagctacaacatatgccaagcacatcagattcatatgat' +
+    'tgaatacattttatctatttg\\natctactacgattcctcaatagctttcgatattcat' +
+    'aacaagaattattagaactggtat\\nttttcttttgtaagactatcaagtgtctccaag' +
+    'tccaaaacctttggatgtgatactctt\\nttccgcgtcattgcctgggtcacaaagtgc' +
+    'ttccagtcggtttgaagcctccgtgagctg\\ngtgatttaatccctaaccaaatagtgt' +
+    'tcctatagaccggaaaaaaacagaaatttatcc\\naagttactgtacctgaagtatttt' +
+    'ttttgttgttgaaagaaagttcctaaagccttttat\\nattggatatcttttgatgttt' +
+    'gatgtttgatgctttgacttgtaatagtttatgtaaaca\\ntcaaaacagtacttttat' +
+    'ggcaatcacgcaaactaagatagtattcagtaagaaactgca\\nctatgtattactcct' +
+    'agactcgaccaatgccttatattttatattctttaaccctttgtt\\ngtatacaatata' +
+    'ctgtggtaatggtaagtagtcacataactgtaataggctaatatgtcc\\natctacaaa' +
+    'atgaaacgaaattcttgcttcataatcttttaacatatccttgatcattat\\ntgtttt' +
+    'gcaggttttagaagcattcttggcccctggttcagaactttggatgttcaatga\\nagt' +
+    'tcctgaaaaggaaagagagaggaaacttgctgctggtgaacttgatgtttttggatt\\n' +
+    'agagaacataaagcttgttcaccgggagggaaatgctgtcattaggcggcacctcgagag' +
+    '\\ntcttcctttggagacttttgattctgtaagcttgaaatcttcttctttatccatatt' +
+    'tat\\nagtttgacttgaaatgcataaactagcatttgcgcaccatgtccaagtgaatgt' +
+    'taagag\\ntttgaacatattttgttctaattgattatgcttctattctatctcatttgg' +
+    'aattatcag\\nctatatcatactttcattaaaaaaaggtgtttgattagaatgacagcc' +
+    'tccacgtaactg\\nttggatgggacaaaataataataatgtcgacatataaatatgagc' +
+    'aaagtgcatgttgaa\\ngtaggaattcaaaagtcatagaatttcttcagattcaggaca' +
+    'gttaagccaagtaaagga\\naaatattcttcaactgtatactaactctaagaggacaga' +
+    'tccttattcttgcagatgagt\\ncagtggaggactctgttgctcattctgactcaagat' +
+    'ccctagccactcttctgctcattc\\ngtgatatacaggtaaccactgctgcttttcgca' +
+    'tcagtgtcatgatcttcatataatact\\nactgtcgcactgcattccgacacctccttt' +
+    'ctgtttttttttttttttttttttgtagtc\\ngagacgtctaccttaccgagatacgaa' +
+    'gtcaacttctttaaggttatctgggttctctca\\ntaactcatggatccgcgaaatgca' +
+    'acaagcttcagataaatcaattataattagtgaaat\\ntttggattctaggactagaaa' +
+    'tctagtttctgtatccaggatcagtgattatgtattatc\\ncaatgagctggttagcat' +
+    'ggcactagctatggtagctgaagacaagcagatcaaccgtgt\\ntcttgaggaattatt' +
+    'tgcggaggaggtagccttcgtttaaacttatgttttccgcttctc\\ngtctagttgatg' +
+    'gatttcaattgaatttcaattctctaaatgttaaagtcaaactgctag\\nttcagtatt' +
+    'tttgaggtttttattttattttattttatatgcttttggattagaagatca\\naaatga' +
+    'catataatactggaattgtggtgcatttatggcaggggaacgagatgtgtatta\\nagc' +
+    'cagcagagttctatttatttgaccaggaggagctctgtttctatgatataatgatta\\n' +
+    'ggggtcgtacaagaaaggagattgttataggctatcgcctggccaaccaagagcgtgcta' +
+    '\\nttatcaacccttcagaaaaatctgtgccaagaaaatggtcccttgatgatgtttttg' +
+    'ttg\\nttttagcctcaggtgaatga"],["gene","1..5420","DMI1","E","D' +
+    '","D","D","","/gene=\\"DMI1\\"\\n",1,"atggcaaagagcaatgaagaat' +
+    'catcgaatctgaatgtgatgaacaaaccacctttgaag\\naagacaaagacacttcctt' +
+    'ccctcaatctcagagtttctgttactcctcccaatcccaat\\ngacaacaatggaattg' +
+    'gaggaacttcaactactaaaactgatttctcagaacaacaatgg\\naactacccttctt' +
+    'tccttggcattggcagcacctccagaaaaagaagacaaccaccccct\\ncctccttcca' +
+    'aacctcctgtaaacctcattcctcctcatccccgtcccctctccgtcaac\\ngaccaca' +
+    'acaaaaccacctcctcacttcttccacaaccttcctcttcctccatcaccaaa\\ncaac' +
+    'aacaacaacactctacctcctctcccatcttctatcttgttagtttattactttta\\nc' +
+    'actttttcagttttcactctattaacttataatgttcatacttcattttcaatcatttc\\n' +
+    'taatttttattttttgcagttagttatctgttgtattattcttgtaccctattcagctta' +
+    '\\ntttacaatacaaacttgccaaactcaaggtattactgattgcaccctttaaatttct' +
+    'tgt\\nttgtgttggattgaatccattgtttatttatcaattcaatttctttggctccag' +
+    'gatatg\\naaacttcaactctgtggtcaaattgatttttgttcccgtaacggaaaaaca' +
+    'tccatacaa\\ngaagaggttgatgacgatgataatgcagatagtagaacaatagcttta' +
+    'tatattgtgctt\\nttcacattgattttgccttttgtattgtacaaatatcttgattat' +
+    'cttcctcaaataatt\\naatttcttgaggagaacagaaagtaacaaggaggatgtacca' +
+    'ttaaagaagagagttgct\\ntatatggtagatgtatttttctccatatatccttatgca' +
+    'aagctacttgcacttctttgt\\ngcaactctctttcttatagcatttggtggtttagcg' +
+    'ttgtatgcggttactggtggtagc\\natggctgaagcactttggcattcttggacttat' +
+    'gtagctgacgcaggaaatcacgctgaa\\nacagaaggaaccggccagagaatcgtctct' +
+    'gtctcaattagtgcgggtggcatgcttata\\ntttgccatgatgcttgggcttgtttcg' +
+    'gatgctatatcagagaaggttgattcacttaga\\naaaggaaagagcgaagtcatcgaa' +
+    'agaaaccatgtactcatccttggctggagtgacaaa\\nttggtaatcccctcgttggtt' +
+    'ttcttagaaacatttagagtttttgaaattgaattagaa\\ntttgatgctcaggaattt' +
+    'agtttatatgatgagggccattcaactgagtgcattagttat\\nttttcttgataaata' +
+    'tgacacaaaaaagctgatagtgatattttactgcagggctcactt\\nttgaagcagcta' +
+    'gcaatagccaataagagtgttggtggtggtgttattgtggtgcttgca\\ngaaaaggaa' +
+    'aaggaggaaatggaaatggatattgcaaagctcgaattcgatttcatgggg\\nacatca' +
+    'gtaatatgtagaagtggcagtccactaatacttgctgacctaaagaaggtattg\\nccg' +
+    'tggtattttgttctttattcatggaaaggataactcttagcatagtctgtgtgatca\\n' +
+    'ttcttagttcttcattatttatttgtaggtttcagtttcaaaggcacgtgcaatcattgt' +
+    '\\ntttagctgcggacgaaaatgcagatcaggtcagttgctatattcgtcacccttttgt' +
+    'tgt\\ntttgttggtgactatttcttgcatagaaacttattcttagtcagtgttttcctc' +
+    'gaattt\\ngtctccagagtgatgcacgtgctttgagagttgttcttagcttagctggtg' +
+    'taaaggagg\\ngcttaagggggcatgttgttgtagagatgagcgacctagacaatgaac' +
+    'ccctagtgaaac\\nttgttggtggagaactcattgaaacagttgttgcacatgatgtga' +
+    'ttggacgtttgatga\\nttcagtgtgctctacagcctggccttgcacaggtttttattc' +
+    'aaataacttgatcccttt\\natgcattactgaaattggtagtggctcaaatgttatgga' +
+    'tttgatgacttaaccgtcaca\\ntctggtttccagttacctaaacttggtatcgtaccg' +
+    'tgtttgtttgttcatttgtttttt\\ntctcttggccagatatgggaggacattctagga' +
+    'tttgagaatgctgagttttacataaaa\\nagatggcctgaactggatgatcttcttttc' +
+    'aaagacatattaatttcatttcctgatgca\\nataccgtgtggagttaaggttgctgca' +
+    'gatggagggaagattgtcataaatccagatgat\\naattatgttctgagagatggtgat' +
+    'gaagtccttgttatagctgaggatgatgacacttat\\ngccccaggccctctgccagag' +
+    'gtcatctttctgttctagtttgcctttcaatattgggtc\\ncatttaatgtttgaataa' +
+    'tttggaaaatatgctaataaggttttagaatgtcgtatatct\\nggcgcattttcttgg' +
+    'atttattaaatcaatgatcataggtgacttagtcaatacattttt\\ngtagccagaaac' +
+    'cagcattacatattacatggtttaacagtgtatagtttgtataggtac\\ngcaagggtt' +
+    'atttccctaggatacgtgatccccctaaatatccagagaagatactgtttt\\ngtggct' +
+    'ggcgccgtgacattgatgatatgatcatggtaattccctaaattttgtccattc\\ncat' +
+    'attactgccttaaatatccttatattattgctattatgcaccatcaaattgatgtgt\\n' +
+    'aagaagaactggtttaccctttcaagaaacataaaacatgtcaaatcaagctacatttaa' +
+    '\\naagatcttgactactgtgtattagaggaatgagtaaaattctcaatagcttagctta' +
+    'cac\\ntatctataagagtaaaattcccaacactctacacacattggatagaacccattg' +
+    'taacaa\\ncctctaactaactgaagttagtgaggttcatcctattggggaatctagtaa' +
+    'tagattcat\\ntcctctttgtaatcattctcaagaatcagaaatacaaaatcacattct' +
+    'catgaactagat\\ntctctcttcaacagtatagattctctctaagagaagattcaaact' +
+    'tctaatactgtggaa\\nttattactaaagaatattgaattttgacactctcaaaggttg' +
+    'tatctgaaaatacaaaat\\ntagctacaacatatgccaagcacatcagattcatatgat' +
+    'tgaatacattttatctatttg\\natctactacgattcctcaatagctttcgatattcat' +
+    'aacaagaattattagaactggtat\\nttttcttttgtaagactatcaagtgtctccaag' +
+    'tccaaaacctttggatgtgatactctt\\nttccgcgtcattgcctgggtcacaaagtgc' +
+    'ttccagtcggtttgaagcctccgtgagctg\\ngtgatttaatccctaaccaaatagtgt' +
+    'tcctatagaccggaaaaaaacagaaatttatcc\\naagttactgtacctgaagtatttt' +
+    'ttttgttgttgaaagaaagttcctaaagccttttat\\nattggatatcttttgatgttt' +
+    'gatgtttgatgctttgacttgtaatagtttatgtaaaca\\ntcaaaacagtacttttat' +
+    'ggcaatcacgcaaactaagatagtattcagtaagaaactgca\\nctatgtattactcct' +
+    'agactcgaccaatgccttatattttatattctttaaccctttgtt\\ngtatacaatata' +
+    'ctgtggtaatggtaagtagtcacataactgtaataggctaatatgtcc\\natctacaaa' +
+    'atgaaacgaaattcttgcttcataatcttttaacatatccttgatcattat\\ntgtttt' +
+    'gcaggttttagaagcattcttggcccctggttcagaactttggatgttcaatga\\nagt' +
+    'tcctgaaaaggaaagagagaggaaacttgctgctggtgaacttgatgtttttggatt\\n' +
+    'agagaacataaagcttgttcaccgggagggaaatgctgtcattaggcggcacctcgagag' +
+    '\\ntcttcctttggagacttttgattctgtaagcttgaaatcttcttctttatccatatt' +
+    'tat\\nagtttgacttgaaatgcataaactagcatttgcgcaccatgtccaagtgaatgt' +
+    'taagag\\ntttgaacatattttgttctaattgattatgcttctattctatctcatttgg' +
+    'aattatcag\\nctatatcatactttcattaaaaaaaggtgtttgattagaatgacagcc' +
+    'tccacgtaactg\\nttggatgggacaaaataataataatgtcgacatataaatatgagc' +
+    'aaagtgcatgttgaa\\ngtaggaattcaaaagtcatagaatttcttcagattcaggaca' +
+    'gttaagccaagtaaagga\\naaatattcttcaactgtatactaactctaagaggacaga' +
+    'tccttattcttgcagatgagt\\ncagtggaggactctgttgctcattctgactcaagat' +
+    'ccctagccactcttctgctcattc\\ngtgatatacaggtaaccactgctgcttttcgca' +
+    'tcagtgtcatgatcttcatataatact\\nactgtcgcactgcattccgacacctccttt' +
+    'ctgtttttttttttttttttttttgtagtc\\ngagacgtctaccttaccgagatacgaa' +
+    'gtcaacttctttaaggttatctgggttctctca\\ntaactcatggatccgcgaaatgca' +
+    'acaagcttcagataaatcaattataattagtgaaat\\ntttggattctaggactagaaa' +
+    'tctagtttctgtatccaggatcagtgattatgtattatc\\ncaatgagctggttagcat' +
+    'ggcactagctatggtagctgaagacaagcagatcaaccgtgt\\ntcttgaggaattatt' +
+    'tgcggaggaggtagccttcgtttaaacttatgttttccgcttctc\\ngtctagttgatg' +
+    'gatttcaattgaatttcaattctctaaatgttaaagtcaaactgctag\\nttcagtatt' +
+    'tttgaggtttttattttattttattttatatgcttttggattagaagatca\\naaatga' +
+    'catataatactggaattgtggtgcatttatggcaggggaacgagatgtgtatta\\nagc' +
+    'cagcagagttctatttatttgaccaggaggagctctgtttctatgatataatgatta\\n' +
+    'ggggtcgtacaagaaaggagattgttataggctatcgcctggccaaccaagagcgtgcta' +
+    '\\nttatcaacccttcagaaaaatctgtgccaagaaaatggtcccttgatgatgtttttg' +
+    'ttg\\nttttagcctcaggtgaatga"],["CDS","join(1..94,410..920,170' +
+    '1..2176,2278..2428,2706..2777,2885..2953,3425..3496,3608..36' +
+    '79,3766..3938,4450..4676,4820..4946,5019..5087,5706..5895,62' +
+    '50..6382,6472..6810)","DMI2","E","D","D","D","","/gene=\\"DM' +
+    'I2\\"\\n/codon_start=1\\n/transl_table=11\\n/product=\\"DMI2' +
+    '\\"\\n/protein_id=\\"AET75799.1\\"\\n/translation=\\"MELQVIR' +
+    'IFRLVVAFVLCLCIFIRSASSATKGFESIACCADSNY\\nTDPKTTLTYTTDHIWFSDKR' +
+    'SCRQIPEILFSHRSNKNVRKFEIYEGKRCYNLPTVKDQ\\nVYLIRGIFPFDSLNSSFYV' +
+    'SIGVTELGELRSSRLEDLEIEGVFRATKDYIDFCLLKED\\nVNPFISQIELRPLPEEYL' +
+    'HGFGTSVLKLISRNNLGDTNDDIRFPDDQNDRIWKRKETS\\nTPTSALPLSFNVSNVDL' +
+    'KDSVTPPLQVLQTALTHPERLEFVHDGLETDDYEYSVFLHF\\nLELNGTVRAGQRVFDI' +
+    'YLNNEIKKEKFDVLAGGSKNSYTALNISANGSLNITLVKASG\\nSEFGPLLNAYEILQA' +
+    'RSWIEETNQKDLEVIQKMREELLLHNQENEALESWSGDPCMIF\\nPWKGITCDDSTGSS' +
+    'IITKLDLSSNNLKGAIPSIVTKMTNLQILNLSHNQFDMLFPSFP\\nPSSLLISLDLSYN' +
+    'DLSGWLPESIISLPHLKSLYFGCNPSMSDEDTTKLNSSLINTDYG\\nRCKAKKPKFGQV' +
+    'FVIGAITSGSLLITLAVGILFFCRYRHKSITLEGFGKTYPMATNII\\nFSLPSKDDFFI' +
+    'KSVSVKPFTLEYIEQATEQYKTLIGEGGFGSVYRGTLDDGQEVAVKV\\nRSSTSTQGTR' +
+    'EFDNELNLLSAIQHENLVPLLGYCNEYDQQILVYPFMSNGSLLDRLYG\\nEASKRKILD' +
+    'WPTRLSIALGAARGLAYLHTFPGRSVIHRDVKSSNILLDQSMCAKVADF\\nGFSKYAPQ' +
+    'EGDSYVSLEVRGTAGYLDPEYYKTQQLSEKSDVFSFGVVLLEIVSGREPL\\nNIKRPRI' +
+    'EWSLVEWAKPYIRASKVDEIVDPGIKGGYHAEALWRVVEVALQCLEPYSTY\\nRPCMVD' +
+    'IVRELEDALIIENNASEYMKSIDSLGGSNRYSIVMDKRALPSTTSTAESTIT\\nTQTLS' +
+    'HPQPR\\"\\n",1,"atggagttacaagttattaggatatttagattggttgtggcatt' +
+    'tgttctttgtttgtgt\\natatttatcagatcagcttcttctgcaactaaaggttagta' +
+    'gctaaatactataattctt\\ntaagatcataataatatctattacttgatttctttccc' +
+    'tttaaacatagaaaacaacata\\nttttaattaacatgaaaggccatgggatgatcata' +
+    'attaataatgagaagaaaataaata\\nagaaacttgttttttttacaaggattgtaaaa' +
+    'tagaactagtagtttcatactttcaata\\nctgagaatcttgaaacaatttcacttttt' +
+    'ctttatgttgctagaatttctttcaagggaa\\naatccaattttgtacaaaatgaattt' +
+    'aacttgtgacattttccttgtagggtttgagagc\\natagcatgttgtgctgattcaaa' +
+    'ttacacagatccaaaaaccaccctaacttatacaaca\\ngatcacatctggttctctga' +
+    'taaaagaagttgcagacaaatacccgaaattttgtttagc\\ncacagaagcaataaaaa' +
+    'tgttcgaaaatttgaaatatatgaaggaaagagatgttataat\\nttgccaacagttaa' +
+    'ggatcaagtatatttgataaggggcatatttccctttgatagttta\\naattcttcgtt' +
+    'ttatgtttcgatcggggtaacagaactaggcgaattaagatcgtctagg\\nctcgagga' +
+    'cttggaaattgagggagtttttagagccaccaaagactacatagatttctgc\\nttatt' +
+    'gaaggaggatgtcaatcccttcatttctcagattgaattgaggccattacctgaa\\nga' +
+    'atacctacatggtttcggtactagtgttttaaaactgataagcagaaacaatcttggt\\n' +
+    'gacacaaatgatgatataaggtatgtgatcttactttatttttaggtagattccacctct' +
+    '\\nattttacagggagtgtctctcaggaaacctaaaaggcttagggtttgtcactacttg' +
+    'gtt\\ncttatggaagcatcatatgttcatacttagtagatatatattgtataaaaatca' +
+    'acatct\\nttctccgtaagggatagaaattgcaattcatgttatgttgagcatatttaa' +
+    'accaaaata\\natttgaggaatatgatgcatgcaacctttctgccaaatgcatgacata' +
+    'acctatgtttca\\nctttacatatagaattataagatgtgtttacatctttatattaac' +
+    'tttgatctttatgat\\ngcactgagatacacctgaatttaaataacaaatggagaagca' +
+    'agaatctagaactctacc\\nattcaatccattgtaatatggaactcacaagaattaact' +
+    'attgccacttcagattaaata\\nccctaagagtgtgtttgtggatgagggaatgttttg' +
+    'agggaatgtaatgttttgagggaa\\nttcaactactttgagatgaattttattgtttga' +
+    'atccacctcaaaataattgaattccct\\ncaaaacattacattacctcaaaatattccc' +
+    'ccatccaaacacactataaaggatcctaat\\nctagtgtagccttagttttctattgaa' +
+    'gtgatttgtgtttagagtttggtctgcatctgc\\naactttgttttgttgctgtaatgc' +
+    'catgactatgaacactgacagaaaggtctcataata\\ntcggtatctatcaattttagg' +
+    'ttcccagatgaccaaaatgatagaatctggaaacggaaa\\ngaaacttcaactccaaca' +
+    'tctgcccttccactgtctttcaatgtcagcaatgttgacctc\\naaagacagtgtcaca' +
+    'cctcctctacaagtcctacaaacagctcttactcaccctgagcga\\nttggagttcgtc' +
+    'catgatggcctcgagaccgatgattatgaatactctgtgtttctccac\\ntttcttgaa' +
+    'ctaaatggcactgtcagagcaggacaaagggtgtttgacatctatctaaac\\naatgag' +
+    'attaaaaaggagaaatttgatgttttggctggagggtccaagaacagttacact\\ngcc' +
+    'ttgaacatttcagcaaatggatcactcaatataaccttagtcaaggcatctggatct\\n' +
+    'gagtttggaccccttttgaatgcctatgaaatcctgcaggcacggtcgtggattgaagag' +
+    '\\naccaaccaaaaagattgtaagtgtacactaagattgctaaattgatgaattttatta' +
+    'acc\\ntttaaccaattttctatttcattctccctcttacactaacactttttttccttt' +
+    'cagtgg\\naagttattcagaagatgagagaagaactgctgctgcacaaccaagaaaatg' +
+    'aagcattgg\\nagagttggagtggagacccttgtatgattttcccctggaaaggaataa' +
+    'catgtgatgatt\\ncaactggttcatctattatcactaagctgtaagtccttccacttt' +
+    'ttagggtctgtttag\\natttgcttatttgagtttatctattgaaataaacacttatga' +
+    'cactgtttggaagagctt\\natgaaaacaacttatagtttatacgaaaacaagttgact' +
+    'ttgttatatctattttataga\\naatagcttataagtaagaacttatatgataagcgtt' +
+    'tatgctataaacgctcaatttaac\\ntgtttatccaaacaggactttaatgcatccata' +
+    'tgtgtttacaagttttgctctattttc\\ntgcagggatctttcttccaataatctcaag' +
+    'ggagcaattccttccattgtcactaagatg\\naccaatttacaaatactgtactgcttc' +
+    'taaatctcatttaaaaacatccacattattttt\\ngtgggaacagtggactgtttttat' +
+    'ccattagttaataatgttgtaacatttttgttatgc\\ngcaggaacctgagccacaacc' +
+    'agttcgatatgttattcccctcgtttccaccgtcctcct\\ntgctgatatcattgtaat' +
+    'tatctcttctcatgtttaacaaatgaactaggatgatactaa\\ntatgagcttatagca' +
+    'cttctattatccttgtaaatgttaacataaacaagcacatgcaga\\nttatagaactaa' +
+    'aatatgatagaatatgctgtatatagtcccaactcatgttggttacat\\naaggtagat' +
+    'attagacagtctcaatgctgaaaccaatatctgtgtgcatgatgcatctta\\natcttt' +
+    'aaaagattttatgattaaggctgttctctatggcacttcagtaggagcagtaac\\naca' +
+    'tctatgtgaaagttccatatgaaatccttgagaaatatgttttgacattatgtttca\\n' +
+    'tatattgctgaatttctttcttcaccaaggttcgaatcttagagaaatttcctacagtta' +
+    '\\nttagtgccattgaaaaattactactaaatctttttcaaatgattgatctacatttat' +
+    'gga\\ntcagggatcttagctacaatgatctttcaggatggcttccagaatccattatct' +
+    'cactgc\\ncacatttaaaatcattgtaagttttatatgttggcattctacttcatccat' +
+    'attaggaag\\nctattttcgattgttgtatatttttaatatacttcatttattcagctt' +
+    'gtatttgattta\\ntttccagatattttggctgcaatccatctatgagtgacgaagata' +
+    'caacaaagttgaaca\\ngttcactaatcaatacagagtatgaagtattattgatgcata' +
+    'acaatagaagtttttaaa\\nataaaataaaataaatcaaaattttactcgtttctgttt' +
+    'tcacagttatgggagatgcaa\\nagcaaaaaaaccaaagtttggacaagtattcgtgat' +
+    'tggagctattacaagtggatcact\\ntttgattactttggctgttggaattctattttt' +
+    'ttgccgttatagacacaagtcaattac\\ntttggaaggatttggaaagacctacccaat' +
+    'ggcaacaagtaggcattttatcttttataa\\ntctattgtaacatatgtctatctgcat' +
+    'tctaatgtaacatatttgctctttagactaaca\\naacaaaaactatagtcacatcatt' +
+    'ctgcatagacaatctcagatcacaagatctaagtgt\\ntatctttaacatagagcatgg' +
+    'tttacaaatacagggaataacatttttataaccctgaga\\nttaaatcaacttttctta' +
+    'tacagtcagacaggaatctgcacataatgttcaacacaatga\\ntaaaataagagaaat' +
+    'atatttaaaaaaactaacatccagtgtgaattcctagatatatgg\\nctacaaaaaaat' +
+    'ctatattccatctgtacaataacaagaatatcaattgaaaaaagaata\\ncttatgaac' +
+    'atgatagatgatattagtttctgtagaggatcattactatgatggaagtga\\ntgattt' +
+    'tagcatgtttggtttggtctaatctacattgtatatatgacattctccaacaaa\\naac' +
+    'atgcagatataattttctctttgccaagcaaagacgatttcttcataaagtctgtat\\n' +
+    'cagttaaaccgttcactttggagtatatagagcaggctacagaacagtacaaaactttaa' +
+    '\\ntaggtgaaggaggatttggctctgtttacaggggcactctagacgatggtcaagaag' +
+    'tgg\\ncagtgaaagtgcggtcatccacatcaactcagggaacccgagaatttgataatg' +
+    'aggtat\\naatatgcattatcactttattagagcaacaagattcccacagaatgttcct' +
+    'aattaaagc\\ntttggccatatatatagtagtttaagaatttgttcggttcctatcaca' +
+    'ccatctgattgg\\ntctatgatggatcatgcagctaaacctactttcagctatacaaca' +
+    'tgagaacctggtgcc\\ntcttctgggttactgtaatgagtatgatcaacaaattctcgt' +
+    'gtatcctttcatgtccaa\\ntggctctttgctagatagactatacggtaaatatctcac' +
+    'aattcttttagcagatatgtt\\nttaatacacagtaattctgaaatttaatttcataac' +
+    'aggggaagcatcaaagagaaaaat\\nattagactggccaactagactctctattgctct' +
+    'cggtgcagctcgaggcaagtaccatga\\ntgttgttttacttttactaagttgtgcata' +
+    'tgtactaattaagcttgtcgacatatcaga\\ngaggataaaacatgaaattgtatgtaa' +
+    'acatttcatatgaaaacataaaactaattcaaa\\ntgaacaatgaaaaaagagaagcgt' +
+    'atacaatgattatgtcttaccacaggcgcagggact\\ntgaatataagatacatattga' +
+    'tttctctactgaacatataaactggagacaatcacaagc\\naaaatgatgaggctatat' +
+    'tgattgacaaggacaatcatattgttttactgtgattagaac\\ngatacagtaaagata' +
+    'ttttagagggaatactgtttactactataagagtgactgatagtt\\ncggatgtgctaa' +
+    'tggaaattgataagatggtcaacattgacttagtgaaatctgtctgac\\naactaagta' +
+    'ttttggccctcacggatctactttggcataaagaaaaacttcttgaaatga\\ntgcatc' +
+    'ctaaagttctttattcttcacataataaactcagtttttgacctaactgacttc\\nact' +
+    'acagttttcgtccataacatatttaggacactaaaatgatcataagttttctgattg\\n' +
+    'agcaggtttggcatatcttcacacatttccaggacgttctgtaatacacagggacgtaaa' +
+    '\\natcgagcaatatactgctggatcagagcatgtgtgctaaggttgcagattttggttt' +
+    'ctc\\naaaatatgctcctcaggaaggagacagttatgtttcccttgaagtaagaggaac' +
+    'tgcagg\\ngtatctggatcctgagtaagtgaacttaaatccgtcttaatctgaatgtct' +
+    'catactgct\\nctctcatctatcactttcagcaaaatattcaatacatttcccacacac' +
+    'aagtttgttgga\\naccatcagaaaactgaagaaatgtttctgattatattcctattct' +
+    'gaatctgaagtgtat\\nattaatttttaaacatacaaaactaaagttcccatatggtga' +
+    'ctacaaatgataagagat\\natttatccatgtgaatttgaatgggatgaagaagaatct' +
+    'aacaatcctagtcccatttgt\\nttcacatgttacagagagtaaccatgacatgaacaa' +
+    'atttcacaatagctgacgtttatc\\ncatatgcaggtactacaaaacccagcaattatc' +
+    'tgaaaaaagtgatgttttcagctttgg\\ntgtggttcttcttgaaattgtaagcggacg' +
+    'ggaacctctcaacataaagagaccaaggat\\ncgagtggagcttggttgaatgggtatg' +
+    'atccatgaccccattttttttacaaatataatt\\nttcaagtggttcatatattttagt' +
+    'aggtactaacacataactttcatgcaggctaaacca\\ntacataagagcatcaaaggtg' +
+    'gatgaaattgtagatcctggcatcaagggaggatatcat\\ngcagaggcattgtggaga' +
+    'gttgtggaagtagcactacaatgtctagaaccctactcaaca\\ntatcggccatgcatg' +
+    'gttgatattgtccgcgagttggaggatgctctcattattgaaaac\\naatgcatctgaa' +
+    'tacatgaaatccatagacagccttggaggatccaaccgctactcaatt\\ngttatggac' +
+    'aaacgggcgctgccttcaactacatctacagcagaatcaactatcacaacc\\ncaaacc' +
+    'ttgtcacaccctcaaccgagatag"],["gene","1..6810","DMI2","E","D",' +
+    '"D","D","","/gene=\\"DMI2\\"\\n",1,"atggagttacaagttattaggata' +
+    'tttagattggttgtggcatttgttctttgtttgtgt\\natatttatcagatcagcttct' +
+    'tctgcaactaaaggttagtagctaaatactataattctt\\ntaagatcataataatatc' +
+    'tattacttgatttctttccctttaaacatagaaaacaacata\\nttttaattaacatga' +
+    'aaggccatgggatgatcataattaataatgagaagaaaataaata\\nagaaacttgttt' +
+    'tttttacaaggattgtaaaatagaactagtagtttcatactttcaata\\nctgagaatc' +
+    'ttgaaacaatttcactttttctttatgttgctagaatttctttcaagggaa\\naatcca' +
+    'attttgtacaaaatgaatttaacttgtgacattttccttgtagggtttgagagc\\nata' +
+    'gcatgttgtgctgattcaaattacacagatccaaaaaccaccctaacttatacaaca\\n' +
+    'gatcacatctggttctctgataaaagaagttgcagacaaatacccgaaattttgtttagc' +
+    '\\ncacagaagcaataaaaatgttcgaaaatttgaaatatatgaaggaaagagatgttat' +
+    'aat\\nttgccaacagttaaggatcaagtatatttgataaggggcatatttccctttgat' +
+    'agttta\\naattcttcgttttatgtttcgatcggggtaacagaactaggcgaattaaga' +
+    'tcgtctagg\\nctcgaggacttggaaattgagggagtttttagagccaccaaagactac' +
+    'atagatttctgc\\nttattgaaggaggatgtcaatcccttcatttctcagattgaattg' +
+    'aggccattacctgaa\\ngaatacctacatggtttcggtactagtgttttaaaactgata' +
+    'agcagaaacaatcttggt\\ngacacaaatgatgatataaggtatgtgatcttactttat' +
+    'ttttaggtagattccacctct\\nattttacagggagtgtctctcaggaaacctaaaagg' +
+    'cttagggtttgtcactacttggtt\\ncttatggaagcatcatatgttcatacttagtag' +
+    'atatatattgtataaaaatcaacatct\\nttctccgtaagggatagaaattgcaattca' +
+    'tgttatgttgagcatatttaaaccaaaata\\natttgaggaatatgatgcatgcaacct' +
+    'ttctgccaaatgcatgacataacctatgtttca\\nctttacatatagaattataagatg' +
+    'tgtttacatctttatattaactttgatctttatgat\\ngcactgagatacacctgaatt' +
+    'taaataacaaatggagaagcaagaatctagaactctacc\\nattcaatccattgtaata' +
+    'tggaactcacaagaattaactattgccacttcagattaaata\\nccctaagagtgtgtt' +
+    'tgtggatgagggaatgttttgagggaatgtaatgttttgagggaa\\nttcaactacttt' +
+    'gagatgaattttattgtttgaatccacctcaaaataattgaattccct\\ncaaaacatt' +
+    'acattacctcaaaatattcccccatccaaacacactataaaggatcctaat\\nctagtg' +
+    'tagccttagttttctattgaagtgatttgtgtttagagtttggtctgcatctgc\\naac' +
+    'tttgttttgttgctgtaatgccatgactatgaacactgacagaaaggtctcataata\\n' +
+    'tcggtatctatcaattttaggttcccagatgaccaaaatgatagaatctggaaacggaaa' +
+    '\\ngaaacttcaactccaacatctgcccttccactgtctttcaatgtcagcaatgttgac' +
+    'ctc\\naaagacagtgtcacacctcctctacaagtcctacaaacagctcttactcaccct' +
+    'gagcga\\nttggagttcgtccatgatggcctcgagaccgatgattatgaatactctgtg' +
+    'tttctccac\\ntttcttgaactaaatggcactgtcagagcaggacaaagggtgtttgac' +
+    'atctatctaaac\\naatgagattaaaaaggagaaatttgatgttttggctggagggtcc' +
+    'aagaacagttacact\\ngccttgaacatttcagcaaatggatcactcaatataacctta' +
+    'gtcaaggcatctggatct\\ngagtttggaccccttttgaatgcctatgaaatcctgcag' +
+    'gcacggtcgtggattgaagag\\naccaaccaaaaagattgtaagtgtacactaagattg' +
+    'ctaaattgatgaattttattaacc\\ntttaaccaattttctatttcattctccctctta' +
+    'cactaacactttttttcctttcagtgg\\naagttattcagaagatgagagaagaactgc' +
+    'tgctgcacaaccaagaaaatgaagcattgg\\nagagttggagtggagacccttgtatga' +
+    'ttttcccctggaaaggaataacatgtgatgatt\\ncaactggttcatctattatcacta' +
+    'agctgtaagtccttccactttttagggtctgtttag\\natttgcttatttgagtttatc' +
+    'tattgaaataaacacttatgacactgtttggaagagctt\\natgaaaacaacttatagt' +
+    'ttatacgaaaacaagttgactttgttatatctattttataga\\naatagcttataagta' +
+    'agaacttatatgataagcgtttatgctataaacgctcaatttaac\\ntgtttatccaaa' +
+    'caggactttaatgcatccatatgtgtttacaagttttgctctattttc\\ntgcagggat' +
+    'ctttcttccaataatctcaagggagcaattccttccattgtcactaagatg\\naccaat' +
+    'ttacaaatactgtactgcttctaaatctcatttaaaaacatccacattattttt\\ngtg' +
+    'ggaacagtggactgtttttatccattagttaataatgttgtaacatttttgttatgc\\n' +
+    'gcaggaacctgagccacaaccagttcgatatgttattcccctcgtttccaccgtcctcct' +
+    '\\ntgctgatatcattgtaattatctcttctcatgtttaacaaatgaactaggatgatac' +
+    'taa\\ntatgagcttatagcacttctattatccttgtaaatgttaacataaacaagcaca' +
+    'tgcaga\\nttatagaactaaaatatgatagaatatgctgtatatagtcccaactcatgt' +
+    'tggttacat\\naaggtagatattagacagtctcaatgctgaaaccaatatctgtgtgca' +
+    'tgatgcatctta\\natctttaaaagattttatgattaaggctgttctctatggcacttc' +
+    'agtaggagcagtaac\\nacatctatgtgaaagttccatatgaaatccttgagaaatatg' +
+    'ttttgacattatgtttca\\ntatattgctgaatttctttcttcaccaaggttcgaatct' +
+    'tagagaaatttcctacagtta\\nttagtgccattgaaaaattactactaaatctttttc' +
+    'aaatgattgatctacatttatgga\\ntcagggatcttagctacaatgatctttcaggat' +
+    'ggcttccagaatccattatctcactgc\\ncacatttaaaatcattgtaagttttatatg' +
+    'ttggcattctacttcatccatattaggaag\\nctattttcgattgttgtatatttttaa' +
+    'tatacttcatttattcagcttgtatttgattta\\ntttccagatattttggctgcaatc' +
+    'catctatgagtgacgaagatacaacaaagttgaaca\\ngttcactaatcaatacagagt' +
+    'atgaagtattattgatgcataacaatagaagtttttaaa\\nataaaataaaataaatca' +
+    'aaattttactcgtttctgttttcacagttatgggagatgcaa\\nagcaaaaaaaccaaa' +
+    'gtttggacaagtattcgtgattggagctattacaagtggatcact\\ntttgattacttt' +
+    'ggctgttggaattctatttttttgccgttatagacacaagtcaattac\\ntttggaagg' +
+    'atttggaaagacctacccaatggcaacaagtaggcattttatcttttataa\\ntctatt' +
+    'gtaacatatgtctatctgcattctaatgtaacatatttgctctttagactaaca\\naac' +
+    'aaaaactatagtcacatcattctgcatagacaatctcagatcacaagatctaagtgt\\n' +
+    'tatctttaacatagagcatggtttacaaatacagggaataacatttttataaccctgaga' +
+    '\\nttaaatcaacttttcttatacagtcagacaggaatctgcacataatgttcaacacaa' +
+    'tga\\ntaaaataagagaaatatatttaaaaaaactaacatccagtgtgaattcctagat' +
+    'atatgg\\nctacaaaaaaatctatattccatctgtacaataacaagaatatcaattgaa' +
+    'aaaagaata\\ncttatgaacatgatagatgatattagtttctgtagaggatcattacta' +
+    'tgatggaagtga\\ntgattttagcatgtttggtttggtctaatctacattgtatatatg' +
+    'acattctccaacaaa\\naacatgcagatataattttctctttgccaagcaaagacgatt' +
+    'tcttcataaagtctgtat\\ncagttaaaccgttcactttggagtatatagagcaggcta' +
+    'cagaacagtacaaaactttaa\\ntaggtgaaggaggatttggctctgtttacaggggca' +
+    'ctctagacgatggtcaagaagtgg\\ncagtgaaagtgcggtcatccacatcaactcagg' +
+    'gaacccgagaatttgataatgaggtat\\naatatgcattatcactttattagagcaaca' +
+    'agattcccacagaatgttcctaattaaagc\\ntttggccatatatatagtagtttaaga' +
+    'atttgttcggttcctatcacaccatctgattgg\\ntctatgatggatcatgcagctaaa' +
+    'cctactttcagctatacaacatgagaacctggtgcc\\ntcttctgggttactgtaatga' +
+    'gtatgatcaacaaattctcgtgtatcctttcatgtccaa\\ntggctctttgctagatag' +
+    'actatacggtaaatatctcacaattcttttagcagatatgtt\\nttaatacacagtaat' +
+    'tctgaaatttaatttcataacaggggaagcatcaaagagaaaaat\\nattagactggcc' +
+    'aactagactctctattgctctcggtgcagctcgaggcaagtaccatga\\ntgttgtttt' +
+    'acttttactaagttgtgcatatgtactaattaagcttgtcgacatatcaga\\ngaggat' +
+    'aaaacatgaaattgtatgtaaacatttcatatgaaaacataaaactaattcaaa\\ntga' +
+    'acaatgaaaaaagagaagcgtatacaatgattatgtcttaccacaggcgcagggact\\n' +
+    'tgaatataagatacatattgatttctctactgaacatataaactggagacaatcacaagc' +
+    '\\naaaatgatgaggctatattgattgacaaggacaatcatattgttttactgtgattag' +
+    'aac\\ngatacagtaaagatattttagagggaatactgtttactactataagagtgactg' +
+    'atagtt\\ncggatgtgctaatggaaattgataagatggtcaacattgacttagtgaaat' +
+    'ctgtctgac\\naactaagtattttggccctcacggatctactttggcataaagaaaaac' +
+    'ttcttgaaatga\\ntgcatcctaaagttctttattcttcacataataaactcagttttt' +
+    'gacctaactgacttc\\nactacagttttcgtccataacatatttaggacactaaaatga' +
+    'tcataagttttctgattg\\nagcaggtttggcatatcttcacacatttccaggacgttc' +
+    'tgtaatacacagggacgtaaa\\natcgagcaatatactgctggatcagagcatgtgtgc' +
+    'taaggttgcagattttggtttctc\\naaaatatgctcctcaggaaggagacagttatgt' +
+    'ttcccttgaagtaagaggaactgcagg\\ngtatctggatcctgagtaagtgaacttaaa' +
+    'tccgtcttaatctgaatgtctcatactgct\\nctctcatctatcactttcagcaaaata' +
+    'ttcaatacatttcccacacacaagtttgttgga\\naccatcagaaaactgaagaaatgt' +
+    'ttctgattatattcctattctgaatctgaagtgtat\\nattaatttttaaacatacaaa' +
+    'actaaagttcccatatggtgactacaaatgataagagat\\natttatccatgtgaattt' +
+    'gaatgggatgaagaagaatctaacaatcctagtcccatttgt\\nttcacatgttacaga' +
+    'gagtaaccatgacatgaacaaatttcacaatagctgacgtttatc\\ncatatgcaggta' +
+    'ctacaaaacccagcaattatctgaaaaaagtgatgttttcagctttgg\\ntgtggttct' +
+    'tcttgaaattgtaagcggacgggaacctctcaacataaagagaccaaggat\\ncgagtg' +
+    'gagcttggttgaatgggtatgatccatgaccccattttttttacaaatataatt\\nttc' +
+    'aagtggttcatatattttagtaggtactaacacataactttcatgcaggctaaacca\\n' +
+    'tacataagagcatcaaaggtggatgaaattgtagatcctggcatcaagggaggatatcat' +
+    '\\ngcagaggcattgtggagagttgtggaagtagcactacaatgtctagaaccctactca' +
+    'aca\\ntatcggccatgcatggttgatattgtccgcgagttggaggatgctctcattatt' +
+    'gaaaac\\naatgcatctgaatacatgaaatccatagacagccttggaggatccaaccgc' +
+    'tactcaatt\\ngttatggacaaacgggcgctgccttcaactacatctacagcagaatca' +
+    'actatcacaacc\\ncaaaccttgtcacaccctcaaccgagatag"],["CDS","join' +
+    '(1..731,1297..1351,1430..1540,1830..2062,2594..2801,3457..35' +
+    '16,3599..3772)","DMI3","E","D","D","D","","/gene=\\"DMI3\\"\\n' +
+    '/codon_start=1\\n/transl_table=11\\n/product=\\"DMI3\\"\\n/p' +
+    'rotein_id=\\"AET75798.1\\"\\n/translation=\\"MGYGTRKLSDEYEVS' +
+    'EILGRGGFSVVRKGTKKSSIEEEKSQSQV\\nAIKTLRRLGASNNPSGLPRKKDIGEKST' +
+    'IGFPTMRQVSVSDTLLTNEILVMRRIVENV\\nSPHPNVIDLYDVYEDTNGVHLVLELCS' +
+    'GGELFDRIVAQDKYSETEAATVVHQIASGLE\\nAVHRANIVHRDLKPENCLFLDVRKDS' +
+    'PLKIMDFGLSSVEEFTDPVVGLFGSIDYVSPE\\nALSQGKITTKSDMWSLGVILYILLS' +
+    'GYPPFIAQNNRQKQQMIMNGNFSFYEKTWKGIS\\nQPAKNLISSLLTVDPSKRPSALEL' +
+    'LSDPWVKGEKAKDVQMDPEIVSRLQSFNARRKLR\\nAAAIASVWSSTIFLRTKKLKSLV' +
+    'GSYDLKEEEIENLRMHFKKICADRDNATLSEFEEV\\nLKAMNMLSLIPFASRIFDLFDN' +
+    'NRDGTVDMREILCGFSSLKNSKGEDALRLCFQMYDT\\nDRSGCISKEEVASMLRALPYD' +
+    'CLPTDITEPGKLDEIFDLMDANNDGKVTFDEFKAAMQ\\nRDSSLQDVVLSSIRP\\"\\n' +
+    '",1,"atgggatatggaacaagaaaactctcagatgaatatgaagtttcagaaattctag' +
+    'gtaga\\nggtggattttctgttgttagaaaaggtacaaaaaaatcaagcattgaagaag' +
+    'aaaaatca\\ncaatcacaagtagcaatcaaaaccctaagaaggttaggtgcttcaaata' +
+    'accctagtgga\\nttaccaagaaaaaaagatattggagaaaaaagcacaatagggttcc' +
+    'ctacaatgagacaa\\ngtttcagtttcagatacattactaacaaatgagatacttgtaa' +
+    'tgagacgaatagtcgaa\\naacgtttcgccacatccaaatgtgattgatctttatgatg' +
+    'tatatgaggacacaaatggt\\ngttcatcttgttcttgagctttgttccggtggtgaac' +
+    'ttttcgataggattgttgcacaa\\ngataagtatagtgagactgaagctgcaactgtgg' +
+    'ttcatcaaatagcttcagggttagaa\\ngctgttcatagagctaatatagttcatagag' +
+    'atttgaaacctgaaaattgtcttttttta\\ngatgttaggaaagattctcctcttaaga' +
+    'ttatggattttgggttgagttctgttgaagag\\ntttactgatcctgttgttggtttgt' +
+    'ttggatctattgattatgtttcacctgaggctctt\\ntctcaaggaaagattactacta' +
+    'agagtgatatgtggtctcttggggttattctatatatc\\nttactttcagggtatgttt' +
+    'ttacttttctttctttcttatatttaaattgtattaggttt\\ntatgttttgattctag' +
+    'cgatgatgagtttgtatgtatcatcgtggttttaacaaaactcc\\nactttagatcttc' +
+    'tacaaaattacggtgctactgtgatttcgtcaaactcaacatgtcca\\naacatgtact' +
+    'agtagtatgtttagttttaaatttggaatttacaaacctaacctacaaga\\naatagcg' +
+    'ccgatttgggaacacggtagctcacatctcaccgcgtggtagctcgtctctcc\\naaat' +
+    'taatagtgcgtttggtattatgtttggaatttccaacccaaacctacaagaaatag\\nt' +
+    'gtctgtttggaaacatgtagcttacctctcacagcgaggtagctcattacttcaagatg\\n' +
+    'aacttcctcgaagtgacatcataaaaaaagaaacccaaacaaacacatgcttaagctttt' +
+    '\\ngttagataccttgtgatttcgttaaactcaacgtatccaaacatatactagtggtat' +
+    'gtt\\ntagttttaaaattattttcatataattgttatgcaggtatccacctttcattgc' +
+    'ccaaaa\\ntaatcgccaaaaacaacaaatgataatgaatgtaagtaccatctcttacag' +
+    'aatatagaa\\ngttctttccacaattactttgcttactaaaacaaaatggtttggaaca' +
+    'ggggaattttag\\ntttttatgagaagacttggaagggaatttcacaaccagcaaagaa' +
+    'tttgatttcaagtct\\ntttaaccgttgatcctagcaagagacctagtgctcttgaggt' +
+    'attgtacactactactat\\ncttgaacataccaacttaacattaaatgtccacataaat' +
+    'attttttaatcgagtttgatg\\naaattagaataatgatgtagatattttatgacttaa' +
+    'aggaccaatttataacaaaaaaaa\\ncttaaatgactaacttgctataatacaacttaa' +
+    'gaatcgtagatgatatttgacctattt\\nttcatgacattatcttcaaatgtaaagaag' +
+    'tttaaggtgaataaaaaccacaacacacat\\ngttgttgtactttgtgttttttggaac' +
+    'agcttctaagtgatccatgggtcaaaggtgaga\\naagccaaagatgttcaaatggacc' +
+    'ctgagattgtctcaaggctacaaagctttaatgcaa\\ngacgtaaacttcgtgcagctg' +
+    'caattgctagtgtttggagctccacaatcttccttagaa\\ncaaaaaaattgaaatcat' +
+    'tggttggatcctatgatcttaaagaagaggaaattgaaaatc\\ntcaggatgcatttca' +
+    'agaagatgtaagtacccaaaagtcaaaaattatcatagtaacatt\\ntaactttagctc' +
+    'ttaaatttcacaaggaaccaaacattttaagtaaataatcaaattagt\\ntaagaatga' +
+    'cagataattaaaatattcaaaagtattcagaactcctagctcaactggcaa\\naaatgt' +
+    'cgaaattgttaggccgaatgccataaccggggttctaccaaaaaaaaaaatatt\\ncaa' +
+    'aagtaattttcataatatttacacaattcgagctaaggttttaaaaaacagttcaaa\\n' +
+    'gtcgcgtttgagatgtgacatcaatgtttttttatgtctttgtagtaattacaattacat' +
+    '\\nttgctcgaagtgtattttgacacaaaaaattgggactatgtgtacgatacacttcgg' +
+    'act\\naatgttttctttttgaatacaaagaaaatactaatagaaaatacaccatttctg' +
+    'attttt\\ncaatattaacaagtgtgttgcagttgtaaactttgatagttttgattaaag' +
+    'taatgtaat\\ngagttgttaacagatgtgcagatagagacaatgcaactctgtcagagt' +
+    'ttgaggaggtgt\\ntaaaagcaatgaatatgttatcattgatcccttttgcttctcgta' +
+    'tatttgatttgtttg\\nacaacaaccgtgatggaacagttgacatgcgtgagatacttt' +
+    'gtggattttccagtctca\\nagaattccaaaggagaggatgctcttcgtttgtgcttcc' +
+    'aggtgaattatactcaacacc\\ncaaacaaatattaagttttacaaatatgaatatgtg' +
+    'aagcaaatggattcaaattataga\\ntatttgtgagttgaaatttatgttgttagtatc' +
+    'agactagatagttcgactagtttaaac\\ntaaatgttaaggagtttagacattgaattt' +
+    'aaacaacactaacgaaatagtaaatattaa\\ncctaaaattatgtatttaacttagttg' +
+    'atcaacattggggcctcataacttgttagacct\\ngtacattcaaaccttagacttagt' +
+    'acaacatgatttattttatttttctaagtcttgata\\naaacgttcactatatatttag' +
+    'gcttaattttttttgtcaagttttacttaccttcaagct\\ngaattacggattattaaa' +
+    'gtctcgttcacctaagaatcgaagagttaacaccaaaataaa\\nataaaaattactttt' +
+    'gacctttaaatatgttggactgaatcaataaattagttttttttt\\nagaggttgaacc' +
+    'aataaattagtcttttttttaaggaataaattaatgtctctaaagaaa\\ntagcttaaa' +
+    'aattaatgttatgaacatacactctataactagttttcaacatgttaacca\\ncatttg' +
+    'cctctttatttttattttgttggcaaatagatgtatgatacagatagatcaggc\\ntgc' +
+    'atcagcaaagaggaagtagcatccatgctcagggtaatgcacacacatctcaattaa\\n' +
+    'ttagcttcatcttttcactttcattatattaacacacatttatacattaattaaacaggc' +
+    '\\ntttgccatatgattgtcttccaactgatatcactgaacctggaaaattggatgagat' +
+    'ttt\\ntgacttaatggatgctaataatgatggaaaagttacatttgatgaattcaaagc' +
+    'tgctat\\ngcaaagagatagctctcttcaagatgtagttctctcttctattcgtccata' +
+    'a"],["gene","1..3772","DMI3","E","D","D","D","","/gene=\\"DM' +
+    'I3\\"\\n",1,"atgggatatggaacaagaaaactctcagatgaatatgaagtttcaga' +
+    'aattctaggtaga\\nggtggattttctgttgttagaaaaggtacaaaaaaatcaagcat' +
+    'tgaagaagaaaaatca\\ncaatcacaagtagcaatcaaaaccctaagaaggttaggtgc' +
+    'ttcaaataaccctagtgga\\nttaccaagaaaaaaagatattggagaaaaaagcacaat' +
+    'agggttccctacaatgagacaa\\ngtttcagtttcagatacattactaacaaatgagat' +
+    'acttgtaatgagacgaatagtcgaa\\naacgtttcgccacatccaaatgtgattgatct' +
+    'ttatgatgtatatgaggacacaaatggt\\ngttcatcttgttcttgagctttgttccgg' +
+    'tggtgaacttttcgataggattgttgcacaa\\ngataagtatagtgagactgaagctgc' +
+    'aactgtggttcatcaaatagcttcagggttagaa\\ngctgttcatagagctaatatagt' +
+    'tcatagagatttgaaacctgaaaattgtcttttttta\\ngatgttaggaaagattctcc' +
+    'tcttaagattatggattttgggttgagttctgttgaagag\\ntttactgatcctgttgt' +
+    'tggtttgtttggatctattgattatgtttcacctgaggctctt\\ntctcaaggaaagat' +
+    'tactactaagagtgatatgtggtctcttggggttattctatatatc\\nttactttcagg' +
+    'gtatgtttttacttttctttctttcttatatttaaattgtattaggttt\\ntatgtttt' +
+    'gattctagcgatgatgagtttgtatgtatcatcgtggttttaacaaaactcc\\nacttt' +
+    'agatcttctacaaaattacggtgctactgtgatttcgtcaaactcaacatgtcca\\naa' +
+    'catgtactagtagtatgtttagttttaaatttggaatttacaaacctaacctacaaga\\n' +
+    'aatagcgccgatttgggaacacggtagctcacatctcaccgcgtggtagctcgtctctcc' +
+    '\\naaattaatagtgcgtttggtattatgtttggaatttccaacccaaacctacaagaaa' +
+    'tag\\ntgtctgtttggaaacatgtagcttacctctcacagcgaggtagctcattacttc' +
+    'aagatg\\naacttcctcgaagtgacatcataaaaaaagaaacccaaacaaacacatgct' +
+    'taagctttt\\ngttagataccttgtgatttcgttaaactcaacgtatccaaacatatac' +
+    'tagtggtatgtt\\ntagttttaaaattattttcatataattgttatgcaggtatccacc' +
+    'tttcattgcccaaaa\\ntaatcgccaaaaacaacaaatgataatgaatgtaagtaccat' +
+    'ctcttacagaatatagaa\\ngttctttccacaattactttgcttactaaaacaaaatgg' +
+    'tttggaacaggggaattttag\\ntttttatgagaagacttggaagggaatttcacaacc' +
+    'agcaaagaatttgatttcaagtct\\ntttaaccgttgatcctagcaagagacctagtgc' +
+    'tcttgaggtattgtacactactactat\\ncttgaacataccaacttaacattaaatgtc' +
+    'cacataaatattttttaatcgagtttgatg\\naaattagaataatgatgtagatatttt' +
+    'atgacttaaaggaccaatttataacaaaaaaaa\\ncttaaatgactaacttgctataat' +
+    'acaacttaagaatcgtagatgatatttgacctattt\\nttcatgacattatcttcaaat' +
+    'gtaaagaagtttaaggtgaataaaaaccacaacacacat\\ngttgttgtactttgtgtt' +
+    'ttttggaacagcttctaagtgatccatgggtcaaaggtgaga\\naagccaaagatgttc' +
+    'aaatggaccctgagattgtctcaaggctacaaagctttaatgcaa\\ngacgtaaacttc' +
+    'gtgcagctgcaattgctagtgtttggagctccacaatcttccttagaa\\ncaaaaaaat' +
+    'tgaaatcattggttggatcctatgatcttaaagaagaggaaattgaaaatc\\ntcagga' +
+    'tgcatttcaagaagatgtaagtacccaaaagtcaaaaattatcatagtaacatt\\ntaa' +
+    'ctttagctcttaaatttcacaaggaaccaaacattttaagtaaataatcaaattagt\\n' +
+    'taagaatgacagataattaaaatattcaaaagtattcagaactcctagctcaactggcaa' +
+    '\\naaatgtcgaaattgttaggccgaatgccataaccggggttctaccaaaaaaaaaaat' +
+    'att\\ncaaaagtaattttcataatatttacacaattcgagctaaggttttaaaaaacag' +
+    'ttcaaa\\ngtcgcgtttgagatgtgacatcaatgtttttttatgtctttgtagtaatta' +
+    'caattacat\\nttgctcgaagtgtattttgacacaaaaaattgggactatgtgtacgat' +
+    'acacttcggact\\naatgttttctttttgaatacaaagaaaatactaatagaaaataca' +
+    'ccatttctgattttt\\ncaatattaacaagtgtgttgcagttgtaaactttgatagttt' +
+    'tgattaaagtaatgtaat\\ngagttgttaacagatgtgcagatagagacaatgcaactc' +
+    'tgtcagagtttgaggaggtgt\\ntaaaagcaatgaatatgttatcattgatcccttttg' +
+    'cttctcgtatatttgatttgtttg\\nacaacaaccgtgatggaacagttgacatgcgtg' +
+    'agatactttgtggattttccagtctca\\nagaattccaaaggagaggatgctcttcgtt' +
+    'tgtgcttccaggtgaattatactcaacacc\\ncaaacaaatattaagttttacaaatat' +
+    'gaatatgtgaagcaaatggattcaaattataga\\ntatttgtgagttgaaatttatgtt' +
+    'gttagtatcagactagatagttcgactagtttaaac\\ntaaatgttaaggagtttagac' +
+    'attgaatttaaacaacactaacgaaatagtaaatattaa\\ncctaaaattatgtattta' +
+    'acttagttgatcaacattggggcctcataacttgttagacct\\ngtacattcaaacctt' +
+    'agacttagtacaacatgatttattttatttttctaagtcttgata\\naaacgttcacta' +
+    'tatatttaggcttaattttttttgtcaagttttacttaccttcaagct\\ngaattacgg' +
+    'attattaaagtctcgttcacctaagaatcgaagagttaacaccaaaataaa\\nataaaa' +
+    'attacttttgacctttaaatatgttggactgaatcaataaattagttttttttt\\naga' +
+    'ggttgaaccaataaattagtcttttttttaaggaataaattaatgtctctaaagaaa\\n' +
+    'tagcttaaaaattaatgttatgaacatacactctataactagttttcaacatgttaacca' +
+    '\\ncatttgcctctttatttttattttgttggcaaatagatgtatgatacagatagatca' +
+    'ggc\\ntgcatcagcaaagaggaagtagcatccatgctcagggtaatgcacacacatctc' +
+    'aattaa\\nttagcttcatcttttcactttcattatattaacacacatttatacattaat' +
+    'taaacaggc\\ntttgccatatgattgtcttccaactgatatcactgaacctggaaaatt' +
+    'ggatgagatttt\\ntgacttaatggatgctaataatgatggaaaagttacatttgatga' +
+    'attcaaagctgctat\\ngcaaagagatagctctcttcaagatgtagttctctcttctat' +
+    'tcgtccataa"],["CDS","1..753","DsRed","E","D","D","D","","/ge' +
+    'ne=\\"DsRed\\"\\n/codon_start=1\\n/transl_table=11\\n/produc' +
+    't=\\"DsRed\\"\\n/protein_id=\\"AET75793.1\\"\\n/translation=' +
+    '\\"MRFKVRMEGTVNGHEFEIEGEGEGRPYEGHNTVKLKVTKGGPLP\\nFAWDILSPQF' +
+    'QYGSKVYVKHPADIPDYKKLSFPEGFKWERVMNFEDGGVVTVTQDSSL\\nQDGCFIYKV' +
+    'KFIGVNFPSDGPVMQKKTMGWEASTERLYPRDGVLKGEIHKALKLKDGG\\nHYLVEFKS' +
+    'IYMAKKPVQLPGYYYVDSKLDITSHKRGLHHRGAVRAHRGPPPPVPVGSN\\nSRSFKHL' +
+    'AIKFLKIESCCRSCDDYHIISVELR\\"\\n",1,"atgcgcttcaaggtgcgcatggag' +
+    'ggcaccgtgaacggccacgagttcgagatcgagggc\\ngagggcgagggccgcccctac' +
+    'gagggccacaacaccgtgaagctgaaggtgaccaagggc\\nggccccctgcccttcgcc' +
+    'tgggacatcctgtccccccagttccagtacggctccaaggtg\\ntacgtgaagcacccc' +
+    'gccgacatccccgactacaagaagctgtccttccccgagggcttc\\naagtgggagcgc' +
+    'gtgatgaacttcgaggacggcggcgtggtgaccgtgacccaggactcc\\ntccctgcag' +
+    'gacggctgcttcatctacaaggtgaagttcatcggcgtgaacttcccctcc\\ngacggc' +
+    'cccgtaatgcagaagaagaccatgggctgggaggcctccaccgagcgcctgtac\\nccc' +
+    'cgcgacggcgtgctgaagggcgagatccacaaggccctgaagctgaaggacggcggc\\n' +
+    'cactacctggtggagttcaagtccatctacatggccaagaagcccgtgcagctgcccggc' +
+    '\\ntactactacgtggactccaagctggacatcacctcccacaaacgaggactacaccat' +
+    'cgt\\nggagcagtacgagcgcaccgagggccgccaccacctgttcctgtaggatccaat' +
+    'tcccga\\ntcgttcaaacatttggcaataaagtttcttaagattgaatcctgttgccgg' +
+    'tcttgcgat\\ngattatcatataatttctgttgaattacgttaa"],["gene","1..' +
+    '753","DsRed","E","D","D","D","","/gene=\\"DsRed\\"\\n",1,"at' +
+    'gcgcttcaaggtgcgcatggagggcaccgtgaacggccacgagttcgagatcgagggc\\n' +
+    'gagggcgagggccgcccctacgagggccacaacaccgtgaagctgaaggtgaccaagggc' +
+    '\\nggccccctgcccttcgcctgggacatcctgtccccccagttccagtacggctccaag' +
+    'gtg\\ntacgtgaagcaccccgccgacatccccgactacaagaagctgtccttccccgag' +
+    'ggcttc\\naagtgggagcgcgtgatgaacttcgaggacggcggcgtggtgaccgtgacc' +
+    'caggactcc\\ntccctgcaggacggctgcttcatctacaaggtgaagttcatcggcgtg' +
+    'aacttcccctcc\\ngacggccccgtaatgcagaagaagaccatgggctgggaggcctcc' +
+    'accgagcgcctgtac\\nccccgcgacggcgtgctgaagggcgagatccacaaggccctg' +
+    'aagctgaaggacggcggc\\ncactacctggtggagttcaagtccatctacatggccaag' +
+    'aagcccgtgcagctgcccggc\\ntactactacgtggactccaagctggacatcacctcc' +
+    'cacaaacgaggactacaccatcgt\\nggagcagtacgagcgcaccgagggccgccacca' +
+    'cctgttcctgtaggatccaattcccga\\ntcgttcaaacatttggcaataaagtttctt' +
+    'aagattgaatcctgttgccggtcttgcgat\\ngattatcatataatttctgttgaatta' +
+    'cgttaa"],["CDS","1..819","kanamycin resistance protein","E",' +
+    '"D","D","D","","/codon_start=1\\n/transl_table=11\\n/product' +
+    '=\\"kanamycin resistance protein\\"\\n/protein_id=\\"AET7579' +
+    '0.1\\"\\n/translation=\\"MSHIQRETSCSRPRLNSNMDADLYGYKWARDNVGQ' +
+    'SGATIYRLY\\nGKPDAPELFLKHGKGSVANDVTDEMVRLNWLTEFMPLPTIKHFIRTPD' +
+    'DAWLLTTAIP\\nGKTAFQVLEEYPDSGENIVDALAVFLRRLHSIPVCNCPFNSDRVFRL' +
+    'AQAQSRMNNGL\\nVDASDFDDERNGWPVEQVWKEMHKLLLPFSPDSVVTHGDFSLDNLI' +
+    'FDEGKLIGCIDV\\nGRVGIADRYQDLAILWNCLGEFSPSLQKRLFQKYGIDNPDMNKLQ' +
+    'FHLMLDEFF\\"\\n",1,"atgagccatattcaacgggaaacgtcttgctcgaggccgc' +
+    'gattaaattccaacatggat\\ngctgatttatatgggtataaatgggctcgcgataatg' +
+    'tcgggcaatcaggtgcgacaatc\\ntatcgattgtatgggaagcccgatgcgccagagt' +
+    'tgtttctgaaacatggcaaaggtagc\\ngttgccaatgatgttacagatgagatggtca' +
+    'gactaaactggctgacggaatttatgcct\\ncttccgaccatcaagcattttatccgta' +
+    'ctcctgatgatgcatggttactcaccactgcg\\natccccgggaaaacagcattccagg' +
+    'tattagaagaatatcctgattcaggtgaaaatatt\\ngttgatgcgctggcagtgttcc' +
+    'tgcgccggttgcattcgattcctgtttgtaattgtcct\\ntttaacagcgatcgcgtat' +
+    'ttcgtctcgctcaggcgcaatcacgaatgaataacggtttg\\ngttgatgcgagtgatt' +
+    'ttgatgacgagcgtaatggctggcctgttgaacaagtctggaaa\\ngaaatgcataagc' +
+    'tgcttttgccattctcaccggattcagtcgtcactcatggtgatttc\\ntcacttgata' +
+    'accttatttttgacgaggggaaattaataggttgtattgatgttggacga\\ngtcggaa' +
+    'tcgcagaccgataccaggatcttgccatcctatggaactgcctcggtgagttt\\ntctc' +
+    'cttcattacagaaacggctttttcaaaaatatggtattgataatcctgatatgaat\\na' +
+    'aattgcagtttcatttgatgctcgatgagtttttctaa"],["misc_feature","1.' +
+    '.491","LB (left border)","E","D","D","D","/note=\\"LB (left ' +
+    'border)\\"","/note=\\"Spacer for note information\\"\\n",1,"' +
+    'tcgacgatcgtcaacgttcacttctaaagaaatagcgccactcagcttcctcagcggctt' +
+    '\\ntatccagcgatttcctattatgtcggcatagttctcaagatcgacagcctgtcacgg' +
+    'tta\\nagcgagaaatgaataagaaggctgataattcggatctctgcgagggagatgata' +
+    'tttgat\\ncacaggcagcaacgctctgtcatcgttacaatcaacatgctaccctccgcg' +
+    'agatcatcc\\ngtgtttcaaacccggcagcttagttgccgttcttccgaatagcatcgg' +
+    'taacatgagcaa\\nagtctgccgccttacaacggctctcccgctgacgccgtcccggac' +
+    'tgatgggctgcctgt\\natcgagtggtgattttgtgccgagctgccggtcggggagctg' +
+    'ttggctggctggtggcag\\ngatatattgtggtgtaaacaaattgacgcttagacaact' +
+    'taataacacattgcggacgtt\\ntttaatgtact"],["CDS","join(1..637,11' +
+    '11..1144,1510..1676,2308..2510,2938..3027,3766..3859,4065..4' +
+    '216,4304..4395,4969..5107,5236..5334,5527..5691)","NFR1","E"' +
+    ',"D","D","D","","/gene=\\"NFR1\\"\\n/codon_start=1\\n/transl' +
+    '_table=11\\n/product=\\"NFR1\\"\\n/protein_id=\\"AET75801.1\\"' +
+    '\\n/translation=\\"MKLKTGLLLFFILLLGHVCFHVESNCLKGCDLALASYYILP' +
+    'GVF\\nILQNITTFMQSEIVSSNDAITSYNKDKILNDINIQSFQRLNIPFPCDCIGGEFL' +
+    'GHVF\\nEYSASKGDTYETIANLYYANLTTVDLLKRFNSYDPKNIPVNAKVNVTVNCSCG' +
+    'NSQVS\\nKDYGLFITYPIRPGDTLQDIANQSSLDAGLIQSFNPSVNFSKDSGIAFIPGR' +
+    'YKNGVY\\nVPLYHRTAGLASGAAVGISIAGTFVLLLLAFCMYVRYQKKEEEKAKLPTDI' +
+    'SMALSTQ\\nDGNASSSAEYETSGSSGPGTASATGLTSIMVAKSMEFSYQELAKATNNFS' +
+    'LDNKIGQG\\nGFGAVYYAELRGKKTAIKKMDVQASTEFLCELKVLTHVHHLNLVRLIGY' +
+    'CVEGSLFLV\\nYEHIDNGNLGQYLHGSGKEPLPWSSRVQIALDAARGLEYIHEHTVPVY' +
+    'IHRDVKSANI\\nLIDKNLRGKVADFGLTKLIEVGNSTLQTRLVGTFGYMPPEYAQYGDI' +
+    'SPKIDVYAFGV\\nVLFELISAKNAVLKTGELVAESKGLVALFEEALNKSDPCDALRKLV' +
+    'DPRLGENYPIDS\\nVLKIAQLGRACTRDNPLLRPSMRSLVVALMTLSSLTEDCDDESSY' +
+    'ESQTLINLLSVR\\"\\n",1,"atgaagctaaaaactggtctacttttgtttttcattc' +
+    'ttttgctggggcatgtttgtttc\\ncatgtggaatcaaactgtctgaaggggtgtgatc' +
+    'tagctttagcttcctattatatcttg\\ncctggtgttttcatcttacaaaacataacaa' +
+    'cctttatgcaatcagagattgtctcaagt\\naatgatgccataaccagctacaacaaag' +
+    'acaaaattctcaatgatatcaacatccaatcc\\ntttcaaagactcaacattccatttc' +
+    'catgtgactgtattggtggtgagtttctagggcat\\ngtatttgagtactcagcttcaa' +
+    'aaggagacacttatgaaactattgccaacctctactat\\ngcaaatttgacaacagttg' +
+    'atcttttgaaaaggttcaacagctatgatccaaaaaacata\\ncctgttaatgccaagg' +
+    'ttaatgtcactgttaattgttcttgtgggaacagccaggtttca\\naaagattatggct' +
+    'tgtttattacctatcccattaggcctggggatacactgcaggatatt\\ngcaaaccaga' +
+    'gtagtcttgatgcagggttgatacagagtttcaacccaagtgtcaatttc\\nagcaaag' +
+    'atagtgggatagctttcattcctggaagatggtatgttatcctttttgtttta\\naatt' +
+    'tttccgctttgattaaagtttattattattagcatgattggatcaacttctctttc\\na' +
+    'tcaaaatcatttctgaaactcagaagctactcacacaagcttcctggtttcagaatcaa\\n' +
+    'ttgtagtagggtttccaaacatgctcttttatcaaaatcaattacgtaactcagaaacta' +
+    '\\nctcacataagcttctccttagaattgattctgtttttagaatcaattgtaaaagggt' +
+    'tta\\ncaaacatgcactctgctagtgtgtgtgcttaaaactattcatggtgaaattact' +
+    'cttcca\\nttgtttctacaataatacatgacaaggcatgtaacttaccccacctaattg' +
+    'aaaaatggt\\ntggtggttattgttatatcatttgttcaatacatttgatataaacttt' +
+    'tatgaatttacc\\ntgaagttttacttttctttgaacttttcagataaaaatggagtct' +
+    'atgttcccttgtacc\\nacaggtgggtaacttcaattgcctactcatctttttatgatg' +
+    'aatgatagcatgtttgga\\ntcaacttctctttcaccagaattaatccttaaattcaga' +
+    'actaagaagctactcacataa\\ngctttttcccggaattaattctggcttcagaagcaa' +
+    'ttacactgaaagatttccaaacat\\ngctctaaatattgtttcgtgcttggttctatct' +
+    'ttttaactttcatttatttttcctttt\\ntcattttgcagaaccgcaggtttggccctc' +
+    'taaattggttctagggatgattatttttac\\ncttgatgttcacaaaaatatgagaaca' +
+    'caaaaaaagaggatgcctctgagcttagcttta\\ncttctatgtaaccgcaggtctagc' +
+    'tagtggtgcagctgttggtatatctattgcaggaac\\ncttcgtgcttctgttactagc' +
+    'attttgtatgtatgttagataccagaagaaggaagaaga\\ngaaagctaaattgccaac' +
+    'agatatttctatggccctttcaacacaagatggtaatggtat\\natttccaaattcata' +
+    'ttccttctaagttctaaccctctttagtccccctggaaatgggtg\\naatgttggtgct' +
+    'ctaatttttcatgtgtttaaatcagttttatactaagagtctgttgga\\ncaacaggtt' +
+    'tttgtttttaaaacagaaaaagccgaaaatttgtttgatatgaaaagtttt\\naaggaa' +
+    'attcttatttttttgatatatcggaaaattcttattaagtgttcctgttctcat\\nttt' +
+    'ctaaaactaaaatttcaaaacatctcggaggatttttcttcttgtttttagttttca\\n' +
+    'attcacaggtctttcagttttgtaagcatcttgttcaaatatagattttcttttcttctt' +
+    '\\nttgaaaaacatgtcataaaattatttctgaaaatagtttttaaatttagaggactga' +
+    'gaa\\ngagaatcaaacaagtcctaatttttaccttttcctgtttatcatttataaactt' +
+    'attacc\\ntgatctaatttcaggctacattttacctgatgttaaaggcagaaaatttac' +
+    'ctgatccaa\\natgtttgagttccattcaatctggcacattgatataatttgagaggat' +
+    'atgacaacacta\\ngctaacttttcttcctctttcttgaagcctctagtagtgcagaat' +
+    'atgaaacttctggat\\nccagtgggccagggactgctagtgctacaggtcttactagca' +
+    'ttatggtggcgaaatcaa\\ntggagttctcatatcaggaactagcgaaggctacaaata' +
+    'actttagcttggataataaaa\\nttggtcaaggtggatttggagctgtctattatgcag' +
+    'aattgagaggcaaggtagtgaccg\\ntgtgtctcttcagttctataacatagtgcatgt' +
+    'ttggatacaaagaggaaaaccacggtg\\naagccaaatttgcggtggacagacacaaaa' +
+    'gctaaaggaagttgtcaccatgattttcaa\\nttgtgtatccaaacttgcacaaaagag' +
+    'gatagaagtttcttacattagagtagtagtgaa\\naagtttaaattttaaggctttgtg' +
+    'ttcattgtgaggaagctatataaaacaactcaaatc\\nactttagggcaaaaaattgtt' +
+    'tcattgaaaagaaagataagagtaatgattttacttaaa\\ntggatattgttcttaaag' +
+    'aggtggatgggaaagtttctgctttttgtgccactttaggtt\\natccctttaactttt' +
+    'aactcttcctggatttcctctaatgcaatttattcaatgcagaaa\\nacagcaattaag' +
+    'aagatggatgtacaagcatcaacagaatttctttgtgagttgaaggtc\\nttaacacat' +
+    'gttcaccacttgaatctggtacaacatccttcaaacaacttaaagcattat\\ntatatc' +
+    'tttgggaaggaaagattaatatttttatgtttagtttgaagaatcattaggttc\\ntta' +
+    'caaaacaaatatccttcatggttctgtgaactgaatagtcctatagttatccagcaa\\n' +
+    'aatttctgcagatccacatgatagtccaacatgggatctgcattactagtgaaagaactt' +
+    '\\ngtaaaacatttgtaacttcaattttctgtccttgaaagtaacagaccatttagagca' +
+    'cac\\ntccccaacattaataccaaataaagaagaaaatcagccctcttcccgcatgtgt' +
+    'ggttcc\\nactgtgaaatatttgaaaatcacttgtgattagaagctacaagtctaagct' +
+    'tctgagcaa\\nacgtgtcttggattttgtgctaatcataaagccaaatatgctattagt' +
+    'taatgattaaag\\ngcattattagaaactcctttatttccaattgccactgttgatatg' +
+    'ttatttggatttttc\\naaacagtttctcctaacaaacaggttcagaaaaaaaattagt' +
+    'attaatttctatctatga\\nttacttaaagaagaaagtgctaaattctttctgggattt' +
+    'caatataactatatcatacac\\nttttcatttaatttttctaattttggaatctttgtt' +
+    'tagcataaacagctctaagtaagt\\ntataattcttattctgtatgtacctactttcta' +
+    'tgaacaacataggtgcgcttgattgga\\ntactgcgttgagggatctctattccttgtt' +
+    'tatgaacatattgacaatggaaacttaggc\\ncaatatttgcatggttcaggtgagaac' +
+    'aggatgcagtgatatttttttgctgtgacatta\\ntcagcatgtttggatcaatttctc' +
+    'tttcaccagaattaattctgaaacagagaagtagct\\ntctccacagaattgattctga' +
+    'cttcagagtcaatagtagaattatttcgaaacatgcacg\\ngcattatagtcaaacaat' +
+    'taataatgatgatgacatgatttcaggtaaagaaccattgcc\\natggtctagccgagt' +
+    'acaaatagctctagatgcagcaagaggccttgaatacattcatga\\ngcacactgtgcc' +
+    'tgtgtatatccatcgcgatgtgaaatctgcaaacatattgatagataa\\ngaacttgcg' +
+    'tggaaaggttgcatttattaccaatcttcatgatccaaattctttcatttc\\nttcttt' +
+    'gagactttaatcaaactgtgaaagtttttatgttcaggttgcagattttggctt\\ngac' +
+    'caagcttattgaagttgggaactccacactacaaactcgtctggtgggaacatttgg\\n' +
+    'atacatgcccccagagtatgattttcttttgatgttgtattaatggtgtttttggataaa' +
+    '\\ncagtttaatcaaaagttgatggtaataaacacctatcgcataagtgtttattcataa' +
+    'act\\nattttgagatgtttattgagataaagttaaaatatctaatgagtttagtgactt' +
+    'atgaaa\\ngtaagctctcaacaacttttaagtagggtataaggtatttacaatacataa' +
+    'gctctaaca\\nagcacttagatacacacatttgagcttatctttcacaataaatgctcg' +
+    'tacaagtgtttg\\nagagagcttgtgtagcttatgcgctacctagaagctgatttgagc' +
+    'ttattttcacaagtt\\ngttcatattagcttatgaataagagattatgcttatatataa' +
+    'tttattttcagcttattt\\ncaataagttcatcaaatttgcttatgaataagtgcttgt' +
+    'gcgacaagcgcttattgctac\\naagtgcttaattacgctgtttacccataaacgtgtt' +
+    'caattagtaaagtcaagttcagtt\\nttcaaaacatatcattgagtgaacttgttttac' +
+    'ctggcttttatgcagatatgctcaata\\ntggtgatatttctccaaaaatagatgtata' +
+    'tgcatttggagttgttctttttgaacttat\\nttctgcaaagaatgctgttctgaagac' +
+    'aggtgaattagttgctgaatcaaagggccttgt\\nagctttggtgagtctacatgcccc' +
+    'ttctctaaccttatttacaaaccaattactcacaat\\nttcgaaaattttacatgtata' +
+    'tttcaaagctactcagcacaaatgcatttgcccttaact\\ntgctttgcattgcagttt' +
+    'gaagaagcacttaataagagtgatccttgtgatgctcttcgc\\naaactggtggatcct' +
+    'aggcttggagaaaactatccaattgattctgttctcaaggtggga\\ngcaattctcact' +
+    'aaaattaatttgaaatgaattactatcatttagtcacttgaatgactt\\ntttttatca' +
+    'gaacataagcaggttgtgtctagttttcttttggtgggtttaggacttaaa\\ngttatc' +
+    'ttagtgtaaaattttctcattttactaatccttaatgctttattgttgtttgag\\nttg' +
+    'cagattgcacaactagggagagcttgtacaagagataatccactgctaagaccaagt\\n' +
+    'atgagatctttagttgttgctcttatgaccctttcatcacttactgaggattgtgatgat' +
+    '\\ngaatcttcctacgaaagtcaaactctcataaatttactgtctgtgagataa"],["g' +
+    'ene","1..5691","NFR1","E","D","D","D","","/gene=\\"NFR1\\"\\n' +
+    '",1,"atgaagctaaaaactggtctacttttgtttttcattcttttgctggggcatgttt' +
+    'gtttc\\ncatgtggaatcaaactgtctgaaggggtgtgatctagctttagcttcctatt' +
+    'atatcttg\\ncctggtgttttcatcttacaaaacataacaacctttatgcaatcagaga' +
+    'ttgtctcaagt\\naatgatgccataaccagctacaacaaagacaaaattctcaatgata' +
+    'tcaacatccaatcc\\ntttcaaagactcaacattccatttccatgtgactgtattggtg' +
+    'gtgagtttctagggcat\\ngtatttgagtactcagcttcaaaaggagacacttatgaaa' +
+    'ctattgccaacctctactat\\ngcaaatttgacaacagttgatcttttgaaaaggttca' +
+    'acagctatgatccaaaaaacata\\ncctgttaatgccaaggttaatgtcactgttaatt' +
+    'gttcttgtgggaacagccaggtttca\\naaagattatggcttgtttattacctatccca' +
+    'ttaggcctggggatacactgcaggatatt\\ngcaaaccagagtagtcttgatgcagggt' +
+    'tgatacagagtttcaacccaagtgtcaatttc\\nagcaaagatagtgggatagctttca' +
+    'ttcctggaagatggtatgttatcctttttgtttta\\naatttttccgctttgattaaag' +
+    'tttattattattagcatgattggatcaacttctctttc\\natcaaaatcatttctgaaa' +
+    'ctcagaagctactcacacaagcttcctggtttcagaatcaa\\nttgtagtagggtttcc' +
+    'aaacatgctcttttatcaaaatcaattacgtaactcagaaacta\\nctcacataagctt' +
+    'ctccttagaattgattctgtttttagaatcaattgtaaaagggttta\\ncaaacatgca' +
+    'ctctgctagtgtgtgtgcttaaaactattcatggtgaaattactcttcca\\nttgtttc' +
+    'tacaataatacatgacaaggcatgtaacttaccccacctaattgaaaaatggt\\ntggt' +
+    'ggttattgttatatcatttgttcaatacatttgatataaacttttatgaatttacc\\nt' +
+    'gaagttttacttttctttgaacttttcagataaaaatggagtctatgttcccttgtacc\\n' +
+    'acaggtgggtaacttcaattgcctactcatctttttatgatgaatgatagcatgtttgga' +
+    '\\ntcaacttctctttcaccagaattaatccttaaattcagaactaagaagctactcaca' +
+    'taa\\ngctttttcccggaattaattctggcttcagaagcaattacactgaaagatttcc' +
+    'aaacat\\ngctctaaatattgtttcgtgcttggttctatctttttaactttcatttatt' +
+    'tttcctttt\\ntcattttgcagaaccgcaggtttggccctctaaattggttctagggat' +
+    'gattatttttac\\ncttgatgttcacaaaaatatgagaacacaaaaaaagaggatgcct' +
+    'ctgagcttagcttta\\ncttctatgtaaccgcaggtctagctagtggtgcagctgttgg' +
+    'tatatctattgcaggaac\\ncttcgtgcttctgttactagcattttgtatgtatgttag' +
+    'ataccagaagaaggaagaaga\\ngaaagctaaattgccaacagatatttctatggccct' +
+    'ttcaacacaagatggtaatggtat\\natttccaaattcatattccttctaagttctaac' +
+    'cctctttagtccccctggaaatgggtg\\naatgttggtgctctaatttttcatgtgttt' +
+    'aaatcagttttatactaagagtctgttgga\\ncaacaggtttttgtttttaaaacagaa' +
+    'aaagccgaaaatttgtttgatatgaaaagtttt\\naaggaaattcttatttttttgata' +
+    'tatcggaaaattcttattaagtgttcctgttctcat\\ntttctaaaactaaaatttcaa' +
+    'aacatctcggaggatttttcttcttgtttttagttttca\\nattcacaggtctttcagt' +
+    'tttgtaagcatcttgttcaaatatagattttcttttcttctt\\nttgaaaaacatgtca' +
+    'taaaattatttctgaaaatagtttttaaatttagaggactgagaa\\ngagaatcaaaca' +
+    'agtcctaatttttaccttttcctgtttatcatttataaacttattacc\\ntgatctaat' +
+    'ttcaggctacattttacctgatgttaaaggcagaaaatttacctgatccaa\\natgttt' +
+    'gagttccattcaatctggcacattgatataatttgagaggatatgacaacacta\\ngct' +
+    'aacttttcttcctctttcttgaagcctctagtagtgcagaatatgaaacttctggat\\n' +
+    'ccagtgggccagggactgctagtgctacaggtcttactagcattatggtggcgaaatcaa' +
+    '\\ntggagttctcatatcaggaactagcgaaggctacaaataactttagcttggataata' +
+    'aaa\\nttggtcaaggtggatttggagctgtctattatgcagaattgagaggcaaggtag' +
+    'tgaccg\\ntgtgtctcttcagttctataacatagtgcatgtttggatacaaagaggaaa' +
+    'accacggtg\\naagccaaatttgcggtggacagacacaaaagctaaaggaagttgtcac' +
+    'catgattttcaa\\nttgtgtatccaaacttgcacaaaagaggatagaagtttcttacat' +
+    'tagagtagtagtgaa\\naagtttaaattttaaggctttgtgttcattgtgaggaagcta' +
+    'tataaaacaactcaaatc\\nactttagggcaaaaaattgtttcattgaaaagaaagata' +
+    'agagtaatgattttacttaaa\\ntggatattgttcttaaagaggtggatgggaaagttt' +
+    'ctgctttttgtgccactttaggtt\\natccctttaacttttaactcttcctggatttcc' +
+    'tctaatgcaatttattcaatgcagaaa\\nacagcaattaagaagatggatgtacaagca' +
+    'tcaacagaatttctttgtgagttgaaggtc\\nttaacacatgttcaccacttgaatctg' +
+    'gtacaacatccttcaaacaacttaaagcattat\\ntatatctttgggaaggaaagatta' +
+    'atatttttatgtttagtttgaagaatcattaggttc\\nttacaaaacaaatatccttca' +
+    'tggttctgtgaactgaatagtcctatagttatccagcaa\\naatttctgcagatccaca' +
+    'tgatagtccaacatgggatctgcattactagtgaaagaactt\\ngtaaaacatttgtaa' +
+    'cttcaattttctgtccttgaaagtaacagaccatttagagcacac\\ntccccaacatta' +
+    'ataccaaataaagaagaaaatcagccctcttcccgcatgtgtggttcc\\nactgtgaaa' +
+    'tatttgaaaatcacttgtgattagaagctacaagtctaagcttctgagcaa\\nacgtgt' +
+    'cttggattttgtgctaatcataaagccaaatatgctattagttaatgattaaag\\ngca' +
+    'ttattagaaactcctttatttccaattgccactgttgatatgttatttggatttttc\\n' +
+    'aaacagtttctcctaacaaacaggttcagaaaaaaaattagtattaatttctatctatga' +
+    '\\nttacttaaagaagaaagtgctaaattctttctgggatttcaatataactatatcata' +
+    'cac\\nttttcatttaatttttctaattttggaatctttgtttagcataaacagctctaa' +
+    'gtaagt\\ntataattcttattctgtatgtacctactttctatgaacaacataggtgcgc' +
+    'ttgattgga\\ntactgcgttgagggatctctattccttgtttatgaacatattgacaat' +
+    'ggaaacttaggc\\ncaatatttgcatggttcaggtgagaacaggatgcagtgatatttt' +
+    'tttgctgtgacatta\\ntcagcatgtttggatcaatttctctttcaccagaattaattc' +
+    'tgaaacagagaagtagct\\ntctccacagaattgattctgacttcagagtcaatagtag' +
+    'aattatttcgaaacatgcacg\\ngcattatagtcaaacaattaataatgatgatgacat' +
+    'gatttcaggtaaagaaccattgcc\\natggtctagccgagtacaaatagctctagatgc' +
+    'agcaagaggccttgaatacattcatga\\ngcacactgtgcctgtgtatatccatcgcga' +
+    'tgtgaaatctgcaaacatattgatagataa\\ngaacttgcgtggaaaggttgcatttat' +
+    'taccaatcttcatgatccaaattctttcatttc\\nttctttgagactttaatcaaactg' +
+    'tgaaagtttttatgttcaggttgcagattttggctt\\ngaccaagcttattgaagttgg' +
+    'gaactccacactacaaactcgtctggtgggaacatttgg\\natacatgcccccagagta' +
+    'tgattttcttttgatgttgtattaatggtgtttttggataaa\\ncagtttaatcaaaag' +
+    'ttgatggtaataaacacctatcgcataagtgtttattcataaact\\nattttgagatgt' +
+    'ttattgagataaagttaaaatatctaatgagtttagtgacttatgaaa\\ngtaagctct' +
+    'caacaacttttaagtagggtataaggtatttacaatacataagctctaaca\\nagcact' +
+    'tagatacacacatttgagcttatctttcacaataaatgctcgtacaagtgtttg\\naga' +
+    'gagcttgtgtagcttatgcgctacctagaagctgatttgagcttattttcacaagtt\\n' +
+    'gttcatattagcttatgaataagagattatgcttatatataatttattttcagcttattt' +
+    '\\ncaataagttcatcaaatttgcttatgaataagtgcttgtgcgacaagcgcttattgc' +
+    'tac\\naagtgcttaattacgctgtttacccataaacgtgttcaattagtaaagtcaagt' +
+    'tcagtt\\nttcaaaacatatcattgagtgaacttgttttacctggcttttatgcagata' +
+    'tgctcaata\\ntggtgatatttctccaaaaatagatgtatatgcatttggagttgttct' +
+    'ttttgaacttat\\nttctgcaaagaatgctgttctgaagacaggtgaattagttgctga' +
+    'atcaaagggccttgt\\nagctttggtgagtctacatgccccttctctaaccttatttac' +
+    'aaaccaattactcacaat\\nttcgaaaattttacatgtatatttcaaagctactcagca' +
+    'caaatgcatttgcccttaact\\ntgctttgcattgcagtttgaagaagcacttaataag' +
+    'agtgatccttgtgatgctcttcgc\\naaactggtggatcctaggcttggagaaaactat' +
+    'ccaattgattctgttctcaaggtggga\\ngcaattctcactaaaattaatttgaaatga' +
+    'attactatcatttagtcacttgaatgactt\\ntttttatcagaacataagcaggttgtg' +
+    'tctagttttcttttggtgggtttaggacttaaa\\ngttatcttagtgtaaaattttctc' +
+    'attttactaatccttaatgctttattgttgtttgag\\nttgcagattgcacaactaggg' +
+    'agagcttgtacaagagataatccactgctaagaccaagt\\natgagatctttagttgtt' +
+    'gctcttatgaccctttcatcacttactgaggattgtgatgat\\ngaatcttcctacgaa' +
+    'agtcaaactctcataaatttactgtctgtgagataa"],["CDS","1..1788","NFR' +
+    '5","E","D","D","D","","/gene=\\"NFR5\\"\\n/codon_start=1\\n/' +
+    'transl_table=11\\n/product=\\"NFR5\\"\\n/protein_id=\\"AET75' +
+    '796.1\\"\\n/translation=\\"MAVFFLTSGSLSLFLALTLLFTNIAARSEKISG' +
+    'PDFSCPVDSPP\\nSCETYVTYTAQSPNLLSLTNISDIFDISPLSIARASNIDAGKDKLV' +
+    'PGQVLLVPVTCG\\nCAGNHSSANTSYQIQLGDSYDFVATTLYENLTNWNIVQASNPGVN' +
+    'PYLLPERVKVVFP\\nLFCRCPSKNQLNKGIQYLITYVWKPNDNVSLVSAKFGASPADIL' +
+    'TENRYGQDFTAATN\\nLPILIPVTQLPELTQPSSNGRKSSIHLLVILGITLGCTLLTAV' +
+    'LTGTLVYVYCRRKKA\\nLNRTASSAETADKLLSGVSGYVSKPNVYEIDEIMEATKDFSD' +
+    'ECKVGESVYKANIEGR\\nVVAVKKIKEGGANEELKILQKVNHGNLVKLMGVSSGYDGNC' +
+    'FLVYEYAENGSLAEWLF\\nSKSSGTPNSLTWSQRISIAVDVAVGLQYMHEHTYPRIIHR' +
+    'DITTSNILLDSNFKAKIA\\nNFAMARTSTNPMMPKIDVFAFGVLLIELLTGRKAMTTKE' +
+    'NGEVVMLWKDMWEIFDIEE\\nNREERIRKWMDPNLESFYHIDNALSLASLAVNCTADKS' +
+    'LSRPSMAEIVLSLSFLTQQS\\nSNPTLERSLTSSGLDVEDDAHIVTSITAR\\"\\n",' +
+    '1,"atggctgtcttctttcttacctctggctctctgagtctttttcttgcactcacgttg' +
+    'ctt\\nttcactaacatcgccgctcgatcagaaaagattagcggcccagacttttcatgc' +
+    'cctgtt\\ngactcacctccttcttgtgaaacatatgtgacatacacagctcagtctcca' +
+    'aatcttctg\\nagcctgacaaacatatctgatatatttgatatcagtcctttgtccatt' +
+    'gcaagagccagt\\naacatagatgcagggaaggacaagctggttccaggccaagtctta' +
+    'ctggtacctgtaact\\ntgcggttgcgccggaaaccactcttctgccaatacctcctac' +
+    'caaatccagctaggtgat\\nagctacgactttgttgcaaccactttatatgagaacctt' +
+    'acaaattggaatatagtacaa\\ngcttcaaacccaggggtaaatccatatttgttgcca' +
+    'gagcgcgtcaaagtagtattccct\\nttattctgcaggtgcccttcaaagaaccagttg' +
+    'aacaaagggattcagtatctgattact\\ntatgtgtggaagcccaatgacaatgtttcc' +
+    'cttgtgagtgccaagtttggtgcatcccca\\ngcggacatattgactgaaaaccgctac' +
+    'ggtcaagacttcactgctgcaaccaaccttcca\\nattttgatcccagtgacacagttg' +
+    'ccagagcttactcaaccttcttcaaatggaaggaaa\\nagcagcattcatcttctggtt' +
+    'atacttggtattaccctgggatgcacgttgctaactgca\\ngttttaaccgggaccctc' +
+    'gtatatgtatactgccgcagaaagaaggctctgaataggact\\ngcttcatcagctgag' +
+    'actgctgataaactactttctggagtttcaggctatgtaagcaag\\nccaaacgtgtat' +
+    'gaaatcgacgagataatggaagctacgaaggatttcagcgatgagtgc\\naaggttggg' +
+    'gaatcagtgtacaaggccaacatagaaggtcgggttgtagcggtaaagaaa\\natcaag' +
+    'gaaggtggtgccaatgaggaactgaaaattctgcagaaggtaaatcatggaaat\\nctg' +
+    'gtgaaactaatgggtgtctcctcaggctatgatggaaactgtttcttggtttatgaa\\n' +
+    'tatgctgaaaatgggtctcttgctgagtggctgttctccaagtcttcaggaaccccaaac' +
+    '\\ntcccttacatggtctcaaaggataagcatagcagtggatgttgctgtgggtctgcaa' +
+    'tac\\natgcatgaacatacctatccaagaataatacacagggacatcacaacaagtaat' +
+    'atcctt\\nctcgactcgaacttcaaggccaagatagcgaatttcgccatggccagaact' +
+    'tcgaccaac\\ncccatgatgccaaaaatcgatgtcttcgctttcggggtgcttctgata' +
+    'gagttgctcacc\\nggaaggaaagccatgacaaccaaggagaacggcgaggtggttatg' +
+    'ctgtggaaggatatg\\ntgggagatctttgacatagaagagaatagagaggagaggatc' +
+    'agaaaatggatggatcct\\naatttagagagcttttatcatatagataatgctctcagc' +
+    'ttggcatccttagcagtgaat\\ntgcacagctgataagtctttgtctcgaccctccatg' +
+    'gctgaaattgttcttagcctctcc\\ntttctcactcaacaatcatctaaccccacatta' +
+    'gagagatccttgacttcttctgggtta\\ngatgtagaagatgatgctcatattgtgact' +
+    'tccattactgcacgttaa"],["gene","1..1788","NFR5","E","D","D","D' +
+    '","","/gene=\\"NFR5\\"\\n",1,"atggctgtcttctttcttacctctggctct' +
+    'ctgagtctttttcttgcactcacgttgctt\\nttcactaacatcgccgctcgatcagaa' +
+    'aagattagcggcccagacttttcatgccctgtt\\ngactcacctccttcttgtgaaaca' +
+    'tatgtgacatacacagctcagtctccaaatcttctg\\nagcctgacaaacatatctgat' +
+    'atatttgatatcagtcctttgtccattgcaagagccagt\\naacatagatgcagggaag' +
+    'gacaagctggttccaggccaagtcttactggtacctgtaact\\ntgcggttgcgccgga' +
+    'aaccactcttctgccaatacctcctaccaaatccagctaggtgat\\nagctacgacttt' +
+    'gttgcaaccactttatatgagaaccttacaaattggaatatagtacaa\\ngcttcaaac' +
+    'ccaggggtaaatccatatttgttgccagagcgcgtcaaagtagtattccct\\nttattc' +
+    'tgcaggtgcccttcaaagaaccagttgaacaaagggattcagtatctgattact\\ntat' +
+    'gtgtggaagcccaatgacaatgtttcccttgtgagtgccaagtttggtgcatcccca\\n' +
+    'gcggacatattgactgaaaaccgctacggtcaagacttcactgctgcaaccaaccttcca' +
+    '\\nattttgatcccagtgacacagttgccagagcttactcaaccttcttcaaatggaagg' +
+    'aaa\\nagcagcattcatcttctggttatacttggtattaccctgggatgcacgttgcta' +
+    'actgca\\ngttttaaccgggaccctcgtatatgtatactgccgcagaaagaaggctctg' +
+    'aataggact\\ngcttcatcagctgagactgctgataaactactttctggagtttcaggc' +
+    'tatgtaagcaag\\nccaaacgtgtatgaaatcgacgagataatggaagctacgaaggat' +
+    'ttcagcgatgagtgc\\naaggttggggaatcagtgtacaaggccaacatagaaggtcgg' +
+    'gttgtagcggtaaagaaa\\natcaaggaaggtggtgccaatgaggaactgaaaattctg' +
+    'cagaaggtaaatcatggaaat\\nctggtgaaactaatgggtgtctcctcaggctatgat' +
+    'ggaaactgtttcttggtttatgaa\\ntatgctgaaaatgggtctcttgctgagtggctg' +
+    'ttctccaagtcttcaggaaccccaaac\\ntcccttacatggtctcaaaggataagcata' +
+    'gcagtggatgttgctgtgggtctgcaatac\\natgcatgaacatacctatccaagaata' +
+    'atacacagggacatcacaacaagtaatatcctt\\nctcgactcgaacttcaaggccaag' +
+    'atagcgaatttcgccatggccagaacttcgaccaac\\ncccatgatgccaaaaatcgat' +
+    'gtcttcgctttcggggtgcttctgatagagttgctcacc\\nggaaggaaagccatgaca' +
+    'accaaggagaacggcgaggtggttatgctgtggaaggatatg\\ntgggagatctttgac' +
+    'atagaagagaatagagaggagaggatcagaaaatggatggatcct\\naatttagagagc' +
+    'ttttatcatatagataatgctctcagcttggcatccttagcagtgaat\\ntgcacagct' +
+    'gataagtctttgtctcgaccctccatggctgaaattgttcttagcctctcc\\ntttctc' +
+    'actcaacaatcatctaaccccacattagagagatccttgacttcttctgggtta\\ngat' +
+    'gtagaagatgatgctcatattgtgacttccattactgcacgttaa"],["CDS","join' +
+    '(1..750,840..890,995..2108,2244..3130)","NIN","E","D","D","D' +
+    '","","/gene=\\"NIN\\"\\n/codon_start=1\\n/transl_table=11\\n' +
+    '/product=\\"NIN\\"\\n/protein_id=\\"AET75797.1\\"\\n/transla' +
+    'tion=\\"MEYGGGLVADGGVFGPMVGGGGGDQADIIEELLGEGCWIEASEN\\nSLMAM' +
+    'QQTTPQSQYMSNNNNIPMGMGEGDHFNHHHHHHPHPHHQMECTAPAANHDDQQ\\nESGF' +
+    'VVGKRWWIGPRANPGPTTSVKERLVVAVGYLKEYTKNSSNNVLIQIWVPMRRRS\\nALI' +
+    'HTQNHYLQQESSSAPVSVNPNMNVHVRFFRSHDYPRHQQQQQYGSLLALPVFERG\\nSG' +
+    'TCLGVIEFVISNQTLINYRPQLDHLSNALEAVDFRSSHNMNIPQAVKVFEELYEAA\\nV' +
+    'NEIMEVLASVCKTHNLPLALTWAPCLQQQQGGGKGSSGASGCGVSTMSCCISTVDSA\\n' +
+    'CYVGDMDVLGFQEACSEYHLFNGQGIVGTAFTTTKPCFAIDITAFSKSEYPLAHHANM\\n' +
+    'FGLHAAVAIPLRSVYTGSAADFVLEFFLPKDCRDTEQQKQMLNSLSLVVQQACRSLHL\\n' +
+    'HVVMDDNNNNNMNDNNSSADHDHDQFTFPTTNSYMPSSASEPLSQVDAVSGCSTKDTS\\n' +
+    'SSCSWIAHMMEAQNKGKGVSVSLEYLQEPKEEFKVTTCNWDREREDNVFSEFGQVLQQ\\n' +
+    'QQHDQSSNSRASVVSVEAGEESPGACGRRSSSSSSGRKSGDKRRTKAEKTISLPVLRQ\\n' +
+    'YFAGSLKDAAKSIGVCPTTLKRICRQHGITRWPSRKIKKVGHSLKKLQLVIDSVQGAE\\n' +
+    'GAIQIGSFYASFPELSNATANGGDGNDNSNNSFYNNNHGDGIVTSLKSPPSACSQTHA\\n' +
+    'GNKLPMTTTTAINHHHVVMTENPTGAPLGVDHAFMHASNINIQDYHQLQEDLDTKQLL\\n' +
+    'LHFNNNNQILPPRPTVAWNNNNSSSSTLLERGAFRVKATFADEKIRFSLQAMWGFRDL\\n' +
+    'QLEIARRFNLTDMNNLVLKYLDDEGEWVVLSCDADLEECKDLHTSSHTRTIRLSLFQA\\n' +
+    'SPLNLPNTFRNSSSSSPSS\\"\\n",1,"atggaatatggtggtgggttagtggctgac' +
+    'ggtggtgtgtttggaccgatggtgggagga\\nggaggaggagatcaagcagatataatt' +
+    'gaggagctgttgggagaaggttgctggattgaa\\ngcaagtgagaatagtttgatggcc' +
+    'atgcagcaaactacgccacaatcacaatacatgtcc\\naacaataataatattcctatg' +
+    'ggaatgggagagggagatcacttcaatcatcatcatcat\\ncatcatcctcatcctcat' +
+    'catcaaatggaatgcactgctccagcagcaaatcatgatgat\\ncagcaggaaagtggt' +
+    'tttgttgttgggaagagatggtggattgggcctagggcaaatcca\\nggtccaacaaca' +
+    'tctgtcaaagaaagattagtggttgctgttggttacttaaaagagtac\\nacaaagaac' +
+    'tcatccaacaacgtccttattcagatatgggtacctatgaggaggagatca\\ngcccta' +
+    'attcacactcaaaaccactaccttcagcaggagtcatcatctgcacctgtttct\\ngtg' +
+    'aatccaaacatgaacgttcatgttcgtttctttagaagccatgactatccgcgtcat\\n' +
+    'cagcagcaacagcaatatggatctcttctagcacttccagtttttgagagaggaagtggg' +
+    '\\nacatgccttggtgttattgagtttgttatctccaatcaaaccctcatcaattaccgt' +
+    'cca\\ncaacttgatcatctctctaatgctcttgaggtatgtttgttacttcttcttgaa' +
+    'attaaa\\nttaacaaatgttagaaacatacatgagattgaatatggatccatcttttgc' +
+    'tgatgcagg\\nctgttgattttagaagtagtcacaacatgaatatcccacaagcagtaa' +
+    'aggtaattagca\\naacaatcatcatcagatcatagtactggatttgattagatcaaca' +
+    'aaaactatataaaat\\ntgtttctaaaaatgatatgataatgaataattaggtatttga' +
+    'agagctatatgaagcagc\\nggtgaacgagataatggaagtgttggcgtcagtgtgcaa' +
+    'gacgcacaatttaccattagc\\nactaacatgggctccttgcctacaacaacaacaagg' +
+    'aggaggaaagggaagtagtggtgc\\natcaggttgtggtgtttcaactatgagttgctg' +
+    'catatcaacggttgattcagcttgtta\\ntgttggtgacatggatgtattgggattcca' +
+    'agaagcgtgcagtgagtatcacctttttaa\\ntggacaaggaatagtaggaacagcctt' +
+    'cacaacaaccaaaccttgttttgctattgatat\\ntactgccttcagcaaatctgaata' +
+    'tccacttgctcaccatgccaacatgtttggcttaca\\ncgctgctgttgccattccatt' +
+    'gaggagtgtctacactggttctgctgctgattttgtttt\\nggaatttttccttcctaa' +
+    'agattgtcgtgacaccgaacagcagaaacaaatgctaaactc\\nattgtcccttgttgt' +
+    'tcaacaagcttgtaggagcttgcatttgcatgtcgtcatggacga\\ntaataataataa' +
+    'taatatgaatgataataattcttcagctgaccatgatcatgatcaatt\\ncaccttccc' +
+    'aacaacaaatagttacatgccttcttctgcttctgaaccactatcacaagt\\ntgatgc' +
+    'agtttcaggttgttcaaccaaagacacttcatcatcatgttcttggattgcaca\\ntat' +
+    'gatggaggctcagaacaaggggaaaggcgtctccgtgtcattggaataccttcaaga\\n' +
+    'gcctaaagaggaattcaaagtcacaacctgcaactgggacagggagagggaggacaatgt' +
+    '\\ncttttcagaattcggccaagtactgcagcagcagcagcatgatcagagcagtaattc' +
+    'aag\\nggcaagtgttgtaagtgtagaagctggtgaagaatctcctggtgcctgtggtcg' +
+    'ccggtc\\ngtcttcttcttcgagtgggagaaagtccggggacaagcgaagaaccaaggc' +
+    'ggagaagac\\ntataagcttgccggttctgagacaatactttgccggaagcctaaagga' +
+    'cgccgcaaagag\\ncatcggtggtaagtgacttgtaaaattcaatttcagttttaatta' +
+    'attaattaattaaat\\naaaactatgtcatggatattattatccaacaactcgatctca' +
+    'atcacaatctgaagtaat\\ntaaataataattttgtgatacagtgtgtcctacaactct' +
+    'gaaaaggatatgcagacagca\\ntgggattacaagatggccttcaagaaaaataaagaa' +
+    'ggtgggccactctttaaagaagct\\nacaacttgtgattgattctgttcaaggtgcaga' +
+    'gggtgccatacagattggctctttcta\\ntgccagcttcccagagttgagcaatgcaac' +
+    'tgctaatggtggtgatggtaatgataacag\\ncaacaatagcttctataataataacca' +
+    'tggagatggaatagttactagtttgaaatcccc\\naccctctgcttgcagtcagaccca' +
+    'tgcaggaaacaaattacctatgactactactactgc\\ncattaaccatcatcatgttgt' +
+    'gatgacagaaaaccctacaggagctcctttaggagttga\\ntcatgccttcatgcatgc' +
+    'atctaatattaatatccaggactaccatcagctgcaggagga\\ntcttgatactaagca' +
+    'attactgctacatttcaacaacaataatcaaatcctacctccaag\\naccaactgtggc' +
+    'ctggaacaacaacaattcttcatcatcaacactcctagaaaggggtgc\\ntttcagagt' +
+    'gaaggcaactttcgcggatgaaaaaatcaggtttagcttgcaagcaatgtg\\ngggatt' +
+    'tagagatttgcagcttgagattgcaaggcgatttaacctaacagatatgaacaa\\nctt' +
+    'ggttctaaaatatttggatgatgaaggagaatgggttgtgttatcatgtgatgctga\\n' +
+    'tcttgaagaatgtaaagacttgcacacatcatctcacacacgtaccattagactctctct' +
+    '\\nttttcaagcttcccctctcaatcttccaaacactttccgcaacagcagcagcagcag' +
+    'tcc\\natcctcctag"],["gene","1..3130","NIN","E","D","D","D","' +
+    '","/gene=\\"NIN\\"\\n",1,"atggaatatggtggtgggttagtggctgacggtg' +
+    'gtgtgtttggaccgatggtgggagga\\nggaggaggagatcaagcagatataattgagg' +
+    'agctgttgggagaaggttgctggattgaa\\ngcaagtgagaatagtttgatggccatgc' +
+    'agcaaactacgccacaatcacaatacatgtcc\\naacaataataatattcctatgggaa' +
+    'tgggagagggagatcacttcaatcatcatcatcat\\ncatcatcctcatcctcatcatc' +
+    'aaatggaatgcactgctccagcagcaaatcatgatgat\\ncagcaggaaagtggttttg' +
+    'ttgttgggaagagatggtggattgggcctagggcaaatcca\\nggtccaacaacatctg' +
+    'tcaaagaaagattagtggttgctgttggttacttaaaagagtac\\nacaaagaactcat' +
+    'ccaacaacgtccttattcagatatgggtacctatgaggaggagatca\\ngccctaattc' +
+    'acactcaaaaccactaccttcagcaggagtcatcatctgcacctgtttct\\ngtgaatc' +
+    'caaacatgaacgttcatgttcgtttctttagaagccatgactatccgcgtcat\\ncagc' +
+    'agcaacagcaatatggatctcttctagcacttccagtttttgagagaggaagtggg\\na' +
+    'catgccttggtgttattgagtttgttatctccaatcaaaccctcatcaattaccgtcca\\n' +
+    'caacttgatcatctctctaatgctcttgaggtatgtttgttacttcttcttgaaattaaa' +
+    '\\nttaacaaatgttagaaacatacatgagattgaatatggatccatcttttgctgatgc' +
+    'agg\\nctgttgattttagaagtagtcacaacatgaatatcccacaagcagtaaaggtaa' +
+    'ttagca\\naacaatcatcatcagatcatagtactggatttgattagatcaacaaaaact' +
+    'atataaaat\\ntgtttctaaaaatgatatgataatgaataattaggtatttgaagagct' +
+    'atatgaagcagc\\nggtgaacgagataatggaagtgttggcgtcagtgtgcaagacgca' +
+    'caatttaccattagc\\nactaacatgggctccttgcctacaacaacaacaaggaggagg' +
+    'aaagggaagtagtggtgc\\natcaggttgtggtgtttcaactatgagttgctgcatatc' +
+    'aacggttgattcagcttgtta\\ntgttggtgacatggatgtattgggattccaagaagc' +
+    'gtgcagtgagtatcacctttttaa\\ntggacaaggaatagtaggaacagccttcacaac' +
+    'aaccaaaccttgttttgctattgatat\\ntactgccttcagcaaatctgaatatccact' +
+    'tgctcaccatgccaacatgtttggcttaca\\ncgctgctgttgccattccattgaggag' +
+    'tgtctacactggttctgctgctgattttgtttt\\nggaatttttccttcctaaagattg' +
+    'tcgtgacaccgaacagcagaaacaaatgctaaactc\\nattgtcccttgttgttcaaca' +
+    'agcttgtaggagcttgcatttgcatgtcgtcatggacga\\ntaataataataataatat' +
+    'gaatgataataattcttcagctgaccatgatcatgatcaatt\\ncaccttcccaacaac' +
+    'aaatagttacatgccttcttctgcttctgaaccactatcacaagt\\ntgatgcagtttc' +
+    'aggttgttcaaccaaagacacttcatcatcatgttcttggattgcaca\\ntatgatgga' +
+    'ggctcagaacaaggggaaaggcgtctccgtgtcattggaataccttcaaga\\ngcctaa' +
+    'agaggaattcaaagtcacaacctgcaactgggacagggagagggaggacaatgt\\nctt' +
+    'ttcagaattcggccaagtactgcagcagcagcagcatgatcagagcagtaattcaag\\n' +
+    'ggcaagtgttgtaagtgtagaagctggtgaagaatctcctggtgcctgtggtcgccggtc' +
+    '\\ngtcttcttcttcgagtgggagaaagtccggggacaagcgaagaaccaaggcggagaa' +
+    'gac\\ntataagcttgccggttctgagacaatactttgccggaagcctaaaggacgccgc' +
+    'aaagag\\ncatcggtggtaagtgacttgtaaaattcaatttcagttttaattaattaat' +
+    'taattaaat\\naaaactatgtcatggatattattatccaacaactcgatctcaatcaca' +
+    'atctgaagtaat\\ntaaataataattttgtgatacagtgtgtcctacaactctgaaaag' +
+    'gatatgcagacagca\\ntgggattacaagatggccttcaagaaaaataaagaaggtggg' +
+    'ccactctttaaagaagct\\nacaacttgtgattgattctgttcaaggtgcagagggtgc' +
+    'catacagattggctctttcta\\ntgccagcttcccagagttgagcaatgcaactgctaa' +
+    'tggtggtgatggtaatgataacag\\ncaacaatagcttctataataataaccatggaga' +
+    'tggaatagttactagtttgaaatcccc\\naccctctgcttgcagtcagacccatgcagg' +
+    'aaacaaattacctatgactactactactgc\\ncattaaccatcatcatgttgtgatgac' +
+    'agaaaaccctacaggagctcctttaggagttga\\ntcatgccttcatgcatgcatctaa' +
+    'tattaatatccaggactaccatcagctgcaggagga\\ntcttgatactaagcaattact' +
+    'gctacatttcaacaacaataatcaaatcctacctccaag\\naccaactgtggcctggaa' +
+    'caacaacaattcttcatcatcaacactcctagaaaggggtgc\\ntttcagagtgaaggc' +
+    'aactttcgcggatgaaaaaatcaggtttagcttgcaagcaatgtg\\ngggatttagaga' +
+    'tttgcagcttgagattgcaaggcgatttaacctaacagatatgaacaa\\ncttggttct' +
+    'aaaatatttggatgatgaaggagaatgggttgtgttatcatgtgatgctga\\ntcttga' +
+    'agaatgtaaagacttgcacacatcatctcacacacgtaccattagactctctct\\nttt' +
+    'tcaagcttcccctctcaatcttccaaacactttccgcaacagcagcagcagcagtcc\\n' +
+    'atcctcctag"],["CDS","1..1665","NSP1","E","D","D","D","","/ge' +
+    'ne=\\"NSP1\\"\\n/codon_start=1\\n/transl_table=11\\n/product' +
+    '=\\"NSP1\\"\\n/protein_id=\\"AET75794.1\\"\\n/translation=\\"' +
+    'MTMEPNPTSDHILDWLEGSVSFFPSFLDDPYNNGYIHEYEIWNQ\\nNQDISNQYQIDAN' +
+    'TNSSNATNSTTNIVAASTTTSTTSLEPNSFNNIPFSDLPKKRNAE\\nDELSLKKQPQNQ' +
+    'KNKRLKSRPMNESDNGDAALEGTVVRKSGGNKKGAAKANGSNSNNG\\nNNKDGRWAEQL' +
+    'LNPCAVAITGGNLNRVQHLLYVLHELASTTGDANHRLAAHGLRALTH\\nHLSSSSSSTP' +
+    'SGTITFASTEPRFFQKSLLKFYEFSPWFSFPNNIANASILQVLAEEPN\\nNLRTLHILD' +
+    'IGVSHGVQWPTFLEALSRRPGGPPPLVRLTVVNASSSTENDQNMETPFS\\nIGPCGDTF' +
+    'SSGLLGYAQSLNVNLQIKKLDNHPLQTLNAKSVDTSSDETLIVCAQFRLH\\nHLNHNNP' +
+    'DERSEFLKVLRGMEPKGVILSENNMECCCSSCGDFATGFSRRVEYLWRFLD\\nSTSSAF' +
+    'KNRDSDERKMMEGEAAKALTNQREMNERREKWCERMKEAGFAGEVFGEDAID\\nGGRAL' +
+    'LRKYDNNWEMKVEENSTSVELWWKSQPVSFCSLWKLDKQPE\\"\\n",1,"atgactat' +
+    'ggaaccaaatccaacatcagatcacattcttgattggcttgaaggttctgtc\\ntcttt' +
+    'ctttccatcatttttggatgatccatataacaatggttacatccatgagtatgag\\nat' +
+    'atggaatcagaatcaagatataagtaaccagtaccaaattgatgccaatactaattct\\n' +
+    'tctaatgccacaaatagcacaaccaacattgttgctgctagtactaccacaagtacaaca' +
+    '\\ntcccttgagcctaatagctttaataacatacccttttcagatttgccgaagaaacga' +
+    'aat\\ngccgaagatgaactaagtctcaaaaaacaacctcaaaaccaaaagaacaagaga' +
+    'cttaag\\nagtcgtccgatgaatgaaagtgataatggagatgcagctcttgaagggaca' +
+    'gtggttaga\\naaatctggtgggaacaagaaaggtgcagctaaggccaatggaagtaac' +
+    'agtaacaatgga\\naacaataaggatggtaggtgggctgagcagttgctcaacccttgt' +
+    'gctgtagccataacc\\nggtggaaatctgaatcgtgtgcaacatctcttatatgttctc' +
+    'catgagctagcctcaact\\naccggtgatgccaaccaccggcttgcagcacatggtctt' +
+    'cgagcattgacacaccattta\\ntcttcatcttcgtcatctaccccatcagggactatt' +
+    'acttttgcatctacagaaccgcga\\nttcttccaaaagtcattactgaagttctatgag' +
+    'tttagcccttggttttcctttcctaat\\naacatagcaaatgcttccattcttcaagtt' +
+    'ctagctgaagagccgaacaatttgcgcacc\\ncttcacatccttgacattggagtctct' +
+    'catggtgtgcaatggccaacttttctagaggcc\\nttgagtcgtcgacctggtggacct' +
+    'cctcctcttgttcgccttactgtcgttaatgcctct\\ntcatccactgaaaatgaccaa' +
+    'aacatggagaccccattttcaataggtccatgtggtgat\\nactttctcttctggactc' +
+    'cttggttatgctcagtccttaaatgtcaatctgcagataaaa\\naagcttgataatcat' +
+    'ccattgcagacattgaatgctaaaagtgttgacacatcctctgat\\ngaaacccttatt' +
+    'gtctgtgctcagttcaggttgcatcacttgaatcataacaatcctgat\\ngaaagaagt' +
+    'gagtttctgaaggtgttgagaggcatggagcctaaaggggtgatattaagt\\ngagaac' +
+    'aacatggagtgttgctgcagtagttgtggcgatttcgccactggattctcacga\\naga' +
+    'gtggagtacttatggaggtttttagattcaaccagttcggcattcaaaaaccgtgac\\n' +
+    'agtgatgaaaggaaaatgatggaaggcgaggctgcaaaagcattgacaaaccagcgtgaa' +
+    '\\natgaacgaaaggagagaaaaatggtgtgaaagaatgaaagaagcagggtttgcaggg' +
+    'gaa\\ngtatttggagaggatgcaattgatggaggtcgagctttgttaaggaagtatgat' +
+    'aataat\\ntgggagatgaaagtagaagaaaatagtacaagtgtggaactatggtggaag' +
+    'agccaacct\\ngtttctttctgttctttgtggaaactggataaacaaccagagtag"],' +
+    '["gene","1..1665","NSP1","E","D","D","D","","/gene=\\"NSP1\\"' +
+    '\\n",1,"atgactatggaaccaaatccaacatcagatcacattcttgattggcttgaag' +
+    'gttctgtc\\ntctttctttccatcatttttggatgatccatataacaatggttacatcc' +
+    'atgagtatgag\\natatggaatcagaatcaagatataagtaaccagtaccaaattgatg' +
+    'ccaatactaattct\\ntctaatgccacaaatagcacaaccaacattgttgctgctagta' +
+    'ctaccacaagtacaaca\\ntcccttgagcctaatagctttaataacatacccttttcag' +
+    'atttgccgaagaaacgaaat\\ngccgaagatgaactaagtctcaaaaaacaacctcaaa' +
+    'accaaaagaacaagagacttaag\\nagtcgtccgatgaatgaaagtgataatggagatg' +
+    'cagctcttgaagggacagtggttaga\\naaatctggtgggaacaagaaaggtgcagcta' +
+    'aggccaatggaagtaacagtaacaatgga\\naacaataaggatggtaggtgggctgagc' +
+    'agttgctcaacccttgtgctgtagccataacc\\nggtggaaatctgaatcgtgtgcaac' +
+    'atctcttatatgttctccatgagctagcctcaact\\naccggtgatgccaaccaccggc' +
+    'ttgcagcacatggtcttcgagcattgacacaccattta\\ntcttcatcttcgtcatcta' +
+    'ccccatcagggactattacttttgcatctacagaaccgcga\\nttcttccaaaagtcat' +
+    'tactgaagttctatgagtttagcccttggttttcctttcctaat\\naacatagcaaatg' +
+    'cttccattcttcaagttctagctgaagagccgaacaatttgcgcacc\\ncttcacatcc' +
+    'ttgacattggagtctctcatggtgtgcaatggccaacttttctagaggcc\\nttgagtc' +
+    'gtcgacctggtggacctcctcctcttgttcgccttactgtcgttaatgcctct\\ntcat' +
+    'ccactgaaaatgaccaaaacatggagaccccattttcaataggtccatgtggtgat\\na' +
+    'ctttctcttctggactccttggttatgctcagtccttaaatgtcaatctgcagataaaa\\n' +
+    'aagcttgataatcatccattgcagacattgaatgctaaaagtgttgacacatcctctgat' +
+    '\\ngaaacccttattgtctgtgctcagttcaggttgcatcacttgaatcataacaatcct' +
+    'gat\\ngaaagaagtgagtttctgaaggtgttgagaggcatggagcctaaaggggtgata' +
+    'ttaagt\\ngagaacaacatggagtgttgctgcagtagttgtggcgatttcgccactgga' +
+    'ttctcacga\\nagagtggagtacttatggaggtttttagattcaaccagttcggcattc' +
+    'aaaaaccgtgac\\nagtgatgaaaggaaaatgatggaaggcgaggctgcaaaagcattg' +
+    'acaaaccagcgtgaa\\natgaacgaaaggagagaaaaatggtgtgaaagaatgaaagaa' +
+    'gcagggtttgcaggggaa\\ngtatttggagaggatgcaattgatggaggtcgagctttg' +
+    'ttaaggaagtatgataataat\\ntgggagatgaaagtagaagaaaatagtacaagtgtg' +
+    'gaactatggtggaagagccaacct\\ngtttctttctgttctttgtggaaactggataaa' +
+    'caaccagagtag"],["CDS","1..1527","NSP2","E","D","D","D","","/' +
+    'gene=\\"NSP2\\"\\n/codon_start=1\\n/transl_table=11\\n/produ' +
+    'ct=\\"NSP2\\"\\n/protein_id=\\"AET75795.1\\"\\n/translation=' +
+    '\\"MDLMDMDAINDLHFSGHSSLTNTPTSDEDYGCTWNHWSPIVNWD\\nTFTGAPDDFH' +
+    'HLMDTIIEDRTTVLEQLSPSITTTTTTTTTTDEEEEEMETTTTTTTTA\\nIKTHEVGDD' +
+    'SKGLKLVHLLMAGAEALTGSTKNRDLARVILIRLKELVSQHANGSNMER\\nLAAHFTEA' +
+    'LHGLLEGAGGAHNNHHHHNNNKHYLTTNGPHDNQNDTLAAFQLLQDMSPY\\nVKFGHFT' +
+    'ANQAIIEAVAHERRVHVIDYDIMEGVQWASLIQSLASNNNGPHLRITALSR\\nTGTGRR' +
+    'SIATVQETGRRLTSFAASLGQPFSFHHCRLDSDETFRPSALKLVRGEALVFN\\nCMLNL' +
+    'PHLSYRAPESVASFLNGAKTLNPKLVTLVEEEVGSVIGGFVERFMDSLHHYSA\\nVFDS' +
+    'LEAGFPMQNRARTLVERVFFGPRIAGSLGRIYRTGGEEERRSWGEWLGEVGFRG\\nVPV' +
+    'SFANHCQAKLLLGLFNDGYRVEEVGVGSNKLVLDWKSRRLLSASLWTCSSSDSDL\\n\\"' +
+    '\\n",1,"atggatttgatggacatggatgccatcaatgacctccacttctctggacaca' +
+    'gctccctc\\naccaacacccctacttccgacgaggattatggttgcacctggaaccact' +
+    'ggtctcccatc\\ngtcaactgggacacctttacaggtgccccagatgactttcaccacc' +
+    'tcatggacaccatc\\natcgaggacagaacaactgtcctcgaacagctcagtccatcta' +
+    'tcaccacaaccaccacc\\naccaccacaaccacggatgaggaagaagaagaaatggaaa' +
+    'caacaaccacaacaacaaca\\nacggcaataaaaacgcatgaagttggtgatgattcaa' +
+    'aagggctaaaactagtgcaccta\\nttgatggctggcgcggaagccttaaccggttcaa' +
+    'ccaaaaaccgtgacttagctcgagtg\\natattgatccggctcaaggaattagtctcac' +
+    'aacatgctaacggctccaacatggagaga\\ncttgccgctcatttcaccgaagcccttc' +
+    'atggactactagaaggtgctgggggtgcgcat\\naataaccaccatcaccacaacaaca' +
+    'acaaacattacctcaccacaaatggtccccacgac\\naaccaaaacgacacacttgctg' +
+    'ctttccaactacttcaagacatgtcaccttacgtcaaa\\nttcggccacttcacagcca' +
+    'atcaagccatcatcgaagccgtggcccacgaacgccgcgtc\\ncatgtcatcgactacg' +
+    'atatcatggaaggggtccaatgggcctcattaatccaatcactt\\ngcttccaacaaca' +
+    'acggtccacatcttcggataaccgcattatcgcggacaggaaccggc\\ncggaggtcaa' +
+    'tcgccaccgtacaagaaaccggcaggcgattaacctcctttgccgcttcc\\nctcggac' +
+    'aaccattttcttttcatcactgcagattagactccgatgaaactttccgtcct\\ntctg' +
+    'cattaaagcttgtacgtggagaggctttggttttcaactgcatgctgaatttacct\\nc' +
+    'accttagttaccgtgcaccggaatcagttgcttcgtttttaaacggagcaaaaacgttg\\n' +
+    'aatccaaagcttgtgacgttggttgaagaagaagttggttctgttattggtgggtttgtg' +
+    '\\ngaaaggttcatggactcacttcatcattattcagcggtttttgattcattggaggct' +
+    'ggt\\ntttccgatgcagaaccgggcccggactttggtggagagggtattttttgggcct' +
+    'agaatt\\ngcaggctcgttgggccggatatatagaacgggtggtgaagaggagagaagg' +
+    'tcatggggg\\ngagtggttaggtgaggtagggtttaggggagttccggtgagctttgca' +
+    'aatcattgtcaa\\ngcaaagctgttgttagggctttttaatgatgggtatagggttgaa' +
+    'gaggtgggtgtgggt\\nagtaataagttggtgttggattggaaatcaagacgtttgctt' +
+    'tctgcttccctttggact\\ntgttcttcttcagattctgatttatag"],["gene","' +
+    '1..1527","NSP2","E","D","D","D","","/gene=\\"NSP2\\"\\n",1,"' +
+    'atggatttgatggacatggatgccatcaatgacctccacttctctggacacagctccctc' +
+    '\\naccaacacccctacttccgacgaggattatggttgcacctggaaccactggtctccc' +
+    'atc\\ngtcaactgggacacctttacaggtgccccagatgactttcaccacctcatggac' +
+    'accatc\\natcgaggacagaacaactgtcctcgaacagctcagtccatctatcaccaca' +
+    'accaccacc\\naccaccacaaccacggatgaggaagaagaagaaatggaaacaacaacc' +
+    'acaacaacaaca\\nacggcaataaaaacgcatgaagttggtgatgattcaaaagggcta' +
+    'aaactagtgcaccta\\nttgatggctggcgcggaagccttaaccggttcaaccaaaaac' +
+    'cgtgacttagctcgagtg\\natattgatccggctcaaggaattagtctcacaacatgct' +
+    'aacggctccaacatggagaga\\ncttgccgctcatttcaccgaagcccttcatggacta' +
+    'ctagaaggtgctgggggtgcgcat\\naataaccaccatcaccacaacaacaacaaacat' +
+    'tacctcaccacaaatggtccccacgac\\naaccaaaacgacacacttgctgctttccaa' +
+    'ctacttcaagacatgtcaccttacgtcaaa\\nttcggccacttcacagccaatcaagcc' +
+    'atcatcgaagccgtggcccacgaacgccgcgtc\\ncatgtcatcgactacgatatcatg' +
+    'gaaggggtccaatgggcctcattaatccaatcactt\\ngcttccaacaacaacggtcca' +
+    'catcttcggataaccgcattatcgcggacaggaaccggc\\ncggaggtcaatcgccacc' +
+    'gtacaagaaaccggcaggcgattaacctcctttgccgcttcc\\nctcggacaaccattt' +
+    'tcttttcatcactgcagattagactccgatgaaactttccgtcct\\ntctgcattaaag' +
+    'cttgtacgtggagaggctttggttttcaactgcatgctgaatttacct\\ncaccttagt' +
+    'taccgtgcaccggaatcagttgcttcgtttttaaacggagcaaaaacgttg\\naatcca' +
+    'aagcttgtgacgttggttgaagaagaagttggttctgttattggtgggtttgtg\\ngaa' +
+    'aggttcatggactcacttcatcattattcagcggtttttgattcattggaggctggt\\n' +
+    'tttccgatgcagaaccgggcccggactttggtggagagggtattttttgggcctagaatt' +
+    '\\ngcaggctcgttgggccggatatatagaacgggtggtgaagaggagagaaggtcatgg' +
+    'ggg\\ngagtggttaggtgaggtagggtttaggggagttccggtgagctttgcaaatcat' +
+    'tgtcaa\\ngcaaagctgttgttagggctttttaatgatgggtatagggttgaagaggtg' +
+    'ggtgtgggt\\nagtaataagttggtgttggattggaaatcaagacgtttgctttctgct' +
+    'tccctttggact\\ntgttcttcttcagattctgatttatag"],["misc_feature"' +
+    ',"1..1691","P1 lytic replicon","E","D","D","D","/note=\\"P1 ' +
+    'lytic replicon\\"","/note=\\"Spacer for note information\\"\\n' +
+    '",1,"taattgcaataatggggcgtccagttttggcaacagtgtcctcttaccaggacac' +
+    'ctatg\\nagtttgcctcatggcaaactagaggtgttgaaagtatgcatggttataatta' +
+    'gagcaatt\\ncattaccctctgaatcctgccggtataccccattgttcgttatctttat' +
+    'ttttggctaaa\\naccgcattaagagcttcgtttaccgtcatgcaatgcggtaggttat' +
+    'cgaagtttgatatc\\nccgccaatatcaggcgaacgcttgttcttcaggtaagcatatt' +
+    'tccgcgcagccgcctct\\nactttctgcttgaactcatgtttttgagtgcgttttttgg' +
+    'ataaccgcagattgtcagcc\\ntttgcttttgccttagcgatccatgaagtcaattttt' +
+    'tgaggctggttgttccggcaccg\\nccggaaactgatctttttgtttttttaacttgtg' +
+    'acttcttattctttattgccacgtca\\ntcctgacagggggagggggtatcattttgac' +
+    'atgggggtgtggataaaaaattaaataaa\\ngccaatgtcttagcgagaacagctttaa' +
+    'ccttggttgccgctgaagagatctttaatttg\\nctttctatcagcgcatttttggctt' +
+    'gttgtgcgaaggccaaaaaggatggtgtaaaccgg\\ntacaggttagcgcgacgttcac' +
+    'ggtgatcgccgataacaatctctacagacagaattcct\\nttgtttacagcttcacgga' +
+    'atgcacgaacgacggttgattggctataaccagtttctgcc\\ngcgatcaggcggtgag' +
+    'gcttgtgaatgaagtattcactggttgttgccgcgagatttgca\\ncattgcgacagga' +
+    'tatgcccggcgctacgggatagaccggagtgtgttacaaagcaggcc\\naattcatagc' +
+    'cagaaaaagtaaaatcgctcatcgttatacagctcaggaaagtgacttta\\ngccagca' +
+    'ttacaatgctggtggttcttactacgtctgttagcgcgttgccgcgacagcag\\ncaca' +
+    'ccagcatcaagcaatcgcttcatcagccactgctgacctttgccggttatacgagt\\nc' +
+    'gtgaaagaaatcctgcttccattgcttgtatcgatcacggtttctttaagggtgaaata\\n' +
+    'cccacgagatatgtattcttgtttggggacgttcctgcgttcaccggttgcgatcagaat' +
+    '\\ntccgttatcacgcaaccaggtgaagagatagttttggcccaggccgagcactttggc' +
+    'ata\\ngttgccgattagaaccccgctggcggtagcaacgcgttcagcgaattcgacttt' +
+    'aggtgc\\natccataagcattttttgctccagccgttgcttttgctctgccaggtcggc' +
+    'agccaaacg\\ngagagcttcagggagactctgcggaatagcaggttgtaatcttccggt' +
+    'tcgatagtcgat\\naaatgtctggtttaccttcagccgaaacgcgggagaaatccagcc' +
+    'tgcgtactccacagc\\ngagcaattcatgggcaaaagtgccgccgccacggccttcgac' +
+    'ctgcaggcatgcaagcta\\ngcttggcgtaatcatggtcatagctgtttcctgtgtgaa' +
+    'attgttatccgctcacaattc\\ncacacaacatacgagccggaagcataaagtgtaaag' +
+    'cctggggtgcctaatgagtgagct\\naactcacatta"],["misc_feature","1.' +
+    '.5759","P1 plasmid replicon","E","D","D","D","/note=\\"P1 pl' +
+    'asmid replicon\\"","/note=\\"Spacer for note information\\"\\n' +
+    '",1,"ttcagaaacaactggttgcggcgggtaatgttcgccagcgtattcctgctgacac' +
+    'tcagc\\nggttgctccgggagtcgatcagcgaatttaacgccgacgccgacaaaggtta' +
+    'accaccct\\ngcccccaaaagtgcatttatgtgtaggatgccagagtttagcagtgaat' +
+    'attttgatgat\\nctgccagcgtatatcctcgatacagaaacgatgctgatggggatta' +
+    'acaggaagaatcgc\\naacgttaatgattacaaccgagctattagcggtaactaaaagg' +
+    'gatttttatgtctgata\\naagtaacagtaaagcaaactatcaacaaagcgacttcaat' +
+    'ctacaaaattgagcaaatca\\nctgttggcaagccaggatctgaacaataccgtcgtgc' +
+    'tttcgagcttgccgatcagcttg\\ngtttaaaacacccggattgcattgagcatgtatt' +
+    'tccgacctatgctgatgagcaatgta\\nctcatgttcttaccgaagaggattttttcag' +
+    'cactgaagaacgagaaggcgttgatcgct\\ngcattggtgtgatttgttcttcggtaag' +
+    'tgatgagttattccctaatgtgcctgaatatg\\ngtggtattggataccaattcctgta' +
+    'cgagggcgatgagcttaaatgctatgaacatggtc\\nttctcatcgaaagcgtagaata' +
+    'atacgactcccttccaaccggctacgttggccggtttt\\ntcacttatccacattatcc' +
+    'actggatagatccaataatcaggtccatacagatcccaatt\\nagatccatatagatcc' +
+    'ctgatcgttgcaggccgcgccacgtctggcttagaagtgtatcg\\ncgatgtgtgctgg' +
+    'agggaaaacgatgtgtgctggagggataaaaatgtgtgctgacgggt\\ntgctaatgtg' +
+    'tgctggcgggatataggatgtgtgttgacgggaaagctagcttgggtagt\\ntatcacc' +
+    'acttataaaaactatccacacaattcggaaaaagtaatatgaatcaatcattt\\natct' +
+    'ccgatattctttacgcagacattgaaagtaaggcaaaagaactaacagttaattca\\na' +
+    'acaacactgtgcagcctgtagcgttgatgcgcttgggggtattcgtgccgaagccatca\\n' +
+    'aagagcaaaggagaaagtaaagagattgatgccaccaaagcgttttcccagctggagata' +
+    '\\ngctaaagccgagggttacgatgatattaaaatcaccggtcctcgactcgatatggat' +
+    'act\\ngatttcaaaacgtggatcggtgtcatctacgcgttcagcaaatacggcttgtcc' +
+    'tcaaac\\naccatccagttatcgtttcaggaattcgctaaagcctgtggtttcccctca' +
+    'aaacgtctg\\ngatgcgaaactgcgtttaaccattcatgaatcacttggacgcttgcgt' +
+    'aacaagggtatc\\ngcttttaagcgcggaaaagatgctaaaggcggctatcagactggt' +
+    'ctgctgaaggtcggg\\ncgttttgatgctgaccttgatctgatagagctggaggctgat' +
+    'tcgaagttgtgggagctg\\nttccagcttgattatcgcgttctgttgcaacaccacgcc' +
+    'ttgcgtgcccttccgaagaaa\\ngaagctgcacaagccatttacactttcatcgaaagc' +
+    'cttccgcagaacccgttgccgcta\\ntcgttcgcgcgaatccgtgagcgcctggctttg' +
+    'cagtcagctgttggcgagcaaaaccgt\\natcattaagaaagcgatagaacagcttaaa' +
+    'acaatcggctatctcgactgttctattgag\\naagaaaggccgggaaagttttgtaatc' +
+    'gtccattctcgcaatccaaagctgaaactcccc\\ngaataagtgtgtgctggagggaaa' +
+    'ccgcattaaaaagatgtgtgctgccgggaaggcttg\\ntccaatttcctgtttttgatg' +
+    'tgcgctggagggggacgcccctcagtttgcccagacttt\\nccctccagcacacatctg' +
+    'tccatccgcttttccctccagcacacatcgaagctgccgggc\\naagccgttctcacca' +
+    'gttgatagagagtgaagctagcttggctgcccattgaagcaggaa\\natcaccaaaatg' +
+    'attcaggctacaacctgaacgtagaagaaatccgcgtcctttatgcgt\\nggaggatgc' +
+    'caaagcatgttgtgacacacttggcaaaggagtaagcatgcagagaatgct\\natgtac' +
+    'aagcatctacgcatacattattattttatgcagcatttttaattaaattcaaaa\\nata' +
+    'cagcataaaggatgactttcgatgagtgattccagccagcttcacaaggttgctcaa\\n' +
+    'agagcaaacagaatgctcaatgttctgactgaacaagtacagttgcaaaaggatgagcta' +
+    '\\ncacgcgaacgagttttaccaggtctatgcgaaagcggcactggcaaaattgcctcta' +
+    'ctg\\nactcgagcgaacgttgactatgccgtaagtgaaatggaagaaaagggttatgtt' +
+    'ttcgat\\naaacgccctgctggctcttcaatgaaatatgcgatgtcaattcagaacatc' +
+    'attgacata\\ntatgaacatcgcggagtgccaaaataccgggatcgctacagcgaagcg' +
+    'tatgtgattttc\\natctccaatcttaaaggcggtgtgtcaaaaactgtatcgacggtt' +
+    'tctctggcgcatgca\\natgcgtgctcaccctcatcttcttatggaggatttaaggatt' +
+    'ctggttattgaccttgat\\nccgcaatcttcagcaacgatgtttttaagccataaacac' +
+    'tctattggtatcgtaaacgca\\nacatctgcacaggctatgttgcagaatgtaagccgt' +
+    'gaagagctgttagaggagtttatt\\ngttccttctgttgtacctggggttgacgttatg' +
+    'cctgcgtcgattgacgatgcctttatt\\ngcatccgattggagagagctgtgcaatgag' +
+    'catctaccgggtcagaacatccatgctgtc\\nctgaaagaaaatgtgattgataagctg' +
+    'aagagcgattatgactttatcctcgttgatagt\\nggtcctcaccttgacgccttcctg' +
+    'aaaaatgctttggcctcggccaatatactgtttaca\\ncctctgccgccagcaactgtc' +
+    'gatttccactcatcgcttaaatacgttgcccgccttcct\\ngagttggtgaaactcatt' +
+    'tcggatgaaggctgcgagtgccagcttgcgactaacattggt\\ntttatgtccaagttg' +
+    'agtaacaaggcagaccataagtattgccatagcctggctaaagaa\\ngtgttcggtggg' +
+    'gatatgcttgatgtcttcctccctcgccttgacggttttgaacgctgc\\nggcgagtct' +
+    'tttgacactgttatttcagctaacccggcaacgtatgttggtagtgctgat\\ngcattg' +
+    'aagaacgcgcgaattgccgcggaagattttgctaaagcagtttttgaccgtatt\\ngaa' +
+    'tttatcagatctaactgaggagtaagaaacccccatgtcaaagaaaaacagaccaac\\n' +
+    'aattgggcgaacccttaatccttcaatattaagcggatttgatagttcttcagcctctgg' +
+    '\\ncgatcgagtcgagcaggtattcaagttatcaactggtcgccaggccacatttattga' +
+    'aga\\nggtaatacctccgaaccaggtagaaagcgatacctttgttgatcagcataacaa' +
+    'cgggcg\\ntgaccaggcatctcttacgccaaaatcattaaaaagtatccgaagcactat' +
+    'taagcatca\\ngcaattttaccctgcaataggtgttagacgggctacagggaaaattga' +
+    'aattttggatgg\\nttcccggcgtcgagcttctgccatcttagagaacgtagggttgcg' +
+    'ggttttagtcacgga\\nccaggagatcagcgttcaggaagcgcaaaatttagcgaaaga' +
+    'cgttcagacagcattgca\\ngcacagcattcgagaaataggtctgcgtttgatgcgaat' +
+    'gaaaaatgatgggatgagtca\\ngaaggatattgcagccaaagaagggctgtctcaggc' +
+    'gaaggtcacgcgtgctctccaggc\\nagcgagtgctccggaagaattagtcgccctttt' +
+    'ccctgtgcagtcggaattaaccttttc\\nggactacaaaacgctttgtgctgttggcga' +
+    'cgaaatggggaacaagaatttagagtttga\\ntcagcttattcaaaacatatccccgga' +
+    'aataaacgacatcttatccattgaagaaatggc\\ncgaagatgaagttaaaaataaaat' +
+    'cctgcgcttgataacaaaggaagcctcactactcac\\nggataaaggttctaaagataa' +
+    'gtccgtagttactgaattatggaaatttgaggacaagga\\ntcgctttgcaaggaagcg' +
+    'cgtgaaaggccgtgcattttcttatgagtttaatcgactctc\\naaaagagttacagga' +
+    'agaactcgacaggatgattgggcatatccttagaaagagcctcga\\ntaaaaagccgaa' +
+    'gccttaaactttcgccattcaaatttcactattaactgactgttttta\\naagtaaatt' +
+    'actctaaaatttcaaggtgaaatcgccacgatttcaccttggattttacct\\ntcctcc' +
+    'cctcctcccgaaaaaaataaaaaaattgcttgtcacgagaaagtcaacaagtga\\nctt' +
+    'tcaataaaatctcttccgaaaagggattcacacaagtgccttgtgtttaaggaagag\\n' +
+    'taaattgagtaacttacgcgaataccagaatcgtattgcagatatcgcaaaacgctctaa' +
+    '\\nagctgtgcttggctgggcaagcactgcgcagttcggtactgataaccaattcattaa' +
+    'aga\\ntgatgccgcgcgtgccgcatctatccttgaagctgcacgtaaagacccggtttt' +
+    'tgcggg\\ntatctctgataatgccaccgctcaaatcgctacagcgtgggcaagtgcact' +
+    'ggctgacta\\ncgccgcagcacataaatctatgccgcgtccggaaattctggcctcctg' +
+    'ccaccagacgct\\nggaaaactgcctgatagagtccacccgcaatagcatggatgccac' +
+    'taataaagcgatgct\\nggaatctgtcgcagcagagatgatgagcgtttctgacggtgt' +
+    'tatgcgtctgcctttatt\\ncctcgcgatgatcctgcctgttcagttgggggcagctac' +
+    'cgctgatgcgtgtaccttcat\\ntccggttacgcgtgaccagtccgacatctatgaagt' +
+    'ctttaacgtggcaggttcatcttt\\ntggttcttatgctgctggtgatgttctggacat' +
+    'gcaatccgtcggtgtgtacagccagtt\\nacgtcgccgctatgtgctggtggcaagctc' +
+    'cgatggcaccagcaaaaccgcaaccttcaa\\ngatggaagacttcgaaggccagaatgt' +
+    'accaatccgaaaaggtcgcactaacatctacgt\\ntaaccgtattaagtctgttgttga' +
+    'taacggttccggcagcctacttcactcgtttactaa\\ntgctgctggtgagcaaatcac' +
+    'tgttacctgctctctgaactacaacattggtcagattgc\\ncctgtcgttctccaaagc' +
+    'gccggataaaggcactgagatcgcaattgagacggaaatcaa\\ntattgaagccgctcc' +
+    'tgagctgatcccgctgatcaaccacgaaatgaagaaatacaccct\\ngttcccaagtca' +
+    'gttcgttatcgcggctgagcacacggtacaggcggcgtatgaagcac"],["misc_fea' +
+    'ture","1..4635","pRiA4 replicon","E","D","D","D","/note=\\"p' +
+    'RiA4 replicon\\"","/note=\\"Spacer for note information\\"\\n' +
+    '",1,"atcctacaaggtagaatccgcctgagtcgcaagggtgacttcgcctatattggac' +
+    'gacgg\\ncgcgcagagggcgacctctttttgggttacgattgtaggattatcactaaaa' +
+    'caatacat\\ngaacatattcaaatggcaatctctctaaggcattggaaataaatacaaa' +
+    'taacagttggg\\ntggagtttttcgacctgagggcgttaaccttctgttaacctaaaag' +
+    'ctcttgcccaaaca\\ngcagaatcggcgctaattgccagcggcggaacttttccagttt' +
+    'cgcgaaaagtatcgcca\\nctggcaaggaatgggtttgagatggcgaagtctgtcctaa' +
+    'aagcagcgcctgtagttgta\\ngggttgacggccttgatggagcgtcatgccgatgccc' +
+    'tctcgagccaacttcaagcacat\\ncatcttaaggttttcccgccgcattccgagaagg' +
+    'gcattcgaacattcgggccatcggag\\ngcgtccaagctgctcggcgttggcgagtcat' +
+    'atttacggcagaccgcgtctgagatgcca\\ngagttgaatgttagcatgagcccgggtg' +
+    'gcaggcgaatgttctcaattgaagatatccat\\ngtgattcggaagtatatggatcagg' +
+    'tcggccgcgggaaccggcgctacctgccacatcgt\\ncgaggcggcgagcagcttcagg' +
+    'ttatctctgtgatgaatttcaaaggtgggtcgggtaag\\naccaccaccgccgcgcatc' +
+    'tggcgcagtacctcgctatgcgcggatatcgagtcttggcc\\nattgatctcgatcctc' +
+    'aagcgagcctttctgcactctttgggagccaaccggagacggac\\ngttggcccgaacg' +
+    'aaacgctctacggcgctataaggtatgatgatgagcaggtggcaatc\\ngaacgagtcg' +
+    'tccgagggacttacattcccgacctccacctgattcctggtaaccttgag\\nctgatgg' +
+    'agtttgaacacgatacgccacgcgcgctgatgaaccgcaaagagggcgacacg\\nctct' +
+    'tttatggtcgcatcagccaagtaattgaagatatcgcggataactatgacgtcgtg\\ng' +
+    'tcatcgactgccctccccagcttgggtatctcacgctatccgcattgactgcggcgacg\\n' +
+    'tccattcttgtcacggtccatccgcagatgctggatgtgatgtcgatgaaccagtttctg' +
+    '\\ngcaatgacatcgaaccttttgcgtgaaatcgagaatgctggcgccaagttcaagttt' +
+    'aat\\ntggatgcgctatctgataacccgtttcgaaccgagcgacggaccacagaaccaa' +
+    'atggta\\nggttatctgcggtcgatttttggcgaaaatgtcctcaattttccgatgctt' +
+    'aaaaccacc\\ngcggtttcggacgctggcctgacaaaccagactctattcgaagtggag' +
+    'cgtggcctgttc\\nacgcgctcgacctatgatcgagccttggaggcgatgaacgccgtc' +
+    'aacgacgagatcgaa\\nacactgatcaaaaaagcatggggtaggcccacatgagccgga' +
+    'agcacatccttggcgtct\\ncaactgacgcccctgagacgtcgcccgccgacaatagga' +
+    'cggcaaagaaccgctccatgc\\ncgctcctcggcgtaacaaggaaggagcgcgatccgg' +
+    'caacgaagctcacagcgaacattg\\ngtaacgcactgcgagagcaaaacgatcgtctta' +
+    'gccgtgccgaagagatcgagcggcgtc\\ntcgctgaaggtcaggcagtgatagagttgg' +
+    'atgcctcgtcaatagaaccgtctttcgtgc\\naggatcgtatgcgaggggacattgacg' +
+    'ggctccttacttcgatccgggaacaaggacagc\\naagtcccaatccttgtgcgaccgc' +
+    'atccgagccagccgggccgatatcaggttgccttcg\\ngccaccgccggctacgcgccg' +
+    'tttcagaactcggacttccggtcagagcggtcgttcgcg\\naactgacggacgagcaag' +
+    'tggtcgtagcacagggtcaggaaaacaatgagcgcgaagatc\\nttaccttcatcgaaa' +
+    'aggcgcgcttcgcacatcgcctgaacaggcagttttctcgagaga\\nttgtcatcgccg' +
+    'cgatgtcgatcgacaagagcaatttgtccaagatgcttctgctcgtcg\\nacgccctcc' +
+    'cctctgaactgaccgatgctattggtgccgctcctggtgttggacggccga\\ngttggc' +
+    'aacaacttgccgagctgattgagaaagtttcttcaccggccgacgtggctaaat\\natg' +
+    'ctatgtcggaggaagttcaagcgctgccatcggcagaacgattcaaggcggtgatcg\\n' +
+    'ctagtctgaagcccagtcgggttgcgcgtggacttcccgaggtcatggccaccccagacg' +
+    '\\ngcaccagaattgcacaggtgacgcagagcaaggccaaactggaaatcacgattgaca' +
+    'gga\\naggcgacgcccgattttgcgaccttcgtgctcgatcatgtgccagcgctgtatc' +
+    'aagcgt\\naccacgctgagaaccaacggaaacggggagagtaaaccgcaaaagaaaaga' +
+    'gccccctca\\nacgtcgccgtcgcggaagcccttctgtctctctagcgcgaacagaatc' +
+    'gcatttcctcga\\natcctcgtcaagagtttttagcgccgttttggtgagctgatttcc' +
+    'tttgcctgctgaaag\\ngtgaaagatgatgcagacaggaagtgtaacgacgccattcgg' +
+    'gcggcggccaatgacgct\\ntgcgcttgtgcggcgccagacggcgctggccgatatcaa' +
+    'acaaggcaagacagcggacaa\\ngtggaaggtctttagagacgcgtccgcggccatgga' +
+    'actacttggaatccagtccaacag\\ntcttgccgtccttgatgcgctattgagctttca' +
+    'cccggaaacggagttgcgtcaggaggc\\nacagctgatcgtcttcccgtcgaatgctca' +
+    'gcttgcccttcgggcgcatgggatggctgg\\ncgcgactttgcgtaggcacatcgccat' +
+    'gctcgtggagtcaggcttgatcgtccggaagga\\ntagcgccaacggaaagcgttacgc' +
+    'tcgtaaggatggcgctggtcagatcgagcgcgcgtt\\ntggcttcgatttgtctccgct' +
+    'tctcgcgcggtccgaagagctagcgatgatggcacagca\\nggtgatggccgatcgagc' +
+    'agcattcaggatggccaaagaaagtctgacgatttgccgacg\\nggacgttcggaagct' +
+    'aattacggcagctatggaagagggagcggagggcgactggcaagc\\ntgtcgaggaagt' +
+    'ctatgtggaacttgtgggtagaattccacgcgccccgacgcttgctga\\ntgtagagtc' +
+    'aattctcgaagagatgtggatgctccaggaagagataatcaaccggttgga\\naattag' +
+    'agacaattcagaaaataatagcaccaatgctgcccagagcgagcagcacataca\\ngaa' +
+    'ttcaaaacccgaatccgttaatgaacttgaacctcgctctgaaaaggagcagggcgc\\n' +
+    'taagccgagtgaaatagaccgggcagggagcgagccgataaaagcgttccccctcgggat' +
+    '\\ngatcctgaaagcatgcccgaccattggcaattatgggccgagcggtgcggttgctag' +
+    'ctg\\ngcgtgacctcatgtcggctgcggtggtggttcggtctatgctgggggtcagccc' +
+    'gtcggc\\nttaccaagacgcgtgtgaggcaatgggaccggagaatgcggcagcagcgat' +
+    'ggcgtgcat\\ntttggagcgagcgaacttcatcaattcgcccgggggctatctccgaga' +
+    'tctgacacggcg\\ngagcgagctcgggaagttttcacttggcccgatgataatggcgct' +
+    'cttgaaggctagcgg\\ngcaggggacgttgcggtttggctagaattagcgagtatggag' +
+    'caggatggtctgtggtca\\ngctgaccacagacctaataggttgaaaacatgagcgttt' +
+    'tttggatgatcgacagaccat\\nccgattcccggagtaccaagcgtgctctgatgggag' +
+    'cgataacattactcaacaagcacg\\naaggccccatgccgatcgttgatcgtgaaggag' +
+    'agcctgctctacatgcggcggtatttt\\ngccggccgaggcatgtagtcgcggagcact' +
+    'gcctatttactgccctaggcacaaacgttg\\nactcttggatcgagctggcagacaaag' +
+    'caataacccacacagaggacgattaatggctga\\ncgaagagatccagaatccgccgga' +
+    'cggtactgctgctgccgaagttgagccggctgctcc\\ntagaggtagaagagcaaagaa' +
+    'agcaccagccgaaacagcccgcacgggatcgttcaaatc\\ncgtgaagccgaaaacccg' +
+    'cggcctcagcaaccgagaaaaactggagaagatcggtcaaat\\ncgaagctcaggtcgc' +
+    'tggcggcgcaaccttgaaggacgccgttaagatcgtgggtatttc\\ncgttcagaccta' +
+    'ttatcaatggaagagagctgcggttcaacctgtctcacagaatccggc\\ncgtgtctgt' +
+    'ttcagttgacgatgaactcggcgagttcatccaactcgaggaggaaaatcg\\ngcggct' +
+    'cagaaagct"],["misc_feature","1..81","R/Rs recombination site' +
+    '","E","D","D","D","/note=\\"R/Rs recombination site\\"","/no' +
+    'te=\\"Spacer for note information\\"\\n",1,"tatcactgtggacgtt' +
+    'gatgaaagaatacgttattctttcatcaaatcgttctttcatta\\nattcattctttca' +
+    'tcaaatcg"],["misc_feature","1..544","RB (right border); Over' +
+    'drive Sequence","E","D","D","D","/note=\\"RB (right border);' +
+    ' Overdrive Sequence\\"","/note=\\"Spacer for note informatio' +
+    'n\\"\\n",1,"agattgtcgtttcccgccttcagtttaaactatcagtgtttgacagga' +
+    'tatattggcggg\\ntaaacctaagagaaaagagcgtttattagaataatcggatattta' +
+    'aaagggcgtgaaaag\\ngtttatccgttcgtccatttgtatgtgcatgccaaccacagg' +
+    'gttcccctcgggagtgct\\ntggcattccgtgcgataatgacttctgttcaaccaccca' +
+    'aacgtcggaaagcctgacgac\\nggagcagcattccaaaaagatcccttggctcgtctg' +
+    'ggtcggctagaaggtcgagtgggc\\ntgctgtggcttgatccctcaacgcggtcgcgga' +
+    'cgtagcgcagcgccgaaaaatcctcga\\ntcgcaaatccgacgctgtcgaaaagcgtga' +
+    'tctgcttgtcgctctttcggccgacgtcct\\nggccagtcatcacgcgccaaagttccg' +
+    'tcacaggatgatctggcgcgagttgctggatct\\ncgccttcaatccgggcctgtggcg' +
+    'ggaactccacgaaaatatccgaacgcagcaagatcg\\ntcga"],["CDS","1..233' +
+    '1","recLDB","E","D","D","D","","/gene=\\"recLDB\\"\\n/codon_' +
+    'start=1\\n/transl_table=11\\n/product=\\"recLDB\\"\\n/protei' +
+    'n_id=\\"AET75792.1\\"\\n/translation=\\"MALTKDTEISTINRQMSDFS' +
+    'ELSQILPLHQISKIKDILENENPL\\nPKEKLASHLTMIILMANLASQKRKDVPVKRSTF' +
+    'LKYQRSISKTLQYDSSTKTVSFEYH\\nLKDPSKLIKGLEDVVSPYRFVVGVHEKPDDVM' +
+    'SHLSAVHMRKEAGRKRDLGNKINDEI\\nTKIAETQETIWGFVGKTMDLIEARTTRPTTK' +
+    'AAYNLLLQATFMNCCRADDLKNTDIKT\\nFEVIPDKHLGRMLRAFVPETKTGTRFVYFF' +
+    'PCKGRCDPLLALDSYLQWTDPIPKTRTT\\nDEDARYDYQLLRNSLLGSYDGFISKQSDE' +
+    'SIFKIPNGPKAHLGRHVTASYLSNNEMDK\\nEATLYGNWSAAREEGVSRVAKARYMHTI' +
+    'EKSPPSYLFAFLSGFYNITAERACELVDPN\\nSNPCEQDKNIPMISDIETLMARYGKNA' +
+    'EIIPMDVLVFLSSYARFKNNEGKEYKLQARS\\nSRGVPDFPDNGRTALYNALTAAHVKR' +
+    'RKISIVVGRSIDTSGSTKKKIKGIQQATAGVS\\nQDTSENPNKTIVPAALPQLTPTLVS' +
+    'LLEVIEPEVLYAGYDSSVPDSAWRIMTTLNMLG\\nGRQVIAAVKWAKAIPGFRNLHLDD' +
+    'QMTLLQYSWMFLMAFALGWRSYRQSSGNLLCFAP\\nDLIINEQRMSLPCMYDQCKHMLF' +
+    'VSSELQRLQVSYEEYLCMKTLLLLSSVPKEGLKSQ\\nELFDEIRMTYIKELGKAIVKRE' +
+    'GNSSQNWQRFYQLTKLLDSMHEVVENLLTYCFQTFL\\nDKTMSIEFPEMLAEIITNQIP' +
+    'KYSNGNIKKLLFHQK\\"\\n",1,"atggcattgaccaaggacactgaaatttcaacaa' +
+    'ttaacagacaaatgtccgacttcagc\\ngagcttagccaaatccttccccttcaccaaa' +
+    'tctctaagatcaaggacattttggagaat\\ngagaaccctctcccaaaggaaaagctcg' +
+    'cctcccacctgaccatgatcattttgatggcc\\naatttggccagtcagaaacgcaagg' +
+    'acgttcctgtcaagcgttccactttcttgaagtac\\ncagcgctctatttccaagacat' +
+    'tgcagtacgactcttccaccaagaccgtttcctttgag\\ntaccacttgaaagacccaa' +
+    'gcaagctcatcaaaggactggaggatgttgtgagcccctat\\ncgcttcgttgtgggtg' +
+    'tgcacgagaagcctgatgacgtcatgagccacttgtctgctgtc\\ncacatgcgcaagg' +
+    'aggcaggtcgtaagagagacttgggtaacaagattaacgacgagatc\\nactaaaatcg' +
+    'ctgaaacacaggaaactatttggggattcgtcggaaagactatggacctc\\natcgaag' +
+    'ctagaaccactcgtcctacaacaaaggccgcatacaaccttttgcttcaggcc\\nacct' +
+    'tcatgaactgttgcagagctgacgacttgaagaataccgacatcaagaccttcgaa\\ng' +
+    'ttattccagacaagcaccttggcagaatgctccgtgctttcgtcccagagactaagact\\n' +
+    'ggtactcgtttcgtctacttcttcccttgcaaaggacgttgcgacccactgttggctctc' +
+    '\\ngattcctacctccaatggaccgatcctattcccaaaactagaactactgatgaagac' +
+    'gcc\\nagatacgattaccagcttctcaggaacagcctgcttggctcatacgacggattc' +
+    'atctct\\naagcaatccgatgagagcatctttaagattcccaatggaccaaaggctcac' +
+    'ttgggcagg\\ncatgtgaccgcttcatacctttccaacaacgagatggataaggaggcc' +
+    'accctctacggt\\naattggtctgccgctcgtgaggaaggcgtctcccgtgtggctaag' +
+    'gctcgttacatgcac\\naccatcgagaagagcccaccttcttacttgttcgccttcctt' +
+    'tctggcttctacaacatc\\naccgccgaaagggcttgcgagttggttgacccaaacagc' +
+    'aacccttgcgagcaagacaag\\naacattcctatgatctccgacatcgagaccttgatg' +
+    'gctcgttacggaaagaacgccgag\\natcattcctatggacgtgttggttttcttgagc' +
+    'agctacgccaggtttaagaacaacgaa\\nggtaaggagtataagttgcaagctcgcagc' +
+    'tcccgtggcgtcccagacttcccagacaat\\nggtagaactgccctttacaacgcattg' +
+    'accgctgcccatgtgaagcgcagaaagattagc\\nattgtcgttggacgtagcattgac' +
+    'acctccggatctacaaagaaaaaaatcaaagggatt\\ncagcaagccactgcaggagtc' +
+    'tcacaagacacttcggaaaatcctaacaaaacaatagtt\\ncctgctgcattaccacag' +
+    'ctcacccctaccttggtgtcactgctggaggtgattgaaccc\\ngaggtgttgtatgca' +
+    'ggatatgatagctctgttccagattcagcgtggagaattatgacc\\nacactcaacatg' +
+    'ttaggtgggcgtcaagtgattgcagcagtgaaatgggcaaaggcgata\\nccaggcttc' +
+    'agaaacttacacctggatgaccaaatgaccctgctacagtactcatggatg\\ntttctc' +
+    'atggcatttgccctgggttggagatcatacagacaatcaagtggaaacctgctc\\ntgc' +
+    'tttgctcctgatctgattattaatgagcagagaatgtctctaccctgcatgtatgac\\n' +
+    'caatgtaaacacatgctgtttgtctcctctgaattacaaagattgcaggtatcctatgaa' +
+    '\\ngagtatctctgtatgaaaaccttactgcttctctcctcagttcctaaggaaggtctg' +
+    'aag\\nagccaagagttatttgatgagattcgaatgacttatatcaaagagctaggaaaa' +
+    'gccatc\\ngtcaaaagggaagggaactccagtcagaactggcaacggttttaccaactg' +
+    'acaaagctt\\nctggactccatgcatgaggtggttgagaatctccttacctactgcttc' +
+    'cagacatttttg\\ngataagaccatgagtattgagttcccagagatgttagctgaaatc' +
+    'atcactaatcagata\\nccaaaatattcaaatggaaatatcaaaaagctcctgtttcat' +
+    'caaaaatga"],["gene","1..2331","recLDB","E","D","D","D","","/' +
+    'gene=\\"recLDB\\"\\n",1,"atggcattgaccaaggacactgaaatttcaacaat' +
+    'taacagacaaatgtccgacttcagc\\ngagcttagccaaatccttccccttcaccaaat' +
+    'ctctaagatcaaggacattttggagaat\\ngagaaccctctcccaaaggaaaagctcgc' +
+    'ctcccacctgaccatgatcattttgatggcc\\naatttggccagtcagaaacgcaagga' +
+    'cgttcctgtcaagcgttccactttcttgaagtac\\ncagcgctctatttccaagacatt' +
+    'gcagtacgactcttccaccaagaccgtttcctttgag\\ntaccacttgaaagacccaag' +
+    'caagctcatcaaaggactggaggatgttgtgagcccctat\\ncgcttcgttgtgggtgt' +
+    'gcacgagaagcctgatgacgtcatgagccacttgtctgctgtc\\ncacatgcgcaagga' +
+    'ggcaggtcgtaagagagacttgggtaacaagattaacgacgagatc\\nactaaaatcgc' +
+    'tgaaacacaggaaactatttggggattcgtcggaaagactatggacctc\\natcgaagc' +
+    'tagaaccactcgtcctacaacaaaggccgcatacaaccttttgcttcaggcc\\nacctt' +
+    'catgaactgttgcagagctgacgacttgaagaataccgacatcaagaccttcgaa\\ngt' +
+    'tattccagacaagcaccttggcagaatgctccgtgctttcgtcccagagactaagact\\n' +
+    'ggtactcgtttcgtctacttcttcccttgcaaaggacgttgcgacccactgttggctctc' +
+    '\\ngattcctacctccaatggaccgatcctattcccaaaactagaactactgatgaagac' +
+    'gcc\\nagatacgattaccagcttctcaggaacagcctgcttggctcatacgacggattc' +
+    'atctct\\naagcaatccgatgagagcatctttaagattcccaatggaccaaaggctcac' +
+    'ttgggcagg\\ncatgtgaccgcttcatacctttccaacaacgagatggataaggaggcc' +
+    'accctctacggt\\naattggtctgccgctcgtgaggaaggcgtctcccgtgtggctaag' +
+    'gctcgttacatgcac\\naccatcgagaagagcccaccttcttacttgttcgccttcctt' +
+    'tctggcttctacaacatc\\naccgccgaaagggcttgcgagttggttgacccaaacagc' +
+    'aacccttgcgagcaagacaag\\naacattcctatgatctccgacatcgagaccttgatg' +
+    'gctcgttacggaaagaacgccgag\\natcattcctatggacgtgttggttttcttgagc' +
+    'agctacgccaggtttaagaacaacgaa\\nggtaaggagtataagttgcaagctcgcagc' +
+    'tcccgtggcgtcccagacttcccagacaat\\nggtagaactgccctttacaacgcattg' +
+    'accgctgcccatgtgaagcgcagaaagattagc\\nattgtcgttggacgtagcattgac' +
+    'acctccggatctacaaagaaaaaaatcaaagggatt\\ncagcaagccactgcaggagtc' +
+    'tcacaagacacttcggaaaatcctaacaaaacaatagtt\\ncctgctgcattaccacag' +
+    'ctcacccctaccttggtgtcactgctggaggtgattgaaccc\\ngaggtgttgtatgca' +
+    'ggatatgatagctctgttccagattcagcgtggagaattatgacc\\nacactcaacatg' +
+    'ttaggtgggcgtcaagtgattgcagcagtgaaatgggcaaaggcgata\\nccaggcttc' +
+    'agaaacttacacctggatgaccaaatgaccctgctacagtactcatggatg\\ntttctc' +
+    'atggcatttgccctgggttggagatcatacagacaatcaagtggaaacctgctc\\ntgc' +
+    'tttgctcctgatctgattattaatgagcagagaatgtctctaccctgcatgtatgac\\n' +
+    'caatgtaaacacatgctgtttgtctcctctgaattacaaagattgcaggtatcctatgaa' +
+    '\\ngagtatctctgtatgaaaaccttactgcttctctcctcagttcctaaggaaggtctg' +
+    'aag\\nagccaagagttatttgatgagattcgaatgacttatatcaaagagctaggaaaa' +
+    'gccatc\\ngtcaaaagggaagggaactccagtcagaactggcaacggttttaccaactg' +
+    'acaaagctt\\nctggactccatgcatgaggtggttgagaatctccttacctactgcttc' +
+    'cagacatttttg\\ngataagaccatgagtattgagttcccagagatgttagctgaaatc' +
+    'atcactaatcagata\\nccaaaatattcaaatggaaatatcaaaaagctcctgtttcat' +
+    'caaaaatga"],["regulatory","1..253","Tnos","E","D","D","D","/' +
+    'note=\\"Tnos\\"","/regulatory_class=\\"terminator\\"\\n/note' +
+    '=\\"Spacer for note information\\"\\n",1,"gatcgttcaaacatttgg' +
+    'caataaagtttcttaagattgaatcctgttgccggtcttgcg\\natgattatcatataa' +
+    'tttctgttgaattacgttaagcatgtaataattaacatgtaatgc\\natgacgttattt' +
+    'atgagatgggtttttatgattagagtcccgcaattatacatttaatac\\ngcgatagaa' +
+    'aacaaaatatagcgcgcaaactaggataaattatcgcgcgcggtgtcatct\\natgtta' +
+    'cagatcg"],["regulatory","1..269","TNos","E","D","D","D","/no' +
+    'te=\\"TNos\\"","/regulatory_class=\\"terminator\\"\\n/note=\\"' +
+    'Spacer for note information\\"\\n",1,"tggatctcgaatttccccgatc' +
+    'gttcaaacatttggcaataaagtttcttaagattgaat\\ncctgttgccggtcttgcga' +
+    'tgattatcatataatttctgttgaattacgttaagcatgta\\nataattaacatgtaat' +
+    'gcatgacgttatttatgagatgggtttttatgattagagtcccg\\ncaattatacattt' +
+    'aatacgcgatagaaaacaaaatatagcgcgcaaactaggataaatta\\ntcgcgcgcgg' +
+    'tgtcatctatgttacagat"],["regulatory","1..1467","Ubq10","E","D' +
+    '","D","D","/note=\\"Ubq10\\"","/regulatory_class=\\"promoter' +
+    '\\"\\n/note=\\"Spacer for note information\\"\\n",1,"ttctgag' +
+    'cctctttccttctaatccactcatctgcatcttcttgtgtccttactaatacc\\ntcat' +
+    'tggttccaaattccctccctttaagcaccagctcgtttctgttcttccacagcctc\\nc' +
+    'caagtatccaagggactaaagcctccacattcttcagatcaggatattcttgtttaaga\\n' +
+    'tgttgaactctatggaggtttgtatgaactgatgatctaggaccggataagttcccttct' +
+    '\\ntcatagcgaacttattcaaagaatgttttgtgtatcattcttgttacattgttatta' +
+    'atg\\naaaaaatattattggtcattggactgaacacgagtgttaaatatggaccaggcc' +
+    'ccaaat\\naagatccattgatatatgaattaaataacaagaataaatcgagtcaccaaa' +
+    'ccacttgcc\\nttttttaacgagacttgttcaccaacttgatacaaaagtcattatcct' +
+    'atgcaaatcaat\\naatcatacaaaaatatccaataacactaaaaaaattaaaagaaat' +
+    'ggataatttcacaat\\natgttatacgataaagaagttacttttccaagaaattcactg' +
+    'attttataagcccacttg\\ncattagataaatggcaaaaaaaaacaaaaaggaaaagaa' +
+    'ataaagcacgaagaattctag\\naaaatacgaaatacgcttcaatgcagtggggaccca' +
+    'cggttcaattattgccaatttttc\\nagctccaccgtatatttaaaaaataaaacgata' +
+    'atgctaaaaaaatataaatcgtaacga\\ntcgttaaatctcaacggctggatcttatga' +
+    'cgaccgttaaggaaattgtggttgtcggac\\ngaagtccagtaataaacggcgtcaaag' +
+    'tggttgcagccggcacacacgagtcgtgtttat\\ncaactcaaagcacaaatacttttc' +
+    'ctcaacctaaaaataaggcaattagccaaaaacaac\\ntttgcgtgtaaacaacgctca' +
+    'atacacgtgtcattttattattagctattgcttcaccgc\\ncttagctttctcgtgacc' +
+    'tagtcgtcctcgtcttttcttcttcttcttctataaaacaat\\nacccaaagagctctt' +
+    'cttcttcacaattcagatttcaatttctcaaaatcttaaaaactt\\ntctctcaattct' +
+    'ctctaccgtgatcaaggtaaatttctgtgttccttattctctcaaaat\\ncttcgattt' +
+    'tgttttcgttcgatcccaatttcgtatatgttctttggtttagattctgtt\\naatctt' +
+    'agatcgaagacgattttctgggtttgatcgttagatatcatcttaattctcgat\\ntag' +
+    'ggtttcatagatatcatccgatttgttcaaataatttgagttttgtcgaataattac\\n' +
+    'tcttcgatttgtgatttctatctagatctggtgttagtttctagtttgtgcgatcgaatt' +
+    '\\ntgtcgattaatctgagtttttctgatt"]]';
+    return str;
+}
 
 
 
-// function wdeTestDataString_030() 
+// function wdeTestDataString_040() 
 
 function wdeTestLoadSmallSeq() {
     var seq = "ATGGACATCGACCCTTATAAAGAATTTGGAGCTACTGTGGAGTTACTCTCGTTTTTGCCT" +

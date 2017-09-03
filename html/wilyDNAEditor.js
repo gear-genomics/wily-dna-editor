@@ -2738,6 +2738,12 @@ function wdeFeatListSort(a, b) {
 }
 
 function wdeLibListSort(a, b) {
+    if(a[2].toLowerCase() == b[2].toLowerCase()) {
+        if(a[10].length == b[10].length) {
+            return a[0].localeCompare(b[0]);
+        }
+        return a[10].length - b[10].length;
+    }
     if(a[2].toLowerCase() < b[2].toLowerCase()) {
         return -1;
     }
