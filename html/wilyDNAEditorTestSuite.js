@@ -212,6 +212,34 @@ function wdeTestAll() {
     wdeHighlight();
     wdeTestOutCompString(wdeTestDataString_021(), window.frames['WDE_RTF'].document.body.innerHTML);
 
+    wdeTestAddToOutput("\nTest Digest Functions:\n\n");
+    
+    if (browser != "edge") {
+	    wdeTestAddToOutput("wdeDigMapDis() - ");
+	    wdeDigMapDis('S');
+	    wdeTestOutCompString(wdeTestDataString_022(), window.frames['WDE_DIGEST'].document.body.innerHTML);
+    } else {
+	    wdeTestAddToOutput("wdeDigMapDis() - [SKIPPED on EDGE]\n");
+    }
+
+    wdeTestAddToOutput("wdeMapSVG() on circular - ");
+    currentTestOut = wdeMapSVG('S');
+    wdeTestOutCompString(wdeTestDataString_023(), currentTestOut[0]);
+
+    wdeTestAddToOutput("wdeMapSVG() on linear - ");
+    wdeTGCircularLinear(0);
+    currentTestOut = wdeMapSVG('S');
+    wdeTestOutCompString(wdeTestDataString_024(), currentTestOut[0]);
+    wdeTGCircularLinear(1);
+
+    wdeTestAddToOutput("wdeTGDigShowFeatures() - ");
+    wdeTGDigShowFeatures(0,0);
+    currentTestOut = wdeMapSVG('S');
+    wdeTestOutCompString(wdeTestDataString_025(), currentTestOut[0]);
+    wdeTGDigShowFeatures(1,0);
+
+
+
 
 
  // wdeTestPRString = document.getElementById("WDE_enzymes_spacer").innerHTML
@@ -10961,6 +10989,817 @@ function wdeTestDataString_021() {
     "d\">TGCGCA</span>CCA GCACCATGCA ACTTTTTCAC CTCTGCCTAA\n 3121" +
     "  TCATCTCTTG TTCATGTCCT ACTGTTCAAG CCTCCAAGCT GTGCCTTGGG TGG" +
     "CTTTGGG GC </pre>";
+    return str;
+}
+
+function wdeTestDataString_022() {
+    var str = "<img src=\"data:image/svg+xml,%3Csvg xmlns='http:/" +
+    "/www.w3.org/2000/svg' viewBox='-1000 -950 2000 1830'%3E%3Cci" +
+    "rcle cx='0' cy='0' r='450' stroke='black' stroke-width='6' f" +
+    "ill='white' /%3E%3Ctext x='0' y='-70' font-family='Courier' " +
+    "font-size='40' fill='black' text-anchor='middle'%3EHepatitis" +
+    " B Virus, complete sequence.%3C/text%3E%3Ctext x='0' y='70' " +
+    "font-family='Courier' font-size='40' fill='black' text-ancho" +
+    "r='middle'%3E3182 bp%3C/text%3E%3Cpath d='M 309 -299 A 430 4" +
+    "30 0 1 1 -246 -353 L -257 -369 L -219 -358 L -223 -320 L -23" +
+    "5 -336 A 410 410 0 1 0 295 -285 Z' style='fill:%23ff3333;str" +
+    "oke:%23ff3333;stroke-width:5;' /%3E%3Cpolyline points='-55,4" +
+    "26 -58,451' style='stroke:%23ff3333;stroke-width:5;fill:none" +
+    "' /%3E%3Cpath d='M 309 -299 A 430 430 0 1 1 -246 -353 L -257" +
+    " -369 L -219 -358 L -223 -320 L -235 -336 A 410 410 0 1 0 29" +
+    "5 -285 Z' style='fill:%236464ff;stroke:%236464ff;stroke-widt" +
+    "h:5;' /%3E%3Cpolyline points='-55,426 -58,451' style='stroke" +
+    ":%236464ff;stroke-width:5;fill:none' /%3E%3Cpath d='M 130 41" +
+    "0 A 430 430 0 0 1 -356 241 L -373 252 L -361 214 L -323 218 " +
+    "L -340 230 A 410 410 0 0 0 124 391 Z' style='fill:%23ff3333;" +
+    "stroke:%23ff3333;stroke-width:5;' /%3E%3Cpolyline points='-1" +
+    "54,401 -163,425' style='stroke:%23ff3333;stroke-width:5;fill" +
+    ":none' /%3E%3Cpath d='M 130 410 A 430 430 0 0 1 -356 241 L -" +
+    "373 252 L -361 214 L -323 218 L -340 230 A 410 410 0 0 0 124" +
+    " 391 Z' style='fill:%232db300;stroke:%232db300;stroke-width:" +
+    "5;' /%3E%3Cpolyline points='-154,401 -163,425' style='stroke" +
+    ":%232db300;stroke-width:5;fill:none' /%3E%3Cpath d='M 0 -430" +
+    " A 430 430 0 0 1 368 -222 L 385 -232 L 372 -195 L 334 -201 L" +
+    " 351 -212 A 410 410 0 0 0 0 -410 Z' style='fill:%23ff3333;st" +
+    "roke:%23ff3333;stroke-width:5;' /%3E%3Cpolyline points='223," +
+    "-368 236,-389' style='stroke:%23ff3333;stroke-width:5;fill:n" +
+    "one' /%3E%3Cpath d='M 0 -430 A 430 430 0 0 1 368 -222 L 385 " +
+    "-232 L 372 -195 L 334 -201 L 351 -212 A 410 410 0 0 0 0 -410" +
+    " Z' style='fill:%23ffff00;stroke:%23ffff00;stroke-width:5;' " +
+    "/%3E%3Cpolyline points='223,-368 236,-389' style='stroke:%23" +
+    "ffff00;stroke-width:5;fill:none' /%3E%3Cpolyline points='446" +
+    ",-60 471,-63 496,-66 516,-66' style='stroke:%23000000;stroke" +
+    "-width:5;fill:none' /%3E%3Ctext x='526' y='-56' font-family=" +
+    "'Courier' font-size='40' fill='%23000000' text-anchor='begin" +
+    "'%3E728 MfeI(1)%3C/text%3E%3Cpolyline points='446,-60 471,-6" +
+    "3 496,-116 516,-116' style='stroke:%23000000;stroke-width:5;" +
+    "fill:none' /%3E%3Ctext x='526' y='-106' font-family='Courier" +
+    "' font-size='40' fill='%23000000' text-anchor='begin'%3E728 " +
+    "MunI(1)%3C/text%3E%3Cpolyline points='375,-249 395,-263 416," +
+    "-277 436,-277' style='stroke:%23000000;stroke-width:5;fill:n" +
+    "one' /%3E%3Ctext x='446' y='-267' font-family='Courier' font" +
+    "-size='40' fill='%23000000' text-anchor='begin'%3E498 PshAI(" +
+    "1)%3C/text%3E%3Cpolyline points='337,-298 356,-315 375,-331 " +
+    "395,-331' style='stroke:%23000000;stroke-width:5;fill:none' " +
+    "/%3E%3Ctext x='405' y='-321' font-family='Courier' font-size" +
+    "='40' fill='%23000000' text-anchor='begin'%3E429 BsaWI(1)%3C" +
+    "/text%3E%3Cpolyline points='337,-298 356,-315 375,-381 395,-" +
+    "381' style='stroke:%23000000;stroke-width:5;fill:none' /%3E%" +
+    "3Ctext x='405' y='-371' font-family='Courier' font-size='40'" +
+    " fill='%23000000' text-anchor='begin'%3E429 BspEI(1)%3C/text" +
+    "%3E%3Cpolyline points='337,-298 356,-315 375,-431 395,-431' " +
+    "style='stroke:%23000000;stroke-width:5;fill:none' /%3E%3Ctex" +
+    "t x='405' y='-421' font-family='Courier' font-size='40' fill" +
+    "='%23000000' text-anchor='begin'%3E429 MroI(1)%3C/text%3E%3C" +
+    "polyline points='233,-385 246,-406 259,-481 279,-481' style=" +
+    "'stroke:%23ff3333;stroke-width:5;fill:none' /%3E%3Ctext x='2" +
+    "89' y='-471' font-family='Courier' font-size='40' fill='%23f" +
+    "f3333' text-anchor='begin'%3ECore-Antigen(0..551)%3C/text%3E" +
+    "%3Cpolyline points='233,-385 246,-406 259,-531 279,-531' sty" +
+    "le='stroke:%23ffff00;stroke-width:5;fill:none' /%3E%3Ctext x" +
+    "='289' y='-521' font-family='Courier' font-size='40' fill='%" +
+    "23ffff00' text-anchor='begin'%3ECore-Antigen(0..551)%3C/text" +
+    "%3E%3Cpolyline points='232,-386 245,-407 258,-581 278,-581' " +
+    "style='stroke:%23000000;stroke-width:5;fill:none' /%3E%3Ctex" +
+    "t x='288' y='-571' font-family='Courier' font-size='40' fill" +
+    "='%23000000' text-anchor='begin'%3E274 MslI(1)%3C/text%3E%3C" +
+    "polyline points='15,-450 16,-475 17,-631 37,-631' style='str" +
+    "oke:%23000000;stroke-width:5;fill:none' /%3E%3Ctext x='47' y" +
+    "='-621' font-family='Courier' font-size='40' fill='%23000000" +
+    "' text-anchor='begin'%3E17 PsiI(1)%3C/text%3E%3Cpolyline poi" +
+    "nts='438,105 462,111 486,117 506,117' style='stroke:%2300000" +
+    "0;stroke-width:5;fill:none' /%3E%3Ctext x='516' y='127' font" +
+    "-family='Courier' font-size='40' fill='%23000000' text-ancho" +
+    "r='begin'%3E915 Tsp45I(1)%3C/text%3E%3Cpolyline points='372," +
+    "253 393,267 413,281 433,281' style='stroke:%23000000;stroke-" +
+    "width:5;fill:none' /%3E%3Ctext x='443' y='291' font-family='" +
+    "Courier' font-size='40' fill='%23000000' text-anchor='begin'" +
+    "%3E1098 BsmI(1)%3C/text%3E%3Cpolyline points='345,289 364,30" +
+    "5 383,331 403,331' style='stroke:%23000000;stroke-width:5;fi" +
+    "ll:none' /%3E%3Ctext x='413' y='341' font-family='Courier' f" +
+    "ont-size='40' fill='%23000000' text-anchor='begin'%3E1149 Ba" +
+    "nII(1)%3C/text%3E%3Cpolyline points='328,308 346,325 365,381" +
+    " 385,381' style='stroke:%23000000;stroke-width:5;fill:none' " +
+    "/%3E%3Ctext x='395' y='391' font-family='Courier' font-size=" +
+    "'40' fill='%23000000' text-anchor='begin'%3E1177 EciI(1)%3C/" +
+    "text%3E%3Cpolyline points='259,368 274,388 288,431 308,431' " +
+    "style='stroke:%23000000;stroke-width:5;fill:none' /%3E%3Ctex" +
+    "t x='318' y='441' font-family='Courier' font-size='40' fill=" +
+    "'%23000000' text-anchor='begin'%3E1280 EcoRI(1)%3C/text%3E%3" +
+    "Cpolyline points='259,368 273,389 287,481 307,481' style='st" +
+    "roke:%23000000;stroke-width:5;fill:none' /%3E%3Ctext x='317'" +
+    " y='491' font-family='Courier' font-size='40' fill='%2300000" +
+    "0' text-anchor='begin'%3E1281 BtsI(1)%3C/text%3E%3Cpolyline " +
+    "points='158,421 167,445 176,531 196,531' style='stroke:%2300" +
+    "0000;stroke-width:5;fill:none' /%3E%3Ctext x='206' y='541' f" +
+    "ont-family='Courier' font-size='40' fill='%23000000' text-an" +
+    "chor='begin'%3E1409 PaeR7I(1)%3C/text%3E%3Cpolyline points='" +
+    "158,421 167,445 176,581 196,581' style='stroke:%23000000;str" +
+    "oke-width:5;fill:none' /%3E%3Ctext x='206' y='591' font-fami" +
+    "ly='Courier' font-size='40' fill='%23000000' text-anchor='be" +
+    "gin'%3E1409 XhoI(1)%3C/text%3E%3Cpolyline points='115,435 12" +
+    "2,459 128,631 148,631' style='stroke:%23000000;stroke-width:" +
+    "5;fill:none' /%3E%3Ctext x='158' y='641' font-family='Courie" +
+    "r' font-size='40' fill='%23000000' text-anchor='begin'%3E146" +
+    "0 AvrII(1)%3C/text%3E%3Cpolyline points='115,435 122,459 128" +
+    ",681 148,681' style='stroke:%23000000;stroke-width:5;fill:no" +
+    "ne' /%3E%3Ctext x='158' y='691' font-family='Courier' font-s" +
+    "ize='40' fill='%23000000' text-anchor='begin'%3E1460 BlnI(1)" +
+    "%3C/text%3E%3Cpolyline points='7,450 8,475 8,731 28,731' sty" +
+    "le='stroke:%23000000;stroke-width:5;fill:none' /%3E%3Ctext x" +
+    "='38' y='741' font-family='Courier' font-size='40' fill='%23" +
+    "000000' text-anchor='begin'%3E1583 EaeI(1)%3C/text%3E%3Cpoly" +
+    "line points='5,450 6,475 6,781 26,781' style='stroke:%230000" +
+    "00;stroke-width:5;fill:none' /%3E%3Ctext x='36' y='791' font" +
+    "-family='Courier' font-size='40' fill='%23000000' text-ancho" +
+    "r='begin'%3E1585 MscI(1)%3C/text%3E%3Cpolyline points='-449," +
+    "32 -474,34 -499,40 -519,40' style='stroke:%23000000;stroke-w" +
+    "idth:5;fill:none' /%3E%3Ctext x='-529' y='50' font-family='C" +
+    "ourier' font-size='40' fill='%23000000' text-anchor='end'%3E" +
+    "2350 NsiI(1)%3C/text%3E%3Cpolyline points='-446,61 -471,64 -" +
+    "495,90 -515,90' style='stroke:%23000000;stroke-width:5;fill:" +
+    "none' /%3E%3Ctext x='-525' y='100' font-family='Courier' fon" +
+    "t-size='40' fill='%23000000' text-anchor='end'%3E2318 DraIII" +
+    "(1)%3C/text%3E%3Cpolyline points='-384,235 -405,248 -426,261" +
+    " -446,261' style='stroke:%23000000;stroke-width:5;fill:none'" +
+    " /%3E%3Ctext x='-456' y='271' font-family='Courier' font-siz" +
+    "e='40' fill='%23000000' text-anchor='end'%3E2108 BstZ17I(1)%" +
+    "3C/text%3E%3Cpolyline points='-383,236 -404,249 -426,311 -44" +
+    "6,311' style='stroke:%23000000;stroke-width:5;fill:none' /%3" +
+    "E%3Ctext x='-456' y='321' font-family='Courier' font-size='4" +
+    "0' fill='%23000000' text-anchor='end'%3E2107 AccI(1)%3C/text" +
+    "%3E%3Cpolyline points='-354,277 -374,293 -394,361 -414,361' " +
+    "style='stroke:%23000000;stroke-width:5;fill:none' /%3E%3Ctex" +
+    "t x='-424' y='371' font-family='Courier' font-size='40' fill" +
+    "='%23000000' text-anchor='end'%3E2050 BsrGI(1)%3C/text%3E%3C" +
+    "polyline points='-300,335 -317,354 -334,411 -354,411' style=" +
+    "'stroke:%23000000;stroke-width:5;fill:none' /%3E%3Ctext x='-" +
+    "364' y='421' font-family='Courier' font-size='40' fill='%230" +
+    "00000' text-anchor='end'%3E1961 SpeI(1)%3C/text%3E%3Cpolylin" +
+    "e points='-217,394 -229,416 -241,461 -261,461' style='stroke" +
+    ":%23000000;stroke-width:5;fill:none' /%3E%3Ctext x='-271' y=" +
+    "'471' font-family='Courier' font-size='40' fill='%23000000' " +
+    "text-anchor='end'%3E1846 BciVI(1)%3C/text%3E%3Cpolyline poin" +
+    "ts='-162,420 -171,443 -180,511 -200,511' style='stroke:%23ff" +
+    "3333;stroke-width:5;fill:none' /%3E%3Ctext x='-210' y='521' " +
+    "font-family='Courier' font-size='40' fill='%23ff3333' text-a" +
+    "nchor='end'%3ES-Antigen(1436..2116)%3C/text%3E%3Cpolyline po" +
+    "ints='-162,420 -171,443 -180,561 -200,561' style='stroke:%23" +
+    "2db300;stroke-width:5;fill:none' /%3E%3Ctext x='-210' y='571" +
+    "' font-family='Courier' font-size='40' fill='%232db300' text" +
+    "-anchor='end'%3ES-Antigen(1436..2116)%3C/text%3E%3Cpolyline " +
+    "points='-58,446 -61,471 -64,611 -84,611' style='stroke:%23ff" +
+    "3333;stroke-width:5;fill:none' /%3E%3Ctext x='-94' y='621' f" +
+    "ont-family='Courier' font-size='40' fill='%23ff3333' text-an" +
+    "chor='end'%3EPolymerase(406..2904)%3C/text%3E%3Cpolyline poi" +
+    "nts='-58,446 -61,471 -64,661 -84,661' style='stroke:%236464f" +
+    "f;stroke-width:5;fill:none' /%3E%3Ctext x='-94' y='671' font" +
+    "-family='Courier' font-size='40' fill='%236464ff' text-ancho" +
+    "r='end'%3EPolymerase(406..2904)%3C/text%3E%3Cpolyline points" +
+    "='-448,-43 -473,-45 -498,-48 -518,-48' style='stroke:%230000" +
+    "00;stroke-width:5;fill:none' /%3E%3Ctext x='-528' y='-38' fo" +
+    "nt-family='Courier' font-size='40' fill='%23000000' text-anc" +
+    "hor='end'%3E2435 StyD4I(1)%3C/text%3E%3Cpolyline points='-44" +
+    "8,-45 -473,-47 -498,-98 -518,-98' style='stroke:%23000000;st" +
+    "roke-width:5;fill:none' /%3E%3Ctext x='-528' y='-88' font-fa" +
+    "mily='Courier' font-size='40' fill='%23000000' text-anchor='" +
+    "end'%3E2437 NciI(1)%3C/text%3E%3Cpolyline points='-448,-45 -" +
+    "473,-47 -498,-148 -518,-148' style='stroke:%23000000;stroke-" +
+    "width:5;fill:none' /%3E%3Ctext x='-528' y='-138' font-family" +
+    "='Courier' font-size='40' fill='%23000000' text-anchor='end'" +
+    "%3E2437 ScrFI(1)%3C/text%3E%3Cpolyline points='-435,-116 -45" +
+    "9,-122 -483,-198 -503,-198' style='stroke:%23000000;stroke-w" +
+    "idth:5;fill:none' /%3E%3Ctext x='-513' y='-188' font-family=" +
+    "'Courier' font-size='40' fill='%23000000' text-anchor='end'%" +
+    "3E2518 SphI(1)%3C/text%3E%3Cpolyline points='-433,-123 -457," +
+    "-130 -481,-248 -501,-248' style='stroke:%23000000;stroke-wid" +
+    "th:5;fill:none' /%3E%3Ctext x='-511' y='-238' font-family='C" +
+    "ourier' font-size='40' fill='%23000000' text-anchor='end'%3E" +
+    "2527 Asp700I(1)%3C/text%3E%3Cpolyline points='-433,-123 -457" +
+    ",-130 -481,-298 -501,-298' style='stroke:%23000000;stroke-wi" +
+    "dth:5;fill:none' /%3E%3Ctext x='-511' y='-288' font-family='" +
+    "Courier' font-size='40' fill='%23000000' text-anchor='end'%3" +
+    "E2527 XmnI(1)%3C/text%3E%3Cpolyline points='-389,-227 -410,-" +
+    "239 -432,-348 -452,-348' style='stroke:%23000000;stroke-widt" +
+    "h:5;fill:none' /%3E%3Ctext x='-462' y='-338' font-family='Co" +
+    "urier' font-size='40' fill='%23000000' text-anchor='end'%3E2" +
+    "654 NcoI(1)%3C/text%3E%3Cpolyline points='-368,-259 -388,-27" +
+    "3 -409,-398 -429,-398' style='stroke:%23000000;stroke-width:" +
+    "5;fill:none' /%3E%3Ctext x='-439' y='-388' font-family='Cour" +
+    "ier' font-size='40' fill='%23000000' text-anchor='end'%3E269" +
+    "7 ZraI(1)%3C/text%3E%3Cpolyline points='-367,-260 -387,-275 " +
+    "-408,-448 -428,-448' style='stroke:%23000000;stroke-width:5;" +
+    "fill:none' /%3E%3Ctext x='-438' y='-438' font-family='Courie" +
+    "r' font-size='40' fill='%23000000' text-anchor='end'%3E2699 " +
+    "AatII(1)%3C/text%3E%3Cpolyline points='-288,-346 -304,-365 -" +
+    "320,-498 -340,-498' style='stroke:%23000000;stroke-width:5;f" +
+    "ill:none' /%3E%3Ctext x='-350' y='-488' font-family='Courier" +
+    "' font-size='40' fill='%23000000' text-anchor='end'%3E2830 A" +
+    "hdI(1)%3C/text%3E%3Cpolyline points='-271,-359 -287,-379 -30" +
+    "2,-548 -322,-548' style='stroke:%23000000;stroke-width:5;fil" +
+    "l:none' /%3E%3Ctext x='-332' y='-538' font-family='Courier' " +
+    "font-size='40' fill='%23000000' text-anchor='end'%3E2854 Rsr" +
+    "II(1)%3C/text%3E%3Cpolyline points='-267,-363 -281,-383 -296" +
+    ",-598 -316,-598' style='stroke:%23000000;stroke-width:5;fill" +
+    ":none' /%3E%3Ctext x='-326' y='-588' font-family='Courier' f" +
+    "ont-size='40' fill='%23000000' text-anchor='end'%3E2861 ApaL" +
+    "I(1)%3C/text%3E%3Cpolyline points='-264,-365 -278,-385 -293," +
+    "-648 -313,-648' style='stroke:%23000000;stroke-width:5;fill:" +
+    "none' /%3E%3Ctext x='-323' y='-638' font-family='Courier' fo" +
+    "nt-size='40' fill='%23000000' text-anchor='end'%3E2865 BaeGI" +
+    "(1)%3C/text%3E%3Cpolyline points='-264,-365 -278,-385 -293,-" +
+    "698 -313,-698' style='stroke:%23000000;stroke-width:5;fill:n" +
+    "one' /%3E%3Ctext x='-323' y='-688' font-family='Courier' fon" +
+    "t-size='40' fill='%23000000' text-anchor='end'%3E2865 BsiHKA" +
+    "I(1)%3C/text%3E%3Cpolyline points='-250,-374 -264,-395 -278," +
+    "-748 -298,-748' style='stroke:%23000000;stroke-width:5;fill:" +
+    "none' /%3E%3Ctext x='-308' y='-738' font-family='Courier' fo" +
+    "nt-size='40' fill='%23000000' text-anchor='end'%3E2884 BmgBI" +
+    "(1)%3C/text%3E%3Cpolyline points='-186,-410 -197,-432 -207,-" +
+    "798 -227,-798' style='stroke:%23000000;stroke-width:5;fill:n" +
+    "one' /%3E%3Ctext x='-237' y='-788' font-family='Courier' fon" +
+    "t-size='40' fill='%23000000' text-anchor='end'%3E2966 BsrDI(" +
+    "1)%3C/text%3E%3Cpolyline points='-87,-442 -91,-466 -96,-848 " +
+    "-116,-848' style='stroke:%23000000;stroke-width:5;fill:none'" +
+    " /%3E%3Ctext x='-126' y='-838' font-family='Courier' font-si" +
+    "ze='40' fill='%23000000' text-anchor='end'%3E3084 FspI(1)%3C" +
+    "/text%3E%3C/svg%3E\" alt=\"Digest-SVG\" width=\"750\" height" +
+    "=\"687\">";
+    return str;
+}
+
+function wdeTestDataString_023() {
+    var str = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-" +
+    "1000 -950 2000 1830'><circle cx='0' cy='0' r='450' stroke='b" +
+    "lack' stroke-width='6' fill='white' /><text x='0' y='-70' fo" +
+    "nt-family='Courier' font-size='40' fill='black' text-anchor=" +
+    "'middle'>Hepatitis B Virus, complete sequence.</text><text x" +
+    "='0' y='70' font-family='Courier' font-size='40' fill='black" +
+    "' text-anchor='middle'>3182 bp</text><path d='M 309 -299 A 4" +
+    "30 430 0 1 1 -246 -353 L -257 -369 L -219 -358 L -223 -320 L" +
+    " -235 -336 A 410 410 0 1 0 295 -285 Z' style='fill:#ff3333;s" +
+    "troke:#ff3333;stroke-width:5;' /><polyline points='-55,426 -" +
+    "58,451' style='stroke:#ff3333;stroke-width:5;fill:none' /><p" +
+    "ath d='M 309 -299 A 430 430 0 1 1 -246 -353 L -257 -369 L -2" +
+    "19 -358 L -223 -320 L -235 -336 A 410 410 0 1 0 295 -285 Z' " +
+    "style='fill:#6464ff;stroke:#6464ff;stroke-width:5;' /><polyl" +
+    "ine points='-55,426 -58,451' style='stroke:#6464ff;stroke-wi" +
+    "dth:5;fill:none' /><path d='M 130 410 A 430 430 0 0 1 -356 2" +
+    "41 L -373 252 L -361 214 L -323 218 L -340 230 A 410 410 0 0" +
+    " 0 124 391 Z' style='fill:#ff3333;stroke:#ff3333;stroke-widt" +
+    "h:5;' /><polyline points='-154,401 -163,425' style='stroke:#" +
+    "ff3333;stroke-width:5;fill:none' /><path d='M 130 410 A 430 " +
+    "430 0 0 1 -356 241 L -373 252 L -361 214 L -323 218 L -340 2" +
+    "30 A 410 410 0 0 0 124 391 Z' style='fill:#2db300;stroke:#2d" +
+    "b300;stroke-width:5;' /><polyline points='-154,401 -163,425'" +
+    " style='stroke:#2db300;stroke-width:5;fill:none' /><path d='" +
+    "M 0 -430 A 430 430 0 0 1 368 -222 L 385 -232 L 372 -195 L 33" +
+    "4 -201 L 351 -212 A 410 410 0 0 0 0 -410 Z' style='fill:#ff3" +
+    "333;stroke:#ff3333;stroke-width:5;' /><polyline points='223," +
+    "-368 236,-389' style='stroke:#ff3333;stroke-width:5;fill:non" +
+    "e' /><path d='M 0 -430 A 430 430 0 0 1 368 -222 L 385 -232 L" +
+    " 372 -195 L 334 -201 L 351 -212 A 410 410 0 0 0 0 -410 Z' st" +
+    "yle='fill:#ffff00;stroke:#ffff00;stroke-width:5;' /><polylin" +
+    "e points='223,-368 236,-389' style='stroke:#ffff00;stroke-wi" +
+    "dth:5;fill:none' /><polyline points='446,-60 471,-63 496,-66" +
+    " 516,-66' style='stroke:#000000;stroke-width:5;fill:none' />" +
+    "<text x='526' y='-56' font-family='Courier' font-size='40' f" +
+    "ill='#000000' text-anchor='begin'>728 MfeI(1)</text><polylin" +
+    "e points='446,-60 471,-63 496,-116 516,-116' style='stroke:#" +
+    "000000;stroke-width:5;fill:none' /><text x='526' y='-106' fo" +
+    "nt-family='Courier' font-size='40' fill='#000000' text-ancho" +
+    "r='begin'>728 MunI(1)</text><polyline points='375,-249 395,-" +
+    "263 416,-277 436,-277' style='stroke:#000000;stroke-width:5;" +
+    "fill:none' /><text x='446' y='-267' font-family='Courier' fo" +
+    "nt-size='40' fill='#000000' text-anchor='begin'>498 PshAI(1)" +
+    "</text><polyline points='337,-298 356,-315 375,-331 395,-331" +
+    "' style='stroke:#000000;stroke-width:5;fill:none' /><text x=" +
+    "'405' y='-321' font-family='Courier' font-size='40' fill='#0" +
+    "00000' text-anchor='begin'>429 BsaWI(1)</text><polyline poin" +
+    "ts='337,-298 356,-315 375,-381 395,-381' style='stroke:#0000" +
+    "00;stroke-width:5;fill:none' /><text x='405' y='-371' font-f" +
+    "amily='Courier' font-size='40' fill='#000000' text-anchor='b" +
+    "egin'>429 BspEI(1)</text><polyline points='337,-298 356,-315" +
+    " 375,-431 395,-431' style='stroke:#000000;stroke-width:5;fil" +
+    "l:none' /><text x='405' y='-421' font-family='Courier' font-" +
+    "size='40' fill='#000000' text-anchor='begin'>429 MroI(1)</te" +
+    "xt><polyline points='233,-385 246,-406 259,-481 279,-481' st" +
+    "yle='stroke:#ff3333;stroke-width:5;fill:none' /><text x='289" +
+    "' y='-471' font-family='Courier' font-size='40' fill='#ff333" +
+    "3' text-anchor='begin'>Core-Antigen(0..551)</text><polyline " +
+    "points='233,-385 246,-406 259,-531 279,-531' style='stroke:#" +
+    "ffff00;stroke-width:5;fill:none' /><text x='289' y='-521' fo" +
+    "nt-family='Courier' font-size='40' fill='#ffff00' text-ancho" +
+    "r='begin'>Core-Antigen(0..551)</text><polyline points='232,-" +
+    "386 245,-407 258,-581 278,-581' style='stroke:#000000;stroke" +
+    "-width:5;fill:none' /><text x='288' y='-571' font-family='Co" +
+    "urier' font-size='40' fill='#000000' text-anchor='begin'>274" +
+    " MslI(1)</text><polyline points='15,-450 16,-475 17,-631 37," +
+    "-631' style='stroke:#000000;stroke-width:5;fill:none' /><tex" +
+    "t x='47' y='-621' font-family='Courier' font-size='40' fill=" +
+    "'#000000' text-anchor='begin'>17 PsiI(1)</text><polyline poi" +
+    "nts='438,105 462,111 486,117 506,117' style='stroke:#000000;" +
+    "stroke-width:5;fill:none' /><text x='516' y='127' font-famil" +
+    "y='Courier' font-size='40' fill='#000000' text-anchor='begin" +
+    "'>915 Tsp45I(1)</text><polyline points='372,253 393,267 413," +
+    "281 433,281' style='stroke:#000000;stroke-width:5;fill:none'" +
+    " /><text x='443' y='291' font-family='Courier' font-size='40" +
+    "' fill='#000000' text-anchor='begin'>1098 BsmI(1)</text><pol" +
+    "yline points='345,289 364,305 383,331 403,331' style='stroke" +
+    ":#000000;stroke-width:5;fill:none' /><text x='413' y='341' f" +
+    "ont-family='Courier' font-size='40' fill='#000000' text-anch" +
+    "or='begin'>1149 BanII(1)</text><polyline points='328,308 346" +
+    ",325 365,381 385,381' style='stroke:#000000;stroke-width:5;f" +
+    "ill:none' /><text x='395' y='391' font-family='Courier' font" +
+    "-size='40' fill='#000000' text-anchor='begin'>1177 EciI(1)</" +
+    "text><polyline points='259,368 274,388 288,431 308,431' styl" +
+    "e='stroke:#000000;stroke-width:5;fill:none' /><text x='318' " +
+    "y='441' font-family='Courier' font-size='40' fill='#000000' " +
+    "text-anchor='begin'>1280 EcoRI(1)</text><polyline points='25" +
+    "9,368 273,389 287,481 307,481' style='stroke:#000000;stroke-" +
+    "width:5;fill:none' /><text x='317' y='491' font-family='Cour" +
+    "ier' font-size='40' fill='#000000' text-anchor='begin'>1281 " +
+    "BtsI(1)</text><polyline points='158,421 167,445 176,531 196," +
+    "531' style='stroke:#000000;stroke-width:5;fill:none' /><text" +
+    " x='206' y='541' font-family='Courier' font-size='40' fill='" +
+    "#000000' text-anchor='begin'>1409 PaeR7I(1)</text><polyline " +
+    "points='158,421 167,445 176,581 196,581' style='stroke:#0000" +
+    "00;stroke-width:5;fill:none' /><text x='206' y='591' font-fa" +
+    "mily='Courier' font-size='40' fill='#000000' text-anchor='be" +
+    "gin'>1409 XhoI(1)</text><polyline points='115,435 122,459 12" +
+    "8,631 148,631' style='stroke:#000000;stroke-width:5;fill:non" +
+    "e' /><text x='158' y='641' font-family='Courier' font-size='" +
+    "40' fill='#000000' text-anchor='begin'>1460 AvrII(1)</text><" +
+    "polyline points='115,435 122,459 128,681 148,681' style='str" +
+    "oke:#000000;stroke-width:5;fill:none' /><text x='158' y='691" +
+    "' font-family='Courier' font-size='40' fill='#000000' text-a" +
+    "nchor='begin'>1460 BlnI(1)</text><polyline points='7,450 8,4" +
+    "75 8,731 28,731' style='stroke:#000000;stroke-width:5;fill:n" +
+    "one' /><text x='38' y='741' font-family='Courier' font-size=" +
+    "'40' fill='#000000' text-anchor='begin'>1583 EaeI(1)</text><" +
+    "polyline points='5,450 6,475 6,781 26,781' style='stroke:#00" +
+    "0000;stroke-width:5;fill:none' /><text x='36' y='791' font-f" +
+    "amily='Courier' font-size='40' fill='#000000' text-anchor='b" +
+    "egin'>1585 MscI(1)</text><polyline points='-449,32 -474,34 -" +
+    "499,40 -519,40' style='stroke:#000000;stroke-width:5;fill:no" +
+    "ne' /><text x='-529' y='50' font-family='Courier' font-size=" +
+    "'40' fill='#000000' text-anchor='end'>2350 NsiI(1)</text><po" +
+    "lyline points='-446,61 -471,64 -495,90 -515,90' style='strok" +
+    "e:#000000;stroke-width:5;fill:none' /><text x='-525' y='100'" +
+    " font-family='Courier' font-size='40' fill='#000000' text-an" +
+    "chor='end'>2318 DraIII(1)</text><polyline points='-384,235 -" +
+    "405,248 -426,261 -446,261' style='stroke:#000000;stroke-widt" +
+    "h:5;fill:none' /><text x='-456' y='271' font-family='Courier" +
+    "' font-size='40' fill='#000000' text-anchor='end'>2108 BstZ1" +
+    "7I(1)</text><polyline points='-383,236 -404,249 -426,311 -44" +
+    "6,311' style='stroke:#000000;stroke-width:5;fill:none' /><te" +
+    "xt x='-456' y='321' font-family='Courier' font-size='40' fil" +
+    "l='#000000' text-anchor='end'>2107 AccI(1)</text><polyline p" +
+    "oints='-354,277 -374,293 -394,361 -414,361' style='stroke:#0" +
+    "00000;stroke-width:5;fill:none' /><text x='-424' y='371' fon" +
+    "t-family='Courier' font-size='40' fill='#000000' text-anchor" +
+    "='end'>2050 BsrGI(1)</text><polyline points='-300,335 -317,3" +
+    "54 -334,411 -354,411' style='stroke:#000000;stroke-width:5;f" +
+    "ill:none' /><text x='-364' y='421' font-family='Courier' fon" +
+    "t-size='40' fill='#000000' text-anchor='end'>1961 SpeI(1)</t" +
+    "ext><polyline points='-217,394 -229,416 -241,461 -261,461' s" +
+    "tyle='stroke:#000000;stroke-width:5;fill:none' /><text x='-2" +
+    "71' y='471' font-family='Courier' font-size='40' fill='#0000" +
+    "00' text-anchor='end'>1846 BciVI(1)</text><polyline points='" +
+    "-162,420 -171,443 -180,511 -200,511' style='stroke:#ff3333;s" +
+    "troke-width:5;fill:none' /><text x='-210' y='521' font-famil" +
+    "y='Courier' font-size='40' fill='#ff3333' text-anchor='end'>" +
+    "S-Antigen(1436..2116)</text><polyline points='-162,420 -171," +
+    "443 -180,561 -200,561' style='stroke:#2db300;stroke-width:5;" +
+    "fill:none' /><text x='-210' y='571' font-family='Courier' fo" +
+    "nt-size='40' fill='#2db300' text-anchor='end'>S-Antigen(1436" +
+    "..2116)</text><polyline points='-58,446 -61,471 -64,611 -84," +
+    "611' style='stroke:#ff3333;stroke-width:5;fill:none' /><text" +
+    " x='-94' y='621' font-family='Courier' font-size='40' fill='" +
+    "#ff3333' text-anchor='end'>Polymerase(406..2904)</text><poly" +
+    "line points='-58,446 -61,471 -64,661 -84,661' style='stroke:" +
+    "#6464ff;stroke-width:5;fill:none' /><text x='-94' y='671' fo" +
+    "nt-family='Courier' font-size='40' fill='#6464ff' text-ancho" +
+    "r='end'>Polymerase(406..2904)</text><polyline points='-448,-" +
+    "43 -473,-45 -498,-48 -518,-48' style='stroke:#000000;stroke-" +
+    "width:5;fill:none' /><text x='-528' y='-38' font-family='Cou" +
+    "rier' font-size='40' fill='#000000' text-anchor='end'>2435 S" +
+    "tyD4I(1)</text><polyline points='-448,-45 -473,-47 -498,-98 " +
+    "-518,-98' style='stroke:#000000;stroke-width:5;fill:none' />" +
+    "<text x='-528' y='-88' font-family='Courier' font-size='40' " +
+    "fill='#000000' text-anchor='end'>2437 NciI(1)</text><polylin" +
+    "e points='-448,-45 -473,-47 -498,-148 -518,-148' style='stro" +
+    "ke:#000000;stroke-width:5;fill:none' /><text x='-528' y='-13" +
+    "8' font-family='Courier' font-size='40' fill='#000000' text-" +
+    "anchor='end'>2437 ScrFI(1)</text><polyline points='-435,-116" +
+    " -459,-122 -483,-198 -503,-198' style='stroke:#000000;stroke" +
+    "-width:5;fill:none' /><text x='-513' y='-188' font-family='C" +
+    "ourier' font-size='40' fill='#000000' text-anchor='end'>2518" +
+    " SphI(1)</text><polyline points='-433,-123 -457,-130 -481,-2" +
+    "48 -501,-248' style='stroke:#000000;stroke-width:5;fill:none" +
+    "' /><text x='-511' y='-238' font-family='Courier' font-size=" +
+    "'40' fill='#000000' text-anchor='end'>2527 Asp700I(1)</text>" +
+    "<polyline points='-433,-123 -457,-130 -481,-298 -501,-298' s" +
+    "tyle='stroke:#000000;stroke-width:5;fill:none' /><text x='-5" +
+    "11' y='-288' font-family='Courier' font-size='40' fill='#000" +
+    "000' text-anchor='end'>2527 XmnI(1)</text><polyline points='" +
+    "-389,-227 -410,-239 -432,-348 -452,-348' style='stroke:#0000" +
+    "00;stroke-width:5;fill:none' /><text x='-462' y='-338' font-" +
+    "family='Courier' font-size='40' fill='#000000' text-anchor='" +
+    "end'>2654 NcoI(1)</text><polyline points='-368,-259 -388,-27" +
+    "3 -409,-398 -429,-398' style='stroke:#000000;stroke-width:5;" +
+    "fill:none' /><text x='-439' y='-388' font-family='Courier' f" +
+    "ont-size='40' fill='#000000' text-anchor='end'>2697 ZraI(1)<" +
+    "/text><polyline points='-367,-260 -387,-275 -408,-448 -428,-" +
+    "448' style='stroke:#000000;stroke-width:5;fill:none' /><text" +
+    " x='-438' y='-438' font-family='Courier' font-size='40' fill" +
+    "='#000000' text-anchor='end'>2699 AatII(1)</text><polyline p" +
+    "oints='-288,-346 -304,-365 -320,-498 -340,-498' style='strok" +
+    "e:#000000;stroke-width:5;fill:none' /><text x='-350' y='-488" +
+    "' font-family='Courier' font-size='40' fill='#000000' text-a" +
+    "nchor='end'>2830 AhdI(1)</text><polyline points='-271,-359 -" +
+    "287,-379 -302,-548 -322,-548' style='stroke:#000000;stroke-w" +
+    "idth:5;fill:none' /><text x='-332' y='-538' font-family='Cou" +
+    "rier' font-size='40' fill='#000000' text-anchor='end'>2854 R" +
+    "srII(1)</text><polyline points='-267,-363 -281,-383 -296,-59" +
+    "8 -316,-598' style='stroke:#000000;stroke-width:5;fill:none'" +
+    " /><text x='-326' y='-588' font-family='Courier' font-size='" +
+    "40' fill='#000000' text-anchor='end'>2861 ApaLI(1)</text><po" +
+    "lyline points='-264,-365 -278,-385 -293,-648 -313,-648' styl" +
+    "e='stroke:#000000;stroke-width:5;fill:none' /><text x='-323'" +
+    " y='-638' font-family='Courier' font-size='40' fill='#000000" +
+    "' text-anchor='end'>2865 BaeGI(1)</text><polyline points='-2" +
+    "64,-365 -278,-385 -293,-698 -313,-698' style='stroke:#000000" +
+    ";stroke-width:5;fill:none' /><text x='-323' y='-688' font-fa" +
+    "mily='Courier' font-size='40' fill='#000000' text-anchor='en" +
+    "d'>2865 BsiHKAI(1)</text><polyline points='-250,-374 -264,-3" +
+    "95 -278,-748 -298,-748' style='stroke:#000000;stroke-width:5" +
+    ";fill:none' /><text x='-308' y='-738' font-family='Courier' " +
+    "font-size='40' fill='#000000' text-anchor='end'>2884 BmgBI(1" +
+    ")</text><polyline points='-186,-410 -197,-432 -207,-798 -227" +
+    ",-798' style='stroke:#000000;stroke-width:5;fill:none' /><te" +
+    "xt x='-237' y='-788' font-family='Courier' font-size='40' fi" +
+    "ll='#000000' text-anchor='end'>2966 BsrDI(1)</text><polyline" +
+    " points='-87,-442 -91,-466 -96,-848 -116,-848' style='stroke" +
+    ":#000000;stroke-width:5;fill:none' /><text x='-126' y='-838'" +
+    " font-family='Courier' font-size='40' fill='#000000' text-an" +
+    "chor='end'>3084 FspI(1)</text></svg>";
+    return str;
+}
+
+function wdeTestDataString_024() {
+    var str = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-" +
+    "1000 -1050 2000 2200'><line x1='-750' y1='200' x2='500' y2='" +
+    "200' style='stroke:rgb(0,0,0);stroke-width:8' /><text x='-12" +
+    "5' y='270' font-family='Courier' font-size='40' fill='black'" +
+    " text-anchor='middle'>Hepatitis B Virus, complete sequence. " +
+    "(1..3182)</text><line x1='-743' y1='200' x2='-743' y2='165' " +
+    "style='stroke:rgb(0,0,0);stroke-width:5' /><text x='-753' y=" +
+    "'150' font-family='Courier' font-size='40' fill='black' text" +
+    "-anchor='begin'>17 PsiI(1)</text><line x1='-642' y1='200' x2" +
+    "='-642' y2='165' style='stroke:rgb(0,0,0);stroke-width:5' />" +
+    "<text x='-652' y='100' font-family='Courier' font-size='40' " +
+    "fill='black' text-anchor='begin'>274 MslI(1)</text><line x1=" +
+    "'-581' y1='200' x2='-581' y2='165' style='stroke:rgb(0,0,0);" +
+    "stroke-width:5' /><text x='-591' y='50' font-family='Courier" +
+    "' font-size='40' fill='black' text-anchor='begin'>429 BsaWI(" +
+    "1)</text><line x1='-581' y1='200' x2='-581' y2='165' style='" +
+    "stroke:rgb(0,0,0);stroke-width:5' /><text x='-591' y='0' fon" +
+    "t-family='Courier' font-size='40' fill='black' text-anchor='" +
+    "begin'>429 BspEI(1)</text><line x1='-581' y1='200' x2='-581'" +
+    " y2='165' style='stroke:rgb(0,0,0);stroke-width:5' /><text x" +
+    "='-591' y='-50' font-family='Courier' font-size='40' fill='b" +
+    "lack' text-anchor='begin'>429 MroI(1)</text><line x1='-554' " +
+    "y1='200' x2='-554' y2='165' style='stroke:rgb(0,0,0);stroke-" +
+    "width:5' /><text x='-564' y='-100' font-family='Courier' fon" +
+    "t-size='40' fill='black' text-anchor='begin'>498 PshAI(1)</t" +
+    "ext><line x1='-464' y1='200' x2='-464' y2='165' style='strok" +
+    "e:rgb(0,0,0);stroke-width:5' /><text x='-474' y='-150' font-" +
+    "family='Courier' font-size='40' fill='black' text-anchor='be" +
+    "gin'>728 MfeI(1)</text><line x1='-464' y1='200' x2='-464' y2" +
+    "='165' style='stroke:rgb(0,0,0);stroke-width:5' /><text x='-" +
+    "474' y='-200' font-family='Courier' font-size='40' fill='bla" +
+    "ck' text-anchor='begin'>728 MunI(1)</text><line x1='-391' y1" +
+    "='200' x2='-391' y2='165' style='stroke:rgb(0,0,0);stroke-wi" +
+    "dth:5' /><text x='-401' y='150' font-family='Courier' font-s" +
+    "ize='40' fill='black' text-anchor='begin'>915 Tsp45I(1)</tex" +
+    "t><line x1='-319' y1='200' x2='-319' y2='165' style='stroke:" +
+    "rgb(0,0,0);stroke-width:5' /><text x='-329' y='-250' font-fa" +
+    "mily='Courier' font-size='40' fill='black' text-anchor='begi" +
+    "n'>1098 BsmI(1)</text><line x1='-299' y1='200' x2='-299' y2=" +
+    "'165' style='stroke:rgb(0,0,0);stroke-width:5' /><text x='-3" +
+    "09' y='-300' font-family='Courier' font-size='40' fill='blac" +
+    "k' text-anchor='begin'>1149 BanII(1)</text><line x1='-288' y" +
+    "1='200' x2='-288' y2='165' style='stroke:rgb(0,0,0);stroke-w" +
+    "idth:5' /><text x='-298' y='-350' font-family='Courier' font" +
+    "-size='40' fill='black' text-anchor='begin'>1177 EciI(1)</te" +
+    "xt><line x1='-247' y1='200' x2='-247' y2='165' style='stroke" +
+    ":rgb(0,0,0);stroke-width:5' /><text x='-257' y='100' font-fa" +
+    "mily='Courier' font-size='40' fill='black' text-anchor='begi" +
+    "n'>1280 EcoRI(1)</text><line x1='-247' y1='200' x2='-247' y2" +
+    "='165' style='stroke:rgb(0,0,0);stroke-width:5' /><text x='-" +
+    "257' y='-400' font-family='Courier' font-size='40' fill='bla" +
+    "ck' text-anchor='begin'>1281 BtsI(1)</text><line x1='-196' y" +
+    "1='200' x2='-196' y2='165' style='stroke:rgb(0,0,0);stroke-w" +
+    "idth:5' /><text x='-206' y='-450' font-family='Courier' font" +
+    "-size='40' fill='black' text-anchor='begin'>1409 PaeR7I(1)</" +
+    "text><line x1='-196' y1='200' x2='-196' y2='165' style='stro" +
+    "ke:rgb(0,0,0);stroke-width:5' /><text x='-206' y='-500' font" +
+    "-family='Courier' font-size='40' fill='black' text-anchor='b" +
+    "egin'>1409 XhoI(1)</text><line x1='-176' y1='200' x2='-176' " +
+    "y2='165' style='stroke:rgb(0,0,0);stroke-width:5' /><text x=" +
+    "'-186' y='-50' font-family='Courier' font-size='40' fill='bl" +
+    "ack' text-anchor='begin'>1460 AvrII(1)</text><line x1='-176'" +
+    " y1='200' x2='-176' y2='165' style='stroke:rgb(0,0,0);stroke" +
+    "-width:5' /><text x='-186' y='-550' font-family='Courier' fo" +
+    "nt-size='40' fill='black' text-anchor='begin'>1460 BlnI(1)</" +
+    "text><line x1='-128' y1='200' x2='-128' y2='165' style='stro" +
+    "ke:rgb(0,0,0);stroke-width:5' /><text x='-138' y='50' font-f" +
+    "amily='Courier' font-size='40' fill='black' text-anchor='beg" +
+    "in'>1583 EaeI(1)</text><line x1='-127' y1='200' x2='-127' y2" +
+    "='165' style='stroke:rgb(0,0,0);stroke-width:5' /><text x='-" +
+    "137' y='0' font-family='Courier' font-size='40' fill='black'" +
+    " text-anchor='begin'>1585 MscI(1)</text><line x1='-25' y1='2" +
+    "00' x2='-25' y2='165' style='stroke:rgb(0,0,0);stroke-width:" +
+    "5' /><text x='-35' y='-100' font-family='Courier' font-size=" +
+    "'40' fill='black' text-anchor='begin'>1846 BciVI(1)</text><l" +
+    "ine x1='20' y1='200' x2='20' y2='165' style='stroke:rgb(0,0," +
+    "0);stroke-width:5' /><text x='10' y='-150' font-family='Cour" +
+    "ier' font-size='40' fill='black' text-anchor='begin'>1961 Sp" +
+    "eI(1)</text><line x1='55' y1='200' x2='55' y2='165' style='s" +
+    "troke:rgb(0,0,0);stroke-width:5' /><text x='45' y='-200' fon" +
+    "t-family='Courier' font-size='40' fill='black' text-anchor='" +
+    "begin'>2050 BsrGI(1)</text><line x1='78' y1='200' x2='78' y2" +
+    "='165' style='stroke:rgb(0,0,0);stroke-width:5' /><text x='6" +
+    "8' y='150' font-family='Courier' font-size='40' fill='black'" +
+    " text-anchor='begin'>2107 AccI(1)</text><line x1='78' y1='20" +
+    "0' x2='78' y2='165' style='stroke:rgb(0,0,0);stroke-width:5'" +
+    " /><text x='68' y='-600' font-family='Courier' font-size='40" +
+    "' fill='black' text-anchor='begin'>2108 BstZ17I(1)</text><li" +
+    "ne x1='161' y1='200' x2='161' y2='165' style='stroke:rgb(0,0" +
+    ",0);stroke-width:5' /><text x='151' y='-250' font-family='Co" +
+    "urier' font-size='40' fill='black' text-anchor='begin'>2318 " +
+    "DraIII(1)</text><line x1='173' y1='200' x2='173' y2='165' st" +
+    "yle='stroke:rgb(0,0,0);stroke-width:5' /><text x='163' y='-3" +
+    "00' font-family='Courier' font-size='40' fill='black' text-a" +
+    "nchor='begin'>2350 NsiI(1)</text><line x1='207' y1='200' x2=" +
+    "'207' y2='165' style='stroke:rgb(0,0,0);stroke-width:5' /><t" +
+    "ext x='197' y='-350' font-family='Courier' font-size='40' fi" +
+    "ll='black' text-anchor='begin'>2435 StyD4I(1)</text><line x1" +
+    "='207' y1='200' x2='207' y2='165' style='stroke:rgb(0,0,0);s" +
+    "troke-width:5' /><text x='197' y='-400' font-family='Courier" +
+    "' font-size='40' fill='black' text-anchor='begin'>2437 NciI(" +
+    "1)</text><line x1='207' y1='200' x2='207' y2='165' style='st" +
+    "roke:rgb(0,0,0);stroke-width:5' /><text x='197' y='-650' fon" +
+    "t-family='Courier' font-size='40' fill='black' text-anchor='" +
+    "begin'>2437 ScrFI(1)</text><line x1='239' y1='200' x2='239' " +
+    "y2='165' style='stroke:rgb(0,0,0);stroke-width:5' /><text x=" +
+    "'229' y='100' font-family='Courier' font-size='40' fill='bla" +
+    "ck' text-anchor='begin'>2518 SphI(1)</text><line x1='243' y1" +
+    "='200' x2='243' y2='165' style='stroke:rgb(0,0,0);stroke-wid" +
+    "th:5' /><text x='233' y='-500' font-family='Courier' font-si" +
+    "ze='40' fill='black' text-anchor='begin'>2527 Asp700I(1)</te" +
+    "xt><line x1='243' y1='200' x2='243' y2='165' style='stroke:r" +
+    "gb(0,0,0);stroke-width:5' /><text x='233' y='-700' font-fami" +
+    "ly='Courier' font-size='40' fill='black' text-anchor='begin'" +
+    ">2527 XmnI(1)</text><line x1='293' y1='200' x2='293' y2='165" +
+    "' style='stroke:rgb(0,0,0);stroke-width:5' /><text x='283' y" +
+    "='50' font-family='Courier' font-size='40' fill='black' text" +
+    "-anchor='begin'>2654 NcoI(1)</text><line x1='309' y1='200' x" +
+    "2='309' y2='165' style='stroke:rgb(0,0,0);stroke-width:5' />" +
+    "<text x='299' y='0' font-family='Courier' font-size='40' fil" +
+    "l='black' text-anchor='begin'>2697 ZraI(1)</text><line x1='3" +
+    "10' y1='200' x2='310' y2='165' style='stroke:rgb(0,0,0);stro" +
+    "ke-width:5' /><text x='300' y='-50' font-family='Courier' fo" +
+    "nt-size='40' fill='black' text-anchor='begin'>2699 AatII(1)<" +
+    "/text><line x1='362' y1='200' x2='362' y2='165' style='strok" +
+    "e:rgb(0,0,0);stroke-width:5' /><text x='352' y='-450' font-f" +
+    "amily='Courier' font-size='40' fill='black' text-anchor='beg" +
+    "in'>2830 AhdI(1)</text><line x1='371' y1='200' x2='371' y2='" +
+    "165' style='stroke:rgb(0,0,0);stroke-width:5' /><text x='361" +
+    "' y='-550' font-family='Courier' font-size='40' fill='black'" +
+    " text-anchor='begin'>2854 RsrII(1)</text><line x1='374' y1='" +
+    "200' x2='374' y2='165' style='stroke:rgb(0,0,0);stroke-width" +
+    ":5' /><text x='364' y='-750' font-family='Courier' font-size" +
+    "='40' fill='black' text-anchor='begin'>2861 ApaLI(1)</text><" +
+    "line x1='375' y1='200' x2='375' y2='165' style='stroke:rgb(0" +
+    ",0,0);stroke-width:5' /><text x='365' y='-800' font-family='" +
+    "Courier' font-size='40' fill='black' text-anchor='begin'>286" +
+    "5 BaeGI(1)</text><line x1='375' y1='200' x2='375' y2='165' s" +
+    "tyle='stroke:rgb(0,0,0);stroke-width:5' /><text x='365' y='-" +
+    "850' font-family='Courier' font-size='40' fill='black' text-" +
+    "anchor='begin'>2865 BsiHKAI(1)</text><line x1='383' y1='200'" +
+    " x2='383' y2='165' style='stroke:rgb(0,0,0);stroke-width:5' " +
+    "/><text x='373' y='-900' font-family='Courier' font-size='40" +
+    "' fill='black' text-anchor='begin'>2884 BmgBI(1)</text><line" +
+    " x1='415' y1='200' x2='415' y2='165' style='stroke:rgb(0,0,0" +
+    ");stroke-width:5' /><text x='405' y='-950' font-family='Cour" +
+    "ier' font-size='40' fill='black' text-anchor='begin'>2966 Bs" +
+    "rDI(1)</text><line x1='462' y1='200' x2='462' y2='165' style" +
+    "='stroke:rgb(0,0,0);stroke-width:5' /><text x='452' y='-100'" +
+    " font-family='Courier' font-size='40' fill='black' text-anch" +
+    "or='begin'>3084 FspI(1)</text><line x1='500' y1='200' x2='50" +
+    "0' y2='165' style='stroke:rgb(0,0,0);stroke-width:5' /><text" +
+    " x='490' y='150' font-family='Courier' font-size='40' fill='" +
+    "black' text-anchor='begin'>3182 End</text><polyline points='" +
+    "-750,330 -546,330 -546,318 -533,337.5 -546,357 -546,345 -750" +
+    ",345 -750,330' style='stroke:#ff3333;stroke-width:5;fill:#ff" +
+    "3333' /><text x='-641' y='400' font-family='Courier' font-si" +
+    "ze='40' fill='black' text-anchor='middle'>Core-Antigen(0..55" +
+    "1)</text><polyline points='-750,460 -546,460 -546,448 -533,4" +
+    "67.5 -546,487 -546,475 -750,475 -750,460' style='stroke:#fff" +
+    "f00;stroke-width:5;fill:#ffff00' /><text x='-641' y='530' fo" +
+    "nt-family='Courier' font-size='40' fill='black' text-anchor=" +
+    "'middle'>Core-Antigen(0..551)</text><polyline points='-591,5" +
+    "90 379,590 379,578 392,597.5 379,617 379,605 -591,605 -591,5" +
+    "90' style='stroke:#ff3333;stroke-width:5;fill:#ff3333' /><te" +
+    "xt x='-99' y='660' font-family='Courier' font-size='40' fill" +
+    "='black' text-anchor='middle'>Polymerase(406..2904)</text><p" +
+    "olyline points='-591,720 379,720 379,708 392,727.5 379,747 3" +
+    "79,735 -591,735 -591,720' style='stroke:#6464ff;stroke-width" +
+    ":5;fill:#6464ff' /><text x='-99' y='790' font-family='Courie" +
+    "r' font-size='40' fill='black' text-anchor='middle'>Polymera" +
+    "se(406..2904)</text><polyline points='-186,850 69,850 69,838" +
+    " 82,857.5 69,877 69,865 -186,865 -186,850' style='stroke:#ff" +
+    "3333;stroke-width:5;fill:#ff3333' /><text x='-52' y='920' fo" +
+    "nt-family='Courier' font-size='40' fill='black' text-anchor=" +
+    "'middle'>S-Antigen(1436..2116)</text><polyline points='-186," +
+    "980 69,980 69,968 82,987.5 69,1007 69,995 -186,995 -186,980'" +
+    " style='stroke:#2db300;stroke-width:5;fill:#2db300' /><text " +
+    "x='-52' y='1050' font-family='Courier' font-size='40' fill='" +
+    "black' text-anchor='middle'>S-Antigen(1436..2116)</text></sv" +
+    "g>";
+    return str;
+}
+
+function wdeTestDataString_025() {
+    var str = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='-" +
+    "1000 -950 2000 1830'><circle cx='0' cy='0' r='450' stroke='b" +
+    "lack' stroke-width='6' fill='white' /><text x='0' y='-70' fo" +
+    "nt-family='Courier' font-size='40' fill='black' text-anchor=" +
+    "'middle'>Hepatitis B Virus, complete sequence.</text><text x" +
+    "='0' y='70' font-family='Courier' font-size='40' fill='black" +
+    "' text-anchor='middle'>3182 bp</text><polyline points='446,-" +
+    "60 471,-63 496,-66 516,-66' style='stroke:#000000;stroke-wid" +
+    "th:5;fill:none' /><text x='526' y='-56' font-family='Courier" +
+    "' font-size='40' fill='#000000' text-anchor='begin'>728 MfeI" +
+    "(1)</text><polyline points='446,-60 471,-63 496,-116 516,-11" +
+    "6' style='stroke:#000000;stroke-width:5;fill:none' /><text x" +
+    "='526' y='-106' font-family='Courier' font-size='40' fill='#" +
+    "000000' text-anchor='begin'>728 MunI(1)</text><polyline poin" +
+    "ts='375,-249 395,-263 416,-277 436,-277' style='stroke:#0000" +
+    "00;stroke-width:5;fill:none' /><text x='446' y='-267' font-f" +
+    "amily='Courier' font-size='40' fill='#000000' text-anchor='b" +
+    "egin'>498 PshAI(1)</text><polyline points='337,-298 356,-315" +
+    " 375,-331 395,-331' style='stroke:#000000;stroke-width:5;fil" +
+    "l:none' /><text x='405' y='-321' font-family='Courier' font-" +
+    "size='40' fill='#000000' text-anchor='begin'>429 BsaWI(1)</t" +
+    "ext><polyline points='337,-298 356,-315 375,-381 395,-381' s" +
+    "tyle='stroke:#000000;stroke-width:5;fill:none' /><text x='40" +
+    "5' y='-371' font-family='Courier' font-size='40' fill='#0000" +
+    "00' text-anchor='begin'>429 BspEI(1)</text><polyline points=" +
+    "'337,-298 356,-315 375,-431 395,-431' style='stroke:#000000;" +
+    "stroke-width:5;fill:none' /><text x='405' y='-421' font-fami" +
+    "ly='Courier' font-size='40' fill='#000000' text-anchor='begi" +
+    "n'>429 MroI(1)</text><polyline points='232,-386 245,-407 258" +
+    ",-481 278,-481' style='stroke:#000000;stroke-width:5;fill:no" +
+    "ne' /><text x='288' y='-471' font-family='Courier' font-size" +
+    "='40' fill='#000000' text-anchor='begin'>274 MslI(1)</text><" +
+    "polyline points='15,-450 16,-475 17,-531 37,-531' style='str" +
+    "oke:#000000;stroke-width:5;fill:none' /><text x='47' y='-521" +
+    "' font-family='Courier' font-size='40' fill='#000000' text-a" +
+    "nchor='begin'>17 PsiI(1)</text><polyline points='438,105 462" +
+    ",111 486,117 506,117' style='stroke:#000000;stroke-width:5;f" +
+    "ill:none' /><text x='516' y='127' font-family='Courier' font" +
+    "-size='40' fill='#000000' text-anchor='begin'>915 Tsp45I(1)<" +
+    "/text><polyline points='372,253 393,267 413,281 433,281' sty" +
+    "le='stroke:#000000;stroke-width:5;fill:none' /><text x='443'" +
+    " y='291' font-family='Courier' font-size='40' fill='#000000'" +
+    " text-anchor='begin'>1098 BsmI(1)</text><polyline points='34" +
+    "5,289 364,305 383,331 403,331' style='stroke:#000000;stroke-" +
+    "width:5;fill:none' /><text x='413' y='341' font-family='Cour" +
+    "ier' font-size='40' fill='#000000' text-anchor='begin'>1149 " +
+    "BanII(1)</text><polyline points='328,308 346,325 365,381 385" +
+    ",381' style='stroke:#000000;stroke-width:5;fill:none' /><tex" +
+    "t x='395' y='391' font-family='Courier' font-size='40' fill=" +
+    "'#000000' text-anchor='begin'>1177 EciI(1)</text><polyline p" +
+    "oints='259,368 274,388 288,431 308,431' style='stroke:#00000" +
+    "0;stroke-width:5;fill:none' /><text x='318' y='441' font-fam" +
+    "ily='Courier' font-size='40' fill='#000000' text-anchor='beg" +
+    "in'>1280 EcoRI(1)</text><polyline points='259,368 273,389 28" +
+    "7,481 307,481' style='stroke:#000000;stroke-width:5;fill:non" +
+    "e' /><text x='317' y='491' font-family='Courier' font-size='" +
+    "40' fill='#000000' text-anchor='begin'>1281 BtsI(1)</text><p" +
+    "olyline points='158,421 167,445 176,531 196,531' style='stro" +
+    "ke:#000000;stroke-width:5;fill:none' /><text x='206' y='541'" +
+    " font-family='Courier' font-size='40' fill='#000000' text-an" +
+    "chor='begin'>1409 PaeR7I(1)</text><polyline points='158,421 " +
+    "167,445 176,581 196,581' style='stroke:#000000;stroke-width:" +
+    "5;fill:none' /><text x='206' y='591' font-family='Courier' f" +
+    "ont-size='40' fill='#000000' text-anchor='begin'>1409 XhoI(1" +
+    ")</text><polyline points='115,435 122,459 128,631 148,631' s" +
+    "tyle='stroke:#000000;stroke-width:5;fill:none' /><text x='15" +
+    "8' y='641' font-family='Courier' font-size='40' fill='#00000" +
+    "0' text-anchor='begin'>1460 AvrII(1)</text><polyline points=" +
+    "'115,435 122,459 128,681 148,681' style='stroke:#000000;stro" +
+    "ke-width:5;fill:none' /><text x='158' y='691' font-family='C" +
+    "ourier' font-size='40' fill='#000000' text-anchor='begin'>14" +
+    "60 BlnI(1)</text><polyline points='7,450 8,475 8,731 28,731'" +
+    " style='stroke:#000000;stroke-width:5;fill:none' /><text x='" +
+    "38' y='741' font-family='Courier' font-size='40' fill='#0000" +
+    "00' text-anchor='begin'>1583 EaeI(1)</text><polyline points=" +
+    "'5,450 6,475 6,781 26,781' style='stroke:#000000;stroke-widt" +
+    "h:5;fill:none' /><text x='36' y='791' font-family='Courier' " +
+    "font-size='40' fill='#000000' text-anchor='begin'>1585 MscI(" +
+    "1)</text><polyline points='-449,32 -474,34 -499,40 -519,40' " +
+    "style='stroke:#000000;stroke-width:5;fill:none' /><text x='-" +
+    "529' y='50' font-family='Courier' font-size='40' fill='#0000" +
+    "00' text-anchor='end'>2350 NsiI(1)</text><polyline points='-" +
+    "446,61 -471,64 -495,90 -515,90' style='stroke:#000000;stroke" +
+    "-width:5;fill:none' /><text x='-525' y='100' font-family='Co" +
+    "urier' font-size='40' fill='#000000' text-anchor='end'>2318 " +
+    "DraIII(1)</text><polyline points='-384,235 -405,248 -426,261" +
+    " -446,261' style='stroke:#000000;stroke-width:5;fill:none' /" +
+    "><text x='-456' y='271' font-family='Courier' font-size='40'" +
+    " fill='#000000' text-anchor='end'>2108 BstZ17I(1)</text><pol" +
+    "yline points='-383,236 -404,249 -426,311 -446,311' style='st" +
+    "roke:#000000;stroke-width:5;fill:none' /><text x='-456' y='3" +
+    "21' font-family='Courier' font-size='40' fill='#000000' text" +
+    "-anchor='end'>2107 AccI(1)</text><polyline points='-354,277 " +
+    "-374,293 -394,361 -414,361' style='stroke:#000000;stroke-wid" +
+    "th:5;fill:none' /><text x='-424' y='371' font-family='Courie" +
+    "r' font-size='40' fill='#000000' text-anchor='end'>2050 BsrG" +
+    "I(1)</text><polyline points='-300,335 -317,354 -334,411 -354" +
+    ",411' style='stroke:#000000;stroke-width:5;fill:none' /><tex" +
+    "t x='-364' y='421' font-family='Courier' font-size='40' fill" +
+    "='#000000' text-anchor='end'>1961 SpeI(1)</text><polyline po" +
+    "ints='-217,394 -229,416 -241,461 -261,461' style='stroke:#00" +
+    "0000;stroke-width:5;fill:none' /><text x='-271' y='471' font" +
+    "-family='Courier' font-size='40' fill='#000000' text-anchor=" +
+    "'end'>1846 BciVI(1)</text><polyline points='-448,-43 -473,-4" +
+    "5 -498,-48 -518,-48' style='stroke:#000000;stroke-width:5;fi" +
+    "ll:none' /><text x='-528' y='-38' font-family='Courier' font" +
+    "-size='40' fill='#000000' text-anchor='end'>2435 StyD4I(1)</" +
+    "text><polyline points='-448,-45 -473,-47 -498,-98 -518,-98' " +
+    "style='stroke:#000000;stroke-width:5;fill:none' /><text x='-" +
+    "528' y='-88' font-family='Courier' font-size='40' fill='#000" +
+    "000' text-anchor='end'>2437 NciI(1)</text><polyline points='" +
+    "-448,-45 -473,-47 -498,-148 -518,-148' style='stroke:#000000" +
+    ";stroke-width:5;fill:none' /><text x='-528' y='-138' font-fa" +
+    "mily='Courier' font-size='40' fill='#000000' text-anchor='en" +
+    "d'>2437 ScrFI(1)</text><polyline points='-435,-116 -459,-122" +
+    " -483,-198 -503,-198' style='stroke:#000000;stroke-width:5;f" +
+    "ill:none' /><text x='-513' y='-188' font-family='Courier' fo" +
+    "nt-size='40' fill='#000000' text-anchor='end'>2518 SphI(1)</" +
+    "text><polyline points='-433,-123 -457,-130 -481,-248 -501,-2" +
+    "48' style='stroke:#000000;stroke-width:5;fill:none' /><text " +
+    "x='-511' y='-238' font-family='Courier' font-size='40' fill=" +
+    "'#000000' text-anchor='end'>2527 Asp700I(1)</text><polyline " +
+    "points='-433,-123 -457,-130 -481,-298 -501,-298' style='stro" +
+    "ke:#000000;stroke-width:5;fill:none' /><text x='-511' y='-28" +
+    "8' font-family='Courier' font-size='40' fill='#000000' text-" +
+    "anchor='end'>2527 XmnI(1)</text><polyline points='-389,-227 " +
+    "-410,-239 -432,-348 -452,-348' style='stroke:#000000;stroke-" +
+    "width:5;fill:none' /><text x='-462' y='-338' font-family='Co" +
+    "urier' font-size='40' fill='#000000' text-anchor='end'>2654 " +
+    "NcoI(1)</text><polyline points='-368,-259 -388,-273 -409,-39" +
+    "8 -429,-398' style='stroke:#000000;stroke-width:5;fill:none'" +
+    " /><text x='-439' y='-388' font-family='Courier' font-size='" +
+    "40' fill='#000000' text-anchor='end'>2697 ZraI(1)</text><pol" +
+    "yline points='-367,-260 -387,-275 -408,-448 -428,-448' style" +
+    "='stroke:#000000;stroke-width:5;fill:none' /><text x='-438' " +
+    "y='-438' font-family='Courier' font-size='40' fill='#000000'" +
+    " text-anchor='end'>2699 AatII(1)</text><polyline points='-28" +
+    "8,-346 -304,-365 -320,-498 -340,-498' style='stroke:#000000;" +
+    "stroke-width:5;fill:none' /><text x='-350' y='-488' font-fam" +
+    "ily='Courier' font-size='40' fill='#000000' text-anchor='end" +
+    "'>2830 AhdI(1)</text><polyline points='-271,-359 -287,-379 -" +
+    "302,-548 -322,-548' style='stroke:#000000;stroke-width:5;fil" +
+    "l:none' /><text x='-332' y='-538' font-family='Courier' font" +
+    "-size='40' fill='#000000' text-anchor='end'>2854 RsrII(1)</t" +
+    "ext><polyline points='-267,-363 -281,-383 -296,-598 -316,-59" +
+    "8' style='stroke:#000000;stroke-width:5;fill:none' /><text x" +
+    "='-326' y='-588' font-family='Courier' font-size='40' fill='" +
+    "#000000' text-anchor='end'>2861 ApaLI(1)</text><polyline poi" +
+    "nts='-264,-365 -278,-385 -293,-648 -313,-648' style='stroke:" +
+    "#000000;stroke-width:5;fill:none' /><text x='-323' y='-638' " +
+    "font-family='Courier' font-size='40' fill='#000000' text-anc" +
+    "hor='end'>2865 BaeGI(1)</text><polyline points='-264,-365 -2" +
+    "78,-385 -293,-698 -313,-698' style='stroke:#000000;stroke-wi" +
+    "dth:5;fill:none' /><text x='-323' y='-688' font-family='Cour" +
+    "ier' font-size='40' fill='#000000' text-anchor='end'>2865 Bs" +
+    "iHKAI(1)</text><polyline points='-250,-374 -264,-395 -278,-7" +
+    "48 -298,-748' style='stroke:#000000;stroke-width:5;fill:none" +
+    "' /><text x='-308' y='-738' font-family='Courier' font-size=" +
+    "'40' fill='#000000' text-anchor='end'>2884 BmgBI(1)</text><p" +
+    "olyline points='-186,-410 -197,-432 -207,-798 -227,-798' sty" +
+    "le='stroke:#000000;stroke-width:5;fill:none' /><text x='-237" +
+    "' y='-788' font-family='Courier' font-size='40' fill='#00000" +
+    "0' text-anchor='end'>2966 BsrDI(1)</text><polyline points='-" +
+    "87,-442 -91,-466 -96,-848 -116,-848' style='stroke:#000000;s" +
+    "troke-width:5;fill:none' /><text x='-126' y='-838' font-fami" +
+    "ly='Courier' font-size='40' fill='#000000' text-anchor='end'" +
+    ">3084 FspI(1)</text></svg>";
     return str;
 }
 

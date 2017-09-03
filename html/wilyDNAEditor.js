@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.9.5";
+var wdeVVersion = "0.9.6";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -3265,11 +3265,19 @@ function wdeDigCleanDigList(circ) {
 }
 
 function wdeDigSortPos(a, b) {
-    return a[2] - b[2];
+    if (a[2] != b[2]) {
+        return a[2] - b[2];
+    } else {
+        return a[1].localeCompare(b[1]);
+    }
 }
 
 function wdeDigSortFrag(a, b) {
-    return b[0] - a[0];
+    if (a[0] != b[0]) {
+        return b[0] - a[0];
+    } else {
+        return a[1].localeCompare(b[1]);
+    }
 }
 
 function wdeDigAsGelPic() {
@@ -3703,7 +3711,7 @@ function wdeMapSVG(unique) {
         var descr = seqId + " (" + fragStart + ".." + fragEnd + ")";
 	    retVal += "<text x='-125' y='270' font-family='Courier' font-size='40' fill='black' text-anchor='middle'>" +  descr + "</text>";
 	    for (var k = 0 ; k < digArr.length ; k++) {
-	        var xPos = 1250 * digArr[k][2] / seqLength - 750;
+	        var xPos = Math.round(1250 * digArr[k][2] / seqLength - 750);
 	        var xLin = xPos;
 	        var yLin = 165;
 	        var xText = xPos - 10;
@@ -3739,17 +3747,17 @@ function wdeMapSVG(unique) {
 	        lastX = [-1500];
 	        for (var k = 0; k < svgFeat.length; k++) {
 		        var yLin = 200;
-                var xText = 1250 * ((svgFeat[k][5] + svgFeat[k][6] ) / 2) / seqLength - 750;
+                var xText = Math.round(1250 * ((svgFeat[k][5] + svgFeat[k][6] ) / 2) / seqLength - 750);
                 var yText = yLin + 70;
 	            var outText = svgFeat[k][2] + "(" + (svgFeat[k][5] - wdeZeroOne) + ".." + (svgFeat[k][6] - wdeZeroOne) + ")";
                 var xPixText = Math.round(0.7 * 25 * outText.length);
 		        var searchOn = 1;
 		        var line = 0;
-		        var maxFeatX = 1250 * svgFeat[k][6] / seqLength - 750
+		        var maxFeatX = Math.round(1250 * svgFeat[k][6] / seqLength - 750);
 		        if (maxFeatX < xText + xPixText) {
 		            maxFeatX = xText + xPixText;
 		        }
-		        var minFeatX = 1250 * svgFeat[k][5] / seqLength - 750
+		        var minFeatX = Math.round(1250 * svgFeat[k][5] / seqLength - 750);
 		        if (minFeatX > xText - xPixText) {
 		            minFeatX = xText - xPixText;
 		        }
@@ -3778,19 +3786,19 @@ function wdeMapSVG(unique) {
 	                var singPos = posList[i].split(".");
 	                var smallStart = 0;
 	                if (parseInt(singPos[0]) > 0) {
-	                    featStart = 1250 * (parseInt(singPos[0]) - 1) / seqLength - 750;
+	                    featStart = Math.round(1250 * (parseInt(singPos[0]) - 1) / seqLength - 750);
 	                    smallStart = featStart;
 	                }
 	                if (singPos.length == 1) {
-		                featEnd = 1250 * (parseInt(singPos[0])) / seqLength - 750;
+		                featEnd = Math.round(1250 * (parseInt(singPos[0])) / seqLength - 750);
 	                }
 	                if (singPos.length == 2) {
 		                if (parseInt(singPos[1]) > 1) {
-		                    featEnd = 1250 * (parseInt(singPos[1]) - 1) / seqLength - 750;
-		                    smallStart = 1250 * ((parseInt(singPos[1]) + parseInt(singPos[0])) / 2) / seqLength - 750;
+		                    featEnd = Math.round(1250 * (parseInt(singPos[1]) - 1) / seqLength - 750);
+		                    smallStart = Math.round(1250 * ((parseInt(singPos[1]) + parseInt(singPos[0])) / 2) / seqLength - 750);
 		                }
 		                if (parseInt(singPos[1]) == 1) {
-		                    featEnd = 1250 * (parseInt(singPos[0])) / seqLength - 750;
+		                    featEnd = Math.round(1250 * (parseInt(singPos[0])) / seqLength - 750);
 		                }
 	                }
 	                if ( (featEnd - featStart) < 12) {
@@ -3871,6 +3879,16 @@ function wdeDigMapSort(a, b) {
     if (a[6] != b[6]) {
         return a[6] - b[6];
     } else {
+        if (b[2] == a[2]) {
+            if (a[14] == b[14]) {
+                if (a[6] == 0) {
+		            return a[13].localeCompare(b[13]);
+		        } else {
+		            return b[13].localeCompare(a[13]);
+		        }
+            }
+            return a[14].localeCompare(b[14]);
+        }
         if ((a[6] == 0) || (a[6] == 2)) {
             return b[2] - a[2];
         } else {
