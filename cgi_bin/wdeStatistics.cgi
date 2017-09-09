@@ -181,6 +181,15 @@ my $formHTML = qq{<!DOCTYPE html>
         line-height: 1.2;
     }
 
+	div#WDE_footer {
+		margin: 12px 0px 3px 0px;
+		font-size: 80%;
+		font-family: Arial;
+		font-weight: bold;
+		color: rgb(75, 75, 75);
+		text-align: center;
+	}
+	
     div#WDE_space {
         padding: 8px;
         line-height: 2;
@@ -329,6 +338,7 @@ $formHTML .= qq{
 
 $formHTML .= qq{
   </table></div>
+<div id="WDE_footer"><a>&copy; by A. Untergasser</a></div>
 
 </div>
 </div>
