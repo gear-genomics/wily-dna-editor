@@ -45,9 +45,11 @@ function wdeTestAll() {
     var currentTestOut = "";
     var testName = "";
     var downloadDiff = 0;
-    var downloadDiff = document.getElementById("WDE_TEST_DOWNLOAD_DIFF").checked;
-    var browser = wdeTestDetectBorwser();
-
+    if(document.getElementById("WDE_TEST_DOWNLOAD_DIFF").checked != 0) {
+        downloadDiff = 1;
+    }
+    var browser = wdeDetectBorwser();
+    
     var startTime = new Date();
     wdeTestLastTime = startTime;
     wdeTestAddToOutput("Starting Tests: " + wdeTestLeadingZero(startTime.getHours()) + ":" 
@@ -138,12 +140,7 @@ function wdeTestAll() {
 
     testName = "wdeDrawEnzymes()";
     wdeTestAddToOutput(testName + " - ");
-    if (browser != "chrome") {
-        wdeTestOutComp(wdeTestDataString_011(), document.getElementById("WDE_enzymes_spacer").innerHTML, "No", testName, downloadDiff);
-    } else {
-        wdeTestAddToOutput("[Chrome Version] - ");
-        wdeTestOutComp(wdeTestDataString_011_chrome(), document.getElementById("WDE_enzymes_spacer").innerHTML, "No", testName, downloadDiff);
-    }
+    wdeTestOutComp(wdeTestDataString_011(), document.getElementById("WDE_enzymes_spacer").innerHTML, "HTML", testName, downloadDiff);
 
     if (browser != "chrome") {
         testName = "wdeFindRE() on LargeGeneBank";
@@ -231,15 +228,11 @@ function wdeTestAll() {
 
     wdeTestAddToOutput("\nTest Digest Functions:\n\n");
     
-    if (browser != "edge") {
-	    testName = "wdeDigMapDis()";
-        wdeTestAddToOutput(testName + " - ");
-	    wdeDigMapDis('S');
-	    wdeTestOutComp(wdeTestDataString_022(), window.frames['WDE_DIGEST'].document.body.innerHTML, 
-	                   "No", testName, downloadDiff);
-    } else {
-	    wdeTestAddToOutput("wdeDigMapDis() - [SKIPPED on EDGE]\n");
-    }
+    testName = "wdeDigMapDis()";
+    wdeTestAddToOutput(testName + " - ");
+	wdeDigMapDis('S');
+	wdeTestOutComp(wdeTestDataString_022(), window.frames['WDE_DIGEST'].document.body.innerHTML, 
+	               "HTML", testName, downloadDiff);
 
     testName = "wdeMapSVG() on circular";
     wdeTestAddToOutput(testName + " - ");
@@ -419,20 +412,6 @@ function wdeTestAll() {
     wdeTestPRStringAsFunction3();
 }
 
-function wdeTestDetectBorwser() {
-    var browser = window.navigator.userAgent.toLowerCase();
-    if (browser.indexOf("edge") != -1) {
-        return "edge";
-    }
-    if (browser.indexOf("firefox") != -1) {
-        return "firefox";
-    }
-    if (browser.indexOf("chrome") != -1) {
-        return "chrome";
-    }
-    return browser;
-}
-
 function wdeTestSimulateSelection(start, end) {
     var range = window.frames['WDE_RTF'].document.createRange();
     var referenceNode = window.frames['WDE_RTF'].document.getElementById("wdeStartNode").firstChild;
@@ -463,18 +442,43 @@ function wdeTestOutComp(a, b, filter, testName, downloadDiff) {
         aLib = wdeTestRemoveDateGenbank(a);
         bCurr = wdeTestRemoveDateGenbank(b);
     }
-    
+    if (filter == "HTML") {
+        aLib = wdeTestSortTagsHTML(a);
+        bCurr = wdeTestSortTagsHTML(b);
+    }
     
     var nowTime = new Date();
     var mSeconds = nowTime.getTime() - wdeTestLastTime.getTime();
     wdeTestLastTime = nowTime;
     if (aLib == bCurr) {
         wdeTestAddToOutput("[OK] - " + mSeconds + " ms\n");
+        if (downloadDiff == 2) {
+		    wdeInTestRun = 0;
+		    if (filter == "HTML") {
+		         aLib = aLib.replace(/</g, "\n<");
+		         aLib = aLib.replace(/>/g, ">\n");
+		         aLib = aLib.replace(/\n+/g, "\n");
+		         bCurr = bCurr.replace(/</g, "\n<");
+		         bCurr = bCurr.replace(/>/g, ">\n");
+		         bCurr = bCurr.replace(/\n+/g, "\n");
+            }
+		    wdeSaveFile(testName + "_A_LIB.txt", aLib, "text");
+		    wdeSaveFile(testName + "_B_CUR.txt", bCurr, "text");
+		    wdeInTestRun = 1;
+        }
     } else {
         wdeTestAddToOutput("[FAILED] - " + mSeconds + " ms\n");
         wdeTestFailed = 1;
-        if (downloadDiff) {
+        if (downloadDiff != 0) {
 		    wdeInTestRun = 0;
+		    if (filter == "HTML") {
+		         aLib = aLib.replace(/</g, "\n<");
+		         aLib = aLib.replace(/>/g, ">\n");
+		         aLib = aLib.replace(/\n+/g, "\n");
+		         bCurr = bCurr.replace(/</g, "\n<");
+		         bCurr = bCurr.replace(/>/g, ">\n");
+		         bCurr = bCurr.replace(/\n+/g, "\n");
+            }
 		    wdeSaveFile(testName + "_A_LIB.txt", aLib, "text");
 		    wdeSaveFile(testName + "_B_CUR.txt", bCurr, "text");
 		    wdeInTestRun = 1;
@@ -492,6 +496,103 @@ function wdeTestRemoveDateGenbank(txt) {
             firstLine = 0;
         }
         retTxt += txt.charAt(i);
+    }
+    return retTxt;
+}
+
+function wdeTestSortTagsHTML(txt) {
+    var retTxt = "";
+    var tagInfo = "";
+    var inTag = 0;
+    var tagName = 0;
+    var tagArr = [];
+    var inSpacer = 0;
+    var eqalDetect = 0;
+    var inQuot = 0;
+    var firstTag = 0;
+    for (var i = 0 ; i < txt.length ; i++) {
+        if ((txt.charAt(i) == "<")){
+            inTag = 1;
+            tagName = 1;
+            firstTag = 1;
+            inSpacer = 0;
+            eqalDetect = 0;
+            tagInfo = "";
+            tagArr = [];
+        }
+        if ((txt.charAt(i) == "\"") && 
+            (txt.charAt(i - 1) != "\\")){
+            if (inQuot) {
+                inQuot = 0;
+                eqalDetect = 0;
+                inSpacer = 0;
+            } else {
+                inQuot = 1;
+            }
+        }
+        if ((txt.charAt(i) == ">")){
+            inTag = 0;
+    	    if (firstTag == 1) {
+                retTxt += tagInfo;
+            } else {
+                retTxt = retTxt.replace(/\s*$/, "") + " ";
+                tagInfo = tagInfo.replace(/\s*$/, "");
+	            if (tagInfo != "") {
+                    tagArr[tagArr.length] = tagInfo;
+                }
+                tagArr.sort();
+                for (var k = 0 ; k < tagArr.length ; k++) {
+                    retTxt += tagArr[k].replace(/\s*$/, "") + " ";
+                }
+                retTxt = retTxt.replace(/\s*$/, "");
+            }
+        } else if (inQuot == 0) {
+            if ((txt.charAt(i) == "=")){
+                eqalDetect = 1;
+                inSpacer = 0;
+            }
+	        if (/\s/g.test(txt.charAt(i))){
+	            inSpacer = 1;
+	        } else {
+	            if ((inSpacer == 1) && (eqalDetect == 2)) {
+                    eqalDetect = 0;
+	            }
+	            if ((inSpacer == 1) && (eqalDetect == 0)) {
+	                inSpacer = 0;
+	                if (firstTag == 1) {
+		                retTxt += tagInfo;
+		                tagInfo = "";
+		                firstTag = 0;
+	                } else {
+	                    tagInfo = tagInfo.replace(/\s*$/, "");
+	                    if (tagInfo != "") {
+	                        tagArr[tagArr.length] = tagInfo;
+		                    tagInfo = "";
+		                }
+	                }
+	            }
+	            if ((inSpacer == 1) && (eqalDetect == 1)) {
+	                inSpacer = 0;
+	                eqalDetect = 2;
+	            }
+	        }
+            if ((txt.charAt(i) == "=")){
+                inSpacer = 1;
+            }
+        }
+        if (inTag == 0) {
+            retTxt += txt.charAt(i);
+        } else {
+            tagInfo += txt.charAt(i);        
+        }
+        if ((txt.charAt(i) == "\"") && 
+            (txt.charAt(i - 1) != "\\")){
+            if (inQuot == 0) {
+                tagArr[tagArr.length] = tagInfo;
+		        tagInfo = "";
+            }
+        }
+        
     }
     return retTxt;
 }
@@ -2086,792 +2187,6 @@ function wdeTestDataString_011() {
     "td><td style=\"text-align:right\">- &nbsp;</td><td>MscI</td>" +
     "<td>&nbsp;TGG^CCA</td><th>&nbsp;&nbsp;&nbsp;</th><td></td><t" +
     "d></td><td></td><td></td></tr>\n</tbody></table>";
-    return str;
-}
-
-function wdeTestDataString_011_chrome() {
-    var str = "<table border=\"0\"><tbody><tr><th>Sel</th><th>&nb" +
-    "sp;&nbsp;Hits</th><th>Name</th><th>Sequence</th><th>&nbsp;&n" +
-    "bsp;&nbsp;</th><th>Sel</th><th>&nbsp;&nbsp;Hits</th><th>Name" +
-    "</th><th>Sequence</th><th>&nbsp;&nbsp;&nbsp;</th><th>Sel</th" +
-    "><th>&nbsp;&nbsp;Hits</th><th>Name</th><th>Sequence</th></tr" +
-    ">\n<tr><td><input type=\"checkbox\" id=\"WDE_0\" onclick=\"w" +
-    "deSelEnzymes(this, 0)\"></td><td style=\"text-align:right\">" +
-    "- &nbsp;</td><td>AatII</td><td>&nbsp;GACGT^C</td><th>&nbsp;&" +
-    "nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_83\" o" +
-    "nclick=\"wdeSelEnzymes(this, 83)\"></td><td style=\"text-ali" +
-    "gn:right\">- &nbsp;</td><td>BsrFI</td><td>&nbsp;R^CCGGY</td>" +
-    "<th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"" +
-    "WDE_166\" onclick=\"wdeSelEnzymes(this, 166)\"></td><td styl" +
-    "e=\"text-align:right\">- &nbsp;</td><td>MseI</td><td>&nbsp;T" +
-    "^TAA</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_1\"" +
-    " onclick=\"wdeSelEnzymes(this, 1)\"></td><td style=\"text-al" +
-    "ign:right\">- &nbsp;</td><td>AccI</td><td>&nbsp;GT^MKAC</td>" +
-    "<th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"" +
-    "WDE_84\" onclick=\"wdeSelEnzymes(this, 84)\"></td><td style=" +
-    "\"text-align:right\">- &nbsp;</td><td>BsrGI</td><td>&nbsp;T^" +
-    "GTACA</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"check" +
-    "box\" id=\"WDE_167\" onclick=\"wdeSelEnzymes(this, 167)\"></" +
-    "td><td style=\"text-align:right\">- &nbsp;</td><td>MslI</td>" +
-    "<td>&nbsp;CAYNN^NNRTG</td></tr>\n<tr><td><input type=\"check" +
-    "box\" id=\"WDE_2\" onclick=\"wdeSelEnzymes(this, 2)\"></td><" +
-    "td style=\"text-align:right\">- &nbsp;</td><td>Acc65I</td><t" +
-    "d>&nbsp;G^GTACC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input ty" +
-    "pe=\"checkbox\" id=\"WDE_85\" onclick=\"wdeSelEnzymes(this, " +
-    "85)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>B" +
-    "ssHII</td><td>&nbsp;G^CGCGC</td><th>&nbsp;&nbsp;&nbsp;</th><" +
-    "td><input type=\"checkbox\" id=\"WDE_168\" onclick=\"wdeSelE" +
-    "nzymes(this, 168)\"></td><td style=\"text-align:right\">- &n" +
-    "bsp;</td><td>MspI</td><td>&nbsp;C^CGG</td></tr>\n<tr><td><in" +
-    "put type=\"checkbox\" id=\"WDE_3\" onclick=\"wdeSelEnzymes(t" +
-    "his, 3)\"></td><td style=\"text-align:right\">- &nbsp;</td><" +
-    "td>AciI</td><td>&nbsp;CCGC(-3/-1)</td><th>&nbsp;&nbsp;&nbsp;" +
-    "</th><td><input type=\"checkbox\" id=\"WDE_86\" onclick=\"wd" +
-    "eSelEnzymes(this, 86)\"></td><td style=\"text-align:right\">" +
-    "- &nbsp;</td><td>BssSI</td><td>&nbsp;CACGAG(-5/-1)</td><th>&" +
-    "nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_" +
-    "169\" onclick=\"wdeSelEnzymes(this, 169)\"></td><td style=\"" +
-    "text-align:right\">- &nbsp;</td><td>MspA1I</td><td>&nbsp;CMG" +
-    "^CKG</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_4\"" +
-    " onclick=\"wdeSelEnzymes(this, 4)\"></td><td style=\"text-al" +
-    "ign:right\">- &nbsp;</td><td>AclI</td><td>&nbsp;AA^CGTT</td>" +
-    "<th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"" +
-    "WDE_87\" onclick=\"wdeSelEnzymes(this, 87)\"></td><td style=" +
-    "\"text-align:right\">- &nbsp;</td><td>BstAPI</td><td>&nbsp;G" +
-    "CANNNN^NTGC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"" +
-    "checkbox\" id=\"WDE_170\" onclick=\"wdeSelEnzymes(this, 170)" +
-    "\"></td><td style=\"text-align:right\">- &nbsp;</td><td>MunI" +
-    "</td><td>&nbsp;C^AATTG</td></tr>\n<tr><td><input type=\"chec" +
-    "kbox\" id=\"WDE_5\" onclick=\"wdeSelEnzymes(this, 5)\"></td>" +
-    "<td style=\"text-align:right\">- &nbsp;</td><td>AcuI</td><td" +
-    ">&nbsp;CTGAAG(16/14)</td><th>&nbsp;&nbsp;&nbsp;</th><td><inp" +
-    "ut type=\"checkbox\" id=\"WDE_88\" onclick=\"wdeSelEnzymes(t" +
-    "his, 88)\"></td><td style=\"text-align:right\">- &nbsp;</td>" +
-    "<td>BstBI</td><td>&nbsp;TT^CGAA</td><th>&nbsp;&nbsp;&nbsp;</" +
-    "th><td><input type=\"checkbox\" id=\"WDE_171\" onclick=\"wde" +
-    "SelEnzymes(this, 171)\"></td><td style=\"text-align:right\">" +
-    "- &nbsp;</td><td>MvaI</td><td>&nbsp;CC^WGG</td></tr>\n<tr><t" +
-    "d><input type=\"checkbox\" id=\"WDE_6\" onclick=\"wdeSelEnzy" +
-    "mes(this, 6)\"></td><td style=\"text-align:right\">- &nbsp;<" +
-    "/td><td>AfeI</td><td>&nbsp;AGC^GCT</td><th>&nbsp;&nbsp;&nbsp" +
-    ";</th><td><input type=\"checkbox\" id=\"WDE_89\" onclick=\"w" +
-    "deSelEnzymes(this, 89)\"></td><td style=\"text-align:right\"" +
-    ">- &nbsp;</td><td>BstEII</td><td>&nbsp;G^GTNACC</td><th>&nbs" +
-    "p;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_172" +
-    "\" onclick=\"wdeSelEnzymes(this, 172)\"></td><td style=\"tex" +
-    "t-align:right\">- &nbsp;</td><td>MvnI</td><td>&nbsp;CG^CG</t" +
-    "d></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_7\" oncli" +
-    "ck=\"wdeSelEnzymes(this, 7)\"></td><td style=\"text-align:ri" +
-    "ght\">- &nbsp;</td><td>AflII</td><td>&nbsp;C^TTAAG</td><th>&" +
-    "nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_" +
-    "90\" onclick=\"wdeSelEnzymes(this, 90)\"></td><td style=\"te" +
-    "xt-align:right\">- &nbsp;</td><td>BstNI</td><td>&nbsp;CC^WGG" +
-    "</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\"" +
-    " id=\"WDE_173\" onclick=\"wdeSelEnzymes(this, 173)\"></td><t" +
-    "d style=\"text-align:right\">- &nbsp;</td><td>MwoI</td><td>&" +
-    "nbsp;GCNNNNN^NNGC</td></tr>\n<tr><td><input type=\"checkbox\"" +
-    " id=\"WDE_8\" onclick=\"wdeSelEnzymes(this, 8)\"></td><td st" +
-    "yle=\"text-align:right\">- &nbsp;</td><td>AflIII</td><td>&nb" +
-    "sp;A^CRYGT</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"" +
-    "checkbox\" id=\"WDE_91\" onclick=\"wdeSelEnzymes(this, 91)\"" +
-    "></td><td style=\"text-align:right\">- &nbsp;</td><td>BstUI<" +
-    "/td><td>&nbsp;CG^CG</td><th>&nbsp;&nbsp;&nbsp;</th><td><inpu" +
-    "t type=\"checkbox\" id=\"WDE_174\" onclick=\"wdeSelEnzymes(t" +
-    "his, 174)\"></td><td style=\"text-align:right\">- &nbsp;</td" +
-    "><td>NaeI</td><td>&nbsp;GCC^GGC</td></tr>\n<tr><td><input ty" +
-    "pe=\"checkbox\" id=\"WDE_9\" onclick=\"wdeSelEnzymes(this, 9" +
-    ")\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Age" +
-    "I</td><td>&nbsp;A^CCGGT</td><th>&nbsp;&nbsp;&nbsp;</th><td><" +
-    "input type=\"checkbox\" id=\"WDE_92\" onclick=\"wdeSelEnzyme" +
-    "s(this, 92)\"></td><td style=\"text-align:right\">- &nbsp;</" +
-    "td><td>BstXI</td><td>&nbsp;CCANNNNN^NTGG</td><th>&nbsp;&nbsp" +
-    ";&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_175\" oncl" +
-    "ick=\"wdeSelEnzymes(this, 175)\"></td><td style=\"text-align" +
-    ":right\">- &nbsp;</td><td>NarI</td><td>&nbsp;GG^CGCC</td></t" +
-    "r>\n<tr><td><input type=\"checkbox\" id=\"WDE_10\" onclick=\"" +
-    "wdeSelEnzymes(this, 10)\"></td><td style=\"text-align:right\"" +
-    ">- &nbsp;</td><td>AhdI</td><td>&nbsp;GACNNN^NNGTC</td><th>&n" +
-    "bsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_9" +
-    "3\" onclick=\"wdeSelEnzymes(this, 93)\"></td><td style=\"tex" +
-    "t-align:right\">- &nbsp;</td><td>BstYI</td><td>&nbsp;R^GATCY" +
-    "</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\"" +
-    " id=\"WDE_176\" onclick=\"wdeSelEnzymes(this, 176)\"></td><t" +
-    "d style=\"text-align:right\">- &nbsp;</td><td>NciI</td><td>&" +
-    "nbsp;CC^SGG</td></tr>\n<tr><td><input type=\"checkbox\" id=\"" +
-    "WDE_11\" onclick=\"wdeSelEnzymes(this, 11)\"></td><td style=" +
-    "\"text-align:right\">- &nbsp;</td><td>AleI</td><td>&nbsp;CAC" +
-    "NN^NNGTG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"ch" +
-    "eckbox\" id=\"WDE_94\" onclick=\"wdeSelEnzymes(this, 94)\"><" +
-    "/td><td style=\"text-align:right\">- &nbsp;</td><td>BstZ17I<" +
-    "/td><td>&nbsp;GTA^TAC</td><th>&nbsp;&nbsp;&nbsp;</th><td><in" +
-    "put type=\"checkbox\" id=\"WDE_177\" onclick=\"wdeSelEnzymes" +
-    "(this, 177)\"></td><td style=\"text-align:right\">- &nbsp;</" +
-    "td><td>NcoI</td><td>&nbsp;C^CATGG</td></tr>\n<tr><td><input " +
-    "type=\"checkbox\" id=\"WDE_12\" onclick=\"wdeSelEnzymes(this" +
-    ", 12)\"></td><td style=\"text-align:right\">- &nbsp;</td><td" +
-    ">AluI</td><td>&nbsp;AG^CT</td><th>&nbsp;&nbsp;&nbsp;</th><td" +
-    "><input type=\"checkbox\" id=\"WDE_95\" onclick=\"wdeSelEnzy" +
-    "mes(this, 95)\"></td><td style=\"text-align:right\">- &nbsp;" +
-    "</td><td>Bsu36I</td><td>&nbsp;CC^TNAGG</td><th>&nbsp;&nbsp;&" +
-    "nbsp;</th><td><input type=\"checkbox\" id=\"WDE_178\" onclic" +
-    "k=\"wdeSelEnzymes(this, 178)\"></td><td style=\"text-align:r" +
-    "ight\">- &nbsp;</td><td>NdeI</td><td>&nbsp;CA^TATG</td></tr>" +
-    "\n<tr><td><input type=\"checkbox\" id=\"WDE_13\" onclick=\"w" +
-    "deSelEnzymes(this, 13)\"></td><td style=\"text-align:right\"" +
-    ">- &nbsp;</td><td>AlwI</td><td>&nbsp;GGATC(4/5)</td><th>&nbs" +
-    "p;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_96\"" +
-    " onclick=\"wdeSelEnzymes(this, 96)\"></td><td style=\"text-a" +
-    "lign:right\">- &nbsp;</td><td>BtgI</td><td>&nbsp;C^CRYGG</td" +
-    "><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=" +
-    "\"WDE_179\" onclick=\"wdeSelEnzymes(this, 179)\"></td><td st" +
-    "yle=\"text-align:right\">- &nbsp;</td><td>NdeII</td><td>&nbs" +
-    "p;^GATC</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE" +
-    "_14\" onclick=\"wdeSelEnzymes(this, 14)\"></td><td style=\"t" +
-    "ext-align:right\">- &nbsp;</td><td>AlwNI</td><td>&nbsp;CAGNN" +
-    "N^CTG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"check" +
-    "box\" id=\"WDE_97\" onclick=\"wdeSelEnzymes(this, 97)\"></td" +
-    "><td style=\"text-align:right\">- &nbsp;</td><td>BtgZI</td><" +
-    "td>&nbsp;GCGATG(10/14)</td><th>&nbsp;&nbsp;&nbsp;</th><td><i" +
-    "nput type=\"checkbox\" id=\"WDE_180\" onclick=\"wdeSelEnzyme" +
-    "s(this, 180)\"></td><td style=\"text-align:right\">- &nbsp;<" +
-    "/td><td>NgoMIV</td><td>&nbsp;G^CCGGC</td></tr>\n<tr><td><inp" +
-    "ut type=\"checkbox\" id=\"WDE_15\" onclick=\"wdeSelEnzymes(t" +
-    "his, 15)\"></td><td style=\"text-align:right\">- &nbsp;</td>" +
-    "<td>ApaI</td><td>&nbsp;GGGCC^C</td><th>&nbsp;&nbsp;&nbsp;</t" +
-    "h><td><input type=\"checkbox\" id=\"WDE_98\" onclick=\"wdeSe" +
-    "lEnzymes(this, 98)\"></td><td style=\"text-align:right\">- &" +
-    "nbsp;</td><td>BtsI</td><td>&nbsp;GCAGTG(2/0)</td><th>&nbsp;&" +
-    "nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_181\" " +
-    "onclick=\"wdeSelEnzymes(this, 181)\"></td><td style=\"text-a" +
-    "lign:right\">- &nbsp;</td><td>NheI</td><td>&nbsp;G^CTAGC</td" +
-    "></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_16\" oncli" +
-    "ck=\"wdeSelEnzymes(this, 16)\"></td><td style=\"text-align:r" +
-    "ight\">- &nbsp;</td><td>ApaLI</td><td>&nbsp;G^TGCAC</td><th>" +
-    "&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE" +
-    "_99\" onclick=\"wdeSelEnzymes(this, 99)\"></td><td style=\"t" +
-    "ext-align:right\">- &nbsp;</td><td>BtsIMutI</td><td>&nbsp;CA" +
-    "GTG(2/0)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"ch" +
-    "eckbox\" id=\"WDE_182\" onclick=\"wdeSelEnzymes(this, 182)\"" +
-    "></td><td style=\"text-align:right\">- &nbsp;</td><td>NlaIII" +
-    "</td><td>&nbsp;CATG^</td></tr>\n<tr><td><input type=\"checkb" +
-    "ox\" id=\"WDE_17\" onclick=\"wdeSelEnzymes(this, 17)\"></td>" +
-    "<td style=\"text-align:right\">- &nbsp;</td><td>ApeKI</td><t" +
-    "d>&nbsp;G^CWGC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input typ" +
-    "e=\"checkbox\" id=\"WDE_100\" onclick=\"wdeSelEnzymes(this, " +
-    "100)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>" +
-    "BtsCI</td><td>&nbsp;GGATG(2/0)</td><th>&nbsp;&nbsp;&nbsp;</t" +
-    "h><td><input type=\"checkbox\" id=\"WDE_183\" onclick=\"wdeS" +
-    "elEnzymes(this, 183)\"></td><td style=\"text-align:right\">-" +
-    " &nbsp;</td><td>NlaIV</td><td>&nbsp;GGN^NCC</td></tr>\n<tr><" +
-    "td><input type=\"checkbox\" id=\"WDE_18\" onclick=\"wdeSelEn" +
-    "zymes(this, 18)\"></td><td style=\"text-align:right\">- &nbs" +
-    "p;</td><td>ApoI</td><td>&nbsp;R^AATTY</td><th>&nbsp;&nbsp;&n" +
-    "bsp;</th><td><input type=\"checkbox\" id=\"WDE_101\" onclick" +
-    "=\"wdeSelEnzymes(this, 101)\"></td><td style=\"text-align:ri" +
-    "ght\">- &nbsp;</td><td>Cac8I</td><td>&nbsp;GCN^NGC</td><th>&" +
-    "nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_" +
-    "184\" onclick=\"wdeSelEnzymes(this, 184)\"></td><td style=\"" +
-    "text-align:right\">- &nbsp;</td><td>NmeAIII</td><td>&nbsp;GC" +
-    "CGAG(21/19)</td></tr>\n<tr><td><input type=\"checkbox\" id=\"" +
-    "WDE_19\" onclick=\"wdeSelEnzymes(this, 19)\"></td><td style=" +
-    "\"text-align:right\">- &nbsp;</td><td>AscI</td><td>&nbsp;GG^" +
-    "CGCGCC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"chec" +
-    "kbox\" id=\"WDE_102\" onclick=\"wdeSelEnzymes(this, 102)\"><" +
-    "/td><td style=\"text-align:right\">- &nbsp;</td><td>CfoI</td" +
-    "><td>&nbsp;GCG^C</td><th>&nbsp;&nbsp;&nbsp;</th><td><input t" +
-    "ype=\"checkbox\" id=\"WDE_185\" onclick=\"wdeSelEnzymes(this" +
-    ", 185)\"></td><td style=\"text-align:right\">- &nbsp;</td><t" +
-    "d>NotI</td><td>&nbsp;GC^GGCCGC</td></tr>\n<tr><td><input typ" +
-    "e=\"checkbox\" id=\"WDE_20\" onclick=\"wdeSelEnzymes(this, 2" +
-    "0)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>As" +
-    "eI</td><td>&nbsp;AT^TAAT</td><th>&nbsp;&nbsp;&nbsp;</th><td>" +
-    "<input type=\"checkbox\" id=\"WDE_103\" onclick=\"wdeSelEnzy" +
-    "mes(this, 103)\"></td><td style=\"text-align:right\">- &nbsp" +
-    ";</td><td>ClaI</td><td>&nbsp;AT^CGAT</td><th>&nbsp;&nbsp;&nb" +
-    "sp;</th><td><input type=\"checkbox\" id=\"WDE_186\" onclick=" +
-    "\"wdeSelEnzymes(this, 186)\"></td><td style=\"text-align:rig" +
-    "ht\">- &nbsp;</td><td>NruI</td><td>&nbsp;TCG^CGA</td></tr>\n" +
-    "<tr><td><input type=\"checkbox\" id=\"WDE_21\" onclick=\"wde" +
-    "SelEnzymes(this, 21)\"></td><td style=\"text-align:right\">-" +
-    " &nbsp;</td><td>AsiSI</td><td>&nbsp;GCGAT^CGC</td><th>&nbsp;" +
-    "&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_104\"" +
-    " onclick=\"wdeSelEnzymes(this, 104)\"></td><td style=\"text-" +
-    "align:right\">- &nbsp;</td><td>CviAII</td><td>&nbsp;C^ATG</t" +
-    "d><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id" +
-    "=\"WDE_187\" onclick=\"wdeSelEnzymes(this, 187)\"></td><td s" +
-    "tyle=\"text-align:right\">- &nbsp;</td><td>NsiI</td><td>&nbs" +
-    "p;ATGCA^T</td></tr>\n<tr><td><input type=\"checkbox\" id=\"W" +
-    "DE_22\" onclick=\"wdeSelEnzymes(this, 22)\"></td><td style=\"" +
-    "text-align:right\">- &nbsp;</td><td>Asp700I</td><td>&nbsp;GA" +
-    "ANN^NNTTC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"c" +
-    "heckbox\" id=\"WDE_105\" onclick=\"wdeSelEnzymes(this, 105)\"" +
-    "></td><td style=\"text-align:right\">- &nbsp;</td><td>CviQI<" +
-    "/td><td>&nbsp;G^TAC</td><th>&nbsp;&nbsp;&nbsp;</th><td><inpu" +
-    "t type=\"checkbox\" id=\"WDE_188\" onclick=\"wdeSelEnzymes(t" +
-    "his, 188)\"></td><td style=\"text-align:right\">- &nbsp;</td" +
-    "><td>NspI</td><td>&nbsp;RCATG^Y</td></tr>\n<tr><td><input ty" +
-    "pe=\"checkbox\" id=\"WDE_23\" onclick=\"wdeSelEnzymes(this, " +
-    "23)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>A" +
-    "sp718I</td><td>&nbsp;G^GTACC</td><th>&nbsp;&nbsp;&nbsp;</th>" +
-    "<td><input type=\"checkbox\" id=\"WDE_106\" onclick=\"wdeSel" +
-    "Enzymes(this, 106)\"></td><td style=\"text-align:right\">- &" +
-    "nbsp;</td><td>DdeI</td><td>&nbsp;C^TNAG</td><th>&nbsp;&nbsp;" +
-    "&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_189\" oncli" +
-    "ck=\"wdeSelEnzymes(this, 189)\"></td><td style=\"text-align:" +
-    "right\">- &nbsp;</td><td>PacI</td><td>&nbsp;TTAAT^TAA</td></" +
-    "tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_24\" onclick=" +
-    "\"wdeSelEnzymes(this, 24)\"></td><td style=\"text-align:righ" +
-    "t\">- &nbsp;</td><td>AvaI</td><td>&nbsp;C^YCGRG</td><th>&nbs" +
-    "p;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_107" +
-    "\" onclick=\"wdeSelEnzymes(this, 107)\"></td><td style=\"tex" +
-    "t-align:right\">- &nbsp;</td><td>DpnI</td><td>&nbsp;GA^TC</t" +
-    "d><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id" +
-    "=\"WDE_190\" onclick=\"wdeSelEnzymes(this, 190)\"></td><td s" +
-    "tyle=\"text-align:right\">- &nbsp;</td><td>PaeR7I</td><td>&n" +
-    "bsp;C^TCGAG</td></tr>\n<tr><td><input type=\"checkbox\" id=\"" +
-    "WDE_25\" onclick=\"wdeSelEnzymes(this, 25)\"></td><td style=" +
-    "\"text-align:right\">- &nbsp;</td><td>AvaII</td><td>&nbsp;G^" +
-    "GWCC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkb" +
-    "ox\" id=\"WDE_108\" onclick=\"wdeSelEnzymes(this, 108)\"></t" +
-    "d><td style=\"text-align:right\">- &nbsp;</td><td>DpnII</td>" +
-    "<td>&nbsp;^GATC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input ty" +
-    "pe=\"checkbox\" id=\"WDE_191\" onclick=\"wdeSelEnzymes(this," +
-    " 191)\"></td><td style=\"text-align:right\">- &nbsp;</td><td" +
-    ">PciI</td><td>&nbsp;A^CATGT</td></tr>\n<tr><td><input type=\"" +
-    "checkbox\" id=\"WDE_26\" onclick=\"wdeSelEnzymes(this, 26)\"" +
-    "></td><td style=\"text-align:right\">- &nbsp;</td><td>AvrII<" +
-    "/td><td>&nbsp;C^CTAGG</td><th>&nbsp;&nbsp;&nbsp;</th><td><in" +
-    "put type=\"checkbox\" id=\"WDE_109\" onclick=\"wdeSelEnzymes" +
-    "(this, 109)\"></td><td style=\"text-align:right\">- &nbsp;</" +
-    "td><td>DraI</td><td>&nbsp;TTT^AAA</td><th>&nbsp;&nbsp;&nbsp;" +
-    "</th><td><input type=\"checkbox\" id=\"WDE_192\" onclick=\"w" +
-    "deSelEnzymes(this, 192)\"></td><td style=\"text-align:right\"" +
-    ">- &nbsp;</td><td>PflFI</td><td>&nbsp;GACN^NNGTC</td></tr>\n" +
-    "<tr><td><input type=\"checkbox\" id=\"WDE_27\" onclick=\"wde" +
-    "SelEnzymes(this, 27)\"></td><td style=\"text-align:right\">-" +
-    " &nbsp;</td><td>BaeGI</td><td>&nbsp;GKGCM^C</td><th>&nbsp;&n" +
-    "bsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_110\" o" +
-    "nclick=\"wdeSelEnzymes(this, 110)\"></td><td style=\"text-al" +
-    "ign:right\">- &nbsp;</td><td>DraIII</td><td>&nbsp;CACNNN^GTG" +
-    "</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\"" +
-    " id=\"WDE_193\" onclick=\"wdeSelEnzymes(this, 193)\"></td><t" +
-    "d style=\"text-align:right\">- &nbsp;</td><td>PflMI</td><td>" +
-    "&nbsp;CCANNNN^NTGG</td></tr>\n<tr><td><input type=\"checkbox" +
-    "\" id=\"WDE_28\" onclick=\"wdeSelEnzymes(this, 28)\"></td><t" +
-    "d style=\"text-align:right\">- &nbsp;</td><td>BamHI</td><td>" +
-    "&nbsp;G^GATCC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type" +
-    "=\"checkbox\" id=\"WDE_111\" onclick=\"wdeSelEnzymes(this, 1" +
-    "11)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>D" +
-    "rdI</td><td>&nbsp;GACNNNN^NNGTC</td><th>&nbsp;&nbsp;&nbsp;</" +
-    "th><td><input type=\"checkbox\" id=\"WDE_194\" onclick=\"wde" +
-    "SelEnzymes(this, 194)\"></td><td style=\"text-align:right\">" +
-    "- &nbsp;</td><td>PleI</td><td>&nbsp;GAGTC(4/5)</td></tr>\n<t" +
-    "r><td><input type=\"checkbox\" id=\"WDE_29\" onclick=\"wdeSe" +
-    "lEnzymes(this, 29)\"></td><td style=\"text-align:right\">- &" +
-    "nbsp;</td><td>BanI</td><td>&nbsp;G^GYRCC</td><th>&nbsp;&nbsp" +
-    ";&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_112\" oncl" +
-    "ick=\"wdeSelEnzymes(this, 112)\"></td><td style=\"text-align" +
-    ":right\">- &nbsp;</td><td>EaeI</td><td>&nbsp;Y^GGCCR</td><th" +
-    ">&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WD" +
-    "E_195\" onclick=\"wdeSelEnzymes(this, 195)\"></td><td style=" +
-    "\"text-align:right\">- &nbsp;</td><td>PluTI</td><td>&nbsp;GG" +
-    "CGC^C</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_3" +
-    "0\" onclick=\"wdeSelEnzymes(this, 30)\"></td><td style=\"tex" +
-    "t-align:right\">- &nbsp;</td><td>BanII</td><td>&nbsp;GRGCY^C" +
-    "</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\"" +
-    " id=\"WDE_113\" onclick=\"wdeSelEnzymes(this, 113)\"></td><t" +
-    "d style=\"text-align:right\">- &nbsp;</td><td>EagI</td><td>&" +
-    "nbsp;C^GGCCG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=" +
-    "\"checkbox\" id=\"WDE_196\" onclick=\"wdeSelEnzymes(this, 19" +
-    "6)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Pm" +
-    "eI</td><td>&nbsp;GTTT^AAAC</td></tr>\n<tr><td><input type=\"" +
-    "checkbox\" id=\"WDE_31\" onclick=\"wdeSelEnzymes(this, 31)\"" +
-    "></td><td style=\"text-align:right\">- &nbsp;</td><td>BbrPI<" +
-    "/td><td>&nbsp;CAC^GTG</td><th>&nbsp;&nbsp;&nbsp;</th><td><in" +
-    "put type=\"checkbox\" id=\"WDE_114\" onclick=\"wdeSelEnzymes" +
-    "(this, 114)\"></td><td style=\"text-align:right\">- &nbsp;</" +
-    "td><td>EarI</td><td>&nbsp;CTCTTC(1/4)</td><th>&nbsp;&nbsp;&n" +
-    "bsp;</th><td><input type=\"checkbox\" id=\"WDE_197\" onclick" +
-    "=\"wdeSelEnzymes(this, 197)\"></td><td style=\"text-align:ri" +
-    "ght\">- &nbsp;</td><td>PmlI</td><td>&nbsp;CAC^GTG</td></tr>\n" +
-    "<tr><td><input type=\"checkbox\" id=\"WDE_32\" onclick=\"wde" +
-    "SelEnzymes(this, 32)\"></td><td style=\"text-align:right\">-" +
-    " &nbsp;</td><td>BbsI</td><td>&nbsp;GAAGAC(2/6)</td><th>&nbsp" +
-    ";&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_115\"" +
-    " onclick=\"wdeSelEnzymes(this, 115)\"></td><td style=\"text-" +
-    "align:right\">- &nbsp;</td><td>EciI</td><td>&nbsp;GGCGGA(11/" +
-    "9)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox" +
-    "\" id=\"WDE_198\" onclick=\"wdeSelEnzymes(this, 198)\"></td>" +
-    "<td style=\"text-align:right\">- &nbsp;</td><td>PpuMI</td><t" +
-    "d>&nbsp;RG^GWCCY</td></tr>\n<tr><td><input type=\"checkbox\"" +
-    " id=\"WDE_33\" onclick=\"wdeSelEnzymes(this, 33)\"></td><td " +
-    "style=\"text-align:right\">- &nbsp;</td><td>BbvI</td><td>&nb" +
-    "sp;GCAGC(8/12)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input typ" +
-    "e=\"checkbox\" id=\"WDE_116\" onclick=\"wdeSelEnzymes(this, " +
-    "116)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>" +
-    "Eco47III</td><td>&nbsp;AGC^GCT</td><th>&nbsp;&nbsp;&nbsp;</t" +
-    "h><td><input type=\"checkbox\" id=\"WDE_199\" onclick=\"wdeS" +
-    "elEnzymes(this, 199)\"></td><td style=\"text-align:right\">-" +
-    " &nbsp;</td><td>PshAI</td><td>&nbsp;GACNN^NNGTC</td></tr>\n<" +
-    "tr><td><input type=\"checkbox\" id=\"WDE_34\" onclick=\"wdeS" +
-    "elEnzymes(this, 34)\"></td><td style=\"text-align:right\">- " +
-    "&nbsp;</td><td>BbvCI</td><td>&nbsp;CCTCAGC(-5/-2)</td><th>&n" +
-    "bsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_1" +
-    "17\" onclick=\"wdeSelEnzymes(this, 117)\"></td><td style=\"t" +
-    "ext-align:right\">- &nbsp;</td><td>EcoNI</td><td>&nbsp;CCTNN" +
-    "^NNNAGG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"che" +
-    "ckbox\" id=\"WDE_200\" onclick=\"wdeSelEnzymes(this, 200)\">" +
-    "</td><td style=\"text-align:right\">- &nbsp;</td><td>PsiI</t" +
-    "d><td>&nbsp;TTA^TAA</td></tr>\n<tr><td><input type=\"checkbo" +
-    "x\" id=\"WDE_35\" onclick=\"wdeSelEnzymes(this, 35)\"></td><" +
-    "td style=\"text-align:right\">- &nbsp;</td><td>BccI</td><td>" +
-    "&nbsp;CCATC(4/5)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input t" +
-    "ype=\"checkbox\" id=\"WDE_118\" onclick=\"wdeSelEnzymes(this" +
-    ", 118)\"></td><td style=\"text-align:right\">- &nbsp;</td><t" +
-    "d>EcoO109I</td><td>&nbsp;RG^GNCCY</td><th>&nbsp;&nbsp;&nbsp;" +
-    "</th><td><input type=\"checkbox\" id=\"WDE_201\" onclick=\"w" +
-    "deSelEnzymes(this, 201)\"></td><td style=\"text-align:right\"" +
-    ">- &nbsp;</td><td>PspGI</td><td>&nbsp;^CCWGG</td></tr>\n<tr>" +
-    "<td><input type=\"checkbox\" id=\"WDE_36\" onclick=\"wdeSelE" +
-    "nzymes(this, 36)\"></td><td style=\"text-align:right\">- &nb" +
-    "sp;</td><td>BceAI</td><td>&nbsp;ACGGC(12/14)</td><th>&nbsp;&" +
-    "nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_119\" " +
-    "onclick=\"wdeSelEnzymes(this, 119)\"></td><td style=\"text-a" +
-    "lign:right\">- &nbsp;</td><td>EcoP15I</td><td>&nbsp;CAGCAG(2" +
-    "5/27)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"check" +
-    "box\" id=\"WDE_202\" onclick=\"wdeSelEnzymes(this, 202)\"></" +
-    "td><td style=\"text-align:right\">- &nbsp;</td><td>PspOMI</t" +
-    "d><td>&nbsp;G^GGCCC</td></tr>\n<tr><td><input type=\"checkbo" +
-    "x\" id=\"WDE_37\" onclick=\"wdeSelEnzymes(this, 37)\"></td><" +
-    "td style=\"text-align:right\">- &nbsp;</td><td>BciVI</td><td" +
-    ">&nbsp;GTATCC(6/5)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input" +
-    " type=\"checkbox\" id=\"WDE_120\" onclick=\"wdeSelEnzymes(th" +
-    "is, 120)\"></td><td style=\"text-align:right\">- &nbsp;</td>" +
-    "<td>EcoRI</td><td>&nbsp;G^AATTC</td><th>&nbsp;&nbsp;&nbsp;</" +
-    "th><td><input type=\"checkbox\" id=\"WDE_203\" onclick=\"wde" +
-    "SelEnzymes(this, 203)\"></td><td style=\"text-align:right\">" +
-    "- &nbsp;</td><td>PspXI</td><td>&nbsp;VC^TCGAGB</td></tr>\n<t" +
-    "r><td><input type=\"checkbox\" id=\"WDE_38\" onclick=\"wdeSe" +
-    "lEnzymes(this, 38)\"></td><td style=\"text-align:right\">- &" +
-    "nbsp;</td><td>BclI</td><td>&nbsp;T^GATCA</td><th>&nbsp;&nbsp" +
-    ";&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_121\" oncl" +
-    "ick=\"wdeSelEnzymes(this, 121)\"></td><td style=\"text-align" +
-    ":right\">- &nbsp;</td><td>EcoRV</td><td>&nbsp;GAT^ATC</td><t" +
-    "h>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"W" +
-    "DE_204\" onclick=\"wdeSelEnzymes(this, 204)\"></td><td style" +
-    "=\"text-align:right\">- &nbsp;</td><td>PstI</td><td>&nbsp;CT" +
-    "GCA^G</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_3" +
-    "9\" onclick=\"wdeSelEnzymes(this, 39)\"></td><td style=\"tex" +
-    "t-align:right\">- &nbsp;</td><td>BcoDI</td><td>&nbsp;GTCTC(1" +
-    "/5)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbo" +
-    "x\" id=\"WDE_122\" onclick=\"wdeSelEnzymes(this, 122)\"></td" +
-    "><td style=\"text-align:right\">- &nbsp;</td><td>Eco53kI</td" +
-    "><td>&nbsp;GAG^CTC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input" +
-    " type=\"checkbox\" id=\"WDE_205\" onclick=\"wdeSelEnzymes(th" +
-    "is, 205)\"></td><td style=\"text-align:right\">- &nbsp;</td>" +
-    "<td>PvuI</td><td>&nbsp;CGAT^CG</td></tr>\n<tr><td><input typ" +
-    "e=\"checkbox\" id=\"WDE_40\" onclick=\"wdeSelEnzymes(this, 4" +
-    "0)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Bf" +
-    "aI</td><td>&nbsp;C^TAG</td><th>&nbsp;&nbsp;&nbsp;</th><td><i" +
-    "nput type=\"checkbox\" id=\"WDE_123\" onclick=\"wdeSelEnzyme" +
-    "s(this, 123)\"></td><td style=\"text-align:right\">- &nbsp;<" +
-    "/td><td>FatI</td><td>&nbsp;^CATG</td><th>&nbsp;&nbsp;&nbsp;<" +
-    "/th><td><input type=\"checkbox\" id=\"WDE_206\" onclick=\"wd" +
-    "eSelEnzymes(this, 206)\"></td><td style=\"text-align:right\"" +
-    ">- &nbsp;</td><td>PvuII</td><td>&nbsp;CAG^CTG</td></tr>\n<tr" +
-    "><td><input type=\"checkbox\" id=\"WDE_41\" onclick=\"wdeSel" +
-    "Enzymes(this, 41)\"></td><td style=\"text-align:right\">- &n" +
-    "bsp;</td><td>BfrI</td><td>&nbsp;C^TTAAG</td><th>&nbsp;&nbsp;" +
-    "&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_124\" oncli" +
-    "ck=\"wdeSelEnzymes(this, 124)\"></td><td style=\"text-align:" +
-    "right\">- &nbsp;</td><td>FauI</td><td>&nbsp;CCCGC(4/6)</td><" +
-    "th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"" +
-    "WDE_207\" onclick=\"wdeSelEnzymes(this, 207)\"></td><td styl" +
-    "e=\"text-align:right\">- &nbsp;</td><td>RsaI</td><td>&nbsp;G" +
-    "T^AC</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_42" +
-    "\" onclick=\"wdeSelEnzymes(this, 42)\"></td><td style=\"text" +
-    "-align:right\">- &nbsp;</td><td>BfuAI</td><td>&nbsp;ACCTGC(4" +
-    "/8)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbo" +
-    "x\" id=\"WDE_125\" onclick=\"wdeSelEnzymes(this, 125)\"></td" +
-    "><td style=\"text-align:right\">- &nbsp;</td><td>Fnu4HI</td>" +
-    "<td>&nbsp;GC^NGC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input t" +
-    "ype=\"checkbox\" id=\"WDE_208\" onclick=\"wdeSelEnzymes(this" +
-    ", 208)\"></td><td style=\"text-align:right\">- &nbsp;</td><t" +
-    "d>RsrII</td><td>&nbsp;CG^GWCCG</td></tr>\n<tr><td><input typ" +
-    "e=\"checkbox\" id=\"WDE_43\" onclick=\"wdeSelEnzymes(this, 4" +
-    "3)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Bf" +
-    "uCI</td><td>&nbsp;^GATC</td><th>&nbsp;&nbsp;&nbsp;</th><td><" +
-    "input type=\"checkbox\" id=\"WDE_126\" onclick=\"wdeSelEnzym" +
-    "es(this, 126)\"></td><td style=\"text-align:right\">- &nbsp;" +
-    "</td><td>FokI</td><td>&nbsp;GGATG(9/13)</td><th>&nbsp;&nbsp;" +
-    "&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_209\" oncli" +
-    "ck=\"wdeSelEnzymes(this, 209)\"></td><td style=\"text-align:" +
-    "right\">- &nbsp;</td><td>SacI</td><td>&nbsp;GAGCT^C</td></tr" +
-    ">\n<tr><td><input type=\"checkbox\" id=\"WDE_44\" onclick=\"" +
-    "wdeSelEnzymes(this, 44)\"></td><td style=\"text-align:right\"" +
-    ">- &nbsp;</td><td>BglI</td><td>&nbsp;GCCNNNN^NGGC</td><th>&n" +
-    "bsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_1" +
-    "27\" onclick=\"wdeSelEnzymes(this, 127)\"></td><td style=\"t" +
-    "ext-align:right\">- &nbsp;</td><td>FseI</td><td>&nbsp;GGCCGG" +
-    "^CC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbo" +
-    "x\" id=\"WDE_210\" onclick=\"wdeSelEnzymes(this, 210)\"></td" +
-    "><td style=\"text-align:right\">- &nbsp;</td><td>SacII</td><" +
-    "td>&nbsp;CCGC^GG</td></tr>\n<tr><td><input type=\"checkbox\"" +
-    " id=\"WDE_45\" onclick=\"wdeSelEnzymes(this, 45)\"></td><td " +
-    "style=\"text-align:right\">- &nbsp;</td><td>BglII</td><td>&n" +
-    "bsp;A^GATCT</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"" +
-    "checkbox\" id=\"WDE_128\" onclick=\"wdeSelEnzymes(this, 128)" +
-    "\"></td><td style=\"text-align:right\">- &nbsp;</td><td>FspI" +
-    "</td><td>&nbsp;TGC^GCA</td><th>&nbsp;&nbsp;&nbsp;</th><td><i" +
-    "nput type=\"checkbox\" id=\"WDE_211\" onclick=\"wdeSelEnzyme" +
-    "s(this, 211)\"></td><td style=\"text-align:right\">- &nbsp;<" +
-    "/td><td>SalI</td><td>&nbsp;G^TCGAC</td></tr>\n<tr><td><input" +
-    " type=\"checkbox\" id=\"WDE_46\" onclick=\"wdeSelEnzymes(thi" +
-    "s, 46)\"></td><td style=\"text-align:right\">- &nbsp;</td><t" +
-    "d>BlnI</td><td>&nbsp;C^CTAGG</td><th>&nbsp;&nbsp;&nbsp;</th>" +
-    "<td><input type=\"checkbox\" id=\"WDE_129\" onclick=\"wdeSel" +
-    "Enzymes(this, 129)\"></td><td style=\"text-align:right\">- &" +
-    "nbsp;</td><td>HaeII</td><td>&nbsp;RGCGC^Y</td><th>&nbsp;&nbs" +
-    "p;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_212\" onc" +
-    "lick=\"wdeSelEnzymes(this, 212)\"></td><td style=\"text-alig" +
-    "n:right\">- &nbsp;</td><td>SapI</td><td>&nbsp;GCTCTTC(1/4)</" +
-    "td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_47\" onc" +
-    "lick=\"wdeSelEnzymes(this, 47)\"></td><td style=\"text-align" +
-    ":right\">- &nbsp;</td><td>BlpI</td><td>&nbsp;GC^TNAGC</td><t" +
-    "h>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"W" +
-    "DE_130\" onclick=\"wdeSelEnzymes(this, 130)\"></td><td style" +
-    "=\"text-align:right\">- &nbsp;</td><td>HaeIII</td><td>&nbsp;" +
-    "GG^CC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"check" +
-    "box\" id=\"WDE_213\" onclick=\"wdeSelEnzymes(this, 213)\"></" +
-    "td><td style=\"text-align:right\">- &nbsp;</td><td>Sau96I</t" +
-    "d><td>&nbsp;G^GNCC</td></tr>\n<tr><td><input type=\"checkbox" +
-    "\" id=\"WDE_48\" onclick=\"wdeSelEnzymes(this, 48)\"></td><t" +
-    "d style=\"text-align:right\">- &nbsp;</td><td>BmgBI</td><td>" +
-    "&nbsp;CACGTC(-3/-3)</td><th>&nbsp;&nbsp;&nbsp;</th><td><inpu" +
-    "t type=\"checkbox\" id=\"WDE_131\" onclick=\"wdeSelEnzymes(t" +
-    "his, 131)\"></td><td style=\"text-align:right\">- &nbsp;</td" +
-    "><td>HgaI</td><td>&nbsp;GACGC(5/10)</td><th>&nbsp;&nbsp;&nbs" +
-    "p;</th><td><input type=\"checkbox\" id=\"WDE_214\" onclick=\"" +
-    "wdeSelEnzymes(this, 214)\"></td><td style=\"text-align:right" +
-    "\">- &nbsp;</td><td>Sau3AI</td><td>&nbsp;^GATC</td></tr>\n<t" +
-    "r><td><input type=\"checkbox\" id=\"WDE_49\" onclick=\"wdeSe" +
-    "lEnzymes(this, 49)\"></td><td style=\"text-align:right\">- &" +
-    "nbsp;</td><td>BmrI</td><td>&nbsp;ACTGGG(5/4)</td><th>&nbsp;&" +
-    "nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_132\" " +
-    "onclick=\"wdeSelEnzymes(this, 132)\"></td><td style=\"text-a" +
-    "lign:right\">- &nbsp;</td><td>HhaI</td><td>&nbsp;GCG^C</td><" +
-    "th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"" +
-    "WDE_215\" onclick=\"wdeSelEnzymes(this, 215)\"></td><td styl" +
-    "e=\"text-align:right\">- &nbsp;</td><td>SbfI</td><td>&nbsp;C" +
-    "CTGCA^GG</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WD" +
-    "E_50\" onclick=\"wdeSelEnzymes(this, 50)\"></td><td style=\"" +
-    "text-align:right\">- &nbsp;</td><td>BmtI</td><td>&nbsp;GCTAG" +
-    "^C</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox" +
-    "\" id=\"WDE_133\" onclick=\"wdeSelEnzymes(this, 133)\"></td>" +
-    "<td style=\"text-align:right\">- &nbsp;</td><td>HinP1I</td><" +
-    "td>&nbsp;G^CGC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input typ" +
-    "e=\"checkbox\" id=\"WDE_216\" onclick=\"wdeSelEnzymes(this, " +
-    "216)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>" +
-    "ScaI</td><td>&nbsp;AGT^ACT</td></tr>\n<tr><td><input type=\"" +
-    "checkbox\" id=\"WDE_51\" onclick=\"wdeSelEnzymes(this, 51)\"" +
-    "></td><td style=\"text-align:right\">- &nbsp;</td><td>BpmI</" +
-    "td><td>&nbsp;CTGGAG(16/14)</td><th>&nbsp;&nbsp;&nbsp;</th><t" +
-    "d><input type=\"checkbox\" id=\"WDE_134\" onclick=\"wdeSelEn" +
-    "zymes(this, 134)\"></td><td style=\"text-align:right\">- &nb" +
-    "sp;</td><td>HincII</td><td>&nbsp;GTY^RAC</td><th>&nbsp;&nbsp" +
-    ";&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_217\" oncl" +
-    "ick=\"wdeSelEnzymes(this, 217)\"></td><td style=\"text-align" +
-    ":right\">- &nbsp;</td><td>ScrFI</td><td>&nbsp;CC^NGG</td></t" +
-    "r>\n<tr><td><input type=\"checkbox\" id=\"WDE_52\" onclick=\"" +
-    "wdeSelEnzymes(this, 52)\"></td><td style=\"text-align:right\"" +
-    ">- &nbsp;</td><td>Bpu10I</td><td>&nbsp;CCTNAGC(-5/-2)</td><t" +
-    "h>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"W" +
-    "DE_135\" onclick=\"wdeSelEnzymes(this, 135)\"></td><td style" +
-    "=\"text-align:right\">- &nbsp;</td><td>HindII</td><td>&nbsp;" +
-    "GTY^RAC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"che" +
-    "ckbox\" id=\"WDE_218\" onclick=\"wdeSelEnzymes(this, 218)\">" +
-    "</td><td style=\"text-align:right\">- &nbsp;</td><td>SexAI</" +
-    "td><td>&nbsp;A^CCWGGT</td></tr>\n<tr><td><input type=\"check" +
-    "box\" id=\"WDE_53\" onclick=\"wdeSelEnzymes(this, 53)\"></td" +
-    "><td style=\"text-align:right\">- &nbsp;</td><td>BpuEI</td><" +
-    "td>&nbsp;CTTGAG(16/14)</td><th>&nbsp;&nbsp;&nbsp;</th><td><i" +
-    "nput type=\"checkbox\" id=\"WDE_136\" onclick=\"wdeSelEnzyme" +
-    "s(this, 136)\"></td><td style=\"text-align:right\">- &nbsp;<" +
-    "/td><td>HindIII</td><td>&nbsp;A^AGCTT</td><th>&nbsp;&nbsp;&n" +
-    "bsp;</th><td><input type=\"checkbox\" id=\"WDE_219\" onclick" +
-    "=\"wdeSelEnzymes(this, 219)\"></td><td style=\"text-align:ri" +
-    "ght\">- &nbsp;</td><td>SfaNI</td><td>&nbsp;GCATC(5/9)</td></" +
-    "tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_54\" onclick=" +
-    "\"wdeSelEnzymes(this, 54)\"></td><td style=\"text-align:righ" +
-    "t\">- &nbsp;</td><td>BsaI</td><td>&nbsp;GGTCTC(1/5)</td><th>" +
-    "&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE" +
-    "_137\" onclick=\"wdeSelEnzymes(this, 137)\"></td><td style=\"" +
-    "text-align:right\">- &nbsp;</td><td>HinfI</td><td>&nbsp;G^AN" +
-    "TC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox" +
-    "\" id=\"WDE_220\" onclick=\"wdeSelEnzymes(this, 220)\"></td>" +
-    "<td style=\"text-align:right\">- &nbsp;</td><td>SfcI</td><td" +
-    ">&nbsp;C^TRYAG</td></tr>\n<tr><td><input type=\"checkbox\" i" +
-    "d=\"WDE_55\" onclick=\"wdeSelEnzymes(this, 55)\"></td><td st" +
-    "yle=\"text-align:right\">- &nbsp;</td><td>BsaAI</td><td>&nbs" +
-    "p;YAC^GTR</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"c" +
-    "heckbox\" id=\"WDE_138\" onclick=\"wdeSelEnzymes(this, 138)\"" +
-    "></td><td style=\"text-align:right\">- &nbsp;</td><td>HpaI</" +
-    "td><td>&nbsp;GTT^AAC</td><th>&nbsp;&nbsp;&nbsp;</th><td><inp" +
-    "ut type=\"checkbox\" id=\"WDE_221\" onclick=\"wdeSelEnzymes(" +
-    "this, 221)\"></td><td style=\"text-align:right\">- &nbsp;</t" +
-    "d><td>SfoI</td><td>&nbsp;GGC^GCC</td></tr>\n<tr><td><input t" +
-    "ype=\"checkbox\" id=\"WDE_56\" onclick=\"wdeSelEnzymes(this," +
-    " 56)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>" +
-    "BsaBI</td><td>&nbsp;GATNN^NNATC</td><th>&nbsp;&nbsp;&nbsp;</" +
-    "th><td><input type=\"checkbox\" id=\"WDE_139\" onclick=\"wde" +
-    "SelEnzymes(this, 139)\"></td><td style=\"text-align:right\">" +
-    "- &nbsp;</td><td>HpaII</td><td>&nbsp;C^CGG</td><th>&nbsp;&nb" +
-    "sp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_222\" on" +
-    "click=\"wdeSelEnzymes(this, 222)\"></td><td style=\"text-ali" +
-    "gn:right\">- &nbsp;</td><td>SfuI</td><td>&nbsp;TT^CGAA</td><" +
-    "/tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_57\" onclick" +
-    "=\"wdeSelEnzymes(this, 57)\"></td><td style=\"text-align:rig" +
-    "ht\">- &nbsp;</td><td>BsaHI</td><td>&nbsp;GR^CGYC</td><th>&n" +
-    "bsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_1" +
-    "40\" onclick=\"wdeSelEnzymes(this, 140)\"></td><td style=\"t" +
-    "ext-align:right\">- &nbsp;</td><td>HphI</td><td>&nbsp;GGTGA(" +
-    "8/7)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkb" +
-    "ox\" id=\"WDE_223\" onclick=\"wdeSelEnzymes(this, 223)\"></t" +
-    "d><td style=\"text-align:right\">- &nbsp;</td><td>SgrAI</td>" +
-    "<td>&nbsp;CR^CCGGYG</td></tr>\n<tr><td><input type=\"checkbo" +
-    "x\" id=\"WDE_58\" onclick=\"wdeSelEnzymes(this, 58)\"></td><" +
-    "td style=\"text-align:right\">- &nbsp;</td><td>BsaJI</td><td" +
-    ">&nbsp;C^CNNGG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input typ" +
-    "e=\"checkbox\" id=\"WDE_141\" onclick=\"wdeSelEnzymes(this, " +
-    "141)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>" +
-    "Hpy99I</td><td>&nbsp;CGWCG^</td><th>&nbsp;&nbsp;&nbsp;</th><" +
-    "td><input type=\"checkbox\" id=\"WDE_224\" onclick=\"wdeSelE" +
-    "nzymes(this, 224)\"></td><td style=\"text-align:right\">- &n" +
-    "bsp;</td><td>SmaI</td><td>&nbsp;CCC^GGG</td></tr>\n<tr><td><" +
-    "input type=\"checkbox\" id=\"WDE_59\" onclick=\"wdeSelEnzyme" +
-    "s(this, 59)\"></td><td style=\"text-align:right\">- &nbsp;</" +
-    "td><td>BsaWI</td><td>&nbsp;W^CCGGW</td><th>&nbsp;&nbsp;&nbsp" +
-    ";</th><td><input type=\"checkbox\" id=\"WDE_142\" onclick=\"" +
-    "wdeSelEnzymes(this, 142)\"></td><td style=\"text-align:right" +
-    "\">- &nbsp;</td><td>Hpy166II</td><td>&nbsp;GTN^NAC</td><th>&" +
-    "nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_" +
-    "225\" onclick=\"wdeSelEnzymes(this, 225)\"></td><td style=\"" +
-    "text-align:right\">- &nbsp;</td><td>SmlI</td><td>&nbsp;C^TYR" +
-    "AG</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_60\"" +
-    " onclick=\"wdeSelEnzymes(this, 60)\"></td><td style=\"text-a" +
-    "lign:right\">- &nbsp;</td><td>BsaXI</td><td>&nbsp;(9/12)ACNN" +
-    "NNNCTCC(10/7)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type" +
-    "=\"checkbox\" id=\"WDE_143\" onclick=\"wdeSelEnzymes(this, 1" +
-    "43)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>H" +
-    "py188I</td><td>&nbsp;TCN^GA</td><th>&nbsp;&nbsp;&nbsp;</th><" +
-    "td><input type=\"checkbox\" id=\"WDE_226\" onclick=\"wdeSelE" +
-    "nzymes(this, 226)\"></td><td style=\"text-align:right\">- &n" +
-    "bsp;</td><td>SnaBI</td><td>&nbsp;TAC^GTA</td></tr>\n<tr><td>" +
-    "<input type=\"checkbox\" id=\"WDE_61\" onclick=\"wdeSelEnzym" +
-    "es(this, 61)\"></td><td style=\"text-align:right\">- &nbsp;<" +
-    "/td><td>BseRI</td><td>&nbsp;GAGGAG(10/8)</td><th>&nbsp;&nbsp" +
-    ";&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_144\" oncl" +
-    "ick=\"wdeSelEnzymes(this, 144)\"></td><td style=\"text-align" +
-    ":right\">- &nbsp;</td><td>Hpy188III</td><td>&nbsp;TC^NNGA</t" +
-    "d><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id" +
-    "=\"WDE_227\" onclick=\"wdeSelEnzymes(this, 227)\"></td><td s" +
-    "tyle=\"text-align:right\">- &nbsp;</td><td>SpeI</td><td>&nbs" +
-    "p;A^CTAGT</td></tr>\n<tr><td><input type=\"checkbox\" id=\"W" +
-    "DE_62\" onclick=\"wdeSelEnzymes(this, 62)\"></td><td style=\"" +
-    "text-align:right\">- &nbsp;</td><td>BseYI</td><td>&nbsp;CCCA" +
-    "GC(-5/-1)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"c" +
-    "heckbox\" id=\"WDE_145\" onclick=\"wdeSelEnzymes(this, 145)\"" +
-    "></td><td style=\"text-align:right\">- &nbsp;</td><td>HpyAV<" +
-    "/td><td>&nbsp;CCTTC(6/5)</td><th>&nbsp;&nbsp;&nbsp;</th><td>" +
-    "<input type=\"checkbox\" id=\"WDE_228\" onclick=\"wdeSelEnzy" +
-    "mes(this, 228)\"></td><td style=\"text-align:right\">- &nbsp" +
-    ";</td><td>SphI</td><td>&nbsp;GCATG^C</td></tr>\n<tr><td><inp" +
-    "ut type=\"checkbox\" id=\"WDE_63\" onclick=\"wdeSelEnzymes(t" +
-    "his, 63)\"></td><td style=\"text-align:right\">- &nbsp;</td>" +
-    "<td>BsgI</td><td>&nbsp;GTGCAG(16/14)</td><th>&nbsp;&nbsp;&nb" +
-    "sp;</th><td><input type=\"checkbox\" id=\"WDE_146\" onclick=" +
-    "\"wdeSelEnzymes(this, 146)\"></td><td style=\"text-align:rig" +
-    "ht\">- &nbsp;</td><td>HpyCH4III</td><td>&nbsp;ACN^GT</td><th" +
-    ">&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WD" +
-    "E_229\" onclick=\"wdeSelEnzymes(this, 229)\"></td><td style=" +
-    "\"text-align:right\">- &nbsp;</td><td>SrfI</td><td>&nbsp;GCC" +
-    "C^GGGC</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_" +
-    "64\" onclick=\"wdeSelEnzymes(this, 64)\"></td><td style=\"te" +
-    "xt-align:right\">- &nbsp;</td><td>BsiEI</td><td>&nbsp;CGRY^C" +
-    "G</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\"" +
-    " id=\"WDE_147\" onclick=\"wdeSelEnzymes(this, 147)\"></td><t" +
-    "d style=\"text-align:right\">- &nbsp;</td><td>HpyCH4IV</td><" +
-    "td>&nbsp;A^CGT</td><th>&nbsp;&nbsp;&nbsp;</th><td><input typ" +
-    "e=\"checkbox\" id=\"WDE_230\" onclick=\"wdeSelEnzymes(this, " +
-    "230)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>" +
-    "SspI</td><td>&nbsp;AAT^ATT</td></tr>\n<tr><td><input type=\"" +
-    "checkbox\" id=\"WDE_65\" onclick=\"wdeSelEnzymes(this, 65)\"" +
-    "></td><td style=\"text-align:right\">- &nbsp;</td><td>BsiHKA" +
-    "I</td><td>&nbsp;GWGCW^C</td><th>&nbsp;&nbsp;&nbsp;</th><td><" +
-    "input type=\"checkbox\" id=\"WDE_148\" onclick=\"wdeSelEnzym" +
-    "es(this, 148)\"></td><td style=\"text-align:right\">- &nbsp;" +
-    "</td><td>HpyCH4V</td><td>&nbsp;TG^CA</td><th>&nbsp;&nbsp;&nb" +
-    "sp;</th><td><input type=\"checkbox\" id=\"WDE_231\" onclick=" +
-    "\"wdeSelEnzymes(this, 231)\"></td><td style=\"text-align:rig" +
-    "ht\">- &nbsp;</td><td>StuI</td><td>&nbsp;AGG^CCT</td></tr>\n" +
-    "<tr><td><input type=\"checkbox\" id=\"WDE_66\" onclick=\"wde" +
-    "SelEnzymes(this, 66)\"></td><td style=\"text-align:right\">-" +
-    " &nbsp;</td><td>BsiWI</td><td>&nbsp;C^GTACG</td><th>&nbsp;&n" +
-    "bsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_149\" o" +
-    "nclick=\"wdeSelEnzymes(this, 149)\"></td><td style=\"text-al" +
-    "ign:right\">- &nbsp;</td><td>KasI</td><td>&nbsp;G^GCGCC</td>" +
-    "<th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"" +
-    "WDE_232\" onclick=\"wdeSelEnzymes(this, 232)\"></td><td styl" +
-    "e=\"text-align:right\">- &nbsp;</td><td>StyI</td><td>&nbsp;C" +
-    "^CWWGG</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_" +
-    "67\" onclick=\"wdeSelEnzymes(this, 67)\"></td><td style=\"te" +
-    "xt-align:right\">- &nbsp;</td><td>BslI</td><td>&nbsp;CCNNNNN" +
-    "^NNGG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"check" +
-    "box\" id=\"WDE_150\" onclick=\"wdeSelEnzymes(this, 150)\"></" +
-    "td><td style=\"text-align:right\">- &nbsp;</td><td>KpnI</td>" +
-    "<td>&nbsp;GGTAC^C</td><th>&nbsp;&nbsp;&nbsp;</th><td><input " +
-    "type=\"checkbox\" id=\"WDE_233\" onclick=\"wdeSelEnzymes(thi" +
-    "s, 233)\"></td><td style=\"text-align:right\">- &nbsp;</td><" +
-    "td>StyD4I</td><td>&nbsp;^CCNGG</td></tr>\n<tr><td><input typ" +
-    "e=\"checkbox\" id=\"WDE_68\" onclick=\"wdeSelEnzymes(this, 6" +
-    "8)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Bs" +
-    "mI</td><td>&nbsp;GAATGC(1/-1)</td><th>&nbsp;&nbsp;&nbsp;</th" +
-    "><td><input type=\"checkbox\" id=\"WDE_151\" onclick=\"wdeSe" +
-    "lEnzymes(this, 151)\"></td><td style=\"text-align:right\">- " +
-    "&nbsp;</td><td>KspI</td><td>&nbsp;CCGC^GG</td><th>&nbsp;&nbs" +
-    "p;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_234\" onc" +
-    "lick=\"wdeSelEnzymes(this, 234)\"></td><td style=\"text-alig" +
-    "n:right\">- &nbsp;</td><td>SwaI</td><td>&nbsp;ATTT^AAAT</td>" +
-    "</tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_69\" onclic" +
-    "k=\"wdeSelEnzymes(this, 69)\"></td><td style=\"text-align:ri" +
-    "ght\">- &nbsp;</td><td>BsmAI</td><td>&nbsp;GTCTC(1/5)</td><t" +
-    "h>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"W" +
-    "DE_152\" onclick=\"wdeSelEnzymes(this, 152)\"></td><td style" +
-    "=\"text-align:right\">- &nbsp;</td><td>MaeI</td><td>&nbsp;C^" +
-    "TAG</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbo" +
-    "x\" id=\"WDE_235\" onclick=\"wdeSelEnzymes(this, 235)\"></td" +
-    "><td style=\"text-align:right\">- &nbsp;</td><td>TaqI</td><t" +
-    "d>&nbsp;T^CGA</td></tr>\n<tr><td><input type=\"checkbox\" id" +
-    "=\"WDE_70\" onclick=\"wdeSelEnzymes(this, 70)\"></td><td sty" +
-    "le=\"text-align:right\">- &nbsp;</td><td>BsmBI</td><td>&nbsp" +
-    ";CGTCTC(1/5)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=" +
-    "\"checkbox\" id=\"WDE_153\" onclick=\"wdeSelEnzymes(this, 15" +
-    "3)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Ma" +
-    "eII</td><td>&nbsp;A^CGT</td><th>&nbsp;&nbsp;&nbsp;</th><td><" +
-    "input type=\"checkbox\" id=\"WDE_236\" onclick=\"wdeSelEnzym" +
-    "es(this, 236)\"></td><td style=\"text-align:right\">- &nbsp;" +
-    "</td><td>TfiI</td><td>&nbsp;G^AWTC</td></tr>\n<tr><td><input" +
-    " type=\"checkbox\" id=\"WDE_71\" onclick=\"wdeSelEnzymes(thi" +
-    "s, 71)\"></td><td style=\"text-align:right\">- &nbsp;</td><t" +
-    "d>BsmFI</td><td>&nbsp;GGGAC(10/14)</td><th>&nbsp;&nbsp;&nbsp" +
-    ";</th><td><input type=\"checkbox\" id=\"WDE_154\" onclick=\"" +
-    "wdeSelEnzymes(this, 154)\"></td><td style=\"text-align:right" +
-    "\">- &nbsp;</td><td>MaeIII</td><td>&nbsp;^GTNAC</td><th>&nbs" +
-    "p;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_237" +
-    "\" onclick=\"wdeSelEnzymes(this, 237)\"></td><td style=\"tex" +
-    "t-align:right\">- &nbsp;</td><td>Tru9I</td><td>&nbsp;T^TAA</" +
-    "td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_72\" onc" +
-    "lick=\"wdeSelEnzymes(this, 72)\"></td><td style=\"text-align" +
-    ":right\">- &nbsp;</td><td>BsoBI</td><td>&nbsp;C^YCGRG</td><t" +
-    "h>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"W" +
-    "DE_155\" onclick=\"wdeSelEnzymes(this, 155)\"></td><td style" +
-    "=\"text-align:right\">- &nbsp;</td><td>MboI</td><td>&nbsp;^G" +
-    "ATC</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbo" +
-    "x\" id=\"WDE_238\" onclick=\"wdeSelEnzymes(this, 238)\"></td" +
-    "><td style=\"text-align:right\">- &nbsp;</td><td>TseI</td><t" +
-    "d>&nbsp;G^CWGC</td></tr>\n<tr><td><input type=\"checkbox\" i" +
-    "d=\"WDE_73\" onclick=\"wdeSelEnzymes(this, 73)\"></td><td st" +
-    "yle=\"text-align:right\">- &nbsp;</td><td>Bsp1286I</td><td>&" +
-    "nbsp;GDGCH^C</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=" +
-    "\"checkbox\" id=\"WDE_156\" onclick=\"wdeSelEnzymes(this, 15" +
-    "6)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Mb" +
-    "oII</td><td>&nbsp;GAAGA(8/7)</td><th>&nbsp;&nbsp;&nbsp;</th>" +
-    "<td><input type=\"checkbox\" id=\"WDE_239\" onclick=\"wdeSel" +
-    "Enzymes(this, 239)\"></td><td style=\"text-align:right\">- &" +
-    "nbsp;</td><td>Tsp45I</td><td>&nbsp;^GTSAC</td></tr>\n<tr><td" +
-    "><input type=\"checkbox\" id=\"WDE_74\" onclick=\"wdeSelEnzy" +
-    "mes(this, 74)\"></td><td style=\"text-align:right\">- &nbsp;" +
-    "</td><td>BspCNI</td><td>&nbsp;CTCAG(9/7)</td><th>&nbsp;&nbsp" +
-    ";&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_157\" oncl" +
-    "ick=\"wdeSelEnzymes(this, 157)\"></td><td style=\"text-align" +
-    ":right\">- &nbsp;</td><td>MfeI</td><td>&nbsp;C^AATTG</td><th" +
-    ">&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WD" +
-    "E_240\" onclick=\"wdeSelEnzymes(this, 240)\"></td><td style=" +
-    "\"text-align:right\">- &nbsp;</td><td>TspMI</td><td>&nbsp;C^" +
-    "CCGGG</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_7" +
-    "5\" onclick=\"wdeSelEnzymes(this, 75)\"></td><td style=\"tex" +
-    "t-align:right\">- &nbsp;</td><td>BspDI</td><td>&nbsp;AT^CGAT" +
-    "</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\"" +
-    " id=\"WDE_158\" onclick=\"wdeSelEnzymes(this, 158)\"></td><t" +
-    "d style=\"text-align:right\">- &nbsp;</td><td>MluI</td><td>&" +
-    "nbsp;A^CGCGT</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=" +
-    "\"checkbox\" id=\"WDE_241\" onclick=\"wdeSelEnzymes(this, 24" +
-    "1)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>Ts" +
-    "pRI</td><td>&nbsp;CASTGNN^</td></tr>\n<tr><td><input type=\"" +
-    "checkbox\" id=\"WDE_76\" onclick=\"wdeSelEnzymes(this, 76)\"" +
-    "></td><td style=\"text-align:right\">- &nbsp;</td><td>BspEI<" +
-    "/td><td>&nbsp;T^CCGGA</td><th>&nbsp;&nbsp;&nbsp;</th><td><in" +
-    "put type=\"checkbox\" id=\"WDE_159\" onclick=\"wdeSelEnzymes" +
-    "(this, 159)\"></td><td style=\"text-align:right\">- &nbsp;</" +
-    "td><td>MluCI</td><td>&nbsp;^AATT</td><th>&nbsp;&nbsp;&nbsp;<" +
-    "/th><td><input type=\"checkbox\" id=\"WDE_242\" onclick=\"wd" +
-    "eSelEnzymes(this, 242)\"></td><td style=\"text-align:right\"" +
-    ">- &nbsp;</td><td>Tth111I</td><td>&nbsp;GACN^NNGTC</td></tr>" +
-    "\n<tr><td><input type=\"checkbox\" id=\"WDE_77\" onclick=\"w" +
-    "deSelEnzymes(this, 77)\"></td><td style=\"text-align:right\"" +
-    ">- &nbsp;</td><td>BspHI</td><td>&nbsp;T^CATGA</td><th>&nbsp;" +
-    "&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_160\"" +
-    " onclick=\"wdeSelEnzymes(this, 160)\"></td><td style=\"text-" +
-    "align:right\">- &nbsp;</td><td>MluNI</td><td>&nbsp;TGG^CCA</" +
-    "td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" i" +
-    "d=\"WDE_243\" onclick=\"wdeSelEnzymes(this, 243)\"></td><td " +
-    "style=\"text-align:right\">- &nbsp;</td><td>XbaI</td><td>&nb" +
-    "sp;T^CTAGA</td></tr>\n<tr><td><input type=\"checkbox\" id=\"" +
-    "WDE_78\" onclick=\"wdeSelEnzymes(this, 78)\"></td><td style=" +
-    "\"text-align:right\">- &nbsp;</td><td>BspMI</td><td>&nbsp;AC" +
-    "CTGC(4/8)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"c" +
-    "heckbox\" id=\"WDE_161\" onclick=\"wdeSelEnzymes(this, 161)\"" +
-    "></td><td style=\"text-align:right\">- &nbsp;</td><td>MlyI</" +
-    "td><td>&nbsp;GAGTC(5/5)</td><th>&nbsp;&nbsp;&nbsp;</th><td><" +
-    "input type=\"checkbox\" id=\"WDE_244\" onclick=\"wdeSelEnzym" +
-    "es(this, 244)\"></td><td style=\"text-align:right\">- &nbsp;" +
-    "</td><td>XhoI</td><td>&nbsp;C^TCGAG</td></tr>\n<tr><td><inpu" +
-    "t type=\"checkbox\" id=\"WDE_79\" onclick=\"wdeSelEnzymes(th" +
-    "is, 79)\"></td><td style=\"text-align:right\">- &nbsp;</td><" +
-    "td>BspQI</td><td>&nbsp;GCTCTTC(1/4)</td><th>&nbsp;&nbsp;&nbs" +
-    "p;</th><td><input type=\"checkbox\" id=\"WDE_162\" onclick=\"" +
-    "wdeSelEnzymes(this, 162)\"></td><td style=\"text-align:right" +
-    "\">- &nbsp;</td><td>MmeI</td><td>&nbsp;TCCRAC(20/18)</td><th" +
-    ">&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WD" +
-    "E_245\" onclick=\"wdeSelEnzymes(this, 245)\"></td><td style=" +
-    "\"text-align:right\">- &nbsp;</td><td>XmaI</td><td>&nbsp;C^C" +
-    "CGGG</td></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_80" +
-    "\" onclick=\"wdeSelEnzymes(this, 80)\"></td><td style=\"text" +
-    "-align:right\">- &nbsp;</td><td>BsrI</td><td>&nbsp;ACTGG(1/-" +
-    "1)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox" +
-    "\" id=\"WDE_163\" onclick=\"wdeSelEnzymes(this, 163)\"></td>" +
-    "<td style=\"text-align:right\">- &nbsp;</td><td>MnlI</td><td" +
-    ">&nbsp;CCTC(7/6)</td><th>&nbsp;&nbsp;&nbsp;</th><td><input t" +
-    "ype=\"checkbox\" id=\"WDE_246\" onclick=\"wdeSelEnzymes(this" +
-    ", 246)\"></td><td style=\"text-align:right\">- &nbsp;</td><t" +
-    "d>XmnI</td><td>&nbsp;GAANN^NNTTC</td></tr>\n<tr><td><input t" +
-    "ype=\"checkbox\" id=\"WDE_81\" onclick=\"wdeSelEnzymes(this," +
-    " 81)\"></td><td style=\"text-align:right\">- &nbsp;</td><td>" +
-    "BsrBI</td><td>&nbsp;CCGCTC(-3/-3)</td><th>&nbsp;&nbsp;&nbsp;" +
-    "</th><td><input type=\"checkbox\" id=\"WDE_164\" onclick=\"w" +
-    "deSelEnzymes(this, 164)\"></td><td style=\"text-align:right\"" +
-    ">- &nbsp;</td><td>MroI</td><td>&nbsp;T^CCGGA</td><th>&nbsp;&" +
-    "nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"WDE_247\" " +
-    "onclick=\"wdeSelEnzymes(this, 247)\"></td><td style=\"text-a" +
-    "lign:right\">- &nbsp;</td><td>ZraI</td><td>&nbsp;GAC^GTC</td" +
-    "></tr>\n<tr><td><input type=\"checkbox\" id=\"WDE_82\" oncli" +
-    "ck=\"wdeSelEnzymes(this, 82)\"></td><td style=\"text-align:r" +
-    "ight\">- &nbsp;</td><td>BsrDI</td><td>&nbsp;GCAATG(2/0)</td>" +
-    "<th>&nbsp;&nbsp;&nbsp;</th><td><input type=\"checkbox\" id=\"" +
-    "WDE_165\" onclick=\"wdeSelEnzymes(this, 165)\"></td><td styl" +
-    "e=\"text-align:right\">- &nbsp;</td><td>MscI</td><td>&nbsp;T" +
-    "GG^CCA</td><th>&nbsp;&nbsp;&nbsp;</th><td></td><td></td><td>" +
-    "</td><td></td></tr>\n</tbody></table>";
     return str;
 }
 

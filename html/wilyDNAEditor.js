@@ -217,6 +217,20 @@ function wdeLoadTestScripts() {
 	}
 }
 
+function wdeDetectBorwser() {
+    var browser = window.navigator.userAgent.toLowerCase();
+    if (browser.indexOf("edge") != -1) {
+        return "edge";
+    }
+    if (browser.indexOf("firefox") != -1) {
+        return "firefox";
+    }
+    if (browser.indexOf("chrome") != -1) {
+        return "chrome";
+    }
+    return browser;
+}
+
 // Wily Functions
 function wdeVersion(){
     var version = "Wily DNA Editor - Version: " + wdeVVersion;
@@ -1125,11 +1139,16 @@ function wdeSaveFile(fileName,content,type) {
     } else {
         blob = new Blob([content], {type: "text/plain"});
     }
-    var url = window.URL.createObjectURL(blob);
-    a.href = url;
-    a.download = fileName;
-    a.click();
-    window.URL.revokeObjectURL(url);
+    var browser = wdeDetectBorwser();
+    if (browser != "edge") {
+	    var url = window.URL.createObjectURL(blob);
+	    a.href = url;
+	    a.download = fileName;
+	    a.click();
+	    window.URL.revokeObjectURL(url);
+    } else {
+        window.navigator.msSaveBlob(blob, fileName);
+    }
     return "";
 };
 
