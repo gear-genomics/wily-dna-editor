@@ -43,6 +43,9 @@ function wdeTestAll() {
     wdeTestFailed = 0;
     wdeInTestRun = 1;   
     var currentTestOut = "";
+    var testName = "";
+    var downloadDiff = 0;
+    var downloadDiff = document.getElementById("WDE_TEST_DOWNLOAD_DIFF").checked;
     var browser = wdeTestDetectBorwser();
 
     var startTime = new Date();
@@ -53,216 +56,255 @@ function wdeTestAll() {
 
     wdeTestAddToOutput("\nTest Main Functions:\n\n");
 
-    wdeTestAddToOutput("wdeReadFile() - ");
+    testName = "wdeReadFile()";
+    wdeTestAddToOutput(testName + " - ");
     wdeTGViewZeroOne(1,0);
     wdeTGViewNumbers(1,0);
     wdeTestLoadSmallGeneBank();
-    wdeTestOutCompString(wdeTestDataString_001(), window.frames['WDE_RTF'].document.body.innerHTML);
+    wdeTestOutComp(wdeTestDataString_001(), window.frames['WDE_RTF'].document.body.innerHTML, "No", testName, downloadDiff);
 
-    wdeTestAddToOutput("wdeTGViewZeroOne() - ");
+    testName = "wdeTGViewZeroOne()";
+    wdeTestAddToOutput(testName + " - ");
     wdeTGViewZeroOne(0,1);
-    wdeTestOutCompString(wdeTestDataString_002(), window.frames['WDE_RTF'].document.body.innerHTML);
+    wdeTestOutComp(wdeTestDataString_002(), window.frames['WDE_RTF'].document.body.innerHTML, "No", testName, downloadDiff);
 
-    wdeTestAddToOutput("wdeTGViewNumbers() - ");
+    testName = "wdeTGViewNumbers()";
+    wdeTestAddToOutput(testName + " - ");
     wdeTGViewNumbers(0,1);
-    wdeTestOutCompString(wdeTestDataString_003(), window.frames['WDE_RTF'].document.body.innerHTML);
+    wdeTestOutComp(wdeTestDataString_003(), window.frames['WDE_RTF'].document.body.innerHTML, "No", testName, downloadDiff);
     
-    wdeTestAddToOutput("wdeRComp() - ");
+    testName = "wdeRComp()";
+    wdeTestAddToOutput(testName + " - ");
     wdeTGViewZeroOne(1,0);
     wdeTGViewNumbers(1,0);
     wdeTestLoadSmallGeneBank();
     wdeRComp();
-    wdeTestOutCompString(wdeTestDataString_004(), window.frames['WDE_RTF'].document.body.innerHTML);
+    wdeTestOutComp(wdeTestDataString_004(), window.frames['WDE_RTF'].document.body.innerHTML, "No", testName, downloadDiff);
     
-    wdeTestAddToOutput("wdeSaveFasta() - ");
+    testName = "wdeSaveFasta()";
+    wdeTestAddToOutput(testName + " - ");
     wdeTestLoadSmallGeneBank();
     currentTestOut = wdeSaveFasta();
-    wdeTestOutCompString(wdeTestDataString_005(), currentTestOut[1]);
+    wdeTestOutComp(wdeTestDataString_005(), currentTestOut[1], "No", testName, downloadDiff);
     
-    wdeTestAddToOutput("wdeSaveGenBank() - ");
+    testName = "wdeSaveGenBank()";
+    wdeTestAddToOutput(testName + " - ");
     currentTestOut = wdeSaveGenBank();
-    wdeTestOutCompString(wdeTestStringSmallGeneBank(), currentTestOut[1]);
+    wdeTestOutComp(wdeTestStringSmallGeneBank(), currentTestOut[1], "No", testName, downloadDiff);
 
-    wdeTestAddToOutput("wdeTestLoadLargeGeneBank() - ");
+    testName = "wdeTestLoadLargeGeneBank()";
+    wdeTestAddToOutput(testName + " - ");
     wdeTestLoadLargeGeneBank();
     currentTestOut = wdeSaveGenBank();
-    wdeTestOutCompString(wdeTestStringLargeGeneBank(), currentTestOut[1]);
+    wdeTestOutComp(wdeTestStringLargeGeneBank(), currentTestOut[1], "No", testName, downloadDiff);
 
-    wdeTestAddToOutput("wdeUpToLow() - ");
+    testName = "wdeUpToLow()";
+    wdeTestAddToOutput(testName + " - ");
     wdeTestLoadTinyGeneBank();
     wdeTestSimulateSelection(118, 223); //in Seq 96-185
     wdeUpToLow();
-    wdeTestOutCompString(wdeTestDataString_006(), window.frames['WDE_RTF'].document.body.innerHTML);
+    wdeTestOutComp(wdeTestDataString_006(), window.frames['WDE_RTF'].document.body.innerHTML, "No", testName, downloadDiff);
     
-    wdeTestAddToOutput("wdeUpexLow() - ");
+    testName = "wdeUpexLow()";
+    wdeTestAddToOutput(testName + " - ");
     wdeTestLoadTinyGeneBank();
     wdeTestSimulateSelection(118, 223); //in Seq 96-185
     wdeUpexLow();
-    wdeTestOutCompString(wdeTestDataString_007(), window.frames['WDE_RTF'].document.body.innerHTML);
+    wdeTestOutComp(wdeTestDataString_007(), window.frames['WDE_RTF'].document.body.innerHTML, "No", testName, downloadDiff);
     
-    wdeTestAddToOutput("wdeLowToUp() - ");
+    testName = "wdeLowToUp()";
+    wdeTestAddToOutput(testName + " - ");
     wdeTestLoadTinyGeneBank();
     wdeTestSimulateSelection(118, 223); //in Seq 96-185
     wdeLowToUp();
-    wdeTestOutCompString(wdeTestDataString_008(), window.frames['WDE_RTF'].document.body.innerHTML);
+    wdeTestOutComp(wdeTestDataString_008(), window.frames['WDE_RTF'].document.body.innerHTML, "No", testName, downloadDiff);
     
-    wdeTestAddToOutput("wdeRCompSel() - ");
+    testName = "wdeRCompSel()";
+    wdeTestAddToOutput(testName + " - ");
     wdeTestLoadTinyGeneBank();
     wdeTestSimulateSelection(118, 223); //in Seq 96-185
     wdeRCompSel();
-    wdeTestOutCompString(wdeTestDataString_009(), window.frames['WDE_RTF'].document.body.innerHTML);
+    wdeTestOutComp(wdeTestDataString_009(), window.frames['WDE_RTF'].document.body.innerHTML, "No", testName, downloadDiff);
 
     wdeTestAddToOutput("\nTest Enzyme Functions:\n\n");
     
-    wdeTestAddToOutput("wdePopulateEnzmes() - ");
+    testName = "wdePopulateEnzmes()";
+    wdeSelREdeselect();
+    wdeTestAddToOutput(testName + " - ");
     wdeTestLoadSmallGeneBank();
     currentTestOut = JSON.stringify(wdeEnzy);
     // var myObj = JSON.parse(currentTestOut);
-    wdeTestOutCompString(wdeTestDataString_010(), currentTestOut);
+    wdeTestOutComp(wdeTestDataString_010(), currentTestOut, "No", testName, downloadDiff);
 
-    wdeTestAddToOutput("wdeDrawEnzymes() - ");
+    testName = "wdeDrawEnzymes()";
+    wdeTestAddToOutput(testName + " - ");
     if (browser != "chrome") {
-        wdeTestOutCompString(wdeTestDataString_011(), document.getElementById("WDE_enzymes_spacer").innerHTML);
+        wdeTestOutComp(wdeTestDataString_011(), document.getElementById("WDE_enzymes_spacer").innerHTML, "No", testName, downloadDiff);
     } else {
         wdeTestAddToOutput("[Chrome Version] - ");
-        wdeTestOutCompString(wdeTestDataString_011_chrome(), document.getElementById("WDE_enzymes_spacer").innerHTML);
+        wdeTestOutComp(wdeTestDataString_011_chrome(), document.getElementById("WDE_enzymes_spacer").innerHTML, "No", testName, downloadDiff);
     }
 
     if (browser != "chrome") {
-	    wdeTestAddToOutput("wdeFindRE() on LargeGeneBank - ");
+        testName = "wdeFindRE() on LargeGeneBank";
+	    wdeTestAddToOutput(testName + " - ");
 	    wdeTestLoadLargeGeneBank();
 	    wdeFindRE();
 	    currentTestOut = JSON.stringify(wdeEnzy);
-	    wdeTestOutCompString(wdeTestDataString_012(), currentTestOut);
+	    wdeTestOutComp(wdeTestDataString_012(), currentTestOut, "No", testName, downloadDiff);
     } else {
 	    wdeTestAddToOutput("wdeFindRE() on LargeGeneBank - [SKIPPED on CHOME]\n");
     }
 
-    wdeTestAddToOutput("wdeFindRE() on SmallGeneBank - ");
+    testName = "wdeFindRE() on SmallGeneBank";
+    wdeTestAddToOutput(testName + " - ");
     wdeTestLoadSmallGeneBank();
     wdeFindRE();
     currentTestOut = JSON.stringify(wdeEnzy);
-    wdeTestOutCompString(wdeTestDataString_013(), currentTestOut);
+    wdeTestOutComp(wdeTestDataString_013(), currentTestOut, "No", testName, downloadDiff);
     
-    wdeTestAddToOutput("wdeTGDamDcm() on SmallGeneBank - ");
+    testName = "wdeTGDamDcm() on SmallGeneBank";
+    wdeTestAddToOutput(testName + " - ");
     wdeTGDamDcm(0);
     wdeFindRE();
     currentTestOut = JSON.stringify(wdeEnzy);
-    wdeTestOutCompString(wdeTestDataString_014(), currentTestOut);
+    wdeTestOutComp(wdeTestDataString_014(), currentTestOut, "No", testName, downloadDiff);
     wdeTGDamDcm(1);
     
-    wdeTestAddToOutput("wdeSelREsel(ABSENT) - ");
+    testName = "wdeSelREsel(ABSENT)";
+    wdeTestAddToOutput(testName + " - ");
     wdeTestLoadSmallGeneBank();
     wdeFindRE();
     wdeSelREsel('E', 0);
     currentTestOut = JSON.stringify(wdeEnzy);
-    wdeTestOutCompString(wdeTestDataString_015(), currentTestOut);
+    wdeTestOutComp(wdeTestDataString_015(), currentTestOut, "No", testName, downloadDiff);
 
-    wdeTestAddToOutput("wdeSelREdeselect() - ");
+    testName = "wdeSelREdeselect()";
+    wdeTestAddToOutput(testName + " - ");
     wdeSelREdeselect();
     currentTestOut = JSON.stringify(wdeEnzy);
-    wdeTestOutCompString(wdeTestDataString_013(), currentTestOut);
+    wdeTestOutComp(wdeTestDataString_013(), currentTestOut, "No", testName, downloadDiff);
     
-    wdeTestAddToOutput("wdeSelREselMLE(MORE) - ");
+    testName = "wdeSelREselMLE(MORE)";
+    wdeTestAddToOutput(testName + " - ");
     wdeSelREdeselect();
     wdeSelREselMLE('M');
     currentTestOut = JSON.stringify(wdeEnzy);
-    wdeTestOutCompString(wdeTestDataString_016(), currentTestOut);
+    wdeTestOutComp(wdeTestDataString_016(), currentTestOut, "No", testName, downloadDiff);
 
-    wdeTestAddToOutput("wdeSelREselMLE(EXACT) - ");
+    testName = "wdeSelREselMLE(EXACT)";
+    wdeTestAddToOutput(testName + " - ");
     wdeSelREdeselect();
     wdeSelREselMLE('E');
     currentTestOut = JSON.stringify(wdeEnzy);
-    wdeTestOutCompString(wdeTestDataString_017(), currentTestOut);
+    wdeTestOutComp(wdeTestDataString_017(), currentTestOut, "No", testName, downloadDiff);
 
-    wdeTestAddToOutput("wdeSelREselMLE(LESS) - ");
+    testName = "wdeSelREselMLE(LESS)";
+    wdeTestAddToOutput(testName + " - ");
     wdeSelREdeselect();
     wdeSelREselMLE('L');
     currentTestOut = JSON.stringify(wdeEnzy);
-    wdeTestOutCompString(wdeTestDataString_018(), currentTestOut);
+    wdeTestOutComp(wdeTestDataString_018(), currentTestOut, "No", testName, downloadDiff);
     
-    wdeTestAddToOutput("wdeSelREListDS() - ");
+    testName = "wdeSelREListDS()";
+    wdeTestAddToOutput(testName + " - ");
     wdeSelREdeselect();
     mainForm.elements["RESTRICTION_LIST"].value = "KpnI, BstBI, HindIII, BamHI, BstXI";
     wdeSelREListDS('S');
     currentTestOut = JSON.stringify(wdeEnzy);
-    wdeTestOutCompString(wdeTestDataString_019(), currentTestOut);
+    wdeTestOutComp(wdeTestDataString_019(), currentTestOut, "No", testName, downloadDiff);
     mainForm.elements["RESTRICTION_LIST"].value = "KpnI, BstBI, HindIII, BamHI";
 
-    wdeTestAddToOutput("wdeSelREsel(UNIQUE) - ");
+    testName = "wdeSelREsel(UNIQUE)";
+    wdeTestAddToOutput(testName + " - ");
     wdeSelREdeselect();
     wdeSelREsel('E', 1);
     currentTestOut = JSON.stringify(wdeEnzy);
-    wdeTestOutCompString(wdeTestDataString_020(), currentTestOut);
+    wdeTestOutComp(wdeTestDataString_020(), currentTestOut, "No", testName, downloadDiff);
 
-    wdeTestAddToOutput("wdeHighlight() - ");
+    testName = "wdeHighlight()";
+    wdeTestAddToOutput(testName + " - ");
     wdeHighlight();
-    wdeTestOutCompString(wdeTestDataString_021(), window.frames['WDE_RTF'].document.body.innerHTML);
+    wdeTestOutComp(wdeTestDataString_021(), window.frames['WDE_RTF'].document.body.innerHTML, 
+                   "No", testName, downloadDiff);
     wdeHighlight();
 
     wdeTestAddToOutput("\nTest Digest Functions:\n\n");
     
     if (browser != "edge") {
-	    wdeTestAddToOutput("wdeDigMapDis() - ");
+	    testName = "wdeDigMapDis()";
+        wdeTestAddToOutput(testName + " - ");
 	    wdeDigMapDis('S');
-	    wdeTestOutCompString(wdeTestDataString_022(), window.frames['WDE_DIGEST'].document.body.innerHTML);
+	    wdeTestOutComp(wdeTestDataString_022(), window.frames['WDE_DIGEST'].document.body.innerHTML, 
+	                   "No", testName, downloadDiff);
     } else {
 	    wdeTestAddToOutput("wdeDigMapDis() - [SKIPPED on EDGE]\n");
     }
 
-    wdeTestAddToOutput("wdeMapSVG() on circular - ");
+    testName = "wdeMapSVG() on circular";
+    wdeTestAddToOutput(testName + " - ");
     currentTestOut = wdeMapSVG('S');
-    wdeTestOutCompString(wdeTestDataString_023(), currentTestOut[0]);
+    wdeTestOutComp(wdeTestDataString_023(), currentTestOut[0], "No", testName, downloadDiff);
 
-    wdeTestAddToOutput("wdeMapSVG() on linear - ");
+    testName = "wdeMapSVG() on linear";
+    wdeTestAddToOutput(testName + " - ");
     wdeTGCircularLinear(0);
     currentTestOut = wdeMapSVG('S');
-    wdeTestOutCompString(wdeTestDataString_024(), currentTestOut[0]);
+    wdeTestOutComp(wdeTestDataString_024(), currentTestOut[0], "No", testName, downloadDiff);
     wdeTGCircularLinear(1);
 
-    wdeTestAddToOutput("wdeTGDigShowFeatures() - ");
+    testName = "wdeTGDigShowFeatures()";
+    wdeTestAddToOutput(testName + " - ");
     wdeTGDigShowFeatures(0,0);
     currentTestOut = wdeMapSVG('S');
-    wdeTestOutCompString(wdeTestDataString_025(), currentTestOut[0]);
+    wdeTestOutComp(wdeTestDataString_025(), currentTestOut[0], "No", testName, downloadDiff);
     wdeTGDigShowFeatures(1,0);
 
-    wdeTestAddToOutput("wdeDigList() - ");
+    testName = "wdeDigList()";
+    wdeTestAddToOutput(testName + " - ");
     wdeDigList();
-    wdeTestOutCompString(wdeTestDataString_026(), window.frames['WDE_DIGEST'].document.body.innerHTML);
+    wdeTestOutComp(wdeTestDataString_026(), window.frames['WDE_DIGEST'].document.body.innerHTML, "No", testName, downloadDiff);
 
-    wdeTestAddToOutput("wdeDigCreateSVG() with grey bands - ");
-    wdeTestOutCompString(wdeTestDataString_027(), wdeDigCreateSVG());
+    testName = "wdeDigCreateSVG() with grey bands";
+    wdeTestAddToOutput(testName + " - ");
+    wdeTestOutComp(wdeTestDataString_027(), wdeDigCreateSVG(), "No", testName, downloadDiff);
  
-    wdeTestAddToOutput("wdeDigCreateSVG() with black bands - ");
+    testName = "wdeDigCreateSVG() with black bands";
+    wdeTestAddToOutput(testName + " - ");
     wdeTGDigGelBandBlack(1,0);
-    wdeTestOutCompString(wdeTestDataString_028(), wdeDigCreateSVG());
+    wdeTestOutComp(wdeTestDataString_028(), wdeDigCreateSVG(), "No", testName, downloadDiff);
     wdeTGDigGelBandBlack(0,0);
 
     wdeTestAddToOutput("\nTest Translate Functions:\n\n");
 
-    wdeTestAddToOutput("wdeTransInAll() - ");
+    testName = "wdeTransInAll()";
+    wdeTestAddToOutput(testName + " - ");
     wdeTestLoadSmallGeneBank();
     wdeTransInAll();
-    wdeTestOutCompString(wdeTestDataString_029(), window.frames['WDE_TRANS'].document.body.innerHTML);
+    wdeTestOutComp(wdeTestDataString_029(), window.frames['WDE_TRANS'].document.body.innerHTML, "No", testName, downloadDiff);
 
-    wdeTestAddToOutput("wdeTransInAll() with one frame and letter - ");
+    testName = "wdeTransInAll() with one frame and letter";
+    wdeTestAddToOutput(testName + " - ");
     wdeTGTransTreeOne(0,0);
     wdeTGTransFrameNr(1,0);
     wdeTGTransRevComp(0,0);
     wdeTransInAll();
-    wdeTestOutCompString(wdeTestDataString_030(), window.frames['WDE_TRANS'].document.body.innerHTML);
+    wdeTestOutComp(wdeTestDataString_030(), window.frames['WDE_TRANS'].document.body.innerHTML, "No", testName, downloadDiff);
     wdeTGTransTreeOne(1,0);
     wdeTGTransFrameNr(6,0);
     wdeTGTransRevComp(1,0);
 
-    wdeTestAddToOutput("wdeTGOrfView() - ");
+    testName = "wdeTGOrfView()";
+    wdeTestAddToOutput(testName + " - ");
     wdeTGOrfView(1,1);
-    wdeTestOutCompString(wdeTestDataString_031(), window.frames['WDE_TRANS'].document.body.innerHTML);
+    wdeTestOutComp(wdeTestDataString_031(), window.frames['WDE_TRANS'].document.body.innerHTML, "No", testName, downloadDiff);
 
     if (browser != "edge") {
-	    wdeTestAddToOutput("wdeTGOrfSort() - ");
+	    testName = "wdeTGOrfSort()";
+        wdeTestAddToOutput(testName + " - ");
 	    wdeTGOrfSort(0,1);
-	    wdeTestOutCompString(wdeTestDataString_032(), window.frames['WDE_TRANS'].document.body.innerHTML);
+	    wdeTestOutComp(wdeTestDataString_032(), window.frames['WDE_TRANS'].document.body.innerHTML, 
+	                   "No", testName, downloadDiff);
     } else {
 	    wdeTestAddToOutput("wdeTGOrfSort() - [SKIPPED on EDGE]\n");
     }
@@ -271,21 +313,25 @@ function wdeTestAll() {
 
     wdeTestAddToOutput("\nTest Feature Functions:\n\n");
 
-    wdeTestAddToOutput("wdeFeatFocUpdate() as TABLE - ");
+    testName = "wdeFeatFocUpdate() as TABLE";
+    wdeTestAddToOutput(testName + " - ");
     wdeTestLoadSmallGeneBank();
     if (browser == "firefox") {
-        wdeTestOutCompString(wdeTestDataString_033(), window.frames['WDE_FEAT_L'].document.body.innerHTML);
+        wdeTestOutComp(wdeTestDataString_033(), window.frames['WDE_FEAT_L'].document.body.innerHTML, 
+                       "No", testName, downloadDiff);
     } else if (browser == "chrome") {
-        wdeTestOutCompString(wdeTestDataString_034(), window.frames['WDE_FEAT_L'].document.body.innerHTML);
+        wdeTestOutComp(wdeTestDataString_034(), window.frames['WDE_FEAT_L'].document.body.innerHTML, "No", testName, downloadDiff);
     } else {
-        wdeTestOutCompString(wdeTestDataString_035(), window.frames['WDE_FEAT_L'].document.body.innerHTML);
+        wdeTestOutComp(wdeTestDataString_035(), window.frames['WDE_FEAT_L'].document.body.innerHTML, "No", testName, downloadDiff);
     }
   
-    wdeTestAddToOutput("wdeFeatFocUpdate() as JSON - ");
+    testName = "wdeFeatFocUpdate() as JSON";
+    wdeTestAddToOutput(testName + " - ");
     currentTestOut = JSON.stringify(wdeFeatures);
-    wdeTestOutCompString(wdeTestDataString_036(), currentTestOut);
+    wdeTestOutComp(wdeTestDataString_036(), currentTestOut, "No", testName, downloadDiff);
 
-    wdeTestAddToOutput("wdeNewFeaturesFromSel() as JSON - ");
+    testName = "wdeNewFeaturesFromSel() as JSON";
+    wdeTestAddToOutput(testName + " - ");
     wdeTestLoadSmallGeneBank();
     wdeTestSimulateSelection(118, 223); //in Seq 96-185
     wdeNewFeaturesFromSel();
@@ -301,56 +347,57 @@ function wdeTestAll() {
     wdeSelFFeatQualif();
     wdeSetFFeatSave();
     currentTestOut = JSON.stringify(wdeFeatures);
-    wdeTestOutCompString(wdeTestDataString_037(), currentTestOut);
+    wdeTestOutComp(wdeTestDataString_037(), currentTestOut, "No", testName, downloadDiff);
 
-    wdeTestAddToOutput("wdeShowFeatures() - ");
+    testName = "wdeShowFeatures()";
+    wdeTestAddToOutput(testName + " - ");
     wdeShowFeatures();
     if (browser != "edge") {
-        wdeTestOutCompString(wdeTestDataString_038(), window.frames['WDE_RTF'].document.body.innerHTML);
+        wdeTestOutComp(wdeTestDataString_038(), window.frames['WDE_RTF'].document.body.innerHTML, 
+                       "No", testName, downloadDiff);
     } else {
-        wdeTestOutCompString(wdeTestDataString_039(), window.frames['WDE_RTF'].document.body.innerHTML);
+        wdeTestOutComp(wdeTestDataString_039(), window.frames['WDE_RTF'].document.body.innerHTML, 
+                       "No", testName, downloadDiff);
     }
   
     wdeTestAddToOutput("\nTest Feature Library Functions:\n\n");
 
-    wdeTestAddToOutput("wdeAllAddLib() as TABLE - ");
+    testName = "wdeAllAddLib() as TABLE";
+    wdeTestAddToOutput(testName + " - ");
     wdeTestLoadLargeGeneBank();
     wdeAllAddLib();
-    wdeTestOutCompString(wdeTestDataString_040(), window.frames['WDE_LIB_L'].document.body.innerHTML);
+    wdeTestOutComp(wdeTestDataString_040(), window.frames['WDE_LIB_L'].document.body.innerHTML, "No", testName, downloadDiff);
  
-    wdeTestAddToOutput("wdeAllAddLib() as JSON - ");
+    testName = "wdeAllAddLib() as JSON";
+    wdeTestAddToOutput(testName + " - ");
     currentTestOut = JSON.stringify(wdeFeatureLib);
-    wdeTestOutCompString(wdeTestDataString_041(), currentTestOut);
+    wdeTestOutComp(wdeTestDataString_041(), currentTestOut, "No", testName, downloadDiff);
     
-    wdeTestAddToOutput("wdeSaveLibFile() - ");
+    testName = "wdeSaveLibFile()";
+    wdeTestAddToOutput(testName + " - ");
     currentTestOut = wdeSaveLibFile();
-    wdeTestOutCompString(wdeTestDataString_042(), currentTestOut[1]);
+    wdeTestOutComp(wdeTestDataString_042(), currentTestOut[1], "GB_No_Date", testName, downloadDiff);
     
-    wdeTestAddToOutput("wdeReadLibFile() - ");
+    testName = "wdeReadLibFile()";
+    wdeTestAddToOutput(testName + " - ");
     wdeDeleteLib();
     var test42 = wdeTestDataString_042();
     wdeReadLibFile(test42, "testlib.gb");
     currentTestOut = wdeSaveLibFile();
-    wdeTestOutCompString(wdeTestDataString_042(), currentTestOut[1]);
+    wdeTestOutComp(wdeTestDataString_042(), currentTestOut[1], "GB_No_Date", testName, downloadDiff);
     
-    wdeTestAddToOutput("wdeAnnotateSequence() as JSON - ");
+    testName = "wdeAnnotateSequence() as JSON";
+    wdeTestAddToOutput(testName + " - ");
     wdeTestLoadLargeSeq();
     wdeAnnotateSequence();
     currentTestOut = JSON.stringify(wdeFeatures);
-    wdeTestOutCompString(wdeTestDataString_043(), currentTestOut);
+    wdeTestOutComp(wdeTestDataString_043(), currentTestOut, "No", testName, downloadDiff);
  
 
  // alert(wdeTestPRString);
  // alert(window.frames['WDE_RTF'].document.body.innerHTML);
  // wdeTestPRString = currentTestOut;
  // wdeTestPRString = window.frames['WDE_RTF'].document.body.innerHTML;
-
-if (0) {
-    wdeInTestRun = 0;
-    wdeSaveFile("OUT.txt", currentTestOut, "text");
-    wdeSaveFile("String.txt", wdeTestDataString_042(), "text");
-    wdeInTestRun = 1;
-}
     
     wdeInTestRun = 0;
     
@@ -409,17 +456,47 @@ function wdeTestAlert() {
     alert("Test was run");
 }
 
-function wdeTestOutCompString(a,b) {
+function wdeTestOutComp(a, b, filter, testName, downloadDiff) {
+    var aLib = a;
+    var bCurr = b;
+    if (filter == "GB_No_Date") {
+        aLib = wdeTestRemoveDateGenbank(a);
+        bCurr = wdeTestRemoveDateGenbank(b);
+    }
+    
+    
     var nowTime = new Date();
     var mSeconds = nowTime.getTime() - wdeTestLastTime.getTime();
     wdeTestLastTime = nowTime;
-    if (a == b) {
+    if (aLib == bCurr) {
         wdeTestAddToOutput("[OK] - " + mSeconds + " ms\n");
     } else {
         wdeTestAddToOutput("[FAILED] - " + mSeconds + " ms\n");
         wdeTestFailed = 1;
+        if (downloadDiff) {
+		    wdeInTestRun = 0;
+		    wdeSaveFile(testName + "_A_LIB.txt", aLib, "text");
+		    wdeSaveFile(testName + "_B_CUR.txt", bCurr, "text");
+		    wdeInTestRun = 1;
+        }
     }
 }
+
+function wdeTestRemoveDateGenbank(txt) {
+    var retTxt = "";
+    var firstLine = 1;
+    for (var i = 0 ; i < txt.length ; i++) {
+        if ((txt.charAt(i) == "\n") &&
+            (firstLine == 1)){
+            retTxt = retTxt.replace(/[^\s]+\s*$/, "");
+            firstLine = 0;
+        }
+        retTxt += txt.charAt(i);
+    }
+    return retTxt;
+}
+
+
 
 function wdeTestAddToOutput(toAdd) {
     wdeTestOutput += toAdd;
