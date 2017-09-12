@@ -292,15 +292,10 @@ function wdeTestAll() {
     wdeTGOrfView(1,1);
     wdeTestOutComp(wdeTestDataString_031(), window.frames['WDE_TRANS'].document.body.innerHTML, "No", testName, downloadDiff);
 
-    if (browser != "edge") {
-	    testName = "wdeTGOrfSort()";
-        wdeTestAddToOutput(testName + " - ");
-	    wdeTGOrfSort(0,1);
-	    wdeTestOutComp(wdeTestDataString_032(), window.frames['WDE_TRANS'].document.body.innerHTML, 
-	                   "No", testName, downloadDiff);
-    } else {
-	    wdeTestAddToOutput("wdeTGOrfSort() - [SKIPPED on EDGE]\n");
-    }
+    testName = "wdeTGOrfSort()";
+    wdeTestAddToOutput(testName + " - ");
+    wdeTGOrfSort(0,1);
+    wdeTestOutComp(wdeTestDataString_032(), window.frames['WDE_TRANS'].document.body.innerHTML, "No", testName, downloadDiff);
     wdeTGOrfView(0,0);
     wdeTGOrfSort(1,1);
 
@@ -309,14 +304,7 @@ function wdeTestAll() {
     testName = "wdeFeatFocUpdate() as TABLE";
     wdeTestAddToOutput(testName + " - ");
     wdeTestLoadSmallGeneBank();
-    if (browser == "firefox") {
-        wdeTestOutComp(wdeTestDataString_033(), window.frames['WDE_FEAT_L'].document.body.innerHTML, 
-                       "No", testName, downloadDiff);
-    } else if (browser == "chrome") {
-        wdeTestOutComp(wdeTestDataString_034(), window.frames['WDE_FEAT_L'].document.body.innerHTML, "No", testName, downloadDiff);
-    } else {
-        wdeTestOutComp(wdeTestDataString_035(), window.frames['WDE_FEAT_L'].document.body.innerHTML, "No", testName, downloadDiff);
-    }
+    wdeTestOutComp(wdeTestDataString_033(), window.frames['WDE_FEAT_L'].document.body.innerHTML, "HTML", testName, downloadDiff);
   
     testName = "wdeFeatFocUpdate() as JSON";
     wdeTestAddToOutput(testName + " - ");
@@ -345,13 +333,8 @@ function wdeTestAll() {
     testName = "wdeShowFeatures()";
     wdeTestAddToOutput(testName + " - ");
     wdeShowFeatures();
-    if (browser != "edge") {
-        wdeTestOutComp(wdeTestDataString_038(), window.frames['WDE_RTF'].document.body.innerHTML, 
-                       "No", testName, downloadDiff);
-    } else {
-        wdeTestOutComp(wdeTestDataString_039(), window.frames['WDE_RTF'].document.body.innerHTML, 
-                       "No", testName, downloadDiff);
-    }
+    wdeTestOutComp(wdeTestDataString_038(), window.frames['WDE_RTF'].document.body.innerHTML, 
+                   "HTML", testName, downloadDiff);
   
     wdeTestAddToOutput("\nTest Feature Library Functions:\n\n");
 
@@ -13372,146 +13355,6 @@ function wdeTestDataString_033() {
     return str;
 }
 
-function wdeTestDataString_034() {
-    var str = "<table border=\"0\"><tbody><tr><th style=\"text-al" +
-    "ign: left\">Show&nbsp;&nbsp;</th><th style=\"text-align: lef" +
-    "t\">Type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs" +
-    "p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs" +
-    "p;&nbsp;&nbsp;</th><th style=\"text-align: left\">Tag&nbsp;&" +
-    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
-    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
-    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
-    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
-    "nbsp;</th><th style=\"text-align: left\">Orientation&nbsp;&n" +
-    "bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th><th style=\"text-alig" +
-    "n: left\">Location</th></tr>\n<tr>\n<td style=\"text-align: " +
-    "center; background-color:#ff3333\"><input type=\"checkbox\" " +
-    "id=\"WDE_FEA_0\" onclick=\"parent.wdeSelFeatures(this, 0)\" " +
-    "checked=\"\"></td><td style=\"background-color:#ff3333\" onc" +
-    "lick=\"parent.wdeFeatFocUpdate(0)\">gene</td><td style=\"bac" +
-    "kground-color:#ff3333\" onclick=\"parent.wdeFeatFocUpdate(0)" +
-    "\">Core-Antigen</td><td style=\"background-color:#ff3333\" o" +
-    "nclick=\"parent.wdeFeatFocUpdate(0)\">Forward</td><td style=" +
-    "\"background-color:#ff3333\" onclick=\"parent.wdeFeatFocUpda" +
-    "te(0)\">1..552</td></tr>\n<tr>\n<td style=\"text-align: cent" +
-    "er; background-color:#2db300\"><input type=\"checkbox\" id=\"" +
-    "WDE_FEA_1\" onclick=\"parent.wdeSelFeatures(this, 1)\" check" +
-    "ed=\"\"></td><td style=\"background-color:#2db300\" onclick=" +
-    "\"parent.wdeFeatFocUpdate(1)\">CDS</td><td style=\"backgroun" +
-    "d-color:#ffff00\" onclick=\"parent.wdeFeatFocUpdate(1)\">Cor" +
-    "e-Antigen</td><td style=\"background-color:#ffff00\" onclick" +
-    "=\"parent.wdeFeatFocUpdate(1)\">Forward</td><td style=\"back" +
-    "ground-color:#ffff00\" onclick=\"parent.wdeFeatFocUpdate(1)\"" +
-    ">1..552</td></tr>\n<tr>\n<td style=\"text-align: center; bac" +
-    "kground-color:#ff3333\"><input type=\"checkbox\" id=\"WDE_FE" +
-    "A_2\" onclick=\"parent.wdeSelFeatures(this, 2)\" checked=\"\"" +
-    "></td><td style=\"background-color:#ff3333\" onclick=\"paren" +
-    "t.wdeFeatFocUpdate(2)\">gene</td><td style=\"background-colo" +
-    "r:#ff3333\" onclick=\"parent.wdeFeatFocUpdate(2)\">Polymeras" +
-    "e</td><td style=\"background-color:#ff3333\" onclick=\"paren" +
-    "t.wdeFeatFocUpdate(2)\">Forward</td><td style=\"background-c" +
-    "olor:#ff3333\" onclick=\"parent.wdeFeatFocUpdate(2)\">407..2" +
-    "905</td></tr>\n<tr>\n<td style=\"text-align: center; backgro" +
-    "und-color:#2db300\"><input type=\"checkbox\" id=\"WDE_FEA_3\"" +
-    " onclick=\"parent.wdeSelFeatures(this, 3)\" checked=\"\"></t" +
-    "d><td style=\"background-color:#2db300\" onclick=\"parent.wd" +
-    "eFeatFocUpdate(3)\">CDS</td><td style=\"background-color:#64" +
-    "64ff\" onclick=\"parent.wdeFeatFocUpdate(3)\">Polymerase</td" +
-    "><td style=\"background-color:#6464ff\" onclick=\"parent.wde" +
-    "FeatFocUpdate(3)\">Forward</td><td style=\"background-color:" +
-    "#6464ff\" onclick=\"parent.wdeFeatFocUpdate(3)\">407..2905</" +
-    "td></tr>\n<tr>\n<td style=\"text-align: center; background-c" +
-    "olor:#ff3333\"><input type=\"checkbox\" id=\"WDE_FEA_4\" onc" +
-    "lick=\"parent.wdeSelFeatures(this, 4)\" checked=\"\"></td><t" +
-    "d style=\"background-color:#ff3333\" onclick=\"parent.wdeFea" +
-    "tFocUpdate(4)\">gene</td><td style=\"background-color:#ff333" +
-    "3\" onclick=\"parent.wdeFeatFocUpdate(4)\">S-Antigen</td><td" +
-    " style=\"background-color:#ff3333\" onclick=\"parent.wdeFeat" +
-    "FocUpdate(4)\">Forward</td><td style=\"background-color:#ff3" +
-    "333\" onclick=\"parent.wdeFeatFocUpdate(4)\">1437..2117</td>" +
-    "</tr>\n<tr>\n<td style=\"text-align: center; background-colo" +
-    "r:#2db300\"><input type=\"checkbox\" id=\"WDE_FEA_5\" onclic" +
-    "k=\"parent.wdeSelFeatures(this, 5)\" checked=\"\"></td><td s" +
-    "tyle=\"background-color:#2db300\" onclick=\"parent.wdeFeatFo" +
-    "cUpdate(5)\">CDS</td><td style=\"background-color:#2db300\" " +
-    "onclick=\"parent.wdeFeatFocUpdate(5)\">S-Antigen</td><td sty" +
-    "le=\"background-color:#2db300\" onclick=\"parent.wdeFeatFocU" +
-    "pdate(5)\">Forward</td><td style=\"background-color:#2db300\"" +
-    " onclick=\"parent.wdeFeatFocUpdate(5)\">1437..2117</td></tr>" +
-    "\n</tbody></table>";
-    return str;
-}
-
-function wdeTestDataString_035() {
-    var str = "<table border=\"0\"><tbody><tr><th style=\"text-al" +
-    "ign: left\">Show&nbsp;&nbsp;</th><th style=\"text-align: lef" +
-    "t\">Type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs" +
-    "p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs" +
-    "p;&nbsp;&nbsp;</th><th style=\"text-align: left\">Tag&nbsp;&" +
-    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
-    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
-    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
-    "nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&" +
-    "nbsp;</th><th style=\"text-align: left\">Orientation&nbsp;&n" +
-    "bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th><th style=\"text-alig" +
-    "n: left\">Location</th></tr>\n<tr>\n<td style=\"text-align: " +
-    "center; background-color:#ff3333\"><input id=\"WDE_FEA_0\" o" +
-    "nclick=\"parent.wdeSelFeatures(this, 0)\" type=\"checkbox\" " +
-    "checked=\"\"></td><td style=\"background-color:#ff3333\" onc" +
-    "lick=\"parent.wdeFeatFocUpdate(0)\">gene</td><td style=\"bac" +
-    "kground-color:#ff3333\" onclick=\"parent.wdeFeatFocUpdate(0)" +
-    "\">Core-Antigen</td><td style=\"background-color:#ff3333\" o" +
-    "nclick=\"parent.wdeFeatFocUpdate(0)\">Forward</td><td style=" +
-    "\"background-color:#ff3333\" onclick=\"parent.wdeFeatFocUpda" +
-    "te(0)\">1..552</td></tr>\n<tr>\n<td style=\"text-align: cent" +
-    "er; background-color:#2db300\"><input id=\"WDE_FEA_1\" oncli" +
-    "ck=\"parent.wdeSelFeatures(this, 1)\" type=\"checkbox\" chec" +
-    "ked=\"\"></td><td style=\"background-color:#2db300\" onclick" +
-    "=\"parent.wdeFeatFocUpdate(1)\">CDS</td><td style=\"backgrou" +
-    "nd-color:#ffff00\" onclick=\"parent.wdeFeatFocUpdate(1)\">Co" +
-    "re-Antigen</td><td style=\"background-color:#ffff00\" onclic" +
-    "k=\"parent.wdeFeatFocUpdate(1)\">Forward</td><td style=\"bac" +
-    "kground-color:#ffff00\" onclick=\"parent.wdeFeatFocUpdate(1)" +
-    "\">1..552</td></tr>\n<tr>\n<td style=\"text-align: center; b" +
-    "ackground-color:#ff3333\"><input id=\"WDE_FEA_2\" onclick=\"" +
-    "parent.wdeSelFeatures(this, 2)\" type=\"checkbox\" checked=\"" +
-    "\"></td><td style=\"background-color:#ff3333\" onclick=\"par" +
-    "ent.wdeFeatFocUpdate(2)\">gene</td><td style=\"background-co" +
-    "lor:#ff3333\" onclick=\"parent.wdeFeatFocUpdate(2)\">Polymer" +
-    "ase</td><td style=\"background-color:#ff3333\" onclick=\"par" +
-    "ent.wdeFeatFocUpdate(2)\">Forward</td><td style=\"background" +
-    "-color:#ff3333\" onclick=\"parent.wdeFeatFocUpdate(2)\">407." +
-    ".2905</td></tr>\n<tr>\n<td style=\"text-align: center; backg" +
-    "round-color:#2db300\"><input id=\"WDE_FEA_3\" onclick=\"pare" +
-    "nt.wdeSelFeatures(this, 3)\" type=\"checkbox\" checked=\"\">" +
-    "</td><td style=\"background-color:#2db300\" onclick=\"parent" +
-    ".wdeFeatFocUpdate(3)\">CDS</td><td style=\"background-color:" +
-    "#6464ff\" onclick=\"parent.wdeFeatFocUpdate(3)\">Polymerase<" +
-    "/td><td style=\"background-color:#6464ff\" onclick=\"parent." +
-    "wdeFeatFocUpdate(3)\">Forward</td><td style=\"background-col" +
-    "or:#6464ff\" onclick=\"parent.wdeFeatFocUpdate(3)\">407..290" +
-    "5</td></tr>\n<tr>\n<td style=\"text-align: center; backgroun" +
-    "d-color:#ff3333\"><input id=\"WDE_FEA_4\" onclick=\"parent.w" +
-    "deSelFeatures(this, 4)\" type=\"checkbox\" checked=\"\"></td" +
-    "><td style=\"background-color:#ff3333\" onclick=\"parent.wde" +
-    "FeatFocUpdate(4)\">gene</td><td style=\"background-color:#ff" +
-    "3333\" onclick=\"parent.wdeFeatFocUpdate(4)\">S-Antigen</td>" +
-    "<td style=\"background-color:#ff3333\" onclick=\"parent.wdeF" +
-    "eatFocUpdate(4)\">Forward</td><td style=\"background-color:#" +
-    "ff3333\" onclick=\"parent.wdeFeatFocUpdate(4)\">1437..2117</" +
-    "td></tr>\n<tr>\n<td style=\"text-align: center; background-c" +
-    "olor:#2db300\"><input id=\"WDE_FEA_5\" onclick=\"parent.wdeS" +
-    "elFeatures(this, 5)\" type=\"checkbox\" checked=\"\"></td><t" +
-    "d style=\"background-color:#2db300\" onclick=\"parent.wdeFea" +
-    "tFocUpdate(5)\">CDS</td><td style=\"background-color:#2db300" +
-    "\" onclick=\"parent.wdeFeatFocUpdate(5)\">S-Antigen</td><td " +
-    "style=\"background-color:#2db300\" onclick=\"parent.wdeFeatF" +
-    "ocUpdate(5)\">Forward</td><td style=\"background-color:#2db3" +
-    "00\" onclick=\"parent.wdeFeatFocUpdate(5)\">1437..2117</td><" +
-    "/tr>\n</tbody></table>";
-    return str;
-}
-
 function wdeTestDataString_036() {
     var str = '[["gene","1..552","Core-Antigen","E","D","D","D","' +
     '","/gene=\\"Core-Antigen\\"\\n",1],["CDS","1..552","Core-Ant' +
@@ -13712,131 +13555,6 @@ function wdeTestDataString_038() {
     'TTCTCATCT GCCGGACCGT GTGCACTTCG CTTCACCTCT</a>\n 2881  <a on' +
     'click="parent.wdeFeatInfoUpdate(6)" style="background-color:' +
     '#6464ff">GCACGTCGCA TGGAGACCAC CGTGA</a>ACGCC CACCAAATAT TGC' +
-    'CCAAGGT CTTACATAAG AGGACTCTTG GACTCTCAGC\n 2961  AATGTCAACG ' +
-    'ACCGACCTTG AGGCATACTT CAAAGACTGT TTGTTTAAAG ACTGGGAGGA GTTGG' +
-    'GGGAG GAGATTAGGT\n 3041  TAAAGGTCTT TGTACTAGGA GGCTGTAGGC AT' +
-    'AAATTGGT CTGCGCACCA GCACCATGCA ACTTTTTCAC CTCTGCCTAA\n 3121 ' +
-    ' TCATCTCTTG TTCATGTCCT ACTGTTCAAG CCTCCAAGCT GTGCCTTGGG TGGC' +
-    'TTTGGG GC </pre>';
-    return str;
-}
-
-function wdeTestDataString_039() {
-    var str = '<pre id="wdeStartNode"> \n    1  <a style="backgro' +
-    'und-color:#ffff00" onclick="parent.wdeFeatInfoUpdate(0)">ATG' +
-    'GACATCG ACCCTTATAA AGAATTTGGA GCTACTGTGG AGTTACTCTC GTTTTTGC' +
-    'CT TCTGACTTCT TTCCTTCAGT</a>\n   81  <a style="background-co' +
-    'lor:#ffff00" onclick="parent.wdeFeatInfoUpdate(0)">ACGAGATCT' +
-    'T CTA</a><a style="background-color:#00fff0" onclick="parent' +
-    '.wdeFeatInfoUpdate(1)">GATACCG CCTCAGCTCT GTATCGGGAA GCCTTAG' +
-    'AGT CTCCTGAGCA TTGTTCACCT CACCATACTG</a>\n  161  <a style="b' +
-    'ackground-color:#00fff0" onclick="parent.wdeFeatInfoUpdate(1' +
-    ')">CACTCAGGCA AGCAATTCTT TG</a><a style="background-color:#f' +
-    'fff00" onclick="parent.wdeFeatInfoUpdate(2)">CTGGGGGG AACTAA' +
-    'TGAC TCTAGCTACC TGGGTGGGTG TTAATTTGGA AGATCCAGCG</a>\n  241 ' +
-    ' <a style="background-color:#ffff00" onclick="parent.wdeFeat' +
-    'InfoUpdate(2)">TCTAGAGACC TAGTAGTCAG TTATGTCAAC ACTAATATGG G' +
-    'CCTAAAGTT CAGGCAACTC TTGTGGTTTC ACATTTCTTG</a>\n  321  <a st' +
-    'yle="background-color:#ffff00" onclick="parent.wdeFeatInfoUp' +
-    'date(2)">TCTCACTTTT GGAAGAGAAA CAGTTATAGA GTATTTGGTG TCTTTCG' +
-    'GAG TGTGGATTCG CACTCCTCCA GCTTATAGAC</a>\n  401  <a style="b' +
-    'ackground-color:#ffff00" onclick="parent.wdeFeatInfoUpdate(2' +
-    ')">CACCAA</a><a style="background-color:#ffff00" onclick="pa' +
-    'rent.wdeFeatInfoUpdate(3)">ATGC CCCTATCCTA TCAACACTTC CGGAGA' +
-    'CTAC TGTTGTTAGA CGACGAGGCA GGTCCCCTAG AAGAAGAACT</a>\n  481 ' +
-    ' <a style="background-color:#ffff00" onclick="parent.wdeFeat' +
-    'InfoUpdate(3)">CCCTCGCCTC GCAGACGAAG GTCTCAATCG CCGCGTCGCA G' +
-    'AAGATCTCA ATCTCGGGAA TCTCAATGTT AG</a><a style="background-c' +
-    'olor:#6464ff" onclick="parent.wdeFeatInfoUpdate(4)">TATTCCTT' +
-    '</a>\n  561  <a style="background-color:#6464ff" onclick="pa' +
-    'rent.wdeFeatInfoUpdate(4)">GGACTCATAA GGTGGGGAAC TTTACTGGGC ' +
-    'TTTATTCTTC TACTGTACCT GTCTTTAATC CTCATTGGAA AACACCATCT</a>\n' +
-    '  641  <a style="background-color:#6464ff" onclick="parent.w' +
-    'deFeatInfoUpdate(4)">TTTCCTAATA TACATTTACA CCAAGACATT ATCAAA' +
-    'AAAT GTGAACAGTT TGTAGGCCCA CTCACAGTTA ATGAGAAAAG</a>\n  721 ' +
-    ' <a style="background-color:#6464ff" onclick="parent.wdeFeat' +
-    'InfoUpdate(4)">AAGATTGCAA TTGATTATGC CTGCCAGGTT TTATCCAAAG G' +
-    'TTACCAAAT ATTTACCATT GGATAAGGGT ATTAAACCTT</a>\n  801  <a st' +
-    'yle="background-color:#6464ff" onclick="parent.wdeFeatInfoUp' +
-    'date(4)">ATTATCCAGA ACATCTAGTT AATCATTACT TCCAAACTAG ACACTAT' +
-    'TTA CACACTCTAT GGAAGGCGGG TATATTATAT</a>\n  881  <a style="b' +
-    'ackground-color:#6464ff" onclick="parent.wdeFeatInfoUpdate(4' +
-    ')">AAGAGAGAAA CAACACATAG CGCCTCATTT TGTGGGTCAC CATATTCTTG GG' +
-    'AACAAGAT CTACAGCATG GGGCAGAATC</a>\n  961  <a style="backgro' +
-    'und-color:#6464ff" onclick="parent.wdeFeatInfoUpdate(4)">TTT' +
-    'CCACCAG CAATCCTCTG GGATTCTTTC CCGACCACCA GTTGGATCCA GCCTTCAG' +
-    'AG CAAACACCGC AAATCCAGAT</a>\n 1041  <a style="background-co' +
-    'lor:#6464ff" onclick="parent.wdeFeatInfoUpdate(4)">TGGGACTTC' +
-    'A ATCCCAACAA GGACACCTGG CCAGACGCCA ACAAGGTAGG AGCTGGAGCA TTC' +
-    'GGGCTGG GTTTCACCCC</a>\n 1121  <a style="background-color:#6' +
-    '464ff" onclick="parent.wdeFeatInfoUpdate(4)">ACCGCACGGA GGCC' +
-    'TTTTGG GGTGGAGCCC TCAGGCTCAG GGCATACTAC AAACTTTGCC AGCAAATCC' +
-    'G CCTCCTGCCT</a>\n 1201  <a style="background-color:#6464ff"' +
-    ' onclick="parent.wdeFeatInfoUpdate(4)">CCACCAATCG CCAGTCAGGA' +
-    ' AGGCAGCCTA CCCCGCTGTC TCCACCTTTG AGAAACACTC ATCCTCAGGC CATG' +
-    'CAGTGG</a>\n 1281  <a style="background-color:#6464ff" oncli' +
-    'ck="parent.wdeFeatInfoUpdate(4)">AATTCCACAA CCTTCCACCA AACTC' +
-    'TGCAA GATCCCAGAG TGAGAGGCCT GTATTTCCCT GCTGGTGGCT CCAGTTCAGG' +
-    '</a>\n 1361  <a style="background-color:#6464ff" onclick="pa' +
-    'rent.wdeFeatInfoUpdate(4)">AACAGTAAAC CCTGTTCTGA CTACTGCCTC ' +
-    'TCCCTTATCG TCAATCTTCT CGAGGATTGG GGACCCTGCG CTGAAC</a><a sty' +
-    'le="background-color:#2db300" onclick="parent.wdeFeatInfoUpd' +
-    'ate(5)">ATGG</a>\n 1441  <a style="background-color:#2db300"' +
-    ' onclick="parent.wdeFeatInfoUpdate(5)">AGAACATCAC ATCAGGATTC' +
-    ' CTAGGACCCC TTCTCGTGTT ACAGGCGGGG TTTTTCTTGT TGACAAGAAT CCTC' +
-    'ACAATA</a>\n 1521  <a style="background-color:#2db300" oncli' +
-    'ck="parent.wdeFeatInfoUpdate(5)">CCGCAGAGTC TAGACTCGTG GTGGA' +
-    'CTTCT CTCAATTTTC TAGGGGGAAC TACCGTGTGT CTTGGCCAAA ATTCGCAGTC' +
-    '</a>\n 1601  <a style="background-color:#2db300" onclick="pa' +
-    'rent.wdeFeatInfoUpdate(5)">CCCAACCTCC AATCACTCAC CAACCTCTTG ' +
-    'TCCTCCAACT TGTCCTGGTT ATCGCTGGAT GTGTCTGCGG CGTTTTATCA</a>\n' +
-    ' 1681  <a style="background-color:#2db300" onclick="parent.w' +
-    'deFeatInfoUpdate(5)">TCTTCCTCTT CATCCTGCTG CTATGCCTCA TCTTCT' +
-    'TGTT GGTTCTTCTG GACTATCAAG GTATGTTGCC CGTTTGTCCT</a>\n 1761 ' +
-    ' <a style="background-color:#2db300" onclick="parent.wdeFeat' +
-    'InfoUpdate(5)">CTAATTCCAG GATCCTCAAC AACCAGCACG GGACCATGCC G' +
-    'GACCTGCAT GACTACTGCT CAAGGAACCT CTATGTATCC</a>\n 1841  <a st' +
-    'yle="background-color:#2db300" onclick="parent.wdeFeatInfoUp' +
-    'date(5)">CTCCTGTTGC TGTACCAAAC CTTCGGACGG AAATTGCACC TGTATTC' +
-    'CCA TCCCATCATC CTGGGCTTTC GGAAAATTCC</a>\n 1921  <a style="b' +
-    'ackground-color:#2db300" onclick="parent.wdeFeatInfoUpdate(5' +
-    ')">TATGGGAGTG GGCCTCAGCC CGTTTCTCCT GGCTCAGTTT ACTAGTGCCA TT' +
-    'TGTTCAGT GGTTCGTAGG GCTTTCCCCC</a>\n 2001  <a style="backgro' +
-    'und-color:#2db300" onclick="parent.wdeFeatInfoUpdate(5)">ACT' +
-    'GTTTGGC TTTCAGTTAT ATGGATGATG TGGTATTGGG GGCCAAGTCT GTACAGCA' +
-    'TC TTGAGTCCCT TTTTACCGCT</a>\n 2081  <a style="background-co' +
-    'lor:#2db300" onclick="parent.wdeFeatInfoUpdate(5)">GTTACCAAT' +
-    'T TTCTTTTGTC TTTGGGTATA CATTTAA</a><a style="background-colo' +
-    'r:#6464ff" onclick="parent.wdeFeatInfoUpdate(6)">ACC CTAACAA' +
-    'AAC AAAGAGATGG GGTTACTCTC TAAATTTTAT</a>\n 2161  <a style="b' +
-    'ackground-color:#6464ff" onclick="parent.wdeFeatInfoUpdate(6' +
-    ')">GGGTTATGTC ATTGGATGTT ATGGGTCCTT GCCACAAGAA CACATCATAC AA' +
-    'AAAATCAA AGAATGTTTT AGAAAACTTC</a>\n 2241  <a style="backgro' +
-    'und-color:#6464ff" onclick="parent.wdeFeatInfoUpdate(6)">CTA' +
-    'TTAACAG GCCTATTGAT TGGAAAGTAT GTCAACGAAT TGTGGGTCTT TTGGGTTT' +
-    'TG CTGCCCCTTT TACACAATGT</a>\n 2321  <a style="background-co' +
-    'lor:#6464ff" onclick="parent.wdeFeatInfoUpdate(6)">GGTTATCCT' +
-    'G CGTTGATGCC TTTGTATGCA TGTATTCAAT CTAAGCAGGC TTTCACTTTC TCG' +
-    'CCAACTT ACAAGGCCTT</a>\n 2401  <a style="background-color:#6' +
-    '464ff" onclick="parent.wdeFeatInfoUpdate(6)">TCTGTGTAAA CAAT' +
-    'ACCTGA ACCTTTACCC CGTTGCCCGG CAACGGCCAG GTCTGTGCCA AGTGTTTGC' +
-    'T GACGCAACCC</a>\n 2481  <a style="background-color:#6464ff"' +
-    ' onclick="parent.wdeFeatInfoUpdate(6)">CCACTGGCTG GGGCTTGGTC' +
-    ' ATGGGCCATC AGCGCATGCG TGGAACCTTT TCGGCTCCTC TGCCGATCCA TACT' +
-    'GCGGAA</a>\n 2561  <a style="background-color:#6464ff" oncli' +
-    'ck="parent.wdeFeatInfoUpdate(6)">CTCCTAGCCG CTTGTTTTGC TCGCA' +
-    'GCAGG TCTGGAGCAA ACATTATCGG GACTGATAAC TCTGTTGTCC TATCCCGCAA' +
-    '</a>\n 2641  <a style="background-color:#6464ff" onclick="pa' +
-    'rent.wdeFeatInfoUpdate(6)">ATATACATCG TTTCCATGGC TGCTAGGCTG ' +
-    'TGCTGCCAAC TGGATCCTGC GCGGGACGTC CTTTGTTTAC GTCCCGTCGG</a>\n' +
-    ' 2721  <a style="background-color:#6464ff" onclick="parent.w' +
-    'deFeatInfoUpdate(6)">CGCTGAATCC TGCGGACGAC CCTTCTCGGG GTCGCT' +
-    'TGGG ACTCTCTCGT CCCCTTCTCC GTCTGCCGTT CCGACCGACC</a>\n 2801 ' +
-    ' <a style="background-color:#6464ff" onclick="parent.wdeFeat' +
-    'InfoUpdate(6)">ACGGGGCGCA CCTCTCTTTA CGCGGACTCC CCGTCTGTGC C' +
-    'TTCTCATCT GCCGGACCGT GTGCACTTCG CTTCACCTCT</a>\n 2881  <a st' +
-    'yle="background-color:#6464ff" onclick="parent.wdeFeatInfoUp' +
-    'date(6)">GCACGTCGCA TGGAGACCAC CGTGA</a>ACGCC CACCAAATAT TGC' +
     'CCAAGGT CTTACATAAG AGGACTCTTG GACTCTCAGC\n 2961  AATGTCAACG ' +
     'ACCGACCTTG AGGCATACTT CAAAGACTGT TTGTTTAAAG ACTGGGAGGA GTTGG' +
     'GGGAG GAGATTAGGT\n 3041  TAAAGGTCTT TGTACTAGGA GGCTGTAGGC AT' +

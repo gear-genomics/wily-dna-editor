@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.9.9";
+var wdeVVersion = "0.9.10";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -4472,11 +4472,7 @@ function wdeTransSortOrf(a, b) {
         return b[3] - a[3];
     } else {
 	    if (a[2] != b[2]) {
-	        if (a[2] == "F") {
-	            return 1;
-	        } else {
-	            return -1;
-	        }
+	        return a[2] - b[2];
 	    }
 	    if (a[1] == b[1]) {
             return b[3] - a[3];
