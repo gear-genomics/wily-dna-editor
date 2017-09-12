@@ -38,6 +38,41 @@ var wdeTestFailed;
 var wdeTestPRString = "";
 var wdeTestLastTime;
 
+function wdeTestForLargeGB() {
+    wdeTestOutput = "";
+    wdeTestFailed = 0;
+    wdeInTestRun = 1;   
+    var currentTestOut = "";
+    var testName = "";
+    var downloadDiff = 0;
+    if(document.getElementById("WDE_TEST_DOWNLOAD_DIFF").checked != 0) {
+        downloadDiff = 1;
+    }
+    
+    var startTime = new Date();
+    wdeTestLastTime = startTime;
+    wdeTestAddToOutput("Starting Tests: " + wdeTestLeadingZero(startTime.getHours()) + ":" 
+                   + wdeTestLeadingZero(startTime.getMinutes()) + ":" 
+                   + wdeTestLeadingZero(startTime.getSeconds()) + "\n");
+
+    wdeTestAddToOutput("\nCheck if Sequence is the large Genebank file:\n\n");
+
+    testName = "wdeTestForLargeGB()";
+    wdeTestAddToOutput(testName + " - ");
+    currentTestOut = wdeSaveGenBank();
+    wdeTestOutComp(wdeTestStringLargeGeneBank(), currentTestOut[1], "No", testName, downloadDiff);
+
+    wdeInTestRun = 0;
+
+    var endTime = new Date();
+    wdeTestAddToOutput("\n\nFinished Tests: " + wdeTestLeadingZero(endTime.getHours()) + ":" 
+                   + wdeTestLeadingZero(endTime.getMinutes()) + ":" 
+                   + wdeTestLeadingZero(endTime.getSeconds()) + "\n");
+
+    var seconds = (endTime.getTime() - startTime.getTime()) / 1000;
+    wdeTestAddToOutput("Tests Runtime: " + seconds + " s\n");
+}
+
 function wdeTestAll() {
     wdeTestOutput = "";
     wdeTestFailed = 0;
@@ -57,6 +92,10 @@ function wdeTestAll() {
                    + wdeTestLeadingZero(startTime.getSeconds()) + "\n");
 
     wdeTestAddToOutput("\nTest Main Functions:\n\n");
+
+    testName = "wdeTestSortTagsHTML()";
+    wdeTestAddToOutput(testName + " - ");
+    wdeTestOutComp(wdeTestDataString_045(), wdeTestSortTagsHTML(wdeTestDataString_044()), "No", testName, downloadDiff);
 
     testName = "wdeReadFile()";
     wdeTestAddToOutput(testName + " - ");
@@ -17931,6 +17970,33 @@ function wdeTestDataString_043() {
     ',1,""]]';
     return str;
 }
+
+function wdeTestDataString_044() {
+    var str = '<table border="0"><tbody><tr><th>Sel</th>\n' +
+    '<th>&nbsp;&nbsp;Hits</th><th>Name</th>\n' +
+    '<tr><td><input type="checkbox" onclick="wdeSelEnzymes(this, 0)" id="WDE_0"></td>\n' +
+    '<tr><td><input type="checkbox" onclick="wdeSelEnzymes(this, 0)" id=" WDE_0">space</td>\n' +
+    '<tr><td><input type="checkbox" onclick="wdeSelEnzymes(this, 0)" id=" WDE_0 ">double space</td>\n' +
+    '<tr><td><input type=checkbox onclick="wdeSelEnzymes(this, 0)" id="WDE_0">no quot</td>\n' +
+    '<tr><td><input type =checkbox onclick="wdeSelEnzymes(this, 0)" id="WDE_0">no quot space</td>\n' +
+    '<tr><td><input type = checkbox onclick="wdeSelEnzymes(this, 0)" id="WDE_0">no quot space</td>\n' +
+    '<td>MslI</td><td>&nbsp;CAYNN^NNRTG</td></tr>\n';
+    return str;
+}
+
+function wdeTestDataString_045() {
+    var str = '<table border="0"><tbody><tr><th>Sel</th>\n' +
+    '<th>&nbsp;&nbsp;Hits</th><th>Name</th>\n' +
+    '<tr><td><input id="WDE_0" onclick="wdeSelEnzymes(this, 0)" type="checkbox"></td>\n' +
+    '<tr><td><input id=" WDE_0" onclick="wdeSelEnzymes(this, 0)" type="checkbox">space</td>\n' +
+    '<tr><td><input id=" WDE_0 " onclick="wdeSelEnzymes(this, 0)" type="checkbox">double space</td>\n' +
+    '<tr><td><input id="WDE_0" onclick="wdeSelEnzymes(this, 0)" type=checkbox>no quot</td>\n' +
+    '<tr><td><input id="WDE_0" onclick="wdeSelEnzymes(this, 0)" type =checkbox>no quot space</td>\n' +
+    '<tr><td><input id="WDE_0" onclick="wdeSelEnzymes(this, 0)" type = checkbox>no quot space</td>\n' +
+    '<td>MslI</td><td>&nbsp;CAYNN^NNRTG</td></tr>\n';
+    return str;
+}
+
 
 
 // function wdeTestDataString_040() 

@@ -178,6 +178,9 @@ function wdeLoadTestSeq(size) {
     if (size == "LG")  {
         wdeKeepTryingFunction("wdeTestLoadLargeGeneBank", "");
     }
+    if (size == "TG")  {
+        wdeKeepTryingFunction("wdeTestForLargeGB", "");
+    }
     if (size == "TA")  {
         wdeKeepTryingAllTests();
     }
