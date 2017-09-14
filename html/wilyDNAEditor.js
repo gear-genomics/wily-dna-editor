@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.9.10";
+var wdeVVersion = "0.9.11";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
