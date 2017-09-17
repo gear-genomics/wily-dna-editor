@@ -1,0 +1,23 @@
+Test:
+1. Settings -> Load Large Genbank Sequence
+2. Main -> Save GeneBank
+3. Settings -> Load Small Fasta Sequence
+4. Main -> Load previous saved file from disk
+5. Settings -> Test Seq Genebank
+6. Settings -> Run Tests For All Functions
+
+2017 Sep 17 - using Wily v0.9.11: 
+   Windows 10 - 1703 (Build 15063.608):
+      Firefox 55.0.3 (32-Bit) Passed all Tests OK
+      Chrome 60.0.3112.113 (64-Bit) Passed all Tests OK
+      Edge 40.15063.0.0 Passed all Tests OK
+
+   Mac OS X EL Capitain - 10.11.6:
+      Safari 10.1.2 (11603.3.8) Passed all Tests OK
+      Firefox 55.0.3 (64-Bit) Passed all Tests OK
+      Chrome 60.0.3112.113 (64-Bit) Passed all Tests OK
+
+   Ubuntu - 16.4.3 LTS:
+      Firefox 55.0.2 (64-Bit) Passed all Tests OK
+      Chrome 61.0.3163.79 (64-Bit) Passed all Tests OK
+      
