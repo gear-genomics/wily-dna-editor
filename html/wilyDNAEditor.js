@@ -202,7 +202,8 @@ function wdeKeepTryingAllTests() {
     catch (e) {
         if ((e.name == "ReferenceError") && 
             (/wdeTestAll/.test(e.message)) && 
-            (/(un|not )defined/.test(e.message))) {
+            ((/(un|not )defined/.test(e.message)) ||
+             (/find variable/.test(e.message)))) {
             setTimeout(function() { wdeKeepTryingAllTests(); }, 50);
         } else {
             alert(e.name + ":\n" + e.message);
@@ -231,6 +232,10 @@ function wdeDetectBorwser() {
     if (browser.indexOf("chrome") != -1) {
         return "chrome";
     }
+    if (browser.indexOf("safari") != -1) {
+        return "safari";
+    }
+    alert("Unknown Browser: Functionality may be impaired!\n\n" +browser);
     return browser;
 }
 
@@ -1133,7 +1138,7 @@ function wdeSaveFile(fileName,content,type) {
     }
     var a = document.createElement("a");
     document.body.appendChild(a);
-    a.style = "display: none";
+    a.style.display = "none";
     var blob;
     if (type == "html") {
         blob = new Blob([content], {type: "text/html"});
