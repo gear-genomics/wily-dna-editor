@@ -13,7 +13,7 @@ Try it out:
 Download Program and Source Code
 --------------------------------
 
-[Source code is available at https://github.com/gear-genomics/wily_dna_editor](https://github.com/gear-genomics/wily_dna_editor)
+[Source code is available at https://github.com/gear-genomics/wily-dna-editor](https://github.com/gear-genomics/wily-dna-editor)
 
 The Wily DNA Editor can do basic DNA/RNA operations
 ---------------------------------------------------
