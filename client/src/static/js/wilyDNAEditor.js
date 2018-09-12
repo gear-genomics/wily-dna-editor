@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.9.13";
+var wdeVVersion = "0.9.14";
 
 // Display Variables
 var prevTabPage = "WDE_main_tab";
@@ -158,12 +158,6 @@ function wdeHideTabs() {
         document.getElementById('WDE_settings').style.display="none";
 }
 
-function wdeCountUp() {
-    var client = new XMLHttpRequest();
-    client.open('GET', 'https://wily-dna-editor.com/cgi-bin/wdeStatisticsCountOne.cgi');
-    client.send();
-}
-
 function wdeLoadTestSeq(size) {
     wdeLoadTestScripts();
     if (size == "SF") {
@@ -215,7 +209,7 @@ function wdeLoadTestScripts() {
     if (testInstr == 0) {
 	    var scriptBlock = document.createElement('script');
         scriptBlock.setAttribute("type","text/javascript");
-        scriptBlock.setAttribute("src", "wilyDNAEditorTestSuite.js");
+        scriptBlock.setAttribute("src", "static/js/wilyDNAEditorTestSuite.js");
         document.getElementsByTagName("head")[0].appendChild(scriptBlock);
 		testInstr = 1;
 	}

@@ -15,6 +15,8 @@ Download Program and Source Code
 
 [Source code is available at https://github.com/gear-genomics/wily-dna-editor](https://github.com/gear-genomics/wily-dna-editor)
 
+`git clone https://github.com/gear-genomics/wily-dna-editor.git`
+
 The Wily DNA Editor can do basic DNA/RNA operations
 ---------------------------------------------------
 

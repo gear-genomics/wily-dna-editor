@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8"> 
 <!--
 Copyright (c) 2017
 Andreas Untergasser. All rights reserved.
@@ -36,93 +37,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-  <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
   <meta name="viewport" content="width=1034px, initial-scale=1.0">
   <meta name="description" content="The Wily-DNA-Editor is a browser tool for plasmid assembly, reverse complements DNA, translates to protein code and calculates restriction digests maps.">
   <title>The Wily DNA Editor</title>
-  <style type="text/css">
-    body {
-        color: black;
-        background-color: white;
-        font-size: 100.01%;
-        margin: 1em;
-        padding: 0;
-        text-align: center
-    }
-
-    div#page { text-align: left;
-        margin: auto;
-        width: 1024px;
-    }
-    
-    div#WDE_footer {
-		margin: 12px 0px 3px 0px;
-		font-size: 80%;
-		font-family: Arial;
-		font-weight: bold;
-		color: rgb(75, 75, 75);
-		text-align: center;
-        border: 1px solid black;
-	}
-
-    div#WDE_no_javascript {
-        width:900px;
-        border: 2px solid #ccccff;
-        margin: 4px 0px 0px 0px;
-        clear: left;
-        float: left;
-        background-color: rgb(255, 0, 0);
-        overflow:hidden;
-        padding: 0px;
-    }
-
-    .WDE_tab_page {
-        width:900px;
-        border: 2px solid #ccccff;
-        clear: left;
-        float: left;
-        background-color: rgb(255, 255, 230);
-        overflow:hidden;
-        padding: 0px;
-        line-height: 1.2;
-    }
-
-    div#WDE_space {
-        padding: 8px;
-        line-height: 2;
-    }
-
-    div#WDE_enzymes_spacer{
-        font-size: 80%;
-        line-height: 1.5;
-    }
-
-    .WDE_tab_page_no_border {
-        width:900px;
-        clear: left;
-        float: left;
-        background-color: rgb(255, 255, 230);
-        overflow:hidden;
-    }
-
-    div#menuBar { float:left; width:900px; padding: 0px; margin: 8px 0 0 8px; line-height:normal; text-align: left; }
-    div#menuBar ul { margin:0px; padding: 0px; list-style:none; }
-    div#menuBar li { float:left; margin:0; border: 2px solid #ccccff; border-bottom-width: 0; }
-    div#menuBar a { top: 2px; display:block; padding: 0.24em 1em; font-weight: bold; cursor: pointer; }
-
-    div#WDE_top_bar { width: 900px; padding: 0px; border: 2px solid #ccccff;}
-    .WDE_background { background-color:#ccccff; }
-    .WDE_top_bar_table { border:0; width:100%; }
-    .WDE_top_bar_cell { border:0; padding:0.4em;background-color:#ccccff; }
-    .WDE_top_bar_title { font-size: 2.2em; font-weight:700; }
-    .WDE_top_bar_explain { font-size: 1.0em; font-weight:500 }
-    .WDE_top_bar_link { font-weight:bold }
-    .WDE_table_no_border { border:0; width:100%; empty-cells:show; }
-    .WDE_note { background-color:rgb(255,120,60); padding:0px; }
-
-    textarea#sequenceTextarea { font-family:Courier,monospace; width:95%; }
-  </style>
-  <script src="wilyDNAEditor.js"></script>
+  <link rel="stylesheet" href="static/css/wilyDNAEditor.css">
+  <script src="static/js/wilyDNAEditor.js"></script>
   <link rel="canonical" href="https://wily-dna-editor.com" />
 </head>
 
@@ -131,25 +50,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div id="page">
 <div id="WDE_complete">
 
-<div id="WDE_space" style="line-height: 1.2">
-&nbsp;<a>The Wily-DNA-Editor is still BETA! If you encounter any issues, find bugs, experience unintended or surprising behavior please drop us a <br />
-&nbsp;note and give us the chance to improve Wily. We also enjoy positive feedback :-)&nbsp;&nbsp;&nbsp;E-Mail: wily(at)wily-dna-editor.com</a>
-</div>
-
 <form name="mainForm" id="mainForm" action="https://primer3plus.com/cgi-bin/dev/primer3plus.cgi" method="post" enctype="multipart/form-data" onReset="initPage();">
 
 <div id="WDE_top_bar">
    <table class="WDE_top_bar_table">
      <colgroup>
-       <col width="60%" class="WDE_background">
-       <col width="20%" class="WDE_background">
-       <col width="20%" class="WDE_background">
+       <col class="WDE_background" style="width: 60%">
+       <col class="WDE_background" style="width: 20%">
+       <col class="WDE_background" style="width: 20%">
      </colgroup>
      <tr>
        <td class="WDE_top_bar_cell" rowspan="2"><a class="WDE_top_bar_title">The Wily DNA Editor</a><br>
        <a class="WDE_top_bar_explain" id="top">master DNA sequences, plasmids and restriction enzyme digests</a>
        </td>
-       <td class="WDE_top_bar_cell"><a class="WDE_top_bar_link" href="more.html">More...</a>
+       <td class="WDE_top_bar_cell"><a class="WDE_top_bar_link" href="https://gear.embl.de/">GEAR</a>
        </td>
        <td class="WDE_top_bar_cell"><a class="WDE_top_bar_link" href="https://github.com/gear-genomics/wily-dna-editor">Source Code</a>
        </td>
@@ -163,7 +77,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    </table>
 </div>
 
-<script type="text/javascript">
+<script>
     document.write("<style type=\"text/css\">div#WDE_no_javascript { display: none; }</style>");
 </script>
 
@@ -190,9 +104,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </div>
 
 <div id="WDE_main_tab" class="WDE_tab_page">
-<div id="WDE_space">
 &nbsp;<a>Load:</a>
-&nbsp;<input type="file" id="WDE_Load_File" value="Load">
+&nbsp;<input type="file" id="WDE_Load_File">
 &nbsp;<input type="button" onClick="wdeSaveFasta()" value="Save Fasta">
 &nbsp;<input type="button" onClick="wdeSaveGenBank()" value="Save GeneBank">
 <!-- This function actually triggers the form -->
@@ -233,13 +146,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <iframe name="WDE_RTF" id="WDE_RTF" style="border:#000000 1px solid; background-color: white; width:800px; height:500px;"></iframe>
 <!-- End replacing the textarea -->
 
-<div id="WDE_footer"><a>&copy; by A. Untergasser</a></div>
 </div>
-</div>
-
 
 <div id="WDE_restriction_sites" class="WDE_tab_page">
-<div id="WDE_space">
 &nbsp;<input type="checkbox" id="WDE_USER_SEL" onclick="wdeTGUserSel(-1)">
 &nbsp;<a id="WDE_USER_COUNT">Hits: -</a>
 &nbsp;&nbsp;&nbsp;
@@ -292,14 +201,9 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 &nbsp;<a>Enzyme Tab...</a>
 </div>
 
-<div id="WDE_footer"><a>&copy; by A. Untergasser</a></div>
-
 </div>
-</div>
-
 
 <div id="WDE_digest" class="WDE_tab_page">
-<div id="WDE_space">
 &nbsp;<a>DNA Load per Lane:</a>
 &nbsp;<input name="WDE_DIGEST_AMOUNT" value="500" type="text" style="text-align:right;" size="2">
 &nbsp;<a>ng</a>
@@ -323,13 +227,9 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 
 <iframe name="WDE_DIGEST" id="WDE_DIGEST" style="border:#000000 1px solid; background-color: white; width:800px; height:500px;"></iframe>
 
-<div id="WDE_footer"><a>&copy; by A. Untergasser</a></div>
-</div>
 </div>
 
 <div id="WDE_translate" class="WDE_tab_page">
-<div id="WDE_space">
-
 &nbsp;<a>Genetic Code:</a>
 &nbsp;<select id="WDE_TRANS_CODE" onChange="wdeSelTransCode()" ></select>
 &nbsp;&nbsp;&nbsp;&nbsp;
@@ -358,12 +258,9 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 </div>
 <iframe name="WDE_TRANS" id="WDE_TRANS" style="border:#000000 1px solid; background-color: white; width:800px; height:500px;"></iframe>
 
-<div id="WDE_footer"><a>&copy; by A. Untergasser</a></div>
-</div>
 </div>
 
 <div id="WDE_features" class="WDE_tab_page">
-<div id="WDE_space">
 &nbsp;<a>Feature List:</a>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -415,14 +312,11 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 &nbsp;&nbsp;<textarea name="WDE_FEAT_QUALIF"  onChange="wdeSelFFeatQualif()" rows="4" cols="90"></textarea>
 <br />
 
-<div id="WDE_footer"><a>&copy; by A. Untergasser</a></div>
-</div>
 </div>
 
 <div id="WDE_feature_lib" class="WDE_tab_page">
-<div id="WDE_space">
 &nbsp;<a>Add Features from File:</a>
-&nbsp;<input type="file" id="WDE_Load_Lib_File" value="Load">
+&nbsp;<input type="file" id="WDE_Load_Lib_File">
 &nbsp;<input type="button" onClick="wdeSaveLibFile()" value="Save Library">
 &nbsp;<input type="button" onClick="wdeDeleteLib()" value="Delete Library">
 &nbsp;&nbsp;&nbsp;
@@ -473,19 +367,16 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 &nbsp;&nbsp;<textarea name="WDE_LIB_QUALIF"  onChange="wdeSelFLibQualif()" rows="4" cols="90"></textarea>
 <br />
 
-<div id="WDE_footer"><a>&copy; by A. Untergasser</a></div>
-</div>
 </div>
 
 <div id="WDE_settings" class="WDE_tab_page">
-<div id="WDE_space">
 &nbsp;<a>Save Settings:</a><br>
 &nbsp;<input type="button" onClick="wdeSaveCookie()" value="Save Settings in Cookie">
 &nbsp;<input type="button" onClick="wdeLoadCookie('U')" value="Load Settings from Cookie">
 &nbsp;<input type="button" onClick="wdeDelCookie()" value="Delete Cookie">
 <br />
 &nbsp;<a>Load Settings File:</a>
-&nbsp;<input type="file" id="WDE_Load_Settings" value="Load">
+&nbsp;<input type="file" id="WDE_Load_Settings">
 &nbsp;<input type="button" onClick="wdeSaveSetFile()" value="Save Settings">
 <br />
 <br />
@@ -507,18 +398,28 @@ B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACG
 &nbsp;<a>Test Output:</a><br>
 <iframe name="WDE_TEST_OUT" id="WDE_TEST_OUT" style="border:#000000 1px solid; background-color: white; width:800px; height:400px;"></iframe><br>
 
-<div id="WDE_footer"><a>&copy; by A. Untergasser</a></div>
+</div>
+
+<div id="WDE_footer_bar">
+<div id="WDE_footer">
+GEAR ~
+<a target="_blank" href="https://gear.embl.de"> Home </a> ·
+<a target="_blank" href="https://github.com/gear-genomics"> GitHub </a> ·
+<a target="_blank" href="https://gear.embl.de/terms"> Terms of Use </a> ·
+<a target="_blank" href="https://gear.embl.de/contact"> Contact Us </a>
+</div>
+<div id="WDE_footer_r">
+Hosted with love by EMBL 
 </div>
 </div>
+
 </form>
 
 </div>
 </div>
 
-<!-- Remove "wdeCountUp();" if you do not want to add to the usage counter -->
-<script type="text/javascript">
+<script>
 wdeInitPage();
-wdeCountUp();
 </script>
 
 </body>

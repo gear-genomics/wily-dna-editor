@@ -1,0 +1,155 @@
+body {
+    color: black;
+    background-color: white;
+    font-size: 100.01%;
+    margin: 1em;
+    padding: 0;
+    text-align: center
+}
+
+div#page { text-align: left;
+    margin: auto;
+    width: 1024px;
+}
+
+div#WDE_footer {
+    float: left;
+    margin: 8px;
+    font-size: 80%;
+    font-family: Arial;
+    font-weight: bold;
+    text-align: left;
+}
+
+div#WDE_footer_r {
+    float: right;
+    margin: 8px;
+    font-size: 80%;
+    font-family: Arial;
+    font-weight: bold;
+    text-align: left;
+}
+
+div#WDE_no_javascript {
+    width:900px;
+    border: 2px solid #ccccff;
+    margin: 4px 0px 0px 0px;
+    clear: left;
+    float: left;
+    background-color: rgb(255, 0, 0);
+    overflow:hidden;
+    padding: 0px;
+}
+
+.WDE_tab_page {
+    width:884px;
+    border: 2px solid #ccccff;
+    clear: left;
+    float: left;
+    background-color: rgb(255, 255, 230);
+    overflow:hidden;
+    padding: 8px;
+    line-height: 2;
+}
+
+div#WDE_enzymes_spacer{
+    font-size: 80%;
+    line-height: 1.5;
+}
+
+.WDE_tab_page_no_border {
+    width:900px;
+    clear: left;
+    float: left;
+    background-color: rgb(255, 255, 230);
+    overflow:hidden;
+}
+
+div#menuBar {
+    float:left;
+    width:900px;
+    padding: 0px;
+    margin: 8px 0 0 8px;
+    line-height:normal;
+    text-align: left;
+}
+
+div#menuBar ul {
+    margin:0px;
+    padding: 0px;
+    list-style:none;
+}
+
+div#menuBar li {
+    float:left;
+    margin:0;
+    border: 2px solid #ccccff;
+    border-bottom-width: 0;
+}
+
+div#menuBar a {
+    top: 2px;
+    display:block;
+    padding: 0.24em 1em;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+div#WDE_top_bar {
+    width: 900px;
+    padding: 0px;
+    border: 2px solid #ccccff;
+}
+
+div#WDE_footer_bar {
+    float:left; 
+    width: 900px; 
+    padding: 0px;
+    margin: 8px 0 8px 0;
+    border: 2px solid #ccccff;
+}
+
+.WDE_background {
+    background-color:#ccccff;
+}
+
+.WDE_top_bar_table {
+    border:0; width:100%;
+}
+
+.WDE_top_bar_cell {
+    border:0;
+    padding:0.4em;
+    background-color:#ccccff;
+}
+
+.WDE_top_bar_title {
+    font-size: 2.2em;
+    font-weight:700;
+}
+
+.WDE_top_bar_explain {
+    font-size: 1.0em;
+    font-weight:500;
+}
+
+.WDE_top_bar_link {
+    font-weight:bold;
+}
+
+.WDE_table_no_border {
+    border:0;
+    width:100%;
+    empty-cells:show;
+}
+
+.WDE_note {
+    background-color:rgb(255,120,60);
+    padding:0px; 
+}
+
+textarea#sequenceTextarea { 
+    font-family:Courier,monospace;
+    width:95%;
+}
+
