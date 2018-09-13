@@ -16,11 +16,6 @@
   <priority>1.00</priority>
 </url>
 <url>
-  <loc>https://wily-dna-editor.com/more.html</loc>
-  <changefreq>weekly</changefreq>
-  <priority>0.80</priority>
-</url>
-<url>
   <loc>https://wily-dna-editor.com/help.html</loc>
   <changefreq>weekly</changefreq>
   <priority>0.60</priority>
@@ -29,10 +24,5 @@
   <loc>https://wily-dna-editor.com/about.html</loc>
   <changefreq>weekly</changefreq>
   <priority>0.50</priority>
-</url>
-<url>
-  <loc>https://wily-dna-editor.com/cgi-bin/wdeStatistics.cgi</loc>
-  <changefreq>yearly</changefreq>
-  <priority>0.10</priority>
 </url>
 </urlset>

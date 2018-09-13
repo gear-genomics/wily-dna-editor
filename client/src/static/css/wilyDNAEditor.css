@@ -134,7 +134,16 @@ div#WDE_footer_bar {
 }
 
 .WDE_top_bar_link {
+    color:black;
     font-weight:bold;
+    text-decoration: none;
+}
+
+.WDE_footer_link {
+    color:black;
+    font-family: Arial;
+    font-weight:bold;
+    text-decoration: none;
 }
 
 .WDE_table_no_border {
