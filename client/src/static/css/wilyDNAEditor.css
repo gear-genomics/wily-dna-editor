@@ -1,55 +1,55 @@
+html {
+  overflow-y: scroll;
+}
+
 body {
     color: black;
     background-color: white;
-    font-size: 100.01%;
     margin: 1em;
     padding: 0;
     text-align: center
 }
 
-div#page { text-align: left;
+a:visited {
+    color: blue;
+}
+
+.WDE_fit_to_table {
+  padding:0.3em;
+}
+
+.WDE_page {
+    text-align: left;
     margin: auto;
     width: 1024px;
 }
 
-div#WDE_footer {
-    float: left;
-    margin: 8px;
-    font-size: 80%;
-    font-family: Arial;
-    font-weight: bold;
-    text-align: left;
-}
-
-div#WDE_footer_r {
-    float: right;
-    margin: 8px;
-    font-size: 80%;
-    font-family: Arial;
-    font-weight: bold;
-    text-align: left;
-}
-
 div#WDE_no_javascript {
-    width:900px;
+    width: 880px;
     border: 2px solid #ccccff;
     margin: 4px 0px 0px 0px;
     clear: left;
     float: left;
-    background-color: rgb(255, 0, 0);
-    overflow:hidden;
-    padding: 0px;
+    background-color: red;
+    overflow: hidden;
+    padding: 10px;	
 }
 
 .WDE_tab_page {
-    width:884px;
+    width:876px;
     border: 2px solid #ccccff;
     clear: left;
     float: left;
     background-color: rgb(255, 255, 230);
     overflow:hidden;
-    padding: 8px;
+    padding: 8px 8px 8px 16px;
     line-height: 2;
+}
+
+div#WDE_lonly_tab {
+    padding: 10px;
+    width: 880px;
+    margin: 4px 0px 0px 0px;
 }
 
 div#WDE_enzymes_spacer{
@@ -65,31 +65,31 @@ div#WDE_enzymes_spacer{
     overflow:hidden;
 }
 
-div#menuBar {
-    float:left;
-    width:900px;
+div#WDE_menu_bar {
+    float: left;
+    width: 900px;
     padding: 0px;
     margin: 8px 0 0 8px;
-    line-height:normal;
+    line-height: normal;
     text-align: left;
 }
 
-div#menuBar ul {
-    margin:0px;
+div#WDE_menu_bar ul {
+    margin: 0px;
     padding: 0px;
-    list-style:none;
+    list-style: none;
 }
 
-div#menuBar li {
-    float:left;
-    margin:0;
+div#WDE_menu_bar li {
+    float: left;
+    margin: 0;
     border: 2px solid #ccccff;
     border-bottom-width: 0;
 }
 
-div#menuBar a {
+div#WDE_menu_bar a {
     top: 2px;
-    display:block;
+    display: block;
     padding: 0.24em 1em;
     font-weight: bold;
     cursor: pointer;
@@ -98,14 +98,6 @@ div#menuBar a {
 div#WDE_top_bar {
     width: 900px;
     padding: 0px;
-    border: 2px solid #ccccff;
-}
-
-div#WDE_footer_bar {
-    float:left; 
-    width: 900px; 
-    padding: 0px;
-    margin: 8px 0 8px 0;
     border: 2px solid #ccccff;
 }
 
@@ -134,14 +126,6 @@ div#WDE_footer_bar {
 }
 
 .WDE_top_bar_link {
-    color:black;
-    font-weight:bold;
-    text-decoration: none;
-}
-
-.WDE_footer_link {
-    color:black;
-    font-family: Arial;
     font-weight:bold;
     text-decoration: none;
 }
@@ -161,4 +145,31 @@ textarea#sequenceTextarea {
     font-family:Courier,monospace;
     width:95%;
 }
+
+.wde_footer_bar {
+    float:left;
+    width: 900px;
+    padding: 0px;
+    margin: 8px 0 8px 0;
+    border: 2px solid #ccccff;
+    text-align: left;
+}
+.wde_footer_l {
+    float: left;
+    margin: 8px;
+    font-size: 80%;
+    font-family: Arial;
+    font-weight: bold;
+    text-align: left;
+}
+.wde_footer_r {
+    float: right;
+    margin: 8px;
+    font-size: 80%;
+    font-family: Arial;
+    font-weight: bold;
+    text-align: left;
+}
+
+
 

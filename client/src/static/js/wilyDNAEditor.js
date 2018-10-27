@@ -34,11 +34,12 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "0.9.14";
+var wdeVVersion = "1.0.0";
+
+// Link to Primer3Plus
+const uploadTargetP3P = "https://gear.embl.de/primer3plus/api/v1/upload";
 
 // Display Variables
-var prevTabPage = "WDE_main_tab";
-var prevTab = "tab1";
 var testInstr = 0;
 
 // Global Variables
@@ -104,6 +105,7 @@ var wdeFeatureLib = [];
 // [][8] = all other qualifiers
 // [][9] = 1 show feature / 0 hide feature
 // [][10] = sequence if used in library function
+var wdeFeatureLibTestBu = [];
 var wdeFeatColor = [];
 // [][0] = key
 // [][1] = forward color
@@ -122,43 +124,44 @@ var wdeSeqFeat = [];
 
 var wdeInTestRun = 0;
 
+document.addEventListener("DOMContentLoaded", function() {
+  wdeActivateStartup();
+  browseTabFunctionality('WDE_main_tab');
+});
+
 // Display Functions
-function wdeInitPage() {
-    wdeHideTabs();
-    wdeShowTab('tab1','WDE_main_tab');
+window.browseTabFunctionality = browseTabFunctionality;
+function browseTabFunctionality(tab) {
+  browseTabSelect(tab,'WDE_sel_main_tab','WDE_main_tab');
+  browseTabSelect(tab,'WDE_sel_restriction_sites','WDE_restriction_sites');
+  browseTabSelect(tab,'WDE_sel_digest','WDE_digest');
+  browseTabSelect(tab,'WDE_sel_translate','WDE_translate');
+  browseTabSelect(tab,'WDE_sel_features','WDE_features');
+  browseTabSelect(tab,'WDE_sel_feature_lib','WDE_feature_lib');
+  browseTabSelect(tab,'WDE_sel_Settings','WDE_settings');
 }
 
-function wdeShowTab(tab,id) {
-        if (id == "" || !document.getElementById(id)) {
-                return;
-        }
-        if (prevTabPage != "" && document.getElementById(prevTabPage)) {
-                document.getElementById(prevTabPage).style.display="none";
-                document.getElementById(prevTab).style.background="white";
-                document.getElementById(prevTab).style.top="0px";
-                document.getElementById(prevTab).style.zIndex="0";
-        }
-        if (tab != "" && document.getElementById(tab)) {
-                document.getElementById(tab).style.background="rgb(255, 255, 230)";
-                document.getElementById(tab).style.position="relative";
-                document.getElementById(tab).style.top="2px";
-                document.getElementById(tab).style.zIndex="1";
-                prevTab = tab;
-        }
-        document.getElementById(id).style.display="inline";
-        prevTabPage = id;
+function browseTabSelect(sel,btn,tab) {
+  var button = document.getElementById(btn);
+  var tabField = document.getElementById(tab);
+  if (sel == tab) {
+    button.style.background="rgb(255, 255, 230)";
+    button.style.position="relative";
+    button.style.top="2px";
+    button.style.zIndex="1";
+    tabField.style.display="inline";
+  } else {
+    button.style.background="white";
+    button.style.position="static";
+    button.style.top="0px";
+    button.style.zIndex="0";
+    tabField.style.display="none";
+  }
 }
 
-function wdeHideTabs() {
-        document.getElementById('WDE_restriction_sites').style.display="none";
-        document.getElementById('WDE_digest').style.display="none";
-        document.getElementById('WDE_translate').style.display="none";
-        document.getElementById('WDE_features').style.display="none";
-        document.getElementById('WDE_feature_lib').style.display="none";
-        document.getElementById('WDE_settings').style.display="none";
-}
-
+window.wdeLoadTestSeq = wdeLoadTestSeq;
 function wdeLoadTestSeq(size) {
+    window.frames['WDE_TEST_OUT'].document.body.innerHTML = "<pre>\nLoading Test Scripts...\n</pre>";
     wdeLoadTestScripts();
     if (size == "SF") {
         wdeKeepTryingFunction("wdeTestLoadSmallSeq", "");
@@ -176,10 +179,12 @@ function wdeLoadTestSeq(size) {
         wdeKeepTryingFunction("wdeTestForLargeGB", "");
     }
     if (size == "TA")  {
+        wdeResetInterface();
         wdeKeepTryingAllTests();
     }
 }
 
+window.wdeKeepTryingFunction = wdeKeepTryingFunction;
 function wdeKeepTryingFunction(funct, cont) {
     try {
         eval(funct + "(" + cont + ");");
@@ -189,6 +194,7 @@ function wdeKeepTryingFunction(funct, cont) {
     }
 }
 
+window.wdeKeepTryingAllTests = wdeKeepTryingAllTests;
 function wdeKeepTryingAllTests() {
     try {
         wdeTestAll();
@@ -205,6 +211,7 @@ function wdeKeepTryingAllTests() {
     }
 }
 
+window.wdeLoadTestScripts = wdeLoadTestScripts;
 function wdeLoadTestScripts() {
     if (testInstr == 0) {
 	    var scriptBlock = document.createElement('script');
@@ -215,6 +222,7 @@ function wdeLoadTestScripts() {
 	}
 }
 
+window.wdeDetectBorwser = wdeDetectBorwser;
 function wdeDetectBorwser() {
     var browser = window.navigator.userAgent.toLowerCase();
     if (browser.indexOf("edge") != -1) {
@@ -234,19 +242,22 @@ function wdeDetectBorwser() {
 }
 
 // Wily Functions
+window.wdeVersion = wdeVersion;
 function wdeVersion(){
     var version = "Wily DNA Editor - Version: " + wdeVVersion;
     document.getElementById("WDE_VERSION").innerHTML = version;
 }
 
+window.wdeTestAlert = wdeTestAlert;
 function wdeTestAlert(){
     alert("WDE-Alert");
 }
 
+window.wdeActivateStartup = wdeActivateStartup;
 function wdeActivateStartup(){
     window.frames['WDE_RTF'].document.designMode = 'On';
     wdeUser = ["User_Seq", "AGC^MGCT", 0 , "-", "", "N", ""];
-    wdeUpdateButtonsToDef();
+    wdeUpdateButtonsToDef(0);
     var fileLoad = document.getElementById("WDE_Load_File");
     fileLoad.addEventListener("change", wdeLoadFile, false);
     var fileLoad2 = document.getElementById("WDE_Load_Settings");
@@ -261,44 +272,131 @@ function wdeActivateStartup(){
     wdePopulateTranslation();
     wdePopulateFeatureColors();
     wdeFeatFocUpdate(-1);
-    wdeLibFocUpdate(-1);
     wdeDrawGeneticCode();
     wdeDrawEnzymes();
-    wdeLoadCookie('S');
+    wdeLoadLocalStorage('S');
+    wdeLibFocUpdate(-1);
     wdeCleanInputFields();
 }
 
-function wdeSaveCookie(){
-    var txt = wdeSettingsToString();
-    var date = new Date(new Date().setFullYear(new Date().getFullYear() + 3));
-    var dateString = date.toUTCString();
-    // Code the forbidden Characters
-    txt = encodeURIComponent(txt);
-    document.cookie = 'str="' + txt + '"; expires=' + dateString + "; path=/"; 
-}
-
+window.wdeSaveSetFile = wdeSaveSetFile;
 function wdeSaveSetFile() {
     var content = wdeSettingsToString();
     var fileName = "Wily_DNA_Editor_Settings.txt";
     wdeSaveFile(fileName, content, "text");
 }
 
-function wdeLoadCookie(par){
-    var txt = document.cookie;
-    if (txt == "") {
-        if(par == "U") {
-            alert("No Settings Cookie Found on Your Browser!");
-        }
-    } else {
-        var regEx1 = /^str="/g;
-        txt = txt.replace(regEx1, "");
-        var regEx2 = /"/g;
-        txt = txt.replace(regEx2, "");
-        txt = decodeURIComponent(txt);
-        wdeStringToSettings(txt);
+window.wdeLoadLocalStorage = wdeLoadLocalStorage;
+function wdeLoadLocalStorage(){
+    var ret = localStorage.getItem("wde_cmdZeroOneButton");
+    if (ret !== null) {
+        if (ret == "0") {
+	        wdeTGViewZeroOne(0,0,0);
+	    } else {
+	        wdeTGViewZeroOne(1,0,0);
+	    }
+    }
+    ret = localStorage.getItem("wde_wdeDamDcmSel");
+    if (ret !== null) {
+        if (ret == "0") {
+	        wdeTGDamDcm(0,0);
+	    } else {
+	        wdeTGDamDcm(1,0);
+	    }
+    }    
+    ret = localStorage.getItem("wde_RESTRICTION_NR");
+    if (ret !== null) {
+        document.getElementById('RESTRICTION_NR').value = ret;
+    }
+    ret = localStorage.getItem("wde_RESTRICTION_LIST");
+    if (ret !== null) {
+        document.getElementById('RESTRICTION_LIST').value = ret;
+    }
+    ret = localStorage.getItem("wde_USER_NAME");
+    if (ret !== null) {
+        document.getElementById('WDE_USER_NAME').value = ret;
+    }
+    ret = localStorage.getItem("wde_USER_SEQ");
+    if (ret !== null) {
+        document.getElementById('WDE_USER_SEQ').value = ret;
+    }
+    ret = localStorage.getItem("wde_DIGEST_MARKER");
+    if (ret !== null) {
+        document.getElementById('WDE_DIGEST_MARKER').value = ret;
+    }
+    ret = localStorage.getItem("wde_DIGEST_AMOUNT");
+    if (ret !== null) {
+        document.getElementById('WDE_DIGEST_AMOUNT').value = ret;
+    }
+    ret = localStorage.getItem("wde_BandBlack");
+    if (ret !== null) {
+        if (ret == "0") {
+	        wdeTGDigGelBandBlack(0,0,0);
+	    } else {
+	        wdeTGDigGelBandBlack(1,0,0);
+	    }
+    }    
+    ret = localStorage.getItem("wde_FeaturesDigest");
+    if (ret !== null) {
+        if (ret == "0") {
+	        wdeTGDigShowFeatures(0,0,0);
+	    } else {
+	        wdeTGDigShowFeatures(1,0,0);
+	    }
+    }    
+    ret = localStorage.getItem("wde_ORF_AS_NR");
+    if (ret !== null) {
+        document.getElementById('ORF_AS_NR').value = ret;
+    }
+    ret = localStorage.getItem("wde_FeatureLibData");
+    if (ret !== null) {
+        wdeFeatureLib = JSON.parse(ret);
     }
 }
 
+window.wdeSetLocalStorage = wdeSetLocalStorage;
+function wdeSetLocalStorage(locId,elem){
+    var ret = getHtmlTagValue(elem);
+    if (ret !== null) {
+        localStorage.setItem(locId, ret);
+    }
+}
+
+function getHtmlTagValue(tag) {
+  var pageElement = document.getElementById(tag);
+  if (pageElement !== null) {
+    var tagName = pageElement.tagName.toLowerCase();
+    if (tagName === 'textarea') {
+      return pageElement.value;
+    }
+    if (tagName === 'select') {
+      return pageElement.options[pageElement.selectedIndex].value;
+    }
+    if (tagName === 'input') {
+      var type = pageElement.getAttribute('type').toLowerCase();
+      if (type == 'checkbox') {
+        if (pageElement.checked == true) {
+          return "1";
+        } else {
+          return "0";
+        }
+      }
+      if ((type == 'text') || (type == 'hidden')) {
+        return pageElement.value;
+      }
+    }
+    if (debugMode > 1) {
+      alert("warn","Unknown Type by " + tag + " get: " + pageElement.getAttribute('type'));
+    }
+  } else {
+    if (debugMode > 1) {
+      alert("warn","Missing element by " + tag + " get!");
+    }
+  }
+  return null;
+}
+
+window.wdeLoadSetFile = wdeLoadSetFile;
 function wdeLoadSetFile(f){
     var file = f.target.files[0];
     if (file) { // && file.type.match("text/*")) {
@@ -315,99 +413,116 @@ function wdeLoadSetFile(f){
     }
 }
 
+window.wdeSettingsToString = wdeSettingsToString;
 function wdeSettingsToString(){
     var txt = "";
     txt += "Index=" + wdeZeroOne + "\n";
     txt += "DamDcm=" + wdeDamDcmSel + "\n";
-    var rsNr = mainForm.elements["RESTRICTION_NR"].value;
+    var rsNr = document.getElementById('RESTRICTION_NR').value;
     txt += "RESel=" + rsNr + "\n";
-    var rawList = mainForm.elements["RESTRICTION_LIST"].value;
+    var rawList = document.getElementById('RESTRICTION_LIST').value;
     txt += "REList=" + rawList + "\n";
-    var uName = mainForm.elements["WDE_USER_NAME"].value;
+    var uName = document.getElementById('WDE_USER_NAME').value;
     txt += "USName=" + uName + "\n";
-    var uSeq = mainForm.elements["WDE_USER_SEQ"].value;
+    var uSeq = document.getElementById('WDE_USER_SEQ').value;
     txt += "USSeq=" + uSeq + "\n";
-    var markString = mainForm.elements["WDE_DIGEST_MARKER"].value;
+    var markString = document.getElementById('WDE_DIGEST_MARKER').value;
     txt += "Marker=" + markString + "\n";
-	var amount = mainForm.elements["WDE_DIGEST_AMOUNT"].value;
+	var amount = document.getElementById('WDE_DIGEST_AMOUNT').value;
     txt += "Load=" + amount + "\n";
     txt += "BandBlack=" + wdeDigVBandBlack + "\n";
     txt += "FeaturesDigest=" + wdeDigVShowFeatures + "\n";
-    var minSize = mainForm.elements["ORF_AS_NR"].value;
+    var minSize = document.getElementById('ORF_AS_NR').value;
     txt += "minORF=" + minSize + "\n";
     return txt;
 }
 
+window.wdeStringToSettings = wdeStringToSettings;
 function wdeStringToSettings(txt){
-    var regEx1 = /\r\n/g;
-    txt = txt.replace(regEx1, "\n");
+    txt = txt.replace(/\r\n/g, "\n");
     var all = txt.split("\n");
     for (var i = 0; i < all.length; i++) {
         var line = all[i].split("=");
         if (line.length == 2) {
             if (line[0] == "Index") {
 			    if (line[1] == "0") {
-			        wdeTGViewZeroOne(0,0);
+			        wdeTGViewZeroOne(0,0,1);
 			    } else {
-			        wdeTGViewZeroOne(1,0);
+			        wdeTGViewZeroOne(1,0,1);
 			    }
             }
             if (line[0] == "DamDcm") {
 			    if (line[1] == "0") {
-			        wdeTGDamDcm(0);
+			        wdeTGDamDcm(0,1);
 			    } else {
-			        wdeTGDamDcm(1);
+			        wdeTGDamDcm(1,1);
 			    }
             }
             if (line[0] == "RESel") {
-			    mainForm.elements["RESTRICTION_NR"].value = line[1];
+			    document.getElementById('RESTRICTION_NR').value = line[1];
+                wdeSetLocalStorage('wde_RESTRICTION_NR','RESTRICTION_NR');
             }
             if (line[0] == "REList") {
-			    mainForm.elements["RESTRICTION_LIST"].value = line[1];
+			    document.getElementById('RESTRICTION_LIST').value = line[1];
+                wdeSetLocalStorage('wde_RESTRICTION_LIST','RESTRICTION_LIST');
             }
             if (line[0] == "USName") {
-			    mainForm.elements["WDE_USER_NAME"].value = line[1];
+			    document.getElementById('WDE_USER_NAME').value = line[1];
+                wdeSetLocalStorage('wde_USER_NAME','WDE_USER_NAME');
             }
             if (line[0] == "USSeq") {
-			    mainForm.elements["WDE_USER_SEQ"].value = line[1];
+			    document.getElementById('WDE_USER_SEQ').value = line[1];
+                wdeSetLocalStorage('wde_USER_SEQ','WDE_USER_SEQ');
             }
             if (line[0] == "Marker") {
-			    mainForm.elements["WDE_DIGEST_MARKER"].value = line[1];
+			    document.getElementById('WDE_DIGEST_MARKER').value = line[1];
+                wdeSetLocalStorage('wde_DIGEST_MARKER','WDE_DIGEST_MARKER');
             }
             if (line[0] == "Load") {
-			    mainForm.elements["WDE_DIGEST_AMOUNT"].value = line[1];
+			    document.getElementById('WDE_DIGEST_AMOUNT').value = line[1];
+                wdeSetLocalStorage('wde_DIGEST_AMOUNT','WDE_DIGEST_AMOUNT');
             }
             if (line[0] == "BandBlack") {
 			    if (line[1] == "0") {
-			        wdeTGDigGelBandBlack(0,0);
+			        wdeTGDigGelBandBlack(0,0,1);
 			    } else {
-			        wdeTGDigGelBandBlack(1,0);
+			        wdeTGDigGelBandBlack(1,0,1);
 			    }
             }
             if (line[0] == "FeaturesDigest") {
 			    if (line[1] == "0") {
-			        wdeTGDigShowFeatures(0,0);
+			        wdeTGDigShowFeatures(0,0,1);
 			    } else {
-			        wdeTGDigShowFeatures(1,0);
+			        wdeTGDigShowFeatures(1,0,1);
 			    }
             }
             if (line[0] == "minORF") {
-			    mainForm.elements["ORF_AS_NR"].value = line[1];
+			    document.getElementById('ORF_AS_NR').value = line[1];
+                wdeSetLocalStorage('wde_ORF_AS_NR','ORF_AS_NR');
             }
         }
     }
 }
 
-function wdeDelCookie(){
-    var date = new Date(new Date().setFullYear(new Date().getFullYear() - 1));
-    var dateString = date.toUTCString();
-    document.cookie = "str=del; expires=" + dateString + "; path=/"; 
+window.wdeResetInterface = wdeResetInterface;
+function wdeResetInterface(){
+    var defSet = 'Index=1\nDamDcm=1\nRESel=2\nREList=KpnI, BstBI, HindIII, BamHI\nUSName=User_Seq\nUSSeq=AGC^MGCT\n';
+    defSet += 'Marker=10000,50;8000,50;6000,50;5000,50;4000,50;3000,150;2000,50;1500,50;1200,50;1000,150;900,50;800,50;700,50;600,50;500,150;400,50;300,50;200,50;100,50\n';
+    defSet += 'Load=500\nBandBlack=0\nFeaturesDigest=1\nminORF=10\n';
+    wdeStringToSettings(defSet);
 }
 
+window.wdeDeleteLocalStorage = wdeDeleteLocalStorage;
+function wdeDeleteLocalStorage(){
+    localStorage.clear(); 
+}
+
+window.wdeRepaint = wdeRepaint;
 function wdeRepaint(){
     window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML), wdeZeroOne, wdeNumbers);
 }
 
+window.wdeCopyEvent  = wdeCopyEvent ;
 function wdeCopyEvent (e) {
     e.stopPropagation();
     e.preventDefault();
@@ -415,6 +530,7 @@ function wdeCopyEvent (e) {
     e.clipboardData.setData('text/plain', selection);
 }
 
+window.wdeCutEvent  = wdeCutEvent ;
 function wdeCutEvent (e) {
     e.stopPropagation();
     e.preventDefault();
@@ -460,6 +576,7 @@ function wdeCutEvent (e) {
     }
 }
 
+window.wdePasteEvent  = wdePasteEvent ;
 function wdePasteEvent (e) {
     e.stopPropagation();
     e.preventDefault();
@@ -501,6 +618,7 @@ function wdePasteEvent (e) {
     }
 }
 
+window.wdeKeyPressEvent = wdeKeyPressEvent;
 function wdeKeyPressEvent(e) {
     var sel, range;
     e = e || WDE_RTF.contentWindow.event;
@@ -575,16 +693,35 @@ function wdeKeyPressEvent(e) {
     }
 }
 
+window.wdeSendP3P = wdeSendP3P;
 function wdeSendP3P(){
-    mainForm.elements["SEQUENCE_TEMPLATE"].value = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
-    mainForm.submit();
+  var form = document.createElement("form");
+  form.setAttribute("method", "post");
+  form.setAttribute("action", uploadTargetP3P);
+  form.setAttribute("target", "_blank");
+  var params = {};
+  params['SEQUENCE_ID'] = getHtmlTagValue('SEQUENCE_ID');
+  params['SEQUENCE_TEMPLATE'] = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
+  for(var key in params) {
+    if(params.hasOwnProperty(key)) {
+      var hiddenField = document.createElement("input");
+      hiddenField.setAttribute("type", "hidden");
+      hiddenField.setAttribute("name", key);
+      hiddenField.setAttribute("value", params[key]);
+      form.appendChild(hiddenField);
+    }
+  }
+  document.body.appendChild(form);
+  form.submit();
 }
 
+window.wdeNewWindow = wdeNewWindow;
 function wdeNewWindow(){
     var win = window.open("index.html", '_blank');
     win.focus();
 }
 
+window.wdeLoadFile = wdeLoadFile;
 function wdeLoadFile(f){
     var file = f.target.files[0];
     if (file) { // && file.type.match("text/*")) {
@@ -602,6 +739,7 @@ function wdeLoadFile(f){
     
 }
 
+window.wdeReadFile = wdeReadFile;
 function wdeReadFile(seq, file) {
     wdeCleanInputFields();
     wdeFeatures = [];
@@ -609,7 +747,7 @@ function wdeReadFile(seq, file) {
     if (/^>/.test(seq)) {
         var eoTitel = seq.indexOf("\n");
         var titel = seq.substring(1,eoTitel);
-        mainForm.elements["SEQUENCE_ID"].value = titel;
+        document.getElementById('SEQUENCE_ID').value = titel;
         eoTitel++;
         return seq.substring(eoTitel, seq.length);
     }
@@ -660,9 +798,9 @@ function wdeReadFile(seq, file) {
 	            var id = gbLin[k];
 	            id = id.replace(/^DEFINITION  /, "");
 	            if (id.length > 1) {
-	                mainForm.elements["SEQUENCE_ID"].value = id;
+	                document.getElementById('SEQUENCE_ID').value = id;
 	            } else {
-	                mainForm.elements["SEQUENCE_ID"].value = file;
+	                document.getElementById('SEQUENCE_ID').value = file;
 	            }
 	        }
 	        if ((curHead != -1) && !(/^DEFINITION  /.test(gbLin[k]))) {
@@ -693,10 +831,11 @@ function wdeReadFile(seq, file) {
 	    }
     }
     // If nothing works
-    mainForm.elements["SEQUENCE_ID"].value = file;
+    document.getElementById('SEQUENCE_ID').value = file;
     return seq;
 }
 
+window.wdeProcessGenebank = wdeProcessGenebank;
 function wdeProcessGenebank(feat) {
     for (var k = 0; k < feat.length; k++) {
         // Flip join(complement(),complement())
@@ -758,6 +897,7 @@ function wdeProcessGenebank(feat) {
     }
 }
 
+window.wdeGenebankExtractNote = wdeGenebankExtractNote;
 function wdeGenebankExtractNote(featStr) {
     var retVal = "";
     var noteVal = "";
@@ -801,6 +941,7 @@ function wdeGenebankExtractNote(featStr) {
     return [noteVal,retVal];
 }
 
+window.wdeLoadLibFile = wdeLoadLibFile;
 function wdeLoadLibFile(f){
     var file = f.target.files[0];
     if (file) { // && file.type.match("text/*")) {
@@ -817,6 +958,7 @@ function wdeLoadLibFile(f){
     }
 }
 
+window.wdeReadLibFile = wdeReadLibFile;
 function wdeReadLibFile(seq, file) {
     var wdeLibFeatures = [];
     // Genebank file format
@@ -868,12 +1010,14 @@ function wdeReadLibFile(seq, file) {
         wdeLibExtractFeature(wdeLibFeatures[k], curSeq);
     }
     wdeFeatureLib.sort(wdeLibListSort);
+    localStorage.setItem("wde_FeatureLibData", JSON.stringify(wdeFeatureLib));
     wdeLibFocRepaint();
 }
 
+window.wdeSaveGenBank = wdeSaveGenBank;
 function wdeSaveGenBank() {
     var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
-    var title = mainForm.elements["SEQUENCE_ID"].value;
+    var title = document.getElementById('SEQUENCE_ID').value;
     var content = "LOCUS       ";
     content += wdeVGBAcc;
     content += "" + seq.length + " bp    DNA     ";
@@ -992,6 +1136,7 @@ function wdeSaveGenBank() {
     return wdeSaveFile(fileName, content, "text");
 }
 
+window.wdeSaveLibFile = wdeSaveLibFile;
 function wdeSaveLibFile() {
     var seq = "NN";
     var modLocStr = [];
@@ -1108,9 +1253,10 @@ function wdeSaveLibFile() {
     return wdeSaveFile(fileName, content, "text");
 }
 
+window.wdeSaveFasta = wdeSaveFasta;
 function wdeSaveFasta() {
     var content = ">";
-    content += mainForm.elements["SEQUENCE_ID"].value;
+    content += document.getElementById('SEQUENCE_ID').value;
     content += "\n";
     var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
         for (var i = 0; i < seq.length ; i++) {
@@ -1122,10 +1268,11 @@ function wdeSaveFasta() {
             content += seq.charAt(i);
         }
     content += "\n";
-    var fileName = mainForm.elements["SEQUENCE_ID"].value + ".fa";
+    var fileName = document.getElementById('SEQUENCE_ID').value + ".fa";
     return wdeSaveFile(fileName, content, "text");
 };
 
+window.wdeSaveFile = wdeSaveFile;
 function wdeSaveFile(fileName,content,type) {
     if (wdeInTestRun == 1) {
         return [fileName,content,type];
@@ -1154,6 +1301,7 @@ function wdeSaveFile(fileName,content,type) {
     return "";
 };
 
+window.wdeModifySelection = wdeModifySelection;
 function wdeModifySelection(modifyFunction){
     var sel, range;
     if (window.frames['WDE_RTF'].getSelection) {
@@ -1169,26 +1317,32 @@ function wdeModifySelection(modifyFunction){
     wdeRepaint();
 }
 
+window.wdeUpToLow = wdeUpToLow;
 function wdeUpToLow() {
     wdeModifySelection(wdeUpToLowModify);
 }
 
+window.wdeUpToLowModify = wdeUpToLowModify;
 function wdeUpToLowModify(text) {
     return text.toLowerCase();
 }
 
+window.wdeLowToUp = wdeLowToUp;
 function wdeLowToUp() {
     wdeModifySelection(wdeLowToUpModify);
 }
 
+window.wdeLowToUpModify = wdeLowToUpModify;
 function wdeLowToUpModify(text) {
     return text.toUpperCase();
 }
 
+window.wdeUpexLow = wdeUpexLow;
 function wdeUpexLow() {
     wdeModifySelection(wdeUpexLowModify);
 }
 
+window.wdeUpexLowModify = wdeUpexLowModify;
 function wdeUpexLowModify(text) {
     var retText = "";
     for (var i = 0; i < text.length ; i++) {
@@ -1202,6 +1356,7 @@ function wdeUpexLowModify(text) {
     return retText;
 }
 
+window.wdeCopyPaste = wdeCopyPaste;
 function wdeCopyPaste() {
     // WDE_RTF.document.execCommand('bold',false,null);
     // WDE_RTF.document.execCommand('copy');
@@ -1214,6 +1369,7 @@ function wdeCopyPaste() {
           "On some keyboards Ctrl is labled Strg\n\n" );
 }
 
+window.wdeRCompSel = wdeRCompSel;
 function wdeRCompSel() {
     var sel, range;
     if (window.frames['WDE_RTF'].getSelection) {
@@ -1248,6 +1404,7 @@ function wdeRCompSel() {
     }
 }
 
+window.wdeRComp = wdeRComp;
 function wdeRComp(){
     wdeSequenceModified();
     var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
@@ -1261,6 +1418,7 @@ function wdeRComp(){
     wdeFeatFocRepaint();
 }
 
+window.wdeFeatModifyBetween = wdeFeatModifyBetween;
 function wdeFeatModifyBetween(a,b,mod){
     for (var k = 0; k < wdeFeatures.length; k++) {
 	    if (/^(\d+)\..*?(\d+)$\s*/.test(wdeFECleanPos(wdeFeatures[k][1]))) {
@@ -1292,6 +1450,7 @@ function wdeFeatModifyBetween(a,b,mod){
     }
 }
 
+window.wdeFeatShiftAfterLoc = wdeFeatShiftAfterLoc;
 function wdeFeatShiftAfterLoc(split,shiftDiff){
     for (var k = 0; k < wdeFeatures.length; k++) {
         var retVal = "";
@@ -1334,6 +1493,7 @@ function wdeFeatShiftAfterLoc(split,shiftDiff){
     wdeFeatures.sort(wdeFeatListSort);
 }
 
+window.wdeFeatSplitAtLoc = wdeFeatSplitAtLoc;
 function wdeFeatSplitAtLoc(split){
     for (var k = 0; k < wdeFeatures.length; k++) {
         var retValL = "";
@@ -1419,6 +1579,7 @@ function wdeFeatSplitAtLoc(split){
     wdeFeatures.sort(wdeFeatListSort);
 }
 
+window.wdeFeatRevCompLoc = wdeFeatRevCompLoc;
 function wdeFeatRevCompLoc(loc,lastPos,offset){
     var retVal = "";
     var numA = "";
@@ -1519,6 +1680,7 @@ function wdeFeatRevCompLoc(loc,lastPos,offset){
     return retVal;
 }
 
+window.wdeSequenceModified = wdeSequenceModified;
 function wdeSequenceModified(){
     // This function erases found RS and user seq info
     // to be used if the sequence is modified 
@@ -1540,6 +1702,7 @@ function wdeSequenceModified(){
     wdeDrawEnzymes();
 }
 
+window.wdeHighlight = wdeHighlight;
 function wdeHighlight(){
     // Set Highlights to nothing
     var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
@@ -1583,15 +1746,16 @@ function wdeHighlight(){
         }
         if (sel > 0) {
             wdeREdisp = 1;
-            wdeShowTab('tab1','WDE_main_tab');
+            browseTabFunctionality('WDE_main_tab');
         } else {
-            wdeShowTab('tab2','WDE_restriction_sites');
+            browseTabFunctionality('WDE_restriction_sites');
             alert("No restriction enzymes selected!\n\nSelect at least one restriction enzyme.");
         }
     }
     wdeRepaint();
 }
 
+window.wdeFormatSeq = wdeFormatSeq;
 function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
     var outSeq = "\n";
     var length = seq.length;
@@ -1605,7 +1769,7 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
         digits++;
     }
     digits++;
-    mainForm.elements["SEQUENCE_LENGTH"].value = length;
+    document.getElementById('SEQUENCE_LENGTH').value = length;
     
     for (var i = 0; i < seq.length ; i++) {
         if (i % 80 == 0) {
@@ -1663,12 +1827,14 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
     return '<pre id="wdeStartNode"> ' + outSeq + " </pre>";
 }
 
+window.wdeCleanSeq = wdeCleanSeq;
 function wdeCleanSeq(seq){
     var retSeq = wdeCleanSeqWithMarks(seq);
     retSeq = retSeq.replace(/x/ig, "");
     return retSeq;
 }
 
+window.wdeCleanSeqWithMarks = wdeCleanSeqWithMarks;
 function wdeCleanSeqWithMarks(seq){
     var retSeq = "";
     // Remove all HTML tags
@@ -1684,6 +1850,7 @@ function wdeCleanSeqWithMarks(seq){
     return retSeq;
 }
 
+window.wdeSelFeatSelMod  = wdeSelFeatSelMod ;
 function wdeSelFeatSelMod (sel) {
     for (var k = 0; k < wdeFeatures.length; k++) {
         if (sel == -1) {
@@ -1704,6 +1871,7 @@ function wdeSelFeatSelMod (sel) {
     wdeFeatFocRepaint();
 }
 
+window.wdeShowFeatures = wdeShowFeatures;
 function wdeShowFeatures(){
     // Set Marks to nothing
     var lButton = document.getElementById("wdeFeatButton");
@@ -1757,15 +1925,16 @@ function wdeShowFeatures(){
         if (sel > 0) {
             wdeFEdisp = 1;
             lButton.value = "Hide Features";
-            wdeShowTab('tab1','WDE_main_tab');
+            browseTabFunctionality('WDE_main_tab');
         } else {
-  //        wdeShowTab('tab2','WDE_restriction_sites');
+  //        browseTabFunctionality('WDE_restriction_sites');
             alert("No features to display!\n\nCreate at least one feature.");
         }
     }
     wdeRepaint();
 }
 
+window.wdeHideFeatures = wdeHideFeatures;
 function wdeHideFeatures(){
     // Set Marks to nothing
     var lButton = document.getElementById("wdeFeatButton");
@@ -1775,6 +1944,7 @@ function wdeHideFeatures(){
     wdeRepaint();
 }
 
+window.wdeFECleanPos = wdeFECleanPos;
 function wdeFECleanPos(loc) {
     var posList = loc.replace(/[^,:]+:[^,]+/g, "");
     posList = posList.replace(/\^/g, ".");
@@ -1786,6 +1956,7 @@ function wdeFECleanPos(loc) {
     return posList;
 }
 
+window.wdeFeatureColor = wdeFeatureColor;
 function wdeFeatureColor(pos){
     var selFeat = [];
     // [][0]  number of feature hit
@@ -1853,6 +2024,7 @@ function wdeFeatureColor(pos){
     }
 }
 
+window.wdeColorAddColor = wdeColorAddColor;
 function wdeColorAddColor(base, add, step) {
     var div = step + 1;
     var r = Math.floor(base[0] * (3 * div - 1) / (3 * div) + add[0] * 1 / (3 * div));
@@ -1861,6 +2033,7 @@ function wdeColorAddColor(base, add, step) {
     return [r,g,b];
 }
 
+window.wdeColorHexToRgb = wdeColorHexToRgb;
 function wdeColorHexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     var ret = [];
@@ -1874,15 +2047,18 @@ function wdeColorHexToRgb(hex) {
     }
 }
 
+window.wdeColorRgbToHex = wdeColorRgbToHex;
 function wdeColorRgbToHex(r, g, b) {
     return "#" + wdeColorSingRgbToHex(r) + wdeColorSingRgbToHex(g) + wdeColorSingRgbToHex(b);
 }
 
+window.wdeColorSingRgbToHex = wdeColorSingRgbToHex;
 function wdeColorSingRgbToHex(c) {
     var hex = c.toString(16);
     return hex.length == 1 ? "0" + hex : hex;
 }
 
+window.wdeFeatSortSize = wdeFeatSortSize;
 function wdeFeatSortSize(a, b) {
     if (a[1] != b[1]) {
         return a[1] - b[1];
@@ -1893,6 +2069,7 @@ function wdeFeatSortSize(a, b) {
     }
 }
 
+window.wdeFeatTypeToInt = wdeFeatTypeToInt;
 function wdeFeatTypeToInt(featType) {
     for (var k = 0; k < wdeFeatColor.length; k++) {
         if (wdeFeatColor[k][0] == featType) {
@@ -1902,6 +2079,7 @@ function wdeFeatTypeToInt(featType) {
     return wdeFeatColor.length;
 }
 
+window.wdeFinFeatureColor = wdeFinFeatureColor;
 function wdeFinFeatureColor(arr, feat){
     var featName = ": " + arr[feat][2];
     if (/complement/.test(arr[feat][1])) {
@@ -1924,6 +2102,7 @@ function wdeFinFeatureColor(arr, feat){
     return ["#FF0000","No matching feature type found!", -1];
 }
 
+window.wdeFinFeatColSeg = wdeFinFeatColSeg;
 function wdeFinFeatColSeg(feat){
     if (feat[0] == "regulatory") {
         if (/\/regulatory_class="([^"]+)"/g.test(feat[8])) {
@@ -1943,15 +2122,17 @@ function wdeFinFeatColSeg(feat){
     return ["No matching feature type found!", "#FF0000", "#FF0000"];
 }
 
+window.wdeFeatInfoUpdate = wdeFeatInfoUpdate;
 function wdeFeatInfoUpdate(infoCount) {
         if (infoCount < 0) {
-            mainForm.elements["wdeInfoField"].value = "";
+            document.getElementById('wdeInfoField').value = "";
         } else {
-            mainForm.elements["wdeInfoField"].value = wdeFeatInfo[infoCount][0];
+            document.getElementById('wdeInfoField').value = wdeFeatInfo[infoCount][0];
             wdeFeatFocUpdate(wdeFeatInfo[infoCount][1]);
         }
 }
 
+window.wdeFeatFocUpdate = wdeFeatFocUpdate;
 function wdeFeatFocUpdate(feat) {
     if ((feat > -1) && (feat < wdeFeatures.length)) {
         wdeFeatSelFeat = wdeFeatures[feat].slice(0);
@@ -1963,6 +2144,7 @@ function wdeFeatFocUpdate(feat) {
     wdeFeatFocRepaint();
 }
 
+window.wdeLibFocUpdate = wdeLibFocUpdate;
 function wdeLibFocUpdate(feat) {
     if ((feat > -1) && (feat < wdeFeatureLib.length)) {
         wdeLibSelFeat = wdeFeatureLib[feat].slice(0);
@@ -1974,6 +2156,7 @@ function wdeLibFocUpdate(feat) {
     wdeLibFocRepaint();
 }
 
+window.wdeFeatFocRepaint = wdeFeatFocRepaint;
 function wdeFeatFocRepaint() {
     var content = '<table border="0">';
     content += "<tr>";
@@ -2055,8 +2238,8 @@ function wdeFeatFocRepaint() {
         option.text = "Only available with regulatory features";
         select.add(option);
     }
-    mainForm.elements["WDE_FEAT_TAG"].value = wdeFeatSelFeat[2];
-    mainForm.elements["WDE_FEAT_LOC"].value = wdeFeatSelFeat[1];
+    document.getElementById('WDE_FEAT_TAG').value = wdeFeatSelFeat[2];
+    document.getElementById('WDE_FEAT_LOC').value = wdeFeatSelFeat[1];
     if(/complement\(.*\)\s*$/.test(wdeFeatSelFeat[1])) {
         wdeSetFFeatSetRev(0);
     } else {
@@ -2130,15 +2313,16 @@ function wdeFeatFocRepaint() {
         select.add(option);
 	}
     if (/\/note="([\s\S]+)"\s*$/g.test(wdeFeatSelFeat[7])) {
-        mainForm.elements["WDE_FEAT_NOTE"].value = RegExp.$1;
+        document.getElementById('WDE_FEAT_NOTE').value = RegExp.$1;
     } else if (/\/note="\s*"\s*$/g.test(wdeFeatSelFeat[7])) {
-        mainForm.elements["WDE_FEAT_NOTE"].value = "";
+        document.getElementById('WDE_FEAT_NOTE').value = "";
     } else {
-        mainForm.elements["WDE_FEAT_NOTE"].value = wdeFeatSelFeat[7];
+        document.getElementById('WDE_FEAT_NOTE').value = wdeFeatSelFeat[7];
     }
-    mainForm.elements["WDE_FEAT_QUALIF"].value = wdeFeatSelFeat[8];
+    document.getElementById('WDE_FEAT_QUALIF').value = wdeFeatSelFeat[8];
 }
 
+window.wdeLibFocRepaint = wdeLibFocRepaint;
 function wdeLibFocRepaint() {
     var content = '<table border="0">';
     content += "<tr>";
@@ -2202,8 +2386,8 @@ function wdeLibFocRepaint() {
         option.text = "Only available with regulatory features";
         select.add(option);
     }
-    mainForm.elements["WDE_LIB_TAG"].value = wdeLibSelFeat[2];
-    mainForm.elements["WDE_LIB_LOC"].value = wdeLibSelFeat[1];
+    document.getElementById('WDE_LIB_TAG').value = wdeLibSelFeat[2];
+    document.getElementById('WDE_LIB_LOC').value = wdeLibSelFeat[1];
     if (wdeLibSelFeat[4] == "D") {
         var col = "#000000";
 	    if ((wdeLibSelFeat[0] == "regulatory") && (/\/regulatory_class="([^"]+)"/g.test(wdeLibSelFeat[8]))) {
@@ -2271,17 +2455,18 @@ function wdeLibFocRepaint() {
         }
         select.add(option);
 	}
-    mainForm.elements["WDE_LIB_SEQ"].value = wdeLibSelFeat[10];
+    document.getElementById('WDE_LIB_SEQ').value = wdeLibSelFeat[10];
     if (/\/note="([\s\S]+)"\s*$/g.test(wdeLibSelFeat[7])) {
-        mainForm.elements["WDE_LIB_NOTE"].value = RegExp.$1;
+        document.getElementById('WDE_LIB_NOTE').value = RegExp.$1;
     } else if (/\/note="\s*"\s*$/g.test(wdeLibSelFeat[7])) {
-        mainForm.elements["WDE_LIB_NOTE"].value = "";
+        document.getElementById('WDE_LIB_NOTE').value = "";
     } else {
-        mainForm.elements["WDE_LIB_NOTE"].value = wdeLibSelFeat[7];
+        document.getElementById('WDE_LIB_NOTE').value = wdeLibSelFeat[7];
     }
-    mainForm.elements["WDE_LIB_QUALIF"].value = wdeLibSelFeat[8];
+    document.getElementById('WDE_LIB_QUALIF').value = wdeLibSelFeat[8];
 }
 
+window.wdeAnnotateSequence = wdeAnnotateSequence;
 function wdeAnnotateSequence() {
     var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
     for (var k = 0; k < wdeFeatureLib.length; k++) {
@@ -2306,9 +2491,10 @@ function wdeAnnotateSequence() {
     }
     wdeFeatures.sort(wdeFeatListSort);
     wdeFeatFocUpdate(-1);
-    wdeShowTab('tab5','WDE_features');
+    browseTabFunctionality('WDE_features');
 }
 
+window.wdeAnnoAddFeature = wdeAnnoAddFeature;
 function wdeAnnoAddFeature(feat, locString) {
     var myFeat = feat.slice(0);
     myFeat[1] = locString;
@@ -2327,6 +2513,7 @@ function wdeAnnoAddFeature(feat, locString) {
     wdeFeatures[newPos] = myFeat;
 }
 
+window.wdeFindTestInSeq = wdeFindTestInSeq;
 function wdeFindTestInSeq(seq, test){
     if ((seq.length == 0) || (test.length == 0)) {
         return [-1];
@@ -2350,11 +2537,14 @@ function wdeFindTestInSeq(seq, test){
     }
 }
 
+window.wdeDeleteLib = wdeDeleteLib;
 function wdeDeleteLib() {
     wdeFeatureLib = [];
+    localStorage.setItem("wde_FeatureLibData", JSON.stringify(wdeFeatureLib));
     wdeLibFocRepaint();
 }
 
+window.wdeSelAddLib = wdeSelAddLib;
 function wdeSelAddLib() {
     var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
     var pos = wdeLibExtractFeature(wdeFeatSelFeat, seq);
@@ -2371,20 +2561,24 @@ function wdeSelAddLib() {
             wdeLibSelNum = i;
         }
     }
+    localStorage.setItem("wde_FeatureLibData", JSON.stringify(wdeFeatureLib));
     wdeLibFocRepaint();
-    wdeShowTab('tab6','WDE_feature_lib');
+    browseTabFunctionality('WDE_feature_lib');
 }
 
+window.wdeAllAddLib = wdeAllAddLib;
 function wdeAllAddLib() {
     var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
     for (var k = 0; k < wdeFeatures.length; k++) {
         wdeLibExtractFeature(wdeFeatures[k], seq);
     }
     wdeFeatureLib.sort(wdeLibListSort);
+    localStorage.setItem("wde_FeatureLibData", JSON.stringify(wdeFeatureLib));
     wdeLibFocRepaint();
-    wdeShowTab('tab6','WDE_feature_lib');
+    browseTabFunctionality('WDE_feature_lib');
 }
 
+window.wdeLibExtractFeature = wdeLibExtractFeature;
 function wdeLibExtractFeature(feat,seq) {
     var loc = wdeLibShiftByFirst(feat[1],"First");
     var seqExtr = seq.substring(loc[1],loc[2]);
@@ -2414,6 +2608,7 @@ function wdeLibExtractFeature(feat,seq) {
     return pos;
 }
 
+window.wdeLibShiftByFirst = wdeLibShiftByFirst;
 function wdeLibShiftByFirst(loc,offset){
     // if offset == "First" then fist location is used
     var retVal = "";
@@ -2453,6 +2648,7 @@ function wdeLibShiftByFirst(loc,offset){
     return [retVal,firstLoc,lastLoc];
 }
 
+window.wdeSelFeatures = wdeSelFeatures;
 function wdeSelFeatures(checkBox, enzId) {
     if (checkBox.checked) {
         wdeFeatures[enzId][9] = 1;
@@ -2463,36 +2659,43 @@ function wdeSelFeatures(checkBox, enzId) {
     wdeFeatFocRepaint();
 }
 
+window.wdeSelFFeatMTag = wdeSelFFeatMTag;
 function wdeSelFFeatMTag() {
-    wdeFeatSelFeat[2] = mainForm.elements["WDE_FEAT_TAG"].value;
+    wdeFeatSelFeat[2] = document.getElementById('WDE_FEAT_TAG').value;
     wdeFeatSelFeat[3] = "U";
 }
 
+window.wdeSelFLibMTag = wdeSelFLibMTag;
 function wdeSelFLibMTag() {
-    wdeLibSelFeat[2] = mainForm.elements["WDE_LIB_TAG"].value;
+    wdeLibSelFeat[2] = document.getElementById('WDE_LIB_TAG').value;
     wdeLibSelFeat[3] = "U";
 }
 
+window.wdeSetFFeatTagDef = wdeSetFFeatTagDef;
 function wdeSetFFeatTagDef() {
     wdeFeatSelFeat[3] = "D";
 }
 
+window.wdeSetFLibTagDef = wdeSetFLibTagDef;
 function wdeSetFLibTagDef() {
     wdeLibSelFeat[3] = "D";
 }
 
+window.wdeSelFFeatType = wdeSelFFeatType;
 function wdeSelFFeatType() {
-    wdeFeatSelFeat[0] = wdeFeatColor[mainForm.elements["WDE_FEAT_TYPE"].value][0];
+    wdeFeatSelFeat[0] = wdeFeatColor[document.getElementById('WDE_FEAT_TYPE').value][0];
     wdeFeatFocRepaint();
 }
 
+window.wdeSelFLibType = wdeSelFLibType;
 function wdeSelFLibType() {
-    wdeLibSelFeat[0] = wdeFeatColor[mainForm.elements["WDE_LIB_TYPE"].value][0];
+    wdeLibSelFeat[0] = wdeFeatColor[document.getElementById('WDE_LIB_TYPE').value][0];
     wdeLibFocRepaint();
 }
 
+window.wdeSelFFeatRegType = wdeSelFFeatRegType;
 function wdeSelFFeatRegType() {
-    var regType = wdeFeatRegColor[mainForm.elements["WDE_FEAT_REG_TYPE"].value][0];
+    var regType = wdeFeatRegColor[document.getElementById('WDE_FEAT_REG_TYPE').value][0];
 	if (/\/regulatory_class="[^"]+"/g.test(wdeFeatSelFeat[8])) {
 		wdeFeatSelFeat[8] = wdeFeatSelFeat[8].replace(/\/regulatory_class="[^"]+"/g, "/regulatory_class=\"" + regType + "\"");
     } else {
@@ -2501,8 +2704,9 @@ function wdeSelFFeatRegType() {
     wdeFeatFocRepaint();
 }
 
+window.wdeSelFLibRegType = wdeSelFLibRegType;
 function wdeSelFLibRegType() {
-    var regType = wdeFeatRegColor[mainForm.elements["WDE_LIB_REG_TYPE"].value][0];
+    var regType = wdeFeatRegColor[document.getElementById('WDE_LIB_REG_TYPE').value][0];
 	if (/\/regulatory_class="[^"]+"/g.test(wdeLibSelFeat[8])) {
 		wdeLibSelFeat[8] = wdeLibSelFeat[8].replace(/\/regulatory_class="[^"]+"/g, "/regulatory_class=\"" + regType + "\"");
     } else {
@@ -2511,14 +2715,17 @@ function wdeSelFLibRegType() {
     wdeLibFocRepaint();
 }
 
+window.wdeSelFFeatLoc = wdeSelFFeatLoc;
 function wdeSelFFeatLoc() {
-    wdeFeatSelFeat[1] =  mainForm.elements["WDE_FEAT_LOC"].value;
+    wdeFeatSelFeat[1] =  document.getElementById('WDE_FEAT_LOC').value;
 }
 
+window.wdeSelFLibLoc = wdeSelFLibLoc;
 function wdeSelFLibLoc() {
-    wdeLibSelFeat[1] =  mainForm.elements["WDE_LIB_LOC"].value;
+    wdeLibSelFeat[1] =  document.getElementById('WDE_LIB_LOC').value;
 }
 
+window.wdeSetFFeatSetRev = wdeSetFFeatSetRev;
 function wdeSetFFeatSetRev(sel) {
     var loc = wdeFeatSelFeat[1];
     if (loc.length < 1) {
@@ -2532,7 +2739,7 @@ function wdeSetFFeatSetRev(sel) {
             loc = "complement(" + loc + ")";
             sel = 0;
         }
-        mainForm.elements["WDE_FEAT_LOC"].value = loc;
+        document.getElementById('WDE_FEAT_LOC').value = loc;
         wdeFeatSelFeat[1] = loc;
     }
     var lButton = document.getElementById("WDE_FEAT_REVCOMP");
@@ -2544,52 +2751,61 @@ function wdeSetFFeatSetRev(sel) {
     
 }
 
+window.wdeSetFFeatForVar = wdeSetFFeatForVar;
 function wdeSetFFeatForVar() {
     var col = document.getElementById('WDE_FEAT_FCOL').value;
     wdeFeatSelFeat[4] = col.replace(/#+/g, "");
     wdeFeatFocRepaint();
 }
 
+window.wdeSetFLibForVar = wdeSetFLibForVar;
 function wdeSetFLibForVar() {
     var col = document.getElementById('WDE_LIB_FCOL').value;
     wdeLibSelFeat[4] = col.replace(/#+/g, "");
     wdeLibFocRepaint();
 }
 
+window.wdeSetFFeatForDef = wdeSetFFeatForDef;
 function wdeSetFFeatForDef() {
     wdeFeatSelFeat[4] = "D";
     wdeFeatFocRepaint();
 }
 
+window.wdeSetFLibForDef = wdeSetFLibForDef;
 function wdeSetFLibForDef() {
     wdeLibSelFeat[4] = "D";
     wdeLibFocRepaint();
 }
 
+window.wdeSetFFeatRevVar = wdeSetFFeatRevVar;
 function wdeSetFFeatRevVar() {
     var col = document.getElementById('WDE_FEAT_RCOL').value;
     wdeFeatSelFeat[5] = col.replace(/#+/g, "");
     wdeFeatFocRepaint();
 }
 
+window.wdeSetFLibRevVar = wdeSetFLibRevVar;
 function wdeSetFLibRevVar() {
     var col = document.getElementById('WDE_LIB_RCOL').value;
     wdeLibSelFeat[5] = col.replace(/#+/g, "");
     wdeLibFocRepaint();
 }
 
+window.wdeSetFFeatRevDef = wdeSetFFeatRevDef;
 function wdeSetFFeatRevDef() {
     wdeFeatSelFeat[5] = "D";
     wdeFeatFocRepaint();
 }
 
+window.wdeSetFLibRevDef = wdeSetFLibRevDef;
 function wdeSetFLibRevDef() {
     wdeLibSelFeat[5] = "D";
     wdeLibFocRepaint();
 }
 
+window.wdeSelFFeatRegShape = wdeSelFFeatRegShape;
 function wdeSelFFeatRegShape() {
-    var res = mainForm.elements["WDE_FEAT_SHAPE"].value;
+    var res = document.getElementById('WDE_FEAT_SHAPE').value;
     if (res == 1) {
         wdeFeatSelFeat[6] = "box";
     } else if (res == 2) {
@@ -2599,8 +2815,9 @@ function wdeSelFFeatRegShape() {
     }
 }
 
+window.wdeSelFLibRegShape = wdeSelFLibRegShape;
 function wdeSelFLibRegShape() {
-    var res = mainForm.elements["WDE_LIB_SHAPE"].value;
+    var res = document.getElementById('WDE_LIB_SHAPE').value;
     if (res == 1) {
         wdeLibSelFeat[6] = "box";
     } else if (res == 2) {
@@ -2610,26 +2827,32 @@ function wdeSelFLibRegShape() {
     }
 }
 
+window.wdeSelFFeatNote = wdeSelFFeatNote;
 function wdeSelFFeatNote() {
-    wdeFeatSelFeat[7] = "/note=\"" + mainForm.elements["WDE_FEAT_NOTE"].value +  "\"";
+    wdeFeatSelFeat[7] = "/note=\"" + document.getElementById('WDE_FEAT_NOTE').value +  "\"";
 }
 
+window.wdeSelFLibNote = wdeSelFLibNote;
 function wdeSelFLibNote() {
-    wdeLibSelFeat[7] = "/note=\"" + mainForm.elements["WDE_LIB_NOTE"].value +  "\"";
+    wdeLibSelFeat[7] = "/note=\"" + document.getElementById('WDE_LIB_NOTE').value +  "\"";
 }
 
+window.wdeSelFFeatQualif = wdeSelFFeatQualif;
 function wdeSelFFeatQualif() {
-    wdeFeatSelFeat[8] =  mainForm.elements["WDE_FEAT_QUALIF"].value;
+    wdeFeatSelFeat[8] =  document.getElementById('WDE_FEAT_QUALIF').value;
 }
 
+window.wdeSelFLibQualif = wdeSelFLibQualif;
 function wdeSelFLibQualif() {
-    wdeLibSelFeat[8] =  mainForm.elements["WDE_LIB_QUALIF"].value;
+    wdeLibSelFeat[8] =  document.getElementById('WDE_LIB_QUALIF').value;
 }
 
+window.wdeSelFLibSeq = wdeSelFLibSeq;
 function wdeSelFLibSeq() {
-    wdeLibSelFeat[10] =  wdeSplitString60(wdeCleanSeq(mainForm.elements["WDE_LIB_SEQ"].value));
+    wdeLibSelFeat[10] =  wdeSplitString60(wdeCleanSeq(document.getElementById('WDE_LIB_SEQ').value));
 }
 
+window.wdeSplitString60 = wdeSplitString60;
 function wdeSplitString60(str) {
     var retStr = "";
     for (var i = 0 ; i < str.length ; i++) {
@@ -2641,18 +2864,21 @@ function wdeSplitString60(str) {
     return retStr;
 }
 
+window.wdeSetFFeatNew = wdeSetFFeatNew;
 function wdeSetFFeatNew(loc) {
     wdeFeatSelFeat = ["gene",loc,"Enter Feature Name","U","D","D","arrow","","",1,""];
     wdeFeatSelNum = -1;
     wdeFeatFocRepaint();
 }
 
+window.wdeSetFLibNew = wdeSetFLibNew;
 function wdeSetFLibNew(loc) {
     wdeLibSelFeat = ["gene",loc,"Enter Feature Name","U","D","D","arrow","","",1,""];
     wdeLibSelNum = -1;
     wdeLibFocRepaint();
 }
 
+window.wdeNewFeaturesFromSel = wdeNewFeaturesFromSel;
 function wdeNewFeaturesFromSel() {
     var sel;
     var range;
@@ -2686,9 +2912,10 @@ function wdeNewFeaturesFromSel() {
     }
     wdeSetFFeatNew(loc);
     wdeRepaint();
-    wdeShowTab('tab5','WDE_features');
+    browseTabFunctionality('WDE_features');
 }
 
+window.wdeSetFFeatSave = wdeSetFFeatSave;
 function wdeSetFFeatSave() {
     var myArr = wdeFeatSelFeat;
     if ((wdeFeatSelNum > -1) && (wdeFeatSelNum < wdeFeatures.length)) {
@@ -2709,6 +2936,7 @@ function wdeSetFFeatSave() {
     wdeFeatFocRepaint();
 }
 
+window.wdeSetFLibSave = wdeSetFLibSave;
 function wdeSetFLibSave() {
     var myArr = wdeLibSelFeat;
     if ((wdeLibSelNum > -1) && (wdeLibSelNum < wdeFeatureLib.length)) {
@@ -2726,9 +2954,11 @@ function wdeSetFLibSave() {
             wdeLibSelNum = i;
         }
     }
+    localStorage.setItem("wde_FeatureLibData", JSON.stringify(wdeFeatureLib));
     wdeLibFocRepaint();
 }
 
+window.wdeFeatListSort = wdeFeatListSort;
 function wdeFeatListSort(a, b) {
     if (/^(\d+)\..*?(\d+)$\s*/.test(wdeFECleanPos(a[1]))) {
 	    var firstA = RegExp.$1;
@@ -2758,6 +2988,7 @@ function wdeFeatListSort(a, b) {
     return typeB - typeA;
 }
 
+window.wdeLibListSort = wdeLibListSort;
 function wdeLibListSort(a, b) {
     if(a[2].toLowerCase() == b[2].toLowerCase()) {
         if(a[10].length == b[10].length) {
@@ -2774,6 +3005,7 @@ function wdeLibListSort(a, b) {
     return 0;
 }
 
+window.wdeSetFFeatDel = wdeSetFFeatDel;
 function wdeSetFFeatDel() {
     if ((wdeFeatSelNum > -1) && (wdeFeatSelNum < wdeFeatures.length)) {
     	wdeFeatures.splice(wdeFeatSelNum, 1); 
@@ -2783,20 +3015,23 @@ function wdeSetFFeatDel() {
     wdeFeatFocRepaint();
 }
 
+window.wdeSetFLibDel = wdeSetFLibDel;
 function wdeSetFLibDel() {
     if ((wdeLibSelNum > -1) && (wdeLibSelNum < wdeFeatureLib.length)) {
     	wdeFeatureLib.splice(wdeLibSelNum, 1); 
     }
     wdeLibSelFeat = ["gene","","Enter Feature Name","U","D","D","arrow","","",1,""];
     wdeLibSelNum = -1;
+    localStorage.setItem("wde_FeatureLibData", JSON.stringify(wdeFeatureLib));
     wdeLibFocRepaint();
 }
 
+window.wdeFindUserSeq = wdeFindUserSeq;
 function wdeFindUserSeq() {
     // All sequence has to be lowecase to save the convesion later
     var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML).toLowerCase();
-    wdeUser[1] = mainForm.elements["WDE_USER_SEQ"].value;
-    wdeUser[0] = mainForm.elements["WDE_USER_NAME"].value;
+    wdeUser[1] = document.getElementById('WDE_USER_SEQ').value;
+    wdeUser[0] = document.getElementById('WDE_USER_NAME').value;
     var cutDiff = wdeDigCutPosFor(wdeUser[1]);        
     var cutDiffRev;        
     var restSeq = wdeCleanSeq(wdeUser[1]).toLowerCase();
@@ -2870,6 +3105,7 @@ function wdeFindUserSeq() {
     wdeRepaint();
 }
 
+window.wdeFindRE = wdeFindRE;
 function wdeFindRE() {
     // All sequence has to be lowercase to save the conversion later
     var seqPure = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML).toLowerCase();
@@ -2974,6 +3210,7 @@ function wdeFindRE() {
     wdeRepaint();     
 }
 
+window.wdeDigCutPosFor = wdeDigCutPosFor;
 function wdeDigCutPosFor(enz) {
     var pureEnz = wdeCleanSeq(enz);
     var reg = enz.split("/");
@@ -3007,6 +3244,7 @@ function wdeDigCutPosFor(enz) {
     return retVal;
 }
 
+window.wdeDigCutPosRev = wdeDigCutPosRev;
 function wdeDigCutPosRev(enz) {
     var pureEnz = wdeCleanSeq(enz);
     var reg = enz.split("/");
@@ -3040,6 +3278,7 @@ function wdeDigCutPosRev(enz) {
     return retVal;
 }
 
+window.wdeGetCutPos = wdeGetCutPos;
 function wdeGetCutPos(pos,cutDiff) {
     var list = cutDiff.split(";");
     var retVal = "";
@@ -3050,12 +3289,14 @@ function wdeGetCutPos(pos,cutDiff) {
     return retVal;
 }
 
+window.wdeEnzyFoundCheck = wdeEnzyFoundCheck;
 function wdeEnzyFoundCheck() {
     if (wdeEnzy[0][3] == "-") {
         wdeFindRE();
     }
 }
 
+window.wdeSelEnzymes = wdeSelEnzymes;
 function wdeSelEnzymes(checkBox, enzId) {
     if (checkBox.checked) {
         wdeEnzy[enzId][2] = 1;
@@ -3066,6 +3307,7 @@ function wdeSelEnzymes(checkBox, enzId) {
     wdeDrawEnzymes();
 }
 
+window.wdeSelREdeselect = wdeSelREdeselect;
 function wdeSelREdeselect() {
     for (var k = 0; k < wdeEnzy.length; k++) {
         wdeEnzy[k][2] = 0;
@@ -3073,11 +3315,13 @@ function wdeSelREdeselect() {
     wdeDrawEnzymes();
 }
 
+window.wdeSelREselMLE = wdeSelREselMLE;
 function wdeSelREselMLE(sel) {
-    var rsNr = mainForm.elements["RESTRICTION_NR"].value;
+    var rsNr = document.getElementById('RESTRICTION_NR').value;
     wdeSelREsel(sel, rsNr);
 }
 
+window.wdeSelREsel = wdeSelREsel;
 function wdeSelREsel(sel, rsNr) {
     wdeEnzyFoundCheck();
     for (var k = 0; k < wdeEnzy.length; k++) {
@@ -3090,8 +3334,9 @@ function wdeSelREsel(sel, rsNr) {
     wdeDrawEnzymes();
 }
 
+window.wdeSelREListDS = wdeSelREListDS;
 function wdeSelREListDS(sel) {
-    var rawList = mainForm.elements["RESTRICTION_LIST"].value;
+    var rawList = document.getElementById('RESTRICTION_LIST').value;
     var regEx = / /g;
     var list = rawList.replace(regEx, "");
     var listArr = list.split(",");
@@ -3109,6 +3354,7 @@ function wdeSelREListDS(sel) {
     wdeDrawEnzymes();
 }
 
+window.wdeDrawEnzymes = wdeDrawEnzymes;
 function wdeDrawEnzymes() {
     var enzyDoc = document.getElementById("WDE_enzymes_spacer");
     var content = '<table border="0">';
@@ -3153,14 +3399,14 @@ function wdeDrawEnzymes() {
         content += '<td style="text-align:right"' + bgRed1 + ">" + wdeEnzy[i][3] + " &nbsp;</td>";
         content += "<td" + bgRed1 + ">" + wdeEnzy[i][0] + "</td>";
         content += "<td" + bgRed1 + ">&nbsp;" + wdeEnzy[i][1] + "</td>";
-        content += "<th>&nbsp;&nbsp;&nbsp;</th>";
+        content += "<td>&nbsp;&nbsp;&nbsp;</td>";
         
         content += "<td" + bgRed2 + ">" + '<input type="checkbox" id="WDE_' + (i + row);
         content += '" onclick="wdeSelEnzymes(this, ' + (i + row) + ')"' + chBx2 + '></td>';
         content += '<td style="text-align:right"' + bgRed2 + ">" + wdeEnzy[i + row][3] + " &nbsp;</td>";
         content += "<td" + bgRed2 + ">" + wdeEnzy[i + row][0] + "</td>";
         content += "<td" + bgRed2 + ">&nbsp;" + wdeEnzy[i + row][1] + "</td>";
-        content += "<th>&nbsp;&nbsp;&nbsp;</th>";
+        content += "<td>&nbsp;&nbsp;&nbsp;</td>";
 
         if ((i + 2 * row) < wdeEnzy.length) {
             if (wdeEnzy[i + 2 * row][2] != 0) {
@@ -3182,6 +3428,7 @@ function wdeDrawEnzymes() {
     enzyDoc.innerHTML = content;
 }
 
+window.wdePrintEnzy = wdePrintEnzy;
 function wdePrintEnzy() {
     var enzyDoc = document.getElementById("WDE_enzymes_spacer");
     var printWindow = window.open('', '', 'left=0,top=0,width=800,height=600,toolbar=0,scrollbars=0,status=0');
@@ -3192,6 +3439,7 @@ function wdePrintEnzy() {
     printWindow.close();
 }
 
+window.wdeDigList = wdeDigList;
 function wdeDigList() {
     document.getElementById("WDE_DIGEST").style.height = "500px";
     wdeDigUserChoice = "L";
@@ -3217,9 +3465,10 @@ function wdeDigList() {
     }
     retVal += "</table>";
     window.frames['WDE_DIGEST'].document.body.innerHTML = retVal;
-    wdeShowTab('tab3','WDE_digest');
+    browseTabFunctionality('WDE_digest');
 }
 
+window.wdeDigCleanDigList = wdeDigCleanDigList;
 function wdeDigCleanDigList(circ) {
     var allPos = "";
     var sel = 0;
@@ -3255,7 +3504,7 @@ function wdeDigCleanDigList(circ) {
 	    
 	    var lastPos = 1;
 	    var lastEnz = "Start";
-	    var amount = mainForm.elements["WDE_DIGEST_AMOUNT"].value;
+	    var amount = document.getElementById('WDE_DIGEST_AMOUNT').value;
 	    var seqLength = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML).length;
 	    var baseWeight = amount / seqLength;
 	    var weight;
@@ -3291,6 +3540,7 @@ function wdeDigCleanDigList(circ) {
     return toSort;
 }
 
+window.wdeDigSortPos = wdeDigSortPos;
 function wdeDigSortPos(a, b) {
     if (a[2] != b[2]) {
         return a[2] - b[2];
@@ -3299,6 +3549,7 @@ function wdeDigSortPos(a, b) {
     }
 }
 
+window.wdeDigSortFrag = wdeDigSortFrag;
 function wdeDigSortFrag(a, b) {
     if (a[0] != b[0]) {
         return b[0] - a[0];
@@ -3307,6 +3558,7 @@ function wdeDigSortFrag(a, b) {
     }
 }
 
+window.wdeDigAsGelPic = wdeDigAsGelPic;
 function wdeDigAsGelPic() {
     document.getElementById("WDE_DIGEST").style.height = "500px";
     wdeDigUserChoice = "G";
@@ -3314,9 +3566,10 @@ function wdeDigAsGelPic() {
     wdeDigShowSVG(retVal, 750, 450);
 }
 
+window.wdeDigCreateSVG = wdeDigCreateSVG;
 function wdeDigCreateSVG() {
     var digArr = wdeDigCleanDigList(wdeCircular);
-    var markString = mainForm.elements["WDE_DIGEST_MARKER"].value;
+    var markString = document.getElementById('WDE_DIGEST_MARKER').value;
     var rawMarker = markString.split(";");
     var markArr = [];
     for (var i = 0; i < rawMarker.length; i++) {
@@ -3362,6 +3615,7 @@ function wdeDigCreateSVG() {
     return retVal;
 }
 
+window.wdeDigCleanBands = wdeDigCleanBands;
 function wdeDigCleanBands(arr) {
     var retArr = [];
     var lastBandPos = -1;
@@ -3389,6 +3643,7 @@ function wdeDigCleanBands(arr) {
     return retArr;
 }
 
+window.wdeDigSVGBand = wdeDigSVGBand;
 function wdeDigSVGBand(xPos,yPos,color) {
     var retVal = "<line x1='" + xPos + "' y1='" + yPos;
     retVal += "' x2='" + (xPos + 130) + "' y2='" + yPos;
@@ -3396,6 +3651,7 @@ function wdeDigSVGBand(xPos,yPos,color) {
     return retVal; 
 }
 
+window.wdeDigShowSVG = wdeDigShowSVG;
 function wdeDigShowSVG(svg, x, y) {
     var retVal = svg;
     var regEx1 = /</g;
@@ -3407,28 +3663,30 @@ function wdeDigShowSVG(svg, x, y) {
     retVal = '<img src="data:image/svg+xml,' + retVal;
     retVal += '" alt="Digest-SVG" width="' + x + '" height="' + y +'">';
     window.frames['WDE_DIGEST'].document.body.innerHTML = retVal;
-    wdeShowTab('tab3','WDE_digest');
+    browseTabFunctionality('WDE_digest');
 }
 
+window.wdeSaveGel = wdeSaveGel;
 function wdeSaveGel() {
     if (wdeDigUserChoice == "L") {
 	    var content = window.frames['WDE_DIGEST'].document.body.innerHTML;
 	    content = "<html>\n<body>\n" + content + "\n</body>\n</html>\n";
-		var fileName = mainForm.elements["SEQUENCE_ID"].value + "_digest.html";
+		var fileName = document.getElementById('SEQUENCE_ID').value + "_digest.html";
 		wdeSaveFile(fileName, content, "html");
 	}
     if (wdeDigUserChoice == "G") {
 	    var content = wdeDigCreateSVG();
-		var fileName = mainForm.elements["SEQUENCE_ID"].value + "_gel.svg";
+		var fileName = document.getElementById('SEQUENCE_ID').value + "_gel.svg";
 		wdeSaveFile(fileName, content, "svg");
 	}
     if ((wdeDigUserChoice == "U") || (wdeDigUserChoice == "M")) {
 	    var content = wdeMapSVG(wdeDigUserChoice);
-		var fileName = mainForm.elements["SEQUENCE_ID"].value + "_map.svg";
+		var fileName = document.getElementById('SEQUENCE_ID').value + "_map.svg";
 		wdeSaveFile(fileName, content[0], "svg");
     } 
 }
 
+window.wdePrintGel = wdePrintGel;
 function wdePrintGel() {
     var printWindow = window.open('', '', 'left=0,top=0,width=800,height=600,toolbar=0,scrollbars=0,status=0');
     printWindow.document.write(window.frames['WDE_DIGEST'].document.body.innerHTML);
@@ -3438,6 +3696,7 @@ function wdePrintGel() {
     printWindow.close();
 }
 
+window.wdeDigMapDis = wdeDigMapDis;
 function wdeDigMapDis(unique) {
     if (unique == "U") {
         wdeDigUserChoice = "U";
@@ -3451,6 +3710,7 @@ function wdeDigMapDis(unique) {
     }
 }
 
+window.wdeMapSVG = wdeMapSVG;
 function wdeMapSVG(unique) {
     // A letter is 25 long , if text 0, space below +20 top - 40, line dist 60
     // Use 50 for hight
@@ -3460,7 +3720,7 @@ function wdeMapSVG(unique) {
     }
     var retVal = "";
     var circ = wdeCircular
-    var seqId = mainForm.elements["SEQUENCE_ID"].value;
+    var seqId = document.getElementById('SEQUENCE_ID').value;
     var seqLength = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML).length;
     var digArr = wdeDigCleanDigList(circ);
     var maxY = [-500,500];
@@ -3902,6 +4162,7 @@ function wdeMapSVG(unique) {
     return [retVal,calcHight];
 }
 
+window.wdeDigMapSort = wdeDigMapSort;
 function wdeDigMapSort(a, b) {
     if (a[6] != b[6]) {
         return a[6] - b[6];
@@ -3924,10 +4185,12 @@ function wdeDigMapSort(a, b) {
     }
 }
 
+window.wdeDigSVGFEatSort = wdeDigSVGFEatSort;
 function wdeDigSVGFEatSort(a, b) {
     return b[0] - a[0];
 }
 
+window.wdeTransInSel = wdeTransInSel;
 function wdeTransInSel() {
     var sel, range;
     if (window.frames['WDE_RTF'].getSelection) {
@@ -3936,17 +4199,19 @@ function wdeTransInSel() {
         wdeVTransDNA =  wdeCleanSeq(theSelection);
         wdeVTransDNACirc = 0;
         wdeSelTransTable();
-        wdeShowTab('tab4','WDE_translate');
+        browseTabFunctionality('WDE_translate');
     } 
 }
 
+window.wdeTransInAll = wdeTransInAll;
 function wdeTransInAll() {
     wdeVTransDNA = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
     wdeVTransDNACirc = wdeCircular;
     wdeSelTransTable();
-    wdeShowTab('tab4','WDE_translate');
+    browseTabFunctionality('WDE_translate');
 }
 
+window.wdeDrawGeneticCode = wdeDrawGeneticCode;
 function wdeDrawGeneticCode() {
     // Populate the Code Selection
     var select = document.getElementById('WDE_TRANS_CODE');
@@ -3963,11 +4228,13 @@ function wdeDrawGeneticCode() {
     wdeSelTransTable();
 }
 
+window.wdeSelTransCode = wdeSelTransCode;
 function wdeSelTransCode() {
     wdeVTransCode = document.getElementById("WDE_TRANS_CODE").value;
     wdeSelTransTable();
 }
 
+window.wdeSelTransTable = wdeSelTransTable;
 function wdeSelTransTable() {
     var transDoc = document.getElementById("WDE_translate_spacer");
     var content = '<table border="0" style="line-height: 1.0; font-size: 80%;">';
@@ -4028,6 +4295,7 @@ function wdeSelTransTable() {
     wdeTransDrawFrame();
 }
 
+window.wdeTransDrawFrame = wdeTransDrawFrame;
 function wdeTransDrawFrame() {
     var seq = wdeVTransDNA;
     var rSeq = "";
@@ -4380,7 +4648,7 @@ function wdeTransDrawFrame() {
         
         // Print ORFs
         for (var i = 0 ; i < orfCount ; i++) {
-            var minSize = mainForm.elements["ORF_AS_NR"].value;
+            var minSize = document.getElementById('ORF_AS_NR').value;
             if (minSize <= orfs[i][3]) {
 	            retVal += ">" + orfs[i][0] + "\n";
 	            var orfSeq = orfs[i][4];
@@ -4466,6 +4734,7 @@ function wdeTransDrawFrame() {
     window.frames['WDE_TRANS'].document.body.innerHTML = "<pre>" + retVal + "</pre>";
 }
 
+window.wdeTransSortOrf = wdeTransSortOrf;
 function wdeTransSortOrf(a, b) {
     if (wdeVTransOrfSortSize) {
         if (b[3] == a[3]) {
@@ -4483,6 +4752,7 @@ function wdeTransSortOrf(a, b) {
     }    
 }
 
+window.wdeTransHmlPart = wdeTransHmlPart;
 function wdeTransHmlPart(seq, mark) {
     var retVal = "";
     var lastChar = "-";
@@ -4512,6 +4782,7 @@ function wdeTransHmlPart(seq, mark) {
     return retVal;
 }
 
+window.wdeSaveTrans = wdeSaveTrans;
 function wdeSaveTrans() {
     var content = window.frames['WDE_TRANS'].document.body.innerHTML;
     if (wdeVTransOrfView) {
@@ -4521,15 +4792,16 @@ function wdeSaveTrans() {
 	    content = content.replace(regEx2, "");
 	    var regEx3 = /&gt;/g;
 	    content = content.replace(regEx3, ">");
-	    var fileName = mainForm.elements["SEQUENCE_ID"].value + "_translation.fa";
+	    var fileName = document.getElementById('SEQUENCE_ID').value + "_translation.fa";
         wdeSaveFile(fileName, content, "text");
     } else {
 	    content = "<html>\n<body>\n" + content + "\n</body>\n</html>\n";
-	    var fileName = mainForm.elements["SEQUENCE_ID"].value + "_translation.html";
+	    var fileName = document.getElementById('SEQUENCE_ID').value + "_translation.html";
 	    wdeSaveFile(fileName, content, "html");
     }
 };
 
+window.wdePrintTrans = wdePrintTrans;
 function wdePrintTrans() {
     var printWindow = window.open('', '', 'left=0,top=0,width=800,height=600,toolbar=0,scrollbars=0,status=0');
     printWindow.document.write(window.frames['WDE_TRANS'].document.body.innerHTML);
@@ -4544,6 +4816,7 @@ function wdePrintTrans() {
 //////////////////////////////////////////////////////////////////////
 
 // Functions for the code table and translation
+window.wdeNumberToBase = wdeNumberToBase;
 function wdeNumberToBase(seq){
     var retSeq = "";
     switch (seq) {
@@ -4559,6 +4832,7 @@ function wdeNumberToBase(seq){
     return retSeq;
 }
 
+window.wdeBaseToNumber = wdeBaseToNumber;
 function wdeBaseToNumber(seq){
     var retSeq = 0;
     switch (seq) {
@@ -4582,6 +4856,7 @@ function wdeBaseToNumber(seq){
     return retSeq;
 }
 
+window.wdeTranslateTripToAs = wdeTranslateTripToAs;
 function wdeTranslateTripToAs(one, two, tre, bas){
     var a = wdeBaseToNumber(one);
     var b = wdeBaseToNumber(two);
@@ -4590,6 +4865,7 @@ function wdeTranslateTripToAs(one, two, tre, bas){
     return wdeTranslate[bas][1].charAt(pos);
 }
 
+window.wdeTranslateTripToStart = wdeTranslateTripToStart;
 function wdeTranslateTripToStart(one, two, tre, bas){
     var a = wdeBaseToNumber(one);
     var b = wdeBaseToNumber(two);
@@ -4599,6 +4875,7 @@ function wdeTranslateTripToStart(one, two, tre, bas){
 }
 
 // Translates single letter code to tree letter code
+window.wdeProteinOneThree = wdeProteinOneThree;
 function wdeProteinOneThree(seqIn){
     var seq = seqIn.toLowerCase();
     var retSeq = "";
@@ -4654,6 +4931,7 @@ function wdeProteinOneThree(seqIn){
 // Sequences have to be of same length
 // Seq1 is expected to be ATGC
 // x masks methylation sites and returns allways false
+window.wdeIsSameSeq = wdeIsSameSeq;
 function wdeIsSameSeq(seq1, seq2){
     if (seq1.length != seq2.length) {
         return false;
@@ -4754,6 +5032,7 @@ function wdeIsSameSeq(seq1, seq2){
 
 // All non ambiguty codes are lost and u->t
 // X and x are kept as selection marks
+window.wdeRetAmbiqutyOnly = wdeRetAmbiqutyOnly;
 function wdeRetAmbiqutyOnly(seq){
     var retSeq = "";
     for (var i = 0; i < seq.length ; i++) {
@@ -4831,6 +5110,7 @@ function wdeRetAmbiqutyOnly(seq){
     return retSeq;
 }
 
+window.wdeReverseComplement = wdeReverseComplement;
 function wdeReverseComplement(seq){
     var revComp = "";
     for (var i = seq.length; i >= 0 ; i--) {
@@ -4904,6 +5184,7 @@ function wdeReverseComplement(seq){
     return revComp;
 }
 
+window.wdeSetDamDcmMeth = wdeSetDamDcmMeth;
 function wdeSetDamDcmMeth() {
     var dam = ["AlwI","BcgI","BclI","BsaBI","BspDI","BspEI",
                "BspHI","ClaI","DpnII","EciI","HphI","Hpy188I",
@@ -4951,6 +5232,7 @@ function wdeSetDamDcmMeth() {
 //    == -1   -> toggles between the variables                      //
 //    >=  0   -> sets variable to provided value                    //
 //////////////////////////////////////////////////////////////////////
+window.wdeTGCircularLinear = wdeTGCircularLinear;
 function wdeTGCircularLinear(sel){
     if (sel == -1) {
 	    if (wdeCircular == 1) {
@@ -4969,7 +5251,8 @@ function wdeTGCircularLinear(sel){
     }
 }
 
-function wdeTGDamDcm(sel) {
+window.wdeTGDamDcm = wdeTGDamDcm;
+function wdeTGDamDcm(sel,saveLS) {
     if (sel == -1) {
 	    if (wdeDamDcmSel == 1) {
 	        sel = 0;
@@ -4980,14 +5263,21 @@ function wdeTGDamDcm(sel) {
     var box = document.getElementById("WDE_DAM_DCM");
     if (sel) {
         wdeDamDcmSel = 1;
+        if (saveLS) {
+            localStorage.setItem("wde_wdeDamDcmSel", "1");
+        }
         box.checked=true;
     } else {
         wdeDamDcmSel = 0;
+        if (saveLS) {
+            localStorage.setItem("wde_wdeDamDcmSel", "0");
+        }
         box.checked=false;
     }
 }
 
-function wdeTGDigGelBandBlack(sel,rPaint){
+window.wdeTGDigGelBandBlack = wdeTGDigGelBandBlack;
+function wdeTGDigGelBandBlack(sel,rPaint,saveLS){
     if (sel == -1) {
 	    if (wdeDigVBandBlack == 1) {
 	        sel = 0;
@@ -4999,16 +5289,23 @@ function wdeTGDigGelBandBlack(sel,rPaint){
     if (sel) {
         wdeDigVBandBlack = 1;
         lButton.value = "Simulate Bands Density";
+        if (saveLS) {
+            localStorage.setItem("wde_BandBlack", "1");
+        }
     } else {
         wdeDigVBandBlack = 0;
         lButton.value = "Draw Bands Black";
+        if (saveLS) {
+            localStorage.setItem("wde_BandBlack", "0");
+        }
     }
     if (rPaint) {
         wdeDigAsGelPic();
     }
 }
 
-function wdeTGDigShowFeatures(sel,rPaint){
+window.wdeTGDigShowFeatures = wdeTGDigShowFeatures;
+function wdeTGDigShowFeatures(sel,rPaint,saveLS){
     if (sel == -1) {
 	    if (wdeDigVShowFeatures == 1) {
 	        sel = 0;
@@ -5020,15 +5317,22 @@ function wdeTGDigShowFeatures(sel,rPaint){
     if (sel) {
         wdeDigVShowFeatures = 1;
         lButton.value = "Hide Features";
+        if (saveLS) {
+            localStorage.setItem("wde_BandBlack", "1");
+        }
     } else {
         wdeDigVShowFeatures = 0;
         lButton.value = "Show Features";
+        if (saveLS) {
+            localStorage.setItem("wde_BandBlack", "0");
+        }
     }
     if (rPaint) {
         wdeDigMapDis(wdeDigUserChoice);
     }
 }
 
+window.wdeTGFeaturesTransp = wdeTGFeaturesTransp;
 function wdeTGFeaturesTransp(sel,rPaint){
     if (sel == -1) {
 	    if (wdeVFeatTransp == 1) {
@@ -5050,6 +5354,7 @@ function wdeTGFeaturesTransp(sel,rPaint){
     }
 }
 
+window.wdeTGOrfSort = wdeTGOrfSort;
 function wdeTGOrfSort(sel,rPaint){
     if (sel == -1) {
 	    if (wdeVTransOrfSortSize == 1) {
@@ -5071,6 +5376,7 @@ function wdeTGOrfSort(sel,rPaint){
     }
 }
 
+window.wdeTGOrfView = wdeTGOrfView;
 function wdeTGOrfView(sel,rPaint){
     if (sel == -1) {
 	    if (wdeVTransOrfView == 1) {
@@ -5092,6 +5398,7 @@ function wdeTGOrfView(sel,rPaint){
     }
 }
 
+window.wdeTGTransFrameNr = wdeTGTransFrameNr;
 function wdeTGTransFrameNr(sel,rPaint){
     if (sel == -1) {
 	    if (wdeVTransFrameNr == 6) {
@@ -5118,6 +5425,7 @@ function wdeTGTransFrameNr(sel,rPaint){
     }
 }
 
+window.wdeTGTransRevComp = wdeTGTransRevComp;
 function wdeTGTransRevComp(sel,rPaint){
     if (sel == -1) {
 	    if (wdeVTransRevComp == 1) {
@@ -5139,6 +5447,7 @@ function wdeTGTransRevComp(sel,rPaint){
     }
 }
 
+window.wdeTGTransTreeOne = wdeTGTransTreeOne;
 function wdeTGTransTreeOne(sel,rPaint){
     if (sel == -1) {
 	    if (wdeVTransLetter == 1) {
@@ -5160,6 +5469,7 @@ function wdeTGTransTreeOne(sel,rPaint){
     }
 }
 
+window.wdeTGUserSel = wdeTGUserSel;
 function wdeTGUserSel(sel) {
     if (sel == -1) {
 	    if (wdeUser[2] == 1) {
@@ -5178,6 +5488,7 @@ function wdeTGUserSel(sel) {
     }
 }
 
+window.wdeTGViewNumbers = wdeTGViewNumbers;
 function wdeTGViewNumbers(sel,rPaint){
     if (sel == -1) {
 	    if (wdeNumbers == 1) {
@@ -5196,7 +5507,8 @@ function wdeTGViewNumbers(sel,rPaint){
     }
 }
 
-function wdeTGViewZeroOne(sel,rPaint){
+window.wdeTGViewZeroOne = wdeTGViewZeroOne;
+function wdeTGViewZeroOne(sel,rPaint,saveLS){
     if (sel == -1) {
 	    if (wdeZeroOne == 1) {
 	        sel = 0;
@@ -5208,20 +5520,27 @@ function wdeTGViewZeroOne(sel,rPaint){
     if (sel) {
         wdeZeroOne = 1;
         lButton.value = "1";
+        if (saveLS) {
+            localStorage.setItem("wde_cmdZeroOneButton", "1");
+        }
     } else {
         wdeZeroOne = 0;
         lButton.value = "0";
+        if (saveLS) {
+            localStorage.setItem("wde_cmdZeroOneButton", "0");
+        }
     }
     if (rPaint) {
         wdeRepaint();
     }
 }
 
-function wdeUpdateButtonsToDef() {
+window.wdeUpdateButtonsToDef = wdeUpdateButtonsToDef;
+function wdeUpdateButtonsToDef(saveLS) {
     wdeTGCircularLinear(wdeCircular);
-    wdeTGDamDcm(wdeDamDcmSel);
-    wdeTGDigGelBandBlack(wdeDigVBandBlack,0);
-    wdeTGDigShowFeatures(wdeDigVShowFeatures,0)
+    wdeTGDamDcm(wdeDamDcmSel,saveLS);
+    wdeTGDigGelBandBlack(wdeDigVBandBlack,0,saveLS);
+    wdeTGDigShowFeatures(wdeDigVShowFeatures,0,saveLS)
     wdeTGFeaturesTransp(wdeVFeatTransp, 0);
     wdeTGOrfSort(wdeVTransOrfSortSize,0);
     wdeTGOrfView(wdeVTransOrfView,0);
@@ -5230,13 +5549,14 @@ function wdeUpdateButtonsToDef() {
     wdeTGTransTreeOne(wdeVTransLetter,0);
     wdeTGUserSel(wdeUser[2]);
     wdeTGViewNumbers(wdeNumbers,0);
-    wdeTGViewZeroOne(wdeZeroOne,0);
+    wdeTGViewZeroOne(wdeZeroOne,0,saveLS);
 }
 
+window.wdeCleanInputFields = wdeCleanInputFields;
 function wdeCleanInputFields() {
-    mainForm.elements["wdeInfoField"].value = "";
-    mainForm.elements["SEQUENCE_ID"].value = "";
-    mainForm.elements["SEQUENCE_LENGTH"].value = "";
+    document.getElementById('wdeInfoField').value = "";
+    document.getElementById('SEQUENCE_ID').value = "";
+    document.getElementById('SEQUENCE_LENGTH').value = "";
     wdeHideFeatures();
 }
 
@@ -5248,6 +5568,7 @@ function wdeCleanInputFields() {
 // Attention: The Order is used to sort the features for            //
 // display, in the feature list and while writing genebank files    // 
 //////////////////////////////////////////////////////////////////////
+window.wdePopulateFeatureColors = wdePopulateFeatureColors;
 function wdePopulateFeatureColors() {
     wdeFeatColor[0]=["CDS","#2db300","#2db300","arrow"];
     wdeFeatColor[1]=["gene","#ff3333","#ff3333","arrow"];
@@ -5304,6 +5625,7 @@ function wdePopulateFeatureColors() {
     wdePopulateFeatRegColors();
 }
 
+window.wdePopulateFeatRegColors = wdePopulateFeatRegColors;
 function wdePopulateFeatRegColors() {
     wdeFeatRegColor[0]=["minus_10_signal","#e6ac00","#e6ac00","box"];
     wdeFeatRegColor[1]=["TATA_box","#e6ac00","#e6ac00","box"];
@@ -5337,6 +5659,7 @@ function wdePopulateFeatRegColors() {
 // ftp://ftp.ncbi.nih.gov/entrez/misc/data/gc.prt
 //
 // Do not modify!!!!
+window.wdePopulateTranslation = wdePopulateTranslation;
 function wdePopulateTranslation() {
     wdeTranslate[0]=[
       "Standard  -  only Met Start",
@@ -5434,6 +5757,7 @@ function wdePopulateTranslation() {
 // doi: 10.1093/nar/gku1046
 //
 // Do not modify!!!!
+window.wdePopulateEnzmes = wdePopulateEnzmes;
 function wdePopulateEnzmes() {
     wdeEnzy[0]=["AatII","GACGT^C",0,"-",""];
     wdeEnzy[1]=["AccI","GT^MKAC",0,"-",""];
