@@ -20,7 +20,9 @@ my @arr = split("\n", $fileContent);
 my $reg = qq{
 Promotor:
 "minus_35_signal"	#e6ac00	#e6ac00	box
+"-35_signal"	#e6ac00	#e6ac00	box
 "minus_10_signal"	#e6ac00	#e6ac00	box
+"-10_signal"	#e6ac00	#e6ac00	box
 "TATA_box"	#e6ac00	#e6ac00	box
 "GC_signal"	#e6ac00	#e6ac00	box
 "CAAT_signal"	#e6ac00	#e6ac00	box
@@ -72,17 +74,15 @@ print OUTFILE "    wdePopulateFeatRegColors();\n}\n\n";
 
 print OUTFILE "function wdePopulateFeatRegColors() {\n";
 
-$i = -1;
+$i = 0;
 
 foreach (@arr2) {
 	my @cur = split("\t" , $_);
 	if ($#cur != 3) {
 		print "No add: $_\n";
 	} else {
-		if ($i > -1) {
-   			print OUTFILE "    wdeFeatRegColor[$i]=[$cur[0],\"$cur[1]\",\"$cur[2]\",\"$cur[3]\"];\n";
-		}
-   		$i++;
+   		print OUTFILE "    wdeFeatRegColor[$i]=[$cur[0],\"$cur[1]\",\"$cur[2]\",\"$cur[3]\"];\n";
+		$i++;
 	}
 		
 }

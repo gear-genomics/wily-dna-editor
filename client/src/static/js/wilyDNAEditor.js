@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "1.0.0";
+var wdeVVersion = "1.1.0";
 
 // Link to Primer3Plus
 const uploadTargetP3P = "https://gear.embl.de/primer3plus/api/v1/upload";
@@ -72,6 +72,9 @@ var wdeDigUserChoice = "X";
 //  M - Map
 //  U - Map + Unique
 //  X - Nothing Selected
+var wdeDigSeqNote = {};
+//  tag - position
+//  val - note string
 var wdeTranslate = [];
 // [][0] = name
 // [][1] = translation
@@ -348,10 +351,16 @@ function wdeLoadLocalStorage(){
     if (ret !== null) {
         document.getElementById('ORF_AS_NR').value = ret;
     }
-    ret = localStorage.getItem("wde_FeatureLibData");
+    wdeLoadFeatureLibData();
+}
+
+window.wdeLoadFeatureLibData = wdeLoadFeatureLibData;
+function wdeLoadFeatureLibData(){
+    var ret = localStorage.getItem("wde_FeatureLibData");
     if (ret !== null) {
         wdeFeatureLib = JSON.parse(ret);
     }
+    wdeLibFocRepaint();
 }
 
 window.wdeSetLocalStorage = wdeSetLocalStorage;
@@ -743,6 +752,7 @@ window.wdeReadFile = wdeReadFile;
 function wdeReadFile(seq, file) {
     wdeCleanInputFields();
     wdeFeatures = [];
+    wdeSequenceModified();
     // FASTA file format
     if (/^>/.test(seq)) {
         var eoTitel = seq.indexOf("\n");
@@ -881,12 +891,18 @@ function wdeProcessGenebank(feat) {
 	        }
         }
         if (feat[k][3] != "U") {
+                if (/\/ApEinfo_label="*([^"]+?)"*\n/g.test(feat[k][8])) {
+                      feat[k][2] = RegExp.$1;
+                }
 	        if (/\/allele="([^"]+?)"\s*/g.test(feat[k][8])) {
 	              feat[k][2] = RegExp.$1;
 	        }
 	        if (/\/standard_name="([^"]+?)"\s*/g.test(feat[k][8])) {
 	              feat[k][2] = RegExp.$1;
 	        }
+                if (/\/label="*([^"]+?)"*\n/g.test(feat[k][8])) {
+                      feat[k][2] = RegExp.$1;
+                }
 	        if (/\/product="([^"]+?)"\s*/g.test(feat[k][8])) {
 	              feat[k][2] = RegExp.$1;
 	        }
@@ -937,6 +953,8 @@ function wdeGenebankExtractNote(featStr) {
 	        }
         }
     }
+    noteVal = noteVal.replace(/^\s+/, "");
+    noteVal = noteVal.replace(/\s+$/, ""); 
     noteVal = "/note=\"" + noteVal + "\"";
     return [noteVal,retVal];
 }
@@ -1705,6 +1723,7 @@ function wdeSequenceModified(){
 window.wdeHighlight = wdeHighlight;
 function wdeHighlight(){
     // Set Highlights to nothing
+    wdeDigSeqNote = {};
     var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
     var end = seq.length;
     for (var j = 0; j < end ; j++) {
@@ -1724,6 +1743,7 @@ function wdeHighlight(){
                     var curr = parseInt(posAr[0]) - wdeZeroOne + p;
                     if (curr < end) {
                         wdeSeqHigh[curr] = "R";
+                        wdeAddDigSeqNote(curr, wdeUser[0] + " - " + wdeUser[1]);		  
                     }
                 }
             }
@@ -1739,6 +1759,7 @@ function wdeHighlight(){
                         var curr = parseInt(posAr[0]) - wdeZeroOne + p;
                         if (curr < end) {
                             wdeSeqHigh[curr] = "R";
+                            wdeAddDigSeqNote(curr, wdeEnzy[k][0] + " - " + wdeEnzy[k][1]);
                         }
                     }
                 }
@@ -1755,22 +1776,34 @@ function wdeHighlight(){
     wdeRepaint();
 }
 
+function wdeAddDigSeqNote(pos, seq) {
+    if (wdeDigSeqNote.hasOwnProperty(pos)) {
+        if (wdeDigSeqNote[pos] != seq) {
+            wdeDigSeqNote[pos] = wdeDigSeqNote[pos] + "; " + seq;
+        }
+    } else {
+        wdeDigSeqNote[pos] = seq;
+    }
+}
+
 window.wdeFormatSeq = wdeFormatSeq;
 function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
     var outSeq = "\n";
     var length = seq.length;
     var digits = 0;
     var lastBaseMark = ".";
+    var lastRsAnnotation = "";
     var openMark = "";
     var closeMark = "";
     var openFeat = "";
     var closeFeat = "";
+    wdeFeatInfo = [];
     for (var i = length; i > 1 ; i = i / 10) {
         digits++;
     }
     digits++;
     document.getElementById('SEQUENCE_LENGTH').value = length;
-    
+
     for (var i = 0; i < seq.length ; i++) {
         if (i % 80 == 0) {
             if (i != 0) {
@@ -1784,8 +1817,11 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
                 }
                 outSeq += iStr + "  ";
             }
-            outSeq += openFeat + openMark;
-        } else {
+            if (openMark == "") {
+                outSeq += openFeat;
+            }
+            outSeq += openMark;
+         } else {
             if ((i % 10 == 0) && (wdeNumbers != 0)) {
                 outSeq += " ";
             }
@@ -1798,8 +1834,10 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
                 wdeFeatInfo[infoCount] = [featColor[1],featColor[2]] ;
                 outSeq += closeFeat;
                 openFeat = '<a onclick="parent.wdeFeatInfoUpdate(' + infoCount + ')" style="background-color:' + featColor[0] + '">';
-                closeFeat = "</a>";
-                outSeq += openFeat;
+                if (openMark == "") {		    
+                    outSeq += openFeat;
+                    closeFeat = "</a>";
+                }
             } else {
                 outSeq += closeFeat;
                 openFeat = "";
@@ -1807,18 +1845,25 @@ function wdeFormatSeq(seq, wdeZeroOne, wdeNumbers){
             }
         }
         // Place the enzyme selection
-        if ((wdeREdisp != 0) && (length == wdeSeqHigh.length) && (wdeSeqHigh[i] != lastBaseMark)) {
+        if ((wdeREdisp != 0) && (length == wdeSeqHigh.length) && ((wdeSeqHigh[i] != lastBaseMark) || ((wdeSeqHigh[i] == "R") && (lastRsAnnotation != wdeDigSeqNote[i])))) {
             if (wdeSeqHigh[i] == "R") {
+                var infoCount2 = wdeFeatInfo.length;
+                wdeFeatInfo[infoCount2] = [wdeDigSeqNote[i], -2] ;
                 outSeq += closeFeat;
-                openMark = '<span style="background-color:red">';
-                closeMark = "</span>";
+                outSeq += closeMark; // in case the Feature Update has to change		    
+                openMark = '<a onclick="parent.wdeFeatInfoUpdate(' + infoCount2 + ')" style="background-color:#FF0000">';//'<span style="background-color:red">';
+                closeMark = "</a>";
                 outSeq += openMark;
+                lastRsAnnotation =  wdeDigSeqNote[i];
             }
             if (wdeSeqHigh[i] == ".") {
                 outSeq += closeMark;
                 openMark = "";
                 closeMark = "";
-                outSeq += openFeat;
+                if (openFeat != "") {
+                    outSeq += openFeat;
+                    closeFeat = "</a>";
+                }		    
             }
             lastBaseMark = wdeSeqHigh[i];
         }
@@ -2118,18 +2163,20 @@ function wdeFinFeatColSeg(feat){
         if (wdeFeatColor[k][0] == feat[0]) {
             return [wdeFeatColor[k][0], wdeFeatColor[k][1], wdeFeatColor[k][2]];
         }
-	}
+    }
     return ["No matching feature type found!", "#FF0000", "#FF0000"];
 }
 
 window.wdeFeatInfoUpdate = wdeFeatInfoUpdate;
 function wdeFeatInfoUpdate(infoCount) {
-        if (infoCount < 0) {
-            document.getElementById('wdeInfoField').value = "";
-        } else {
-            document.getElementById('wdeInfoField').value = wdeFeatInfo[infoCount][0];
+    if (infoCount < 0) {
+        document.getElementById('wdeInfoField').value = "";
+    } else {
+        document.getElementById('wdeInfoField').value = wdeFeatInfo[infoCount][0];
+        if (wdeFeatInfo[infoCount][1] != -2) { // -2 is restriction site		
             wdeFeatFocUpdate(wdeFeatInfo[infoCount][1]);
         }
+    }
 }
 
 window.wdeFeatFocUpdate = wdeFeatFocUpdate;
@@ -3714,15 +3761,21 @@ window.wdeMapSVG = wdeMapSVG;
 function wdeMapSVG(unique) {
     // A letter is 25 long , if text 0, space below +20 top - 40, line dist 60
     // Use 50 for hight
-    wdeEnzyFoundCheck();
+    var resFound = true;
+    if (wdeEnzy[0][3] == "-") {
+        resFound = false;
+    }
     if (unique == "U") {
         wdeSelREsel('E', 1);
     }
     var retVal = "";
-    var circ = wdeCircular
+    var circ = wdeCircular;
     var seqId = document.getElementById('SEQUENCE_ID').value;
     var seqLength = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML).length;
-    var digArr = wdeDigCleanDigList(circ);
+    var digArr = [];
+    if (resFound == true) { 
+        digArr = wdeDigCleanDigList(circ);
+    }
     var maxY = [-500,500];
     var svgFeat = [];
     // svgFeat[][0] = Sum of all bp in Feature
@@ -5560,6 +5613,167 @@ function wdeCleanInputFields() {
     wdeHideFeatures();
 }
 
+window.wdeLoadSampleFile = wdeLoadSampleFile;
+function wdeLoadSampleFile() {
+    var sampleSeq = "LOCUS       SYNPBR322               4361 bp    DNA     circular SYN 30-SEP-2008\n" +
+    "DEFINITION  pBR322\n" +
+    "ACCESSION   J01749 K00005 L08654 M10282 M10283 M10286 M10356 M10784 M10785\n" +
+    "            M10786 M33694 V01119\n" +
+    "VERSION     J01749.1\n" +
+    "KEYWORDS    ampicillin resistance; beta-lactamase; cloning vector; drug\n" +
+    "            resistance protein; origin of replication; plasmid; tetracycline\n" +
+    "            resistance.\n" +
+    "SOURCE      Cloning vector pBR322\n" +
+    "  ORGANISM  Cloning vector pBR322\n" +
+    "            other sequences; artificial sequences; vectors.\n" +
+    "FEATURES             Location/Qualifiers\n" +
+    "     source          1..4361\n" +
+    "                     /organism=\"Cloning vector pBR322\"\n" +
+    "                     /mol_type=\"other DNA\"\n" +
+    "     regulatory      10..15\n" +
+    "                     /note=\"tet (P2) promoter\"\n" +
+    "                     /regulatory_class=\"minus_35_signal\"\n" +
+    "     regulatory      33..38\n" +
+    "                     /note=\"tet (P2) promoter\"\n" +
+    "                     /regulatory_class=\"minus_10_signal\"\n" +
+    "     regulatory      complement(44..49)\n" +
+    "                     /note=\"P1 promoter\"\n" +
+    "                     /regulatory_class=\"minus_10_signal\"\n" +
+    "     regulatory      complement(64..75)\n" +
+    "                     /note=\"P1 promoter\"\n" +
+    "                     /regulatory_class=\"minus_35_signal\"\n" +
+    "     gene            86..1276\n" +
+    "                     /gene=\"tet\"\n" +
+    "     CDS             86..1276\n" +
+    "                     /gene=\"tet\"\n" +
+    "                     /note=\"tetR (confers resistance to tetracycline)\"\n" +
+    "                     /codon_start=1\n" +
+    "                     /product=\"tetracycline efflux protein, class C\"\n" +
+    "                     /translation=\"MKSNNALIVILGTVTLDAVGIGLVMPVLPGLLRDIVHSDSIASH\n" +
+    "                     YGVLLALYALMQFLCAPVLGALSDRFGRRPVLLASLLGATIDYAIMATTPVLWILYAG\n" +
+    "                     RIVAGITGATGAVAGAYIADITDGEDRARHFGLMSACFGVGMVAGPVAGGLLGAISLH\n" +
+    "                     APFLAAAVLNGLNLLLGCFLMQESHKGERRPMPLRAFNPVSSFRWARGMTIVAALMTV\n" +
+    "                     FFIMQLVGQVPAALWVIFGEDRFRWSATMIGLSLAVFGILHALAQAFVTGPATKRFGE\n" +
+    "                     KQAIIAGMAADALGYVLLAFATRGWMAFPIMILLASGGIGMPALQAMLSRQVDDDHQG\n" +
+    "                     QLQGSLAALTSLTSIIGPLIVTAIYAASASTWNGLAWIVGAALYLVCLPALRRGAWSR\n" +
+    "                     ATST\"\n" +
+    "     RBS             1905..1909\n" +
+    "                     /note=\"rop RBS\"\n" +
+    "     gene            1915..2106\n" +
+    "                     /gene=\"rop\"\n" +
+    "     CDS             1915..2106\n" +
+    "                     /gene=\"rop\"\n" +
+    "                     /exception=\"alternative start codon\"\n" +
+    "                     /codon_start=1\n" +
+    "                     /transl_table=11\n" +
+    "                     /product=\"ROP protein\"\n" +
+    "                     /translation=\"MTKQEKTALNMARFIRSQTLTLLEKLNELDADEQADICESLHDH\n" +
+    "                     ADELYRSCLARFGDDGENL\"\n" +
+    "     rep_origin      complement(2534..3122)\n" +
+    "                     /note=\"ORI\"\n" +
+    "     gene            complement(3293..4153)\n" +
+    "                     /gene=\"bla\"\n" +
+    "     CDS             complement(3293..4153)\n" +
+    "                     /gene=\"bla\"\n" +
+    "                     /note=\"ampR (confers resistance to ampicillin)\"\n" +
+    "                     /codon_start=1\n" +
+    "                     /product=\"beta-lactamase\"\n" +
+    "                     /translation=\"MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGY\n" +
+    "                     IELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRVDAGQEQLGRRIHYSQNDLVE\n" +
+    "                     YSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRL\n" +
+    "                     DRWEPELNEAIPNDERDTTMPAAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPL\n" +
+    "                     LRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIA\n" +
+    "                     EIGASLIKHW\"\n" +
+    "     sig_peptide     complement(4085..4153)\n" +
+    "                     /gene=\"bla signal\"\n" +
+    "                     /note=\"required for secretion to the periplasm; cleaved\n" +
+    "                     off to form the mature beta-lactamase protein.\"\n" +
+    "     RBS             complement(4161..4165)\n" +
+    "                     /note=\"bla RBS\"\n" +
+    "     regulatory      complement(4197..4202)\n" +
+    "                     /note=\"bla (P3) promoter\"\n" +
+    "                     /regulatory_class=\"minus_10_signal\"\n" +
+    "     regulatory      complement(4218..4223)\n" +
+    "                     /note=\"bla (P3) promoter\"\n" +
+    "                     /regulatory_class=\"minus_35_signal\"\n" +
+    "ORIGIN      \n" +
+    "        1 ttctcatgtt tgacagctta tcatcgataa gctttaatgc ggtagtttat cacagttaaa\n" +
+    "       61 ttgctaacgc agtcaggcac cgtgtatgaa atctaacaat gcgctcatcg tcatcctcgg\n" +
+    "      121 caccgtcacc ctggatgctg taggcatagg cttggttatg ccggtactgc cgggcctctt\n" +
+    "      181 gcgggatatc gtccattccg acagcatcgc cagtcactat ggcgtgctgc tagcgctata\n" +
+    "      241 tgcgttgatg caatttctat gcgcacccgt tctcggagca ctgtccgacc gctttggccg\n" +
+    "      301 ccgcccagtc ctgctcgctt cgctacttgg agccactatc gactacgcga tcatggcgac\n" +
+    "      361 cacacccgtc ctgtggatcc tctacgccgg acgcatcgtg gccggcatca ccggcgccac\n" +
+    "      421 aggtgcggtt gctggcgcct atatcgccga catcaccgat ggggaagatc gggctcgcca\n" +
+    "      481 cttcgggctc atgagcgctt gtttcggcgt gggtatggtg gcaggccccg tggccggggg\n" +
+    "      541 actgttgggc gccatctcct tgcatgcacc attccttgcg gcggcggtgc tcaacggcct\n" +
+    "      601 caacctacta ctgggctgct tcctaatgca ggagtcgcat aagggagagc gtcgaccgat\n" +
+    "      661 gcccttgaga gccttcaacc cagtcagctc cttccggtgg gcgcggggca tgactatcgt\n" +
+    "      721 cgccgcactt atgactgtct tctttatcat gcaactcgta ggacaggtgc cggcagcgct\n" +
+    "      781 ctgggtcatt ttcggcgagg accgctttcg ctggagcgcg acgatgatcg gcctgtcgct\n" +
+    "      841 tgcggtattc ggaatcttgc acgccctcgc tcaagccttc gtcactggtc ccgccaccaa\n" +
+    "      901 acgtttcggc gagaagcagg ccattatcgc cggcatggcg gccgacgcgc tgggctacgt\n" +
+    "      961 cttgctggcg ttcgcgacgc gaggctggat ggccttcccc attatgattc ttctcgcttc\n" +
+    "     1021 cggcggcatc gggatgcccg cgttgcaggc catgctgtcc aggcaggtag atgacgacca\n" +
+    "     1081 tcagggacag cttcaaggat cgctcgcggc tcttaccagc ctaacttcga tcactggacc\n" +
+    "     1141 gctgatcgtc acggcgattt atgccgcctc ggcgagcaca tggaacgggt tggcatggat\n" +
+    "     1201 tgtaggcgcc gccctatacc ttgtctgcct ccccgcgttg cgtcgcggtg catggagccg\n" +
+    "     1261 ggccacctcg acctgaatgg aagccggcgg cacctcgcta acggattcac cactccaaga\n" +
+    "     1321 attggagcca atcaattctt gcggagaact gtgaatgcgc aaaccaaccc ttggcagaac\n" +
+    "     1381 atatccatcg cgtccgccat ctccagcagc cgcacgcggc gcatctcggg cagcgttggg\n" +
+    "     1441 tcctggccac gggtgcgcat gatcgtgctc ctgtcgttga ggacccggct aggctggcgg\n" +
+    "     1501 ggttgcctta ctggttagca gaatgaatca ccgatacgcg agcgaacgtg aagcgactgc\n" +
+    "     1561 tgctgcaaaa cgtctgcgac ctgagcaaca acatgaatgg tcttcggttt ccgtgtttcg\n" +
+    "     1621 taaagtctgg aaacgcggaa gtcagcgccc tgcaccatta tgttccggat ctgcatcgca\n" +
+    "     1681 ggatgctgct ggctaccctg tggaacacct acatctgtat taacgaagcg ctggcattga\n" +
+    "     1741 ccctgagtga tttttctctg gtcccgccgc atccataccg ccagttgttt accctcacaa\n" +
+    "     1801 cgttccagta accgggcatg ttcatcatca gtaacccgta tcgtgagcat cctctctcgt\n" +
+    "     1861 ttcatcggta tcattacccc catgaacaga aatccccctt acacggaggc atcagtgacc\n" +
+    "     1921 aaacaggaaa aaaccgccct taacatggcc cgctttatca gaagccagac attaacgctt\n" +
+    "     1981 ctggagaaac tcaacgagct ggacgcggat gaacaggcag acatctgtga atcgcttcac\n" +
+    "     2041 gaccacgctg atgagcttta ccgcagctgc ctcgcgcgtt tcggtgatga cggtgaaaac\n" +
+    "     2101 ctctgacaca tgcagctccc ggagacggtc acagcttgtc tgtaagcgga tgccgggagc\n" +
+    "     2161 agacaagccc gtcagggcgc gtcagcgggt gttggcgggt gtcggggcgc agccatgacc\n" +
+    "     2221 cagtcacgta gcgatagcgg agtgtatact ggcttaacta tgcggcatca gagcagattg\n" +
+    "     2281 tactgagagt gcaccatatg cggtgtgaaa taccgcacag atgcgtaagg agaaaatacc\n" +
+    "     2341 gcatcaggcg ctcttccgct tcctcgctca ctgactcgct gcgctcggtc gttcggctgc\n" +
+    "     2401 ggcgagcggt atcagctcac tcaaaggcgg taatacggtt atccacagaa tcaggggata\n" +
+    "     2461 acgcaggaaa gaacatgtga gcaaaaggcc agcaaaaggc caggaaccgt aaaaaggccg\n" +
+    "     2521 cgttgctggc gtttttccat aggctccgcc cccctgacga gcatcacaaa aatcgacgct\n" +
+    "     2581 caagtcagag gtggcgaaac ccgacaggac tataaagata ccaggcgttt ccccctggaa\n" +
+    "     2641 gctccctcgt gcgctctcct gttccgaccc tgccgcttac cggatacctg tccgcctttc\n" +
+    "     2701 tcccttcggg aagcgtggcg ctttctcata gctcacgctg taggtatctc agttcggtgt\n" +
+    "     2761 aggtcgttcg ctccaagctg ggctgtgtgc acgaaccccc cgttcagccc gaccgctgcg\n" +
+    "     2821 ccttatccgg taactatcgt cttgagtcca acccggtaag acacgactta tcgccactgg\n" +
+    "     2881 cagcagccac tggtaacagg attagcagag cgaggtatgt aggcggtgct acagagttct\n" +
+    "     2941 tgaagtggtg gcctaactac ggctacacta gaaggacagt atttggtatc tgcgctctgc\n" +
+    "     3001 tgaagccagt taccttcgga aaaagagttg gtagctcttg atccggcaaa caaaccaccg\n" +
+    "     3061 ctggtagcgg tggttttttt gtttgcaagc agcagattac gcgcagaaaa aaaggatctc\n" +
+    "     3121 aagaagatcc tttgatcttt tctacggggt ctgacgctca gtggaacgaa aactcacgtt\n" +
+    "     3181 aagggatttt ggtcatgaga ttatcaaaaa ggatcttcac ctagatcctt ttaaattaaa\n" +
+    "     3241 aatgaagttt taaatcaatc taaagtatat atgagtaaac ttggtctgac agttaccaat\n" +
+    "     3301 gcttaatcag tgaggcacct atctcagcga tctgtctatt tcgttcatcc atagttgcct\n" +
+    "     3361 gactccccgt cgtgtagata actacgatac gggagggctt accatctggc cccagtgctg\n" +
+    "     3421 caatgatacc gcgagaccca cgctcaccgg ctccagattt atcagcaata aaccagccag\n" +
+    "     3481 ccggaagggc cgagcgcaga agtggtcctg caactttatc cgcctccatc cagtctatta\n" +
+    "     3541 attgttgccg ggaagctaga gtaagtagtt cgccagttaa tagtttgcgc aacgttgttg\n" +
+    "     3601 ccattgctgc aggcatcgtg gtgtcacgct cgtcgtttgg tatggcttca ttcagctccg\n" +
+    "     3661 gttcccaacg atcaaggcga gttacatgat cccccatgtt gtgcaaaaaa gcggttagct\n" +
+    "     3721 ccttcggtcc tccgatcgtt gtcagaagta agttggccgc agtgttatca ctcatggtta\n" +
+    "     3781 tggcagcact gcataattct cttactgtca tgccatccgt aagatgcttt tctgtgactg\n" +
+    "     3841 gtgagtactc aaccaagtca ttctgagaat agtgtatgcg gcgaccgagt tgctcttgcc\n" +
+    "     3901 cggcgtcaac acgggataat accgcgccac atagcagaac tttaaaagtg ctcatcattg\n" +
+    "     3961 gaaaacgttc ttcggggcga aaactctcaa ggatcttacc gctgttgaga tccagttcga\n" +
+    "     4021 tgtaacccac tcgtgcaccc aactgatctt cagcatcttt tactttcacc agcgtttctg\n" +
+    "     4081 ggtgagcaaa aacaggaagg caaaatgccg caaaaaaggg aataagggcg acacggaaat\n" +
+    "     4141 gttgaatact catactcttc ctttttcaat attattgaag catttatcag ggttattgtc\n" +
+    "     4201 tcatgagcgg atacatattt gaatgtattt agaaaaataa acaaataggg gttccgcgca\n" +
+    "     4261 catttccccg aaaagtgcca cctgacgtct aagaaaccat tattatcatg acattaacct\n" +
+    "     4321 ataaaaatag gcgtatcacg aggccctttc gtcttcaaga a\n" +
+    "//\n";
+
+    window.frames['WDE_RTF'].document.body.innerHTML = wdeFormatSeq(wdeCleanSeq(wdeReadFile(sampleSeq, "Sample File")), wdeZeroOne, wdeNumbers);
+}
 
 //////////////////////////////////////////////////////////////////////
 // The following functions are created using the perl scripts       //
@@ -5627,29 +5841,32 @@ function wdePopulateFeatureColors() {
 
 window.wdePopulateFeatRegColors = wdePopulateFeatRegColors;
 function wdePopulateFeatRegColors() {
-    wdeFeatRegColor[0]=["minus_10_signal","#e6ac00","#e6ac00","box"];
-    wdeFeatRegColor[1]=["TATA_box","#e6ac00","#e6ac00","box"];
-    wdeFeatRegColor[2]=["GC_signal","#e6ac00","#e6ac00","box"];
-    wdeFeatRegColor[3]=["CAAT_signal","#e6ac00","#e6ac00","box"];
-    wdeFeatRegColor[4]=["promoter","#ffd24d","#ffd24d","arrow"];
-    wdeFeatRegColor[5]=["ribosome_binding_site","#e6ac00","#e6ac00","box"];
-    wdeFeatRegColor[6]=["riboswitch","#e6ac00","#e6ac00","box"];
-    wdeFeatRegColor[7]=["attenuator","#e6e600","#e6e600","box"];
-    wdeFeatRegColor[8]=["terminator","#ffff33","#ffff33","arrow"];
-    wdeFeatRegColor[9]=["polyA_signal_sequence","#e6e600","#e6e600","box"];
-    wdeFeatRegColor[10]=["DNase_I_hypersensitive_site","#ffb84d","#ffb84d","box"];
-    wdeFeatRegColor[11]=["enhancer","#ffb84d","#ffb84d","box"];
-    wdeFeatRegColor[12]=["enhancer_blocking_element","#ffb84d","#ffb84d","box"];
-    wdeFeatRegColor[13]=["imprinting_control_region","#ffb84d","#ffb84d","box"];
-    wdeFeatRegColor[14]=["insulator","#ffb84d","#ffb84d","box"];
-    wdeFeatRegColor[15]=["locus_control_region","#ffb84d","#ffb84d","box"];
-    wdeFeatRegColor[16]=["matrix_attachment_region","#ffb84d","#ffb84d","box"];
-    wdeFeatRegColor[17]=["recoding_stimulatory_region","#ffb84d","#ffb84d","box"];
-    wdeFeatRegColor[18]=["replication_regulatory_region","#ffb84d","#ffb84d","box"];
-    wdeFeatRegColor[19]=["response_element","#ffb84d","#ffb84d","box"];
-    wdeFeatRegColor[20]=["silencer","#ffb84d","#ffb84d","box"];
-    wdeFeatRegColor[21]=["transcriptional_cis_regulatory_region","#ffb84d","#ffb84d","box"];
-    wdeFeatRegColor[22]=["other","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[0]=["minus_35_signal","#e6ac00","#e6ac00","box"];
+    wdeFeatRegColor[1]=["-35_signal","#e6ac00","#e6ac00","box"];
+    wdeFeatRegColor[2]=["minus_10_signal","#e6ac00","#e6ac00","box"];
+    wdeFeatRegColor[3]=["-10_signal","#e6ac00","#e6ac00","box"];
+    wdeFeatRegColor[4]=["TATA_box","#e6ac00","#e6ac00","box"];
+    wdeFeatRegColor[5]=["GC_signal","#e6ac00","#e6ac00","box"];
+    wdeFeatRegColor[6]=["CAAT_signal","#e6ac00","#e6ac00","box"];
+    wdeFeatRegColor[7]=["promoter","#ffd24d","#ffd24d","arrow"];
+    wdeFeatRegColor[8]=["ribosome_binding_site","#e6ac00","#e6ac00","box"];
+    wdeFeatRegColor[9]=["riboswitch","#e6ac00","#e6ac00","box"];
+    wdeFeatRegColor[10]=["attenuator","#e6e600","#e6e600","box"];
+    wdeFeatRegColor[11]=["terminator","#ffff33","#ffff33","arrow"];
+    wdeFeatRegColor[12]=["polyA_signal_sequence","#e6e600","#e6e600","box"];
+    wdeFeatRegColor[13]=["DNase_I_hypersensitive_site","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[14]=["enhancer","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[15]=["enhancer_blocking_element","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[16]=["imprinting_control_region","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[17]=["insulator","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[18]=["locus_control_region","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[19]=["matrix_attachment_region","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[20]=["recoding_stimulatory_region","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[21]=["replication_regulatory_region","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[22]=["response_element","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[23]=["silencer","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[24]=["transcriptional_cis_regulatory_region","#ffb84d","#ffb84d","box"];
+    wdeFeatRegColor[25]=["other","#ffb84d","#ffb84d","box"];
 }
 
 // Populate the Translation array

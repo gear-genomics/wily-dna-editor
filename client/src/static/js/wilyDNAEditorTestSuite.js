@@ -476,7 +476,7 @@ function wdeTestOutComp(a, b, filter, testName, downloadDiff) {
     
     // Function to modify tests
     if (0) { // Set to 1 and modify test name below
-        if (testName == "wdeDrawEnzymes()") {
+        if (testName == "wdeHighlight()") {
             var retPara = "    var str = '" + bCurr.replace("'", "\'") + "';";
             retPara = retPara.replace('\r\n', '\n');
             retPara = retPara.replace(/\n/g, '\\n');
@@ -10512,96 +10512,117 @@ function wdeTestDataString_020() {
 
 window.wdeTestDataString_021 = wdeTestDataString_021;
 function wdeTestDataString_021() {
-    var str = "<pre id=\"wdeStartNode\"> \n    1  ATGGACATCG ACCC" +
-    "<span style=\"background-color:red\">TTATAA </span>AGAATTTGG" +
-    "A GCTACTGTGG AGTTACTCTC GTTTTTGCCT TCTGACTTCT TTCCTTCAGT\n  " +
-    " 81  ACGAGATCTT CTAGATACCG CCTCAGCTCT GTATCGGGAA GCCTTAGAGT " +
-    "CTCCTGAGCA TTGTTCACCT CACCATACTG\n  161  CACTCAGGCA AGCAATTC" +
-    "TT TGCTGGGGGG AACTAATGAC TCTAGCTACC TGGGTGGGTG TTAATTTGGA AG" +
-    "ATCCAGCG\n  241  TCTAGAGACC TAGTAGTCAG TTATGTCAA<span style=" +
-    "\"background-color:red\">C ACTAATATG</span>G GCCTAAAGTT CAGG" +
-    "CAACTC TTGTGGTTTC ACATTTCTTG\n  321  TCTCACTTTT GGAAGAGAAA C" +
-    "AGTTATAGA GTATTTGGTG TCTTTCGGAG TGTGGATTCG CACTCCTCCA GCTTAT" +
-    "AGAC\n  401  CACCAAATGC CCCTATCCTA TCAACACT<span style=\"bac" +
-    "kground-color:red\">TC CGGA</span>GACTAC TGTTGTTAGA CGACGAGG" +
-    "CA GGTCCCCTAG AAGAAGAACT\n  481  CCCTCGCCTC GCA<span style=\"" +
-    "background-color:red\">GACGAAG GTC</span>TCAATCG CCGCGTCGCA " +
-    "GAAGATCTCA ATCTCGGGAA TCTCAATGTT AGTATTCCTT\n  561  GGACTCAT" +
-    "AA GGTGGGGAAC TTTACTGGGC TTTATTCTTC TACTGTACCT GTCTTTAATC CT" +
-    "CATTGGAA AACACCATCT\n  641  TTTCCTAATA TACATTTACA CCAAGACATT" +
-    " ATCAAAAAAT GTGAACAGTT TGTAGGCCCA CTCACAGTTA ATGAGAAAAG\n  7" +
-    "21  AAGATTG<span style=\"background-color:red\">CAA TTG</spa" +
-    "n>ATTATGC CTGCCAGGTT TTATCCAAAG GTTACCAAAT ATTTACCATT GGATAA" +
-    "GGGT ATTAAACCTT\n  801  ATTATCCAGA ACATCTAGTT AATCATTACT TCC" +
-    "AAACTAG ACACTATTTA CACACTCTAT GGAAGGCGGG TATATTATAT\n  881  " +
-    "AAGAGAGAAA CAACACATAG CGCCTCATTT TGTGG<span style=\"backgrou" +
-    "nd-color:red\">GTCAC </span>CATATTCTTG GGAACAAGAT CTACAGCATG" +
-    " GGGCAGAATC\n  961  TTTCCACCAG CAATCCTCTG GGATTCTTTC CCGACCA" +
-    "CCA GTTGGATCCA GCCTTCAGAG CAAACACCGC AAATCCAGAT\n 1041  TGGG" +
-    "ACTTCA ATCCCAACAA GGACACCTGG CCAGACGCCA ACAAGGTAGG AGCTGGA<s" +
-    "pan style=\"background-color:red\">GCA TTC</span>GGGCTGG GTT" +
-    "TCACCCC\n 1121  ACCGCACGGA GGCCTTTTGG GGTG<span style=\"back" +
-    "ground-color:red\">GAGCCC </span>TCAGGCTCAG GGCATACTAC AAACT" +
-    "TTGCC AGCAAA<span style=\"background-color:red\">TCCG CC</sp" +
-    "an>TCCTGCCT\n 1201  CCACCAATCG CCAGTCAGGA AGGCAGCCTA CCCCGCT" +
-    "GTC TCCACCTTTG AGAAACACTC ATCCTCAGGC CAT<span style=\"backgr" +
-    "ound-color:red\">GCAGTGG</span>\n 1281  <span style=\"backgr" +
-    "ound-color:red\">AATTC</span>CACAA CCTTCCACCA AACTCTGCAA GAT" +
-    "CCCAGAG TGAGAGGCCT GTATTTCCCT GCTGGTGGCT CCAGTTCAGG\n 1361  " +
-    "AACAGTAAAC CCTGTTCTGA CTACTGCCTC TCCCTTATCG TCAATCTT<span st" +
-    "yle=\"background-color:red\">CT CGAG</span>GATTGG GGACCCTGCG" +
-    " CTGAACATGG\n 1441  AGAACATCAC ATCAGGATT<span style=\"backgr" +
-    "ound-color:red\">C CTAGG</span>ACCCC TTCTCGTGTT ACAGGCGGGG T" +
-    "TTTTCTTGT TGACAAGAAT CCTCACAATA\n 1521  CCGCAGAGTC TAGACTCGT" +
-    "G GTGGACTTCT CTCAATTTTC TAGGGGGAAC TACCGTGTGT CT<span style=" +
-    "\"background-color:red\">TGGCCA</span>AA ATTCGCAGTC\n 1601  " +
-    "CCCAACCTCC AATCACTCAC CAACCTCTTG TCCTCCAACT TGTCCTGGTT ATCGC" +
-    "TGGAT GTGTCTGCGG CGTTTTATCA\n 1681  TCTTCCTCTT CATCCTGCTG CT" +
-    "ATGCCTCA TCTTCTTGTT GGTTCTTCTG GACTATCAAG GTATGTTGCC CGTTTGT" +
-    "CCT\n 1761  CTAATTCCAG GATCCTCAAC AACCAGCACG GGACCATGCC GGAC" +
-    "CTGCAT GACTACTGCT CAAGGAACCT CTAT<span style=\"background-co" +
-    "lor:red\">GTATCC</span>\n 1841  <span style=\"background-col" +
-    "or:red\"></span>CTCCTGTTGC TGTACCAAAC CTTCGGACGG AAATTGCACC " +
-    "TGTATTCCCA TCCCATCATC CTGGGCTTTC GGAAAATTCC\n 1921  TATGGGAG" +
-    "TG GGCCTCAGCC CGTTTCTCCT GGCTCAGTTT <span style=\"background" +
-    "-color:red\">ACTAGT</span>GCCA TTTGTTCAGT GGTTCGTAGG GCTTTCC" +
-    "CCC\n 2001  ACTGTTTGGC TTTCAGTTAT ATGGATGATG TGGTATTGGG GGCC" +
-    "AAGTC<span style=\"background-color:red\">T GTACA</span>GCAT" +
-    "C TTGAGTCCCT TTTTACCGCT\n 2081  GTTACCAATT TTCTTTTGTC TTTGG<" +
-    "span style=\"background-color:red\">GTATA C</span>ATTTAAACC " +
-    "CTAACAAAAC AAAGAGATGG GGTTACTCTC TAAATTTTAT\n 2161  GGGTTATG" +
-    "TC ATTGGATGTT ATGGGTCCTT GCCACAAGAA CACATCATAC AAAAAATCAA AG" +
-    "AATGTTTT AGAAAACTTC\n 2241  CTATTAACAG GCCTATTGAT TGGAAAGTAT" +
-    " GTCAACGAAT TGTGGGTCTT TTGGGTTTTG CTGCCCCTTT TA<span style=\"" +
-    "background-color:red\">CACAATGT</span>\n 2321  <span style=\"" +
-    "background-color:red\">G</span>GTTATCCTG CGTTGATGCC TTTGT<sp" +
-    "an style=\"background-color:red\">ATGCA T</span>GTATTCAAT CT" +
-    "AAGCAGGC TTTCACTTTC TCGCCAACTT ACAAGGCCTT\n 2401  TCTGTGTAAA" +
-    " CAATACCTGA ACCTTTACCC CGTTG<span style=\"background-color:r" +
-    "ed\">CCCGG </span>CAACGGCCAG GTCTGTGCCA AGTGTTTGCT GACGCAACC" +
-    "C\n 2481  CCACTGGCTG GGGCTTGGTC ATGGGCCATC AGC<span style=\"" +
-    "background-color:red\">GCATGC</span>G TG<span style=\"backgr" +
-    "ound-color:red\">GAACCTTT TC</span>GGCTCCTC TGCCGATCCA TACTG" +
-    "CGGAA\n 2561  CTCCTAGCCG CTTGTTTTGC TCGCAGCAGG TCTGGAGCAA AC" +
-    "ATTATCGG GACTGATAAC TCTGTTGTCC TATCCCGCAA\n 2641  ATATACATCG" +
-    " TTT<span style=\"background-color:red\">CCATGG</span>C TGCT" +
-    "AGGCTG TGCTGCCAAC TGGATCCTGC GCGG<span style=\"background-co" +
-    "lor:red\">GACGTC </span>CTTTGTTTAC GTCCCGTCGG\n 2721  CGCTGA" +
-    "ATCC TGCGGACGAC CCTTCTCGGG GTCGCTTGGG ACTCTCTCGT CCCCTTCTCC " +
-    "GTCTGCCGTT CCGACCGACC\n 2801  ACGGGGCGCA CCTCTCTTTA CGCG<spa" +
-    "n style=\"background-color:red\">GACTCC CCGTC</span>TGTGC CT" +
-    "TCTCATCT GC<span style=\"background-color:red\">CGGACCG</spa" +
-    "n>T <span style=\"background-color:red\">GTGCAC</span>TTCG C" +
-    "TTCACCTCT\n 2881  G<span style=\"background-color:red\">CACG" +
-    "TC</span>GCA TGGAGACCAC CGTGAACGCC CACCAAATAT TGCCCAAGGT CTT" +
-    "ACATAAG AGGACTCTTG GACTCTCA<span style=\"background-color:re" +
-    "d\">GC</span>\n 2961  <span style=\"background-color:red\">A" +
-    "ATG</span>TCAACG ACCGACCTTG AGGCATACTT CAAAGACTGT TTGTTTAAAG" +
-    " ACTGGGAGGA GTTGGGGGAG GAGATTAGGT\n 3041  TAAAGGTCTT TGTACTA" +
-    "GGA GGCTGTAGGC ATAAATTGGT C<span style=\"background-color:re" +
-    "d\">TGCGCA</span>CCA GCACCATGCA ACTTTTTCAC CTCTGCCTAA\n 3121" +
-    "  TCATCTCTTG TTCATGTCCT ACTGTTCAAG CCTCCAAGCT GTGCCTTGGG TGG" +
-    "CTTTGGG GC </pre>";
+    var str = '<pre id="wdeStartNode"> \n    1  ATGGACATCG ACCC<a' +
+    ' onclick="parent.wdeFeatInfoUpdate(0)" style="background-col' +
+    'or:#FF0000">TTATAA </a>AGAATTTGGA GCTACTGTGG AGTTACTCTC GTTT' +
+    'TTGCCT TCTGACTTCT TTCCTTCAGT\n   81  ACGAGATCTT CTAGATACCG C' +
+    'CTCAGCTCT GTATCGGGAA GCCTTAGAGT CTCCTGAGCA TTGTTCACCT CACCAT' +
+    'ACTG\n  161  CACTCAGGCA AGCAATTCTT TGCTGGGGGG AACTAATGAC TCT' +
+    'AGCTACC TGGGTGGGTG TTAATTTGGA AGATCCAGCG\n  241  TCTAGAGACC ' +
+    'TAGTAGTCAG TTATGTCAA<a onclick="parent.wdeFeatInfoUpdate(1)"' +
+    ' style="background-color:#FF0000">C ACTAATATG</a>G GCCTAAAGT' +
+    'T CAGGCAACTC TTGTGGTTTC ACATTTCTTG\n  321  TCTCACTTTT GGAAGA' +
+    'GAAA CAGTTATAGA GTATTTGGTG TCTTTCGGAG TGTGGATTCG CACTCCTCCA ' +
+    'GCTTATAGAC\n  401  CACCAAATGC CCCTATCCTA TCAACACT<a onclick=' +
+    '"parent.wdeFeatInfoUpdate(2)" style="background-color:#FF000' +
+    '0">TC CGGA</a>GACTAC TGTTGTTAGA CGACGAGGCA GGTCCCCTAG AAGAAG' +
+    'AACT\n  481  CCCTCGCCTC GCA<a onclick="parent.wdeFeatInfoUpd' +
+    'ate(3)" style="background-color:#FF0000">GACGAAG GTC</a>TCAA' +
+    'TCG CCGCGTCGCA GAAGATCTCA ATCTCGGGAA TCTCAATGTT AGTATTCCTT\n' +
+    '  561  GGACTCATAA GGTGGGGAAC TTTACTGGGC TTTATTCTTC TACTGTACC' +
+    'T GTCTTTAATC CTCATTGGAA AACACCATCT\n  641  TTTCCTAATA TACATT' +
+    'TACA CCAAGACATT ATCAAAAAAT GTGAACAGTT TGTAGGCCCA CTCACAGTTA ' +
+    'ATGAGAAAAG\n  721  AAGATTG<a onclick="parent.wdeFeatInfoUpda' +
+    'te(4)" style="background-color:#FF0000">CAA TTG</a>ATTATGC C' +
+    'TGCCAGGTT TTATCCAAAG GTTACCAAAT ATTTACCATT GGATAAGGGT ATTAAA' +
+    'CCTT\n  801  ATTATCCAGA ACATCTAGTT AATCATTACT TCCAAACTAG ACA' +
+    'CTATTTA CACACTCTAT GGAAGGCGGG TATATTATAT\n  881  AAGAGAGAAA ' +
+    'CAACACATAG CGCCTCATTT TGTGG<a onclick="parent.wdeFeatInfoUpd' +
+    'ate(5)" style="background-color:#FF0000">GTCAC </a>CATATTCTT' +
+    'G GGAACAAGAT CTACAGCATG GGGCAGAATC\n  961  TTTCCACCAG CAATCC' +
+    'TCTG GGATTCTTTC CCGACCACCA GTTGGATCCA GCCTTCAGAG CAAACACCGC ' +
+    'AAATCCAGAT\n 1041  TGGGACTTCA ATCCCAACAA GGACACCTGG CCAGACGC' +
+    'CA ACAAGGTAGG AGCTGGA<a onclick="parent.wdeFeatInfoUpdate(6)' +
+    '" style="background-color:#FF0000">GCA TTC</a>GGGCTGG GTTTCA' +
+    'CCCC\n 1121  ACCGCACGGA GGCCTTTTGG GGTG<a onclick="parent.wd' +
+    'eFeatInfoUpdate(7)" style="background-color:#FF0000">GAGCCC ' +
+    '</a>TCAGGCTCAG GGCATACTAC AAACTTTGCC AGCAAA<a onclick="paren' +
+    't.wdeFeatInfoUpdate(8)" style="background-color:#FF0000">TCC' +
+    'G CC</a>TCCTGCCT\n 1201  CCACCAATCG CCAGTCAGGA AGGCAGCCTA CC' +
+    'CCGCTGTC TCCACCTTTG AGAAACACTC ATCCTCAGGC CAT<a onclick="par' +
+    'ent.wdeFeatInfoUpdate(9)" style="background-color:#FF0000">G' +
+    'CAGTG</a><a onclick="parent.wdeFeatInfoUpdate(10)" style="ba' +
+    'ckground-color:#FF0000">G</a>\n 1281  <a onclick="parent.wde' +
+    'FeatInfoUpdate(10)" style="background-color:#FF0000">AATTC</' +
+    'a>CACAA CCTTCCACCA AACTCTGCAA GATCCCAGAG TGAGAGGCCT GTATTTCC' +
+    'CT GCTGGTGGCT CCAGTTCAGG\n 1361  AACAGTAAAC CCTGTTCTGA CTACT' +
+    'GCCTC TCCCTTATCG TCAATCTT<a onclick="parent.wdeFeatInfoUpdat' +
+    'e(11)" style="background-color:#FF0000">CT CGAG</a>GATTGG GG' +
+    'ACCCTGCG CTGAACATGG\n 1441  AGAACATCAC ATCAGGATT<a onclick="' +
+    'parent.wdeFeatInfoUpdate(12)" style="background-color:#FF000' +
+    '0">C CTAGG</a>ACCCC TTCTCGTGTT ACAGGCGGGG TTTTTCTTGT TGACAAG' +
+    'AAT CCTCACAATA\n 1521  CCGCAGAGTC TAGACTCGTG GTGGACTTCT CTCA' +
+    'ATTTTC TAGGGGGAAC TACCGTGTGT CT<a onclick="parent.wdeFeatInf' +
+    'oUpdate(13)" style="background-color:#FF0000">TGGCCA</a>AA A' +
+    'TTCGCAGTC\n 1601  CCCAACCTCC AATCACTCAC CAACCTCTTG TCCTCCAAC' +
+    'T TGTCCTGGTT ATCGCTGGAT GTGTCTGCGG CGTTTTATCA\n 1681  TCTTCC' +
+    'TCTT CATCCTGCTG CTATGCCTCA TCTTCTTGTT GGTTCTTCTG GACTATCAAG ' +
+    'GTATGTTGCC CGTTTGTCCT\n 1761  CTAATTCCAG GATCCTCAAC AACCAGCA' +
+    'CG GGACCATGCC GGACCTGCAT GACTACTGCT CAAGGAACCT CTAT<a onclic' +
+    'k="parent.wdeFeatInfoUpdate(14)" style="background-color:#FF' +
+    '0000">GTATCC</a>\n 1841  <a onclick="parent.wdeFeatInfoUpdat' +
+    'e(14)" style="background-color:#FF0000"></a>CTCCTGTTGC TGTAC' +
+    'CAAAC CTTCGGACGG AAATTGCACC TGTATTCCCA TCCCATCATC CTGGGCTTTC' +
+    ' GGAAAATTCC\n 1921  TATGGGAGTG GGCCTCAGCC CGTTTCTCCT GGCTCAG' +
+    'TTT <a onclick="parent.wdeFeatInfoUpdate(15)" style="backgro' +
+    'und-color:#FF0000">ACTAGT</a>GCCA TTTGTTCAGT GGTTCGTAGG GCTT' +
+    'TCCCCC\n 2001  ACTGTTTGGC TTTCAGTTAT ATGGATGATG TGGTATTGGG G' +
+    'GCCAAGTC<a onclick="parent.wdeFeatInfoUpdate(16)" style="bac' +
+    'kground-color:#FF0000">T GTACA</a>GCATC TTGAGTCCCT TTTTACCGC' +
+    'T\n 2081  GTTACCAATT TTCTTTTGTC TTTGG<a onclick="parent.wdeF' +
+    'eatInfoUpdate(17)" style="background-color:#FF0000">GTATA C<' +
+    '/a>ATTTAAACC CTAACAAAAC AAAGAGATGG GGTTACTCTC TAAATTTTAT\n 2' +
+    '161  GGGTTATGTC ATTGGATGTT ATGGGTCCTT GCCACAAGAA CACATCATAC ' +
+    'AAAAAATCAA AGAATGTTTT AGAAAACTTC\n 2241  CTATTAACAG GCCTATTG' +
+    'AT TGGAAAGTAT GTCAACGAAT TGTGGGTCTT TTGGGTTTTG CTGCCCCTTT TA' +
+    '<a onclick="parent.wdeFeatInfoUpdate(18)" style="background-' +
+    'color:#FF0000">CACAATGT</a>\n 2321  <a onclick="parent.wdeFe' +
+    'atInfoUpdate(18)" style="background-color:#FF0000">G</a>GTTA' +
+    'TCCTG CGTTGATGCC TTTGT<a onclick="parent.wdeFeatInfoUpdate(1' +
+    '9)" style="background-color:#FF0000">ATGCA T</a>GTATTCAAT CT' +
+    'AAGCAGGC TTTCACTTTC TCGCCAACTT ACAAGGCCTT\n 2401  TCTGTGTAAA' +
+    ' CAATACCTGA ACCTTTACCC CGTTG<a onclick="parent.wdeFeatInfoUp' +
+    'date(20)" style="background-color:#FF0000">CCCGG </a>CAACGGC' +
+    'CAG GTCTGTGCCA AGTGTTTGCT GACGCAACCC\n 2481  CCACTGGCTG GGGC' +
+    'TTGGTC ATGGGCCATC AGC<a onclick="parent.wdeFeatInfoUpdate(21' +
+    ')" style="background-color:#FF0000">GCATGC</a>G TG<a onclick' +
+    '="parent.wdeFeatInfoUpdate(22)" style="background-color:#FF0' +
+    '000">GAACCTTT TC</a>GGCTCCTC TGCCGATCCA TACTGCGGAA\n 2561  C' +
+    'TCCTAGCCG CTTGTTTTGC TCGCAGCAGG TCTGGAGCAA ACATTATCGG GACTGA' +
+    'TAAC TCTGTTGTCC TATCCCGCAA\n 2641  ATATACATCG TTT<a onclick=' +
+    '"parent.wdeFeatInfoUpdate(23)" style="background-color:#FF00' +
+    '00">CCATGG</a>C TGCTAGGCTG TGCTGCCAAC TGGATCCTGC GCGG<a oncl' +
+    'ick="parent.wdeFeatInfoUpdate(24)" style="background-color:#' +
+    'FF0000">GACGTC </a>CTTTGTTTAC GTCCCGTCGG\n 2721  CGCTGAATCC ' +
+    'TGCGGACGAC CCTTCTCGGG GTCGCTTGGG ACTCTCTCGT CCCCTTCTCC GTCTG' +
+    'CCGTT CCGACCGACC\n 2801  ACGGGGCGCA CCTCTCTTTA CGCG<a onclic' +
+    'k="parent.wdeFeatInfoUpdate(25)" style="background-color:#FF' +
+    '0000">GACTCC CCGTC</a>TGTGC CTTCTCATCT GC<a onclick="parent.' +
+    'wdeFeatInfoUpdate(26)" style="background-color:#FF0000">CGGA' +
+    'CCG</a>T <a onclick="parent.wdeFeatInfoUpdate(27)" style="ba' +
+    'ckground-color:#FF0000">GTGCAC</a>TTCG CTTCACCTCT\n 2881  G<' +
+    'a onclick="parent.wdeFeatInfoUpdate(28)" style="background-c' +
+    'olor:#FF0000">CACGTC</a>GCA TGGAGACCAC CGTGAACGCC CACCAAATAT' +
+    ' TGCCCAAGGT CTTACATAAG AGGACTCTTG GACTCTCA<a onclick="parent' +
+    '.wdeFeatInfoUpdate(29)" style="background-color:#FF0000">GC<' +
+    '/a>\n 2961  <a onclick="parent.wdeFeatInfoUpdate(29)" style=' +
+    '"background-color:#FF0000">AATG</a>TCAACG ACCGACCTTG AGGCATA' +
+    'CTT CAAAGACTGT TTGTTTAAAG ACTGGGAGGA GTTGGGGGAG GAGATTAGGT\n' +
+    ' 3041  TAAAGGTCTT TGTACTAGGA GGCTGTAGGC ATAAATTGGT C<a oncli' +
+    'ck="parent.wdeFeatInfoUpdate(30)" style="background-color:#F' +
+    'F0000">TGCGCA</a>CCA GCACCATGCA ACTTTTTCAC CTCTGCCTAA\n 3121' +
+    '  TCATCTCTTG TTCATGTCCT ACTGTTCAAG CCTCCAAGCT GTGCCTTGGG TGG' +
+    'CTTTGGG GC </pre>';
     return str;
 }
 
