@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "1.1.0";
+var wdeVVersion = "1.1.1";
 
 // Link to Primer3Plus
 const uploadTargetP3P = "https://gear.embl.de/primer3plus/api/v1/upload";
@@ -259,6 +259,7 @@ function wdeTestAlert(){
 window.wdeActivateStartup = wdeActivateStartup;
 function wdeActivateStartup(){
     window.frames['WDE_RTF'].document.designMode = 'On';
+    window.frames['WDE_RTF'].document.body.setAttribute("spellcheck", "false");
     wdeUser = ["User_Seq", "AGC^MGCT", 0 , "-", "", "N", ""];
     wdeUpdateButtonsToDef(0);
     var fileLoad = document.getElementById("WDE_Load_File");

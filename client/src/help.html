@@ -64,20 +64,129 @@
     </div>
 
     <div id="WDE_lonly_tab" class="WDE_tab_page">
-       <h2>The Wily DNA Editor is a everyday lab tool for handling sequences</h2>
-       <p>The use of the tool should be intuitive and not require any help.<br>
-         Paste a DNA sequence in the main field and try out to modify it using the buttons on top.<br>
-         Other tabs offer digests and more...<br>
-         <br>
-         There will be more content here once users start reporting problems.<br>
-         <br>
-       </p>
-       <p>&nbsp;<a>The Wily-DNA-Editor is still BETA! If you encounter any issues, find bugs, experience <br />
-         &nbsp;unintended or surprising behavior please drop us a note and give us the chance <br />
-         &nbsp;to improve Wily. We also enjoy positive feedback :-)<br /><br />
-         &nbsp;E-Mail: wily(at)wily-dna-editor.com</a><br /><br />
-       </p>
+      <h2>The Wily DNA Editor is a everyday lab tool for handling sequences</h2>
+      <p>...running with pure JavaScript in your browser - no need to install anything. The 
+        use of the tool should be intuitive. Paste a DNA sequence in the main field and try 
+        out to modify it using the buttons on top.
+        All calculation happens on your machine. You can load and save sequences in fasta 
+        and genbank format. Pictures can be saved as html or svg files to disk and modified 
+        for publication.<br>
+      </p>
+      <p>If you encounter any issues, find bugs, experience unintended or surprising behavior,
+        please drop us a note and give us the chance to improve Wily. We like to enhance Wily 
+        to match users needs and welcome feature requests.
+      </p>
+      <p>Please submit a <a href="https://github.com/gear-genomics/wily-dna-editor/issues">new issue</a>
+        at <a href="https://github.com/gear-genomics/wily-dna-editor/issues">GitHub</a> or
+        send us a e-mail: wily(at)wily-dna-editor.com
+      </p>
 
+      <h2>Run Wily Online:</h2>
+      <p>
+        <a href="https://wily-dna-editor.com">The Wily-DNA-Editor at wily-dna-editor.com</a>
+        <br />
+        <a href="http://gear.embl.de/wily-dna-editor">The Wily-DNA-Editor at gear.embl.de/wily-dna-editor</a>
+      </p>
+
+      <h2>Download Program and Source Code</h2>
+      <p>
+        <a href="https://github.com/gear-genomics/wily-dna-editor">
+        Source code is available at https://github.com/gear-genomics/wily-dna-editor.
+        </a>
+      </p>
+
+      <h2>Introduction to the Basic Functionality</h2>
+      <h3>The Wily DNA Editor can do DNA/RNA operations</h3>
+      <p>
+        <img src="static/img/main.jpg" alt="Screenshot"><br />
+        DNA sequences can be loaded into wily using the GeneBank or Fasta format. 
+        Alternatively, DNA sequences can be pasted in or copied out. Wily will remove 
+        numbers and non-IUPAC characters. This can be handy to strip numbers while copying
+        content from one web interface to the input of a other webinterface. The main tab
+        allows to reverse-complement the entire DNA or a selection. The DNA sequence may be
+        labled using upper/lower case. Features and restriction sites can color-code the 
+        sequence. Clicking at a feature or a restriction site will update the info field 
+        with matching information.
+      </p>
+      <p>
+        The screenshot state can be obtained by clicking "Load Sample", "Tab: Restriction 
+        Sites", "Find All", "Unique", "Highlight Selected in Sequence" and "Show Features" 
+        back on the main tab.
+      </p>
+
+      <h3>The Wily DNA Editor finds restriction sites</h3>
+      <p>
+        <img src="static/img/digest.jpg" alt="Screenshot"><br />
+        First, restriction sites have to be found by clicking "Find All". Number are updated 
+        and dedicated subsets like unique, absent or a defined number of cuts can be selected. 
+        The selection can be adapted manually to the needs. Selected restriction sites can be 
+        highlighted in the DNA sequence or used for digest. "Digest as List" will provide a 
+        list of the cut site positions and the fragment length.
+      </p>
+      <p>
+        The screenshot state can be obtained by clicking "Load Sample", "Tab: Restriction
+        Sites", "Find All" and "Unique".
+      </p>
+
+      <h3>The Wily DNA Editor visualize a digest as gel picture</h3>
+      <p>
+      <img src="static/img/gel.jpg" alt="Screenshot"><br />
+        Agarose gel images of restriction digests can be simulated by clicking "Digest as 
+        Gel Picture" either on the "Restriction Sites" or the "Digest" tab. An individual 
+        marker can be used by modifying the "Marker" field. Band band indensity is simulated 
+        based on fragment size or the bands are drawn black by triggering "Draw Bands Black".
+        The image can be saved as SVG file or printed out.
+      </p>
+      <p>
+        The screenshot state can be obtained by clicking "Load Sample", "Tab: Restriction
+        Sites", "Find All", selecting "AclI" and "Digest as Gel Picture".
+      </p>
+
+      <h3>The Wily DNA Editor draws graphic maps</h3>
+      <p>
+        <img src="static/img/map.jpg" alt="Screenshot"><br />
+        DNA sequences can be visualized as maps. Selected restriction sites and features are 
+        shown with the position. The features can be hidden using "Hide Features". The image 
+        can be saved as SVG file or printed out.
+      </p>
+      <p>
+        The screenshot state can be obtained by clicking "Load Sample", "Tab: Restriction
+        Sites", "Find All" and "Map + Unique".
+      </p>
+
+      <h3>The Wily DNA Editor translates DNA sequences</h3>
+      <p>
+        <img src="static/img/translate.jpg" alt="Screenshot"><br />
+        The DNA sequence can be translated into a prtein sequence. The user can choose between 
+        one, three or six frame translation with the "6 Frame" button. One letter amino acid 
+        code is availabe with the "3 Letter Code" button. Start codons are shown in dark green, 
+        stop codons in red and open reading frames in light green.<br/>
+        Alternatively, a list of open reading frames can be shown by clicking "View ORF List". 
+        This list can be sorted by ORF position or length.
+      </p>
+      <p>
+        The screenshot state can be obtained by clicking "Load Sample" and "Translate All".
+      </p>
+
+      <h3>The Wily DNA Editor handles genbank features</h3>
+      <p>
+      <img src="static/img/features.jpg" alt="Screenshot"><br />
+      DNA sequences can be annotated using features. The tab "Features" shows the features of 
+      the current sequence. Frequently used features can be copied into a "Feature Library" 
+      which is stored permanently and can be used to annotate known features in unknown DNA 
+      sequences. The color and shape of the features can be adapted to the users preference. 
+      Wily will use a default set for common feature types. The "Features" are saved in 
+      Genebank format with the DNA sequence. The "Feature Library" is stored in the browsers 
+      local storage. It is strongly adviced to save the library on local disk by clicking 
+      "Save Library". The obtained file can be shared within labs, between computers and 
+      reloaded using "Add Features from File:". "Reload Library" reads the library from 
+      local storage. This is usefull if the library was modified in a different Wily window 
+      on the same browser.
+      </p>
+      <p>
+        The screenshot state can be obtained by clicking "Load Sample", "Tab: Features" and 
+	selecting CDS tet.
+      </p>
     </div>
 
     <div class="wde_footer_bar">
