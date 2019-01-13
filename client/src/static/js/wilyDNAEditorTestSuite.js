@@ -475,9 +475,10 @@ function wdeTestOutComp(a, b, filter, testName, downloadDiff) {
     var bCurr = b;
     
     // Function to modify tests
-    if (0) { // Set to 1 and modify test name below
-        if (testName == "wdeHighlight()") {
-            var retPara = "    var str = '" + bCurr.replace("'", "\'") + "';";
+    // Work with ''
+    if (0) { // Set to 1 and modify test name below 
+        if (testName == "wdeDigMapDis()") {
+            var retPara = "    var str = '" + bCurr.replace(/'/g, "\\'") + "';";
             retPara = retPara.replace('\r\n', '\n');
             retPara = retPara.replace(/\n/g, '\\n');
             var retFd = "";
@@ -489,6 +490,29 @@ function wdeTestOutComp(a, b, filter, testName, downloadDiff) {
               } else {
                   retFd += retPara.charAt(i);
                   retFd += "' +\n    '";
+                  lineP = 5;
+              }
+            }
+            wdeInTestRun = 0;
+            wdeSaveFile("Update_String.txt", retFd, "text");
+            wdeInTestRun = 1;
+        }
+    }
+    // Work with ""
+    if (0) { // Set to 1 and modify test name below
+        if (testName == "wdeMapSVG() on linear") {
+            var retPara = '    var str = "' + bCurr.replace(/"/g, '\\"') + '";';
+            retPara = retPara.replace('\r\n', '\n');
+            retPara = retPara.replace(/\n/g, '\\n');
+            var retFd = "";
+            var lineP = 0;
+            for (var i = 0; i < retPara.length ; i++) {
+              if ((lineP < 64) || (retPara.charAt(i) == '\\')) {
+                  retFd += retPara.charAt(i);
+                  lineP++;
+              } else {
+                  retFd += retPara.charAt(i);
+                  retFd += '" +\n    "';
                   lineP = 5;
               }
             }
@@ -10689,11 +10713,11 @@ function wdeTestDataString_022() {
     "polyline points='233,-385 246,-406 259,-481 279,-481' style=" +
     "'stroke:%23ff3333;stroke-width:5;fill:none' /%3E%3Ctext x='2" +
     "89' y='-471' font-family='Courier' font-size='40' fill='%23f" +
-    "f3333' text-anchor='begin'%3ECore-Antigen(0..551)%3C/text%3E" +
+    "f3333' text-anchor='begin'%3ECore-Antigen(1..552)%3C/text%3E" +
     "%3Cpolyline points='233,-385 246,-406 259,-531 279,-531' sty" +
     "le='stroke:%23ffff00;stroke-width:5;fill:none' /%3E%3Ctext x" +
     "='289' y='-521' font-family='Courier' font-size='40' fill='%" +
-    "23ffff00' text-anchor='begin'%3ECore-Antigen(0..551)%3C/text" +
+    "23ffff00' text-anchor='begin'%3ECore-Antigen(1..552)%3C/text" +
     "%3E%3Cpolyline points='232,-386 245,-407 258,-581 278,-581' " +
     "style='stroke:%23000000;stroke-width:5;fill:none' /%3E%3Ctex" +
     "t x='288' y='-571' font-family='Courier' font-size='40' fill" +
@@ -10778,19 +10802,19 @@ function wdeTestDataString_022() {
     "ts='-162,420 -171,443 -180,511 -200,511' style='stroke:%23ff" +
     "3333;stroke-width:5;fill:none' /%3E%3Ctext x='-210' y='521' " +
     "font-family='Courier' font-size='40' fill='%23ff3333' text-a" +
-    "nchor='end'%3ES-Antigen(1436..2116)%3C/text%3E%3Cpolyline po" +
+    "nchor='end'%3ES-Antigen(1437..2117)%3C/text%3E%3Cpolyline po" +
     "ints='-162,420 -171,443 -180,561 -200,561' style='stroke:%23" +
     "2db300;stroke-width:5;fill:none' /%3E%3Ctext x='-210' y='571" +
     "' font-family='Courier' font-size='40' fill='%232db300' text" +
-    "-anchor='end'%3ES-Antigen(1436..2116)%3C/text%3E%3Cpolyline " +
+    "-anchor='end'%3ES-Antigen(1437..2117)%3C/text%3E%3Cpolyline " +
     "points='-58,446 -61,471 -64,611 -84,611' style='stroke:%23ff" +
     "3333;stroke-width:5;fill:none' /%3E%3Ctext x='-94' y='621' f" +
     "ont-family='Courier' font-size='40' fill='%23ff3333' text-an" +
-    "chor='end'%3EPolymerase(406..2904)%3C/text%3E%3Cpolyline poi" +
+    "chor='end'%3EPolymerase(407..2905)%3C/text%3E%3Cpolyline poi" +
     "nts='-58,446 -61,471 -64,661 -84,661' style='stroke:%236464f" +
     "f;stroke-width:5;fill:none' /%3E%3Ctext x='-94' y='671' font" +
     "-family='Courier' font-size='40' fill='%236464ff' text-ancho" +
-    "r='end'%3EPolymerase(406..2904)%3C/text%3E%3Cpolyline points" +
+    "r='end'%3EPolymerase(407..2905)%3C/text%3E%3Cpolyline points" +
     "='-448,-43 -473,-45 -498,-48 -518,-48' style='stroke:%230000" +
     "00;stroke-width:5;fill:none' /%3E%3Ctext x='-528' y='-38' fo" +
     "nt-family='Courier' font-size='40' fill='%23000000' text-anc" +
@@ -10922,11 +10946,11 @@ function wdeTestDataString_023() {
     "xt><polyline points='233,-385 246,-406 259,-481 279,-481' st" +
     "yle='stroke:#ff3333;stroke-width:5;fill:none' /><text x='289" +
     "' y='-471' font-family='Courier' font-size='40' fill='#ff333" +
-    "3' text-anchor='begin'>Core-Antigen(0..551)</text><polyline " +
+    "3' text-anchor='begin'>Core-Antigen(1..552)</text><polyline " +
     "points='233,-385 246,-406 259,-531 279,-531' style='stroke:#" +
     "ffff00;stroke-width:5;fill:none' /><text x='289' y='-521' fo" +
     "nt-family='Courier' font-size='40' fill='#ffff00' text-ancho" +
-    "r='begin'>Core-Antigen(0..551)</text><polyline points='232,-" +
+    "r='begin'>Core-Antigen(1..552)</text><polyline points='232,-" +
     "386 245,-407 258,-581 278,-581' style='stroke:#000000;stroke" +
     "-width:5;fill:none' /><text x='288' y='-571' font-family='Co" +
     "urier' font-size='40' fill='#000000' text-anchor='begin'>274" +
@@ -11005,18 +11029,18 @@ function wdeTestDataString_023() {
     "-162,420 -171,443 -180,511 -200,511' style='stroke:#ff3333;s" +
     "troke-width:5;fill:none' /><text x='-210' y='521' font-famil" +
     "y='Courier' font-size='40' fill='#ff3333' text-anchor='end'>" +
-    "S-Antigen(1436..2116)</text><polyline points='-162,420 -171," +
+    "S-Antigen(1437..2117)</text><polyline points='-162,420 -171," +
     "443 -180,561 -200,561' style='stroke:#2db300;stroke-width:5;" +
     "fill:none' /><text x='-210' y='571' font-family='Courier' fo" +
-    "nt-size='40' fill='#2db300' text-anchor='end'>S-Antigen(1436" +
-    "..2116)</text><polyline points='-58,446 -61,471 -64,611 -84," +
+    "nt-size='40' fill='#2db300' text-anchor='end'>S-Antigen(1437" +
+    "..2117)</text><polyline points='-58,446 -61,471 -64,611 -84," +
     "611' style='stroke:#ff3333;stroke-width:5;fill:none' /><text" +
     " x='-94' y='621' font-family='Courier' font-size='40' fill='" +
-    "#ff3333' text-anchor='end'>Polymerase(406..2904)</text><poly" +
+    "#ff3333' text-anchor='end'>Polymerase(407..2905)</text><poly" +
     "line points='-58,446 -61,471 -64,661 -84,661' style='stroke:" +
     "#6464ff;stroke-width:5;fill:none' /><text x='-94' y='671' fo" +
     "nt-family='Courier' font-size='40' fill='#6464ff' text-ancho" +
-    "r='end'>Polymerase(406..2904)</text><polyline points='-448,-" +
+    "r='end'>Polymerase(407..2905)</text><polyline points='-448,-" +
     "43 -473,-45 -498,-48 -518,-48' style='stroke:#000000;stroke-" +
     "width:5;fill:none' /><text x='-528' y='-38' font-family='Cou" +
     "rier' font-size='40' fill='#000000' text-anchor='end'>2435 S" +
@@ -11242,29 +11266,29 @@ function wdeTestDataString_024() {
     "-750,330 -546,330 -546,318 -533,337.5 -546,357 -546,345 -750" +
     ",345 -750,330' style='stroke:#ff3333;stroke-width:5;fill:#ff" +
     "3333' /><text x='-641' y='400' font-family='Courier' font-si" +
-    "ze='40' fill='black' text-anchor='middle'>Core-Antigen(0..55" +
-    "1)</text><polyline points='-750,460 -546,460 -546,448 -533,4" +
+    "ze='40' fill='black' text-anchor='middle'>Core-Antigen(1..55" +
+    "2)</text><polyline points='-750,460 -546,460 -546,448 -533,4" +
     "67.5 -546,487 -546,475 -750,475 -750,460' style='stroke:#fff" +
     "f00;stroke-width:5;fill:#ffff00' /><text x='-641' y='530' fo" +
     "nt-family='Courier' font-size='40' fill='black' text-anchor=" +
-    "'middle'>Core-Antigen(0..551)</text><polyline points='-591,5" +
+    "'middle'>Core-Antigen(1..552)</text><polyline points='-591,5" +
     "90 379,590 379,578 392,597.5 379,617 379,605 -591,605 -591,5" +
     "90' style='stroke:#ff3333;stroke-width:5;fill:#ff3333' /><te" +
     "xt x='-99' y='660' font-family='Courier' font-size='40' fill" +
-    "='black' text-anchor='middle'>Polymerase(406..2904)</text><p" +
+    "='black' text-anchor='middle'>Polymerase(407..2905)</text><p" +
     "olyline points='-591,720 379,720 379,708 392,727.5 379,747 3" +
     "79,735 -591,735 -591,720' style='stroke:#6464ff;stroke-width" +
     ":5;fill:#6464ff' /><text x='-99' y='790' font-family='Courie" +
     "r' font-size='40' fill='black' text-anchor='middle'>Polymera" +
-    "se(406..2904)</text><polyline points='-186,850 69,850 69,838" +
+    "se(407..2905)</text><polyline points='-186,850 69,850 69,838" +
     " 82,857.5 69,877 69,865 -186,865 -186,850' style='stroke:#ff" +
     "3333;stroke-width:5;fill:#ff3333' /><text x='-52' y='920' fo" +
     "nt-family='Courier' font-size='40' fill='black' text-anchor=" +
-    "'middle'>S-Antigen(1436..2116)</text><polyline points='-186," +
+    "'middle'>S-Antigen(1437..2117)</text><polyline points='-186," +
     "980 69,980 69,968 82,987.5 69,1007 69,995 -186,995 -186,980'" +
     " style='stroke:#2db300;stroke-width:5;fill:#2db300' /><text " +
     "x='-52' y='1050' font-family='Courier' font-size='40' fill='" +
-    "black' text-anchor='middle'>S-Antigen(1436..2116)</text></sv" +
+    "black' text-anchor='middle'>S-Antigen(1437..2117)</text></sv" +
     "g>";
     return str;
 }

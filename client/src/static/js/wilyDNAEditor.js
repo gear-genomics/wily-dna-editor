@@ -2228,18 +2228,19 @@ function wdeFeatFocRepaint() {
 	    content += '<tr>\n';
 	    var colAr = wdeFinFeatColSeg(wdeFeatures[k]);
 	    var colFin = wdeFinFeatureColor(wdeFeatures, k);
+	    var dispPos = wdeParseFeatPos(wdeFeatures[k][1]);
 	    if (/complement/.test(wdeFeatures[k][1])) {
 	        content += '<td style="text-align: center; background-color:' + colAr[2]  + '"'  + '>' + checkBoxStr + "</td>";
 	        content += '<td style="background-color:' + colAr[2]  + '"' + funCl + '>' + wdeFeatures[k][0] + "</td>";
 	        content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + wdeFeatures[k][2] + "</td>";
 	        content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>Reverse</td>';
-    	    content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + wdeFeatures[k][1] + "</td>";
+                content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + dispPos + "</td>";
 	    } else {
 	        content += '<td style="text-align: center; background-color:' + colAr[1]  + '"'  + '>' + checkBoxStr + "</td>";
 	        content += '<td style="background-color:' + colAr[1]  + '"' + funCl + '>' + wdeFeatures[k][0] + "</td>";
 	        content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + wdeFeatures[k][2] + "</td>";
 	        content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>Forward</td>';
-	        content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + wdeFeatures[k][1] + "</td>";
+	        content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + dispPos + "</td>";
 	    }
 	    content += "</tr>\n";
     }
@@ -2368,6 +2369,33 @@ function wdeFeatFocRepaint() {
         document.getElementById('WDE_FEAT_NOTE').value = wdeFeatSelFeat[7];
     }
     document.getElementById('WDE_FEAT_QUALIF').value = wdeFeatSelFeat[8];
+}
+
+function wdeParseFeatPos(str) {
+    if (wdeZeroOne == 1) {
+        return str;
+    }
+    var numb = 0;
+    var inNumb = 0;
+    var ret = "";
+    for (var i = 0; i < str.length ; i++) {
+        var c = parseInt(str.charAt(i), 10);
+        if (isNaN(c)) {
+            if (inNumb != 0) {
+                ret += (numb - 1);
+                numb = 0;		  
+                inNumb = 0;
+	    }
+            ret += str.charAt(i);
+        } else {
+            numb = 10 * numb + c;
+            inNumb = 1;
+	}
+    }
+    if (inNumb != 0) {
+        ret += (numb - 1);
+    }
+    return ret;
 }
 
 window.wdeLibFocRepaint = wdeLibFocRepaint;
@@ -3507,8 +3535,8 @@ function wdeDigList() {
     for (var i = 0; i < digArr.length; i++) {
         retVal += "<tr><td style='text-align:right'>" + digArr[i][0];
         retVal += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;";
-        retVal += digArr[i][3] + "</td><td style='text-align:right'>" + digArr[i][4] + "&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;";
-        retVal += digArr[i][1] + "</td><td style='text-align:right'>" + digArr[i][2];
+        retVal += digArr[i][3] + "</td><td style='text-align:right'>" + (digArr[i][4] - 1 + wdeZeroOne) + "&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;";
+        retVal += digArr[i][1] + "</td><td style='text-align:right'>" + (digArr[i][2] - 1 + wdeZeroOne);
         retVal += "&nbsp;&nbsp;&nbsp;</td><td style='text-align:right'>" + digArr[i][5] + " ng&nbsp;&nbsp;&nbsp;</td></tr>\n";
     }
     retVal += "</table>";
@@ -3763,11 +3791,11 @@ function wdeMapSVG(unique) {
     // A letter is 25 long , if text 0, space below +20 top - 40, line dist 60
     // Use 50 for hight
     var resFound = true;
-    if (wdeEnzy[0][3] == "-") {
-        resFound = false;
-    }
     if (unique == "U") {
         wdeSelREsel('E', 1);
+    }
+    if (wdeEnzy[0][3] == "-") {
+        resFound = false;
     }
     var retVal = "";
     var circ = wdeCircular;
@@ -3857,7 +3885,7 @@ function wdeMapSVG(unique) {
 	    if (wdeDigVShowFeatures) {
 	        svgFeat.sort(wdeDigSVGFEatSort);
 	        for (var k = 0; k < svgFeat.length; k++) {
-	            var outText = svgFeat[k][2] + "(" + (svgFeat[k][5] - wdeZeroOne) + ".." + (svgFeat[k][6] - wdeZeroOne) + ")";
+	            var outText = svgFeat[k][2] + "(" + (svgFeat[k][5] - 1 + wdeZeroOne) + ".." + (svgFeat[k][6] - 1 + wdeZeroOne) + ")";
 	            var featMPos = Math.floor((svgFeat[k][5] + svgFeat[k][6] ) / 2);
 		        var posList = wdeFECleanPos(svgFeat[k][1]).split(",");
 	            for (var i = 0; i < posList.length; i++) {
@@ -3989,7 +4017,7 @@ function wdeMapSVG(unique) {
 	            digArr[k][13] = "#000000"; // color
 	        }
 	        if ((typeof digArr[k][14] === 'undefined') || (digArr[k][14].length < 1)) {
-	            digArr[k][14] = digArr[k][2] + " " + digArr[k][1]; // name
+	            digArr[k][14] = (digArr[k][2] - 1 + wdeZeroOne) + " " + digArr[k][1]; // name
 	        }
 	    }
 	    digArr.sort(wdeDigMapSort);
@@ -4057,7 +4085,7 @@ function wdeMapSVG(unique) {
 	        var yLin = 165;
 	        var xText = xPos - 10;
 	        var yText = 200;
-	        var outText = digArr[k][2] + " " + digArr[k][1];
+	        var outText = (digArr[k][2] - 1 + wdeZeroOne) + " " + digArr[k][1];
 	        var xPixText = Math.round(1.4 * 25 * outText.length);
 	        var searchOn = 1;
 	        var line = 0;
@@ -4090,7 +4118,7 @@ function wdeMapSVG(unique) {
 		        var yLin = 200;
                 var xText = Math.round(1250 * ((svgFeat[k][5] + svgFeat[k][6] ) / 2) / seqLength - 750);
                 var yText = yLin + 70;
-	            var outText = svgFeat[k][2] + "(" + (svgFeat[k][5] - wdeZeroOne) + ".." + (svgFeat[k][6] - wdeZeroOne) + ")";
+                var outText = svgFeat[k][2] + "(" + (svgFeat[k][5] - 1 + wdeZeroOne) + ".." + (svgFeat[k][6] - 1 + wdeZeroOne) + ")";
                 var xPixText = Math.round(0.7 * 25 * outText.length);
 		        var searchOn = 1;
 		        var line = 0;
@@ -5586,6 +5614,7 @@ function wdeTGViewZeroOne(sel,rPaint,saveLS){
     }
     if (rPaint) {
         wdeRepaint();
+        wdeFeatFocRepaint();
     }
 }
 
