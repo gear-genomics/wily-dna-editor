@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "1.1.1";
+var wdeVVersion = "1.1.2";
 
 // Link to Primer3Plus
 const uploadTargetP3P = "https://gear.embl.de/primer3plus/api/v1/upload";
