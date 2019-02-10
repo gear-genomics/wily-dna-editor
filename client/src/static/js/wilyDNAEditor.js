@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "1.1.2";
+var wdeVVersion = "1.1.3";
 
 // Link to Primer3Plus
 const uploadTargetP3P = "https://gear.embl.de/primer3plus/api/v1/upload";
@@ -3791,18 +3791,22 @@ function wdeMapSVG(unique) {
     // A letter is 25 long , if text 0, space below +20 top - 40, line dist 60
     // Use 50 for hight
     var resFound = true;
-    if (unique == "U") {
-        wdeSelREsel('E', 1);
-    }
     if (wdeEnzy[0][3] == "-") {
         resFound = false;
+    }
+    if (unique == "U") {
+        if (resFound == false) {
+            wdeFindRE();
+            resFound = true;
+        }
+        wdeSelREsel('E', 1);
     }
     var retVal = "";
     var circ = wdeCircular;
     var seqId = document.getElementById('SEQUENCE_ID').value;
     var seqLength = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML).length;
     var digArr = [];
-    if (resFound == true) { 
+    if (resFound == true) {
         digArr = wdeDigCleanDigList(circ);
     }
     var maxY = [-500,500];
