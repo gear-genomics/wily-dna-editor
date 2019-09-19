@@ -8,7 +8,7 @@ Try it out:
 
 [The Wily-DNA-Editor at wily-dna-editor.com](https://wily-dna-editor.com)
 
-[The Wily-DNA-Editor at gear.embl.de/wily-dna-editor](http://gear.embl.de/wily-dna-editor)
+[The Wily-DNA-Editor at www.gear-genomics.com/wily-dna-editor](https://www.gear-genomics.com/wily-dna-editor)
 
 Download Program and Source Code
 --------------------------------
