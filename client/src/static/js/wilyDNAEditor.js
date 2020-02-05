@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "1.1.3";
+var wdeVVersion = "1.2.0";
 
 // Link to Primer3Plus
 const uploadTargetP3P = "https://gear.embl.de/primer3plus/api/v1/upload";
@@ -3185,6 +3185,16 @@ window.wdeFindRE = wdeFindRE;
 function wdeFindRE() {
     // All sequence has to be lowercase to save the conversion later
     var seqPure = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML).toLowerCase();
+    wdeFindREOnSeq(seqPure);
+    wdeDrawEnzymes();
+    wdeREdisp = 0;
+    wdeRepaint();
+}
+
+
+window.wdeFindREOnSeq = wdeFindREOnSeq;
+function wdeFindREOnSeq(seqPure) {
+    // All sequence has to be lowercase to save the conversion later
     var seq = seqPure;
     var dam = seqPure;
     // Mask Dam methylation
@@ -3281,10 +3291,40 @@ function wdeFindRE() {
         wdeEnzy[k][4] = restPos;
         wdeEnzy[k][6] = cutPos;    
     }
-    wdeDrawEnzymes();
-    wdeREdisp = 0;
-    wdeRepaint();     
 }
+
+
+window.wdeSelREOutsidesSel = wdeSelREOutsidesSel;
+function wdeSelREOutsidesSel() {
+    var sel, range;
+    var selRECut = [];
+    if (window.frames['WDE_RTF'].getSelection) {
+        sel = window.frames['WDE_RTF'].getSelection();
+        if (sel.rangeCount) {
+            range = sel.getRangeAt(0);
+            var seqPure = wdeCleanSeq(range.toString()).toLowerCase();
+            wdeFindREOnSeq(seqPure);
+            for (var k = 0; k < wdeEnzy.length; k++) {
+                selRECut.push(wdeEnzy[k][3]);
+            }
+            var seqPure = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML).toLowerCase();
+            wdeFindREOnSeq(seqPure);
+            for (var k = 0; k < wdeEnzy.length; k++) {
+                if ((selRECut[k] == 0) && (wdeEnzy[k][3] > 0)) {
+                    wdeEnzy[k][2] = 1;
+                } else {
+                    wdeEnzy[k][2] = 0;
+                }
+            }
+            wdeDrawEnzymes();
+            wdeREdisp = 0;
+            wdeRepaint();
+            wdeREdisp = 0;
+            wdeHighlight();
+        }
+    }
+}
+
 
 window.wdeDigCutPosFor = wdeDigCutPosFor;
 function wdeDigCutPosFor(enz) {
