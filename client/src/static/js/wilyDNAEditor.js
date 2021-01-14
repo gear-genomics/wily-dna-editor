@@ -271,7 +271,10 @@ function wdeActivateStartup(){
     window.frames['WDE_RTF'].document.addEventListener('cut', wdeCutEvent);
     window.frames['WDE_RTF'].document.addEventListener('copy', wdeCopyEvent);
     window.frames['WDE_RTF'].document.addEventListener('paste', wdePasteEvent);
-    window.frames['WDE_RTF'].document.addEventListener('keypress', wdeKeyPressEvent, false);
+    window.frames['WDE_RTF'].document.addEventListener('keydown', wdeKeyPressEvent, false);
+    window.frames['WDE_RTF'].document.addEventListener('keyup', wdeKeyUpEvent, false);
+    window.mKeyCtrl = false;
+    window.mKeyUpper = false;
     wdePopulateEnzmes();
     wdePopulateTranslation();
     wdePopulateFeatureColors();
@@ -628,13 +631,29 @@ function wdePasteEvent (e) {
     }
 }
 
+window.wdeKeyUpEvent = wdeKeyUpEvent;
+function wdeKeyUpEvent(e) {
+    var sel, range;
+    e = e || WDE_RTF.contentWindow.event;
+    var charCode = e.keyCode || e.which;
+    if (charCode == 16) {
+        window.mKeyUpper = false;
+    }
+    if (charCode == 17) {
+        window.mKeyCtrl = false;
+    }
+}
+
 window.wdeKeyPressEvent = wdeKeyPressEvent;
 function wdeKeyPressEvent(e) {
     var sel, range;
     e = e || WDE_RTF.contentWindow.event;
     var charCode = e.keyCode || e.which;
     var charTyped = wdeRetAmbiqutyOnly(String.fromCharCode(charCode));
-    if ((window.frames['WDE_RTF'].getSelection) && !(e.ctrlKey)) {
+    if (!(window.mKeyUpper)) {
+        charTyped = charTyped.toLowerCase()
+    }
+    if ((window.frames['WDE_RTF'].getSelection) && !(window.mKeyCtrl)) {
         sel = window.frames['WDE_RTF'].getSelection();
         if (sel.rangeCount) {
             range = sel.getRangeAt(0);
@@ -654,6 +673,8 @@ function wdeKeyPressEvent(e) {
 	                wdeFeatModifyBetween((posMark + 1),(posMark + delPart),"D");
 	                wdeFeatShiftAfterLoc((posMark + delPart),( - delPart));
 	                range.deleteContents();
+	                e.stopPropagation();
+			        e.preventDefault();
 	            } else {
 	                var lastLetter = wdeCleanSeq(beforeStr.charAt(beforeStr.length - 1));
 	                if (lastLetter != "") {
@@ -663,6 +684,30 @@ function wdeKeyPressEvent(e) {
 		                wdeFeatShiftAfterLoc((posMark - 1), -1);
 		            }
 	            }         
+		    } else if (charCode == 46) {
+		        // Match del
+			    wdeFeatSplitAtLoc(posMark);
+	            if (!(range.collapsed)) {
+	                delPart = wdeCleanSeq(range.toString()).length;
+	                wdeFeatSplitAtLoc(posMark + delPart);
+	                wdeFeatModifyBetween((posMark + 1),(posMark + delPart),"D");
+	                wdeFeatShiftAfterLoc((posMark + delPart),( - delPart));
+	                range.deleteContents();
+	                e.stopPropagation();
+			        e.preventDefault();
+	            } else {
+	                var lastLetter = wdeCleanSeq(beforeStr.charAt(beforeStr.length - 1));
+	                if (lastLetter != "") {
+				        wdeFeatSplitAtLoc(posMark);
+		            	range.deleteContents();
+		                wdeFeatModifyBetween((posMark + 1),(posMark + 2),"D");
+		                wdeFeatShiftAfterLoc((posMark + 1), -1);
+		            }
+	            }
+		    } else if (charCode == 16) {
+                window.mKeyUpper = true;
+		    } else if (charCode == 17) {
+		        window.mKeyCtrl = true;
 		    } else if ((charCode >= 33) && (charCode <=40)) {
 		        // Match move commands
 		        // Nothing to do...    
@@ -695,7 +740,7 @@ function wdeKeyPressEvent(e) {
             wdeFeatures.sort(wdeFeatListSort);
 	        wdeFeatFocRepaint();
         }
-    } else if (e.ctrlKey) {
+    } else if (window.mKeyCtrl) {
         // let the things happen
     } else {
 	    e.stopPropagation();
