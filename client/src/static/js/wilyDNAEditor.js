@@ -3876,6 +3876,7 @@ function wdeMapSVG(unique) {
     // A letter is 25 long , if text 0, space below +20 top - 40, line dist 60
     // Use 50 for hight
     var resFound = true;
+    var sel = 0;
     if (wdeEnzy[0][3] == "-") {
         resFound = false;
     }
@@ -3885,6 +3886,14 @@ function wdeMapSVG(unique) {
             resFound = true;
         }
         wdeSelREsel('E', 1);
+    }
+    for (var k = 0; k < wdeEnzy.length; k++) {
+        if (wdeEnzy[k][2]){
+            sel++;
+        }
+    }
+    if (sel == 0) {
+        resFound = false;
     }
     var retVal = "";
     var circ = wdeCircular;
