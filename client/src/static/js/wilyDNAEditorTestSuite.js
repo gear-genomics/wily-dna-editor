@@ -96,7 +96,7 @@ function wdeTestAll() {
                    + wdeTestLeadingZero(startTime.getMinutes()) + ":" 
                    + wdeTestLeadingZero(startTime.getSeconds()) + "\n");
 
-    wdeTestAddToOutput("\nTest Main Functions:\n\n");
+    wdeTestAddToOutput("\nVersion: " + wdeVVersion + "\n\nTest Main Functions:\n\n");
 
     testName = "wdeTestSortTagsHTML()";
     wdeTestAddToOutput(testName + " - ");
