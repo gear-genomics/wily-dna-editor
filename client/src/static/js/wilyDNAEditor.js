@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "1.2.0";
+var wdeVVersion = "1.2.2";
 
 // Link to Primer3Plus
 const uploadTargetP3P = "https://gear.embl.de/primer3plus/api/v1/upload";
@@ -271,10 +271,7 @@ function wdeActivateStartup(){
     window.frames['WDE_RTF'].document.addEventListener('cut', wdeCutEvent);
     window.frames['WDE_RTF'].document.addEventListener('copy', wdeCopyEvent);
     window.frames['WDE_RTF'].document.addEventListener('paste', wdePasteEvent);
-    window.frames['WDE_RTF'].document.addEventListener('keydown', wdeKeyPressEvent, false);
-    window.frames['WDE_RTF'].document.addEventListener('keyup', wdeKeyUpEvent, false);
-    window.mKeyCtrl = false;
-    window.mKeyUpper = false;
+    window.frames['WDE_RTF'].document.addEventListener('keydown', wdeKeyDownEvent, false);
     wdePopulateEnzmes();
     wdePopulateTranslation();
     wdePopulateFeatureColors();
@@ -631,29 +628,22 @@ function wdePasteEvent (e) {
     }
 }
 
-window.wdeKeyUpEvent = wdeKeyUpEvent;
-function wdeKeyUpEvent(e) {
+window.wdeKeyDownEvent = wdeKeyDownEvent;
+function wdeKeyDownEvent(e) {
     var sel, range;
     e = e || WDE_RTF.contentWindow.event;
-    var charCode = e.keyCode || e.which;
-    if (charCode == 16) {
-        window.mKeyUpper = false;
+    var pCtrlKey = e.ctrlKey || e.metaKey || e.altKey;
+    var validLetter = "";
+    var validKey = false;
+    var letterCode = e.code;
+    if ((letterCode.substring(0, 3) == "Key") && !(pCtrlKey)) {
+        validKey = true;
+        validLetter = wdeRetAmbiqutyOnly(e.key);
     }
-    if (charCode == 17) {
-        window.mKeyCtrl = false;
+    if ((letterCode == "Backspace") || (letterCode == "Delete")) {
+        validKey = true;
     }
-}
-
-window.wdeKeyPressEvent = wdeKeyPressEvent;
-function wdeKeyPressEvent(e) {
-    var sel, range;
-    e = e || WDE_RTF.contentWindow.event;
-    var charCode = e.keyCode || e.which;
-    var charTyped = wdeRetAmbiqutyOnly(String.fromCharCode(charCode));
-    if (!(window.mKeyUpper)) {
-        charTyped = charTyped.toLowerCase()
-    }
-    if ((window.frames['WDE_RTF'].getSelection) && !(window.mKeyCtrl)) {
+    if ((window.frames['WDE_RTF'].getSelection) && validKey) {
         sel = window.frames['WDE_RTF'].getSelection();
         if (sel.rangeCount) {
             range = sel.getRangeAt(0);
@@ -664,8 +654,7 @@ function wdeKeyPressEvent(e) {
             rangeBefore.setEnd(range.startContainer,range.startOffset);
             var beforeStr = rangeBefore.toString();
             var posMark = wdeCleanSeq(beforeStr).length;
-		    if (charCode == 8) {
-		        // Match backspace
+		    if (letterCode == "Backspace") {
 			    wdeFeatSplitAtLoc(posMark);
 	            if (!(range.collapsed)) {
 	                delPart = wdeCleanSeq(range.toString()).length;
@@ -684,8 +673,7 @@ function wdeKeyPressEvent(e) {
 		                wdeFeatShiftAfterLoc((posMark - 1), -1);
 		            }
 	            }         
-		    } else if (charCode == 46) {
-		        // Match del
+		    } else if (letterCode == "Delete") {
 			    wdeFeatSplitAtLoc(posMark);
 	            if (!(range.collapsed)) {
 	                delPart = wdeCleanSeq(range.toString()).length;
@@ -704,20 +692,13 @@ function wdeKeyPressEvent(e) {
 		                wdeFeatShiftAfterLoc((posMark + 1), -1);
 		            }
 	            }
-		    } else if (charCode == 16) {
-                window.mKeyUpper = true;
-		    } else if (charCode == 17) {
-		        window.mKeyCtrl = true;
-		    } else if ((charCode >= 33) && (charCode <=40)) {
-		        // Match move commands
-		        // Nothing to do...    
-		    } else { 
+		    } else {
 			    e.stopPropagation();
 			    e.preventDefault();
-			    if ((charTyped === "X") || (charTyped === "x")) {
-			        charTyped = "";
+			    if ((validLetter === "X") || (validLetter === "x")) {
+			        validLetter = "";
 			    }
-		        if (charTyped != "") {
+		        if (validLetter != "") {
 				    wdeFeatSplitAtLoc(posMark);
 		            if (!(range.collapsed)) {
 		                delPart = wdeCleanSeq(range.toString()).length;
@@ -727,7 +708,7 @@ function wdeKeyPressEvent(e) {
 		            }            
 		            range.deleteContents();
 		            wdeFeatShiftAfterLoc(posMark, 1);
-		            var textNode = document.createTextNode(charTyped);
+		            var textNode = document.createTextNode(validLetter);
 		            range.insertNode(textNode);
 		            // Move caret to the end of the newly inserted text node
 		            range.setStart(textNode, textNode.length);
@@ -740,11 +721,6 @@ function wdeKeyPressEvent(e) {
             wdeFeatures.sort(wdeFeatListSort);
 	        wdeFeatFocRepaint();
         }
-    } else if (window.mKeyCtrl) {
-        // let the things happen
-    } else {
-	    e.stopPropagation();
-	    e.preventDefault();    
     }
 }
 
