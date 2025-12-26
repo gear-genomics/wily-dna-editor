@@ -6,32 +6,36 @@
   <meta name="description" content="The Wily-DNA-Editor is a browser tool for plasmid assembly, reverse complements DNA, translates to protein code and calculates restriction digests maps.">
   <title>The Wily DNA Editor</title>
 
-  <!-- Shared styling -->
   <link rel="stylesheet" href="https://www.gear-genomics.com/libs/bootstrap/4.0.0/css/bootstrap.min.css" crossorigin="anonymous">
   <link rel="stylesheet" href="https://www.gear-genomics.com/libs/fontawesome-free-6.2.1-web/css/all.min.css">
   <link rel="stylesheet" href="static/css/gear.css">
-  <!-- Legacy Wily CSS -->
   <link rel="stylesheet" href="static/css/wilyDNAEditor.css">
   <link rel="canonical" href="https://www.wily-dna-editor.com/index.html" />
   <style>
-    body { background: #f8f9fa; }
-    .pane-card { box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    body { background: #fff; }
+    .pane-card { box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #e6e9ef; }
     .section-title { font-weight: 600; }
     .btn-block-inline > * { margin: 3px 4px; }
     .wide-iframe { width: 100%; max-width: 100%; min-height: 500px; }
     .wide-iframe-sm { width: 100%; max-width: 100%; min-height: 250px; }
     .form-inline-flex > * { margin-right: 8px; margin-bottom: 6px; }
+    #WDE_menu_bar .nav-link { color: #0d6efd; border: 1px solid transparent; cursor: pointer; user-select: none; background: transparent; }
+    #WDE_menu_bar .nav-link.active { background: #0d6efd; color: #fff !important; border-color: #0d6efd; }
+    .btn-outline-secondary { color: #444; border-color: #ccc; }
+    .btn-outline-secondary:hover { color: #222; border-color: #999; background: #f5f5f5; }
+    .btn-accent { color: #fff !important; background: #0d6efd; border-color: #0d6efd; }
+    .btn-accent:hover { background: #0b5ed7; border-color: #0b5ed7; }
   </style>
 </head>
 <body>
   <div class="container-fluid px-0">
 
     <!-- Top bar -->
-    <header class="px-0 py-3 mb-2 bg-white border-bottom">
+    <header class="px-0 py-3 mb-2 border-bottom">
       <div class="container d-flex align-items-center">
         <div>
           <h1 class="display-5 app-name mb-1">The Wily DNA Editor</h1>
-          <p class="mb-1 text-muted" id="top">master DNA sequences, plasmids and restriction enzyme digests</p>
+          <p class="mb-1 text-muted" id="top">Master DNA sequences, plasmids and restriction enzyme digests</p>
         </div>
         <div class="ml-auto d-flex flex-column text-right">
           <div>
@@ -47,13 +51,13 @@
     <!-- Tabs -->
     <div class="container">
       <ul class="nav nav-pills mb-3" id="WDE_menu_bar">
-        <li class="nav-item" id="WDE_sel_main_tab"><a class="nav-link active" onclick="browseTabFunctionality('WDE_main_tab')">Main</a></li>
-        <li class="nav-item" id="WDE_sel_restriction_sites"><a class="nav-link" onclick="browseTabFunctionality('WDE_restriction_sites')">Restriction Sites</a></li>
-        <li class="nav-item" id="WDE_sel_digest"><a class="nav-link" onclick="browseTabFunctionality('WDE_digest')">Digest</a></li>
-        <li class="nav-item" id="WDE_sel_translate"><a class="nav-link" onclick="browseTabFunctionality('WDE_translate')">Translate</a></li>
-        <li class="nav-item" id="WDE_sel_features"><a class="nav-link" onclick="browseTabFunctionality('WDE_features')">Features</a></li>
-        <li class="nav-item" id="WDE_sel_feature_lib"><a class="nav-link" onclick="browseTabFunctionality('WDE_feature_lib')">Feature Library</a></li>
-        <li class="nav-item" id="WDE_sel_Settings"><a class="nav-link" onclick="browseTabFunctionality('WDE_settings')">Settings</a></li>
+        <li class="nav-item" id="WDE_sel_main_tab"><a class="nav-link active" data-tab="WDE_main_tab" role="button">Main</a></li>
+        <li class="nav-item" id="WDE_sel_restriction_sites"><a class="nav-link" data-tab="WDE_restriction_sites" role="button">Restriction Sites</a></li>
+        <li class="nav-item" id="WDE_sel_digest"><a class="nav-link" data-tab="WDE_digest" role="button">Digest</a></li>
+        <li class="nav-item" id="WDE_sel_translate"><a class="nav-link" data-tab="WDE_translate" role="button">Translate</a></li>
+        <li class="nav-item" id="WDE_sel_features"><a class="nav-link" data-tab="WDE_features" role="button">Features</a></li>
+        <li class="nav-item" id="WDE_sel_feature_lib"><a class="nav-link" data-tab="WDE_feature_lib" role="button">Feature Library</a></li>
+        <li class="nav-item" id="WDE_sel_Settings"><a class="nav-link" data-tab="WDE_settings" role="button">Settings</a></li>
       </ul>
     </div>
 
@@ -69,7 +73,7 @@
               <button class="btn btn-outline-secondary btn-sm" onClick="wdeSaveFasta()">Save Fasta</button>
               <button class="btn btn-outline-secondary btn-sm" onClick="wdeSaveGenBank()">Save GeneBank</button>
               <button class="btn btn-outline-secondary btn-sm" onClick="wdeSendP3P()">Send to Primer3Plus</button>
-              <button class="btn btn-outline-primary btn-sm" onClick="wdeLoadSampleFile()">Load Example</button>
+              <button class="btn btn-accent btn-sm" onClick="wdeLoadSampleFile()">Load Example</button>
               <button class="btn btn-outline-secondary btn-sm" onClick="wdeNewWindow()">New Window</button>
             </div>
             <hr>
@@ -414,13 +418,28 @@
   <script src="https://www.gear-genomics.com/libs/js/popper-1.12.9/popper.min.js" crossorigin="anonymous"></script>
   <script src="https://www.gear-genomics.com/libs/bootstrap/4.0.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
 
-  <!-- Original full JS (unchanged) -->
   <script src="static/js/wilyDNAEditor.js"></script>
   <script>
-    // Ensure initial tab visible
-    document.addEventListener("DOMContentLoaded", function() {
-      browseTabFunctionality('WDE_main_tab');
-    });
+    // Keep tab highlight in sync with any tab change (including programmatic ones).
+    (function() {
+      const origBrowse = window.browseTabFunctionality;
+      function setActiveTab(tabId) {
+        document.querySelectorAll('#WDE_menu_bar .nav-link').forEach(a => {
+          a.classList.toggle('active', a.textContent.trim() && a.getAttribute('onclick')?.includes(tabId) || a.dataset.tab === tabId);
+          a.classList.remove('show'); // bootstrap compatibility
+        });
+      }
+      window.browseTabFunctionality = function(tabId) {
+        if (typeof origBrowse === 'function') origBrowse(tabId);
+        setActiveTab(tabId);
+      };
+      document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('#WDE_menu_bar .nav-link').forEach(a => {
+          a.addEventListener('click', (e) => { e.preventDefault(); window.browseTabFunctionality(a.dataset.tab || a.getAttribute('onclick').match(/'(.*?)'/)[1]); });
+        });
+        window.browseTabFunctionality('WDE_main_tab');
+      });
+    })();
   </script>
 </body>
 </html>
