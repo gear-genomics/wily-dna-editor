@@ -17,6 +17,12 @@ Download Program and Source Code
 
 `git clone https://github.com/gear-genomics/wily-dna-editor.git`
 
+`cd wily-dna-editor/client/src/`
+
+`python3 -m http.server`
+
+Open http://0.0.0.0:8000/ in your browser.
+
 The Wily DNA Editor can do basic DNA/RNA operations
 ---------------------------------------------------
 

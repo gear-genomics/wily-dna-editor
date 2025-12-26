@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "1.2.2";
+var wdeVVersion = "1.3.0";
 
 // Link to Primer3Plus
 const uploadTargetP3P = "https://gear.embl.de/primer3plus/api/v1/upload";
@@ -130,6 +130,14 @@ var wdeInTestRun = 0;
 document.addEventListener("DOMContentLoaded", function() {
   wdeActivateStartup();
   browseTabFunctionality('WDE_main_tab');
+});
+
+window.addEventListener("beforeunload", function(e) {
+  var seq = wdeCleanSeq(window.frames['WDE_RTF'].document.body.innerHTML);
+  if (seq != "") {
+    e.preventDefault();
+    e.returnValue = "";
+  }
 });
 
 // Display Functions
@@ -2244,6 +2252,10 @@ function wdeFeatFocRepaint() {
         if (wdeFeatures[k][9] != 0) {
             checkBoxStr += ' checked=""';
         }
+        var selFeatHigh = "";
+        if (k == wdeFeatSelNum) {
+            selFeatHigh = "font-weight:bold;";
+        }
         checkBoxStr += '>';
         var funCl = ' onclick="parent.wdeFeatFocUpdate(' + k + ')"';
 	    content += '<tr>\n';
@@ -2251,17 +2263,17 @@ function wdeFeatFocRepaint() {
 	    var colFin = wdeFinFeatureColor(wdeFeatures, k);
 	    var dispPos = wdeParseFeatPos(wdeFeatures[k][1]);
 	    if (/complement/.test(wdeFeatures[k][1])) {
-	        content += '<td style="text-align: center; background-color:' + colAr[2]  + '"'  + '>' + checkBoxStr + "</td>";
-	        content += '<td style="background-color:' + colAr[2]  + '"' + funCl + '>' + wdeFeatures[k][0] + "</td>";
-	        content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + wdeFeatures[k][2] + "</td>";
-	        content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>Reverse</td>';
-                content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + dispPos + "</td>";
+	        content += '<td style="' + selFeatHigh + 'text-align: center; background-color:' + colAr[2]  + '"'  + '>' + checkBoxStr + "</td>";
+	        content += '<td style="' + selFeatHigh + 'background-color:' + colAr[2]  + '"' + funCl + '>' + wdeFeatures[k][0] + "</td>";
+	        content += '<td style="' + selFeatHigh + 'background-color:' + colFin[0] + '"' + funCl + '>' + wdeFeatures[k][2] + "</td>";
+	        content += '<td style="' + selFeatHigh + 'background-color:' + colFin[0] + '"' + funCl + '>Reverse</td>';
+            content += '<td style="' + selFeatHigh + 'background-color:' + colFin[0] + '"' + funCl + '>' + dispPos + "</td>";
 	    } else {
-	        content += '<td style="text-align: center; background-color:' + colAr[1]  + '"'  + '>' + checkBoxStr + "</td>";
-	        content += '<td style="background-color:' + colAr[1]  + '"' + funCl + '>' + wdeFeatures[k][0] + "</td>";
-	        content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + wdeFeatures[k][2] + "</td>";
-	        content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>Forward</td>';
-	        content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + dispPos + "</td>";
+	        content += '<td style="' + selFeatHigh + 'text-align: center; background-color:' + colAr[1]  + '"'  + '>' + checkBoxStr + "</td>";
+	        content += '<td style="' + selFeatHigh + 'background-color:' + colAr[1]  + '"' + funCl + '>' + wdeFeatures[k][0] + "</td>";
+	        content += '<td style="' + selFeatHigh + 'background-color:' + colFin[0] + '"' + funCl + '>' + wdeFeatures[k][2] + "</td>";
+	        content += '<td style="' + selFeatHigh + 'background-color:' + colFin[0] + '"' + funCl + '>Forward</td>';
+	        content += '<td style="' + selFeatHigh + 'background-color:' + colFin[0] + '"' + funCl + '>' + dispPos + "</td>";
 	    }
 	    content += "</tr>\n";
     }
@@ -2425,19 +2437,22 @@ function wdeLibFocRepaint() {
     content += "<tr>";
     content += '<th style="text-align: left">Tag';
     content += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>';
-     content += '<th style="text-align: left">Size';
+    content += '<th style="text-align: left">Size';
     content += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>';
     content += '<th style="text-align: left">Type';
     content += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tr>\n";
     for (var k = 0; k < wdeFeatureLib.length; k++) {
-        var funCl = ' onclick="parent.wdeLibFocUpdate(' + k + ')"';
+        var selLibFeHi = "";
+        if (k == wdeLibSelNum) {
+            selLibFeHi = "font-weight:bold;";
+        }        var funCl = ' onclick="parent.wdeLibFocUpdate(' + k + ')"';
 	    content += '<tr>\n';
 	    var colFin = wdeFinFeatureColor(wdeFeatureLib, k);
 	    var basePairs = wdeCleanSeq(wdeFeatureLib[k][10]);
 	    var colAr = wdeFinFeatColSeg(wdeFeatureLib[k]);
-	    content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + wdeFeatureLib[k][2] + "</td>";
-	    content += '<td style="background-color:' + colFin[0] + '"' + funCl + '>' + basePairs.length + " bp</td>";
-	    content += '<td style="background-color:' + colAr[1]  + '"' + funCl + '>' + wdeFeatureLib[k][0] + "</td>";
+	    content += '<td style="' + selLibFeHi + 'background-color:' + colFin[0] + '"' + funCl + '>' + wdeFeatureLib[k][2] + "</td>";
+	    content += '<td style="' + selLibFeHi + 'background-color:' + colFin[0] + '"' + funCl + '>' + basePairs.length + " bp</td>";
+	    content += '<td style="' + selLibFeHi + 'background-color:' + colAr[1]  + '"' + funCl + '>' + wdeFeatureLib[k][0] + "</td>";
 	    content += "</tr>\n";
     }
     content += '</table>';

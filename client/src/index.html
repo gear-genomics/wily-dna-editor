@@ -46,7 +46,7 @@
             <a class="WDE_top_bar_explain" id="top">master DNA sequences, plasmids and restriction enzyme digests</a>
           </td>
           <td class="WDE_top_bar_cell">
-            <a class="WDE_top_bar_link" href="https://www.gear-genomics.com/">GEAR</a>
+            <a class="WDE_top_bar_link" href="https://www.gear-genomics.com/" target="_blank">GEAR</a>
           </td>
           <td class="WDE_top_bar_cell">
             <a class="WDE_top_bar_link" href="https://github.com/gear-genomics/wily-dna-editor" target="_blank">Source Code</a>
@@ -54,10 +54,10 @@
         </tr>
         <tr>
           <td class="WDE_top_bar_cell">
-            <a class="WDE_top_bar_link" href="help.html">Help</a>
+            <a class="WDE_top_bar_link" href="help.html" target="_blank">Help</a>
           </td>
           <td class="WDE_top_bar_cell">
-            <a class="WDE_top_bar_link" href="about.html">About</a>
+            <a class="WDE_top_bar_link" href="about.html" target="_blank">About</a>
           </td>
         </tr>
       </table>
@@ -249,6 +249,10 @@
       <br>
       <iframe name="WDE_FEAT_L" id="WDE_FEAT_L" style="border:#000000 1px solid; background-color: white; width:800px; height:250px;"></iframe>
       <br />
+      <input type="button" onClick="wdeSetFFeatNew('')" value="New Feature">&nbsp;
+      <input type="button" onClick="wdeSetFFeatDel()" value="Delete Feature">&nbsp;
+      <input type="button" onClick="wdeSetFFeatSave()" value="Save Changes">&nbsp;
+      <br />
       <a>Selected Feature:</a>&nbsp;
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <input type="button" onClick="wdeSelAddLib()" value="Add Feature to Library">&nbsp;
@@ -262,10 +266,6 @@
       <br />
       <a>Regulatory Type:</a>&nbsp;
       <select id="WDE_FEAT_REG_TYPE" onChange="wdeSelFFeatRegType()"><option>Only available with regulatory features</option></select>
-      <br />
-      <input type="button" onClick="wdeSetFFeatNew('')" value="New Feature">&nbsp;
-      <input type="button" onClick="wdeSetFFeatSave()" value="Save Changes">&nbsp;
-      <input type="button" onClick="wdeSetFFeatDel()" value="Delete Feature">
       <br />
       <a>Location:</a>&nbsp;
       <input id="WDE_FEAT_LOC" onChange="wdeSelFFeatLoc()" value="" type="text" size="80">&nbsp;
@@ -304,6 +304,10 @@
       <br />
       <iframe name="WDE_LIB_L" id="WDE_LIB_L" style="border:#000000 1px solid; background-color: white; width:800px; height:250px;"></iframe>
       <br />
+      <input type="button" onClick="wdeSetFLibNew('')" value="New Feature">&nbsp;
+      <input type="button" onClick="wdeSetFLibDel()" value="Delete Feature">&nbsp;
+      <input type="button" onClick="wdeSetFLibSave()" value="Save Changes">&nbsp;
+      <br />
       <a>Selected Feature:</a>
       <br />
       <a>Tag:</a>&nbsp;
@@ -314,10 +318,6 @@
       <br />
       <a>Regulatory Type:</a>&nbsp;
       <select id="WDE_LIB_REG_TYPE" onChange="wdeSelFLibRegType()"><option>Only available with regulatory features</option></select>
-      <br />
-      <input type="button" onClick="wdeSetFLibNew('')" value="New Feature">&nbsp;
-      <input type="button" onClick="wdeSetFLibSave()" value="Save Changes">&nbsp;
-      <input type="button" onClick="wdeSetFLibDel()" value="Delete Feature">
       <br />
       <a>Forward Color:</a>&nbsp;
       <input id="WDE_LIB_FCOL" value="#00ff40" onchange="wdeSetFLibForVar()" type="color">&nbsp;
