@@ -1,401 +1,426 @@
 <!doctype html>
-<!--
-    Copyright (C) 2017 - 2022 by Andreas Untergasser
-    All rights reserved.
-  
-    This file is part of the Wily DNA Editor suite and libraries.
-  
-    The Wily DNA Editor is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-  
-    Wily DNA Editor is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-  
-    You should have received a copy of the GNU General Public License
-    along with this Wily DNA Editor. If not, see <https://www.gnu.org/licenses/>.
--->
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8"> 
-  <meta name="viewport" content="width=1034, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1200, initial-scale=1.0">
   <meta name="description" content="The Wily-DNA-Editor is a browser tool for plasmid assembly, reverse complements DNA, translates to protein code and calculates restriction digests maps.">
   <title>The Wily DNA Editor</title>
+
+  <!-- Shared styling -->
+  <link rel="stylesheet" href="https://www.gear-genomics.com/libs/bootstrap/4.0.0/css/bootstrap.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://www.gear-genomics.com/libs/fontawesome-free-6.2.1-web/css/all.min.css">
+  <link rel="stylesheet" href="static/css/gear.css">
+  <!-- Legacy Wily CSS -->
   <link rel="stylesheet" href="static/css/wilyDNAEditor.css">
   <link rel="canonical" href="https://www.wily-dna-editor.com/index.html" />
+  <style>
+    body { background: #f8f9fa; }
+    .pane-card { box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .section-title { font-weight: 600; }
+    .btn-block-inline > * { margin: 3px 4px; }
+    .wide-iframe { width: 100%; max-width: 100%; min-height: 500px; }
+    .wide-iframe-sm { width: 100%; max-width: 100%; min-height: 250px; }
+    .form-inline-flex > * { margin-right: 8px; margin-bottom: 6px; }
+  </style>
 </head>
-
 <body>
+  <div class="container-fluid px-0">
 
-  <div class="WDE_page">
-  
-    <div id="WDE_top_bar">
-      <table class="WDE_top_bar_table">
-        <colgroup>
-          <col class="WDE_background" style="width: 60%">
-          <col class="WDE_background" style="width: 20%">
-          <col class="WDE_background" style="width: 20%">
-        </colgroup>
-        <tr>
-          <td class="WDE_top_bar_cell" rowspan="2">
-            <a class="WDE_top_bar_title">The Wily DNA Editor</a><br>
-            <a class="WDE_top_bar_explain" id="top">master DNA sequences, plasmids and restriction enzyme digests</a>
-          </td>
-          <td class="WDE_top_bar_cell">
-            <a class="WDE_top_bar_link" href="https://www.gear-genomics.com/" target="_blank">GEAR</a>
-          </td>
-          <td class="WDE_top_bar_cell">
-            <a class="WDE_top_bar_link" href="https://github.com/gear-genomics/wily-dna-editor" target="_blank">Source Code</a>
-          </td>
-        </tr>
-        <tr>
-          <td class="WDE_top_bar_cell">
-            <a class="WDE_top_bar_link" href="help.html" target="_blank">Help</a>
-          </td>
-          <td class="WDE_top_bar_cell">
-            <a class="WDE_top_bar_link" href="about.html" target="_blank">About</a>
-          </td>
-        </tr>
-      </table>
-    </div>
-
-    <script>
-      document.write("<style type=\"text/css\">div#WDE_no_javascript { display: none; }</style>");
-    </script>
-
-    <div id="WDE_no_javascript">
-      <div class="WDE_fit_to_table">
-        <a>JavaScript is not enabled, please enable JavaScript and refresh the browser. JavaScript is essential for the Wily DNA editor</a>.
+    <!-- Top bar -->
+    <header class="px-0 py-3 mb-2 bg-white border-bottom">
+      <div class="container d-flex align-items-center">
+        <div>
+          <h1 class="display-5 app-name mb-1">The Wily DNA Editor</h1>
+          <p class="mb-1 text-muted" id="top">master DNA sequences, plasmids and restriction enzyme digests</p>
+        </div>
+        <div class="ml-auto d-flex flex-column text-right">
+          <div>
+            <a class="plain mr-3" href="https://www.gear-genomics.com/" target="_blank">GEAR</a>
+            <a class="plain mr-3" href="https://github.com/gear-genomics/wily-dna-editor" target="_blank">Source Code</a>
+            <a class="plain mr-3" href="help.html" target="_blank">Help</a>
+            <a class="plain" href="about.html" target="_blank">About</a>
+          </div>
+        </div>
       </div>
-    </div>
+    </header>
 
-    <div id="WDE_menu_bar">
-      <ul>
-        <li id="WDE_sel_main_tab"><a onclick="browseTabFunctionality('WDE_main_tab')">Main</a></li>
-        <li id="WDE_sel_restriction_sites"><a onclick="browseTabFunctionality('WDE_restriction_sites')">Restriction Sites</a></li>
-        <li id="WDE_sel_digest"><a onclick="browseTabFunctionality('WDE_digest')">Digest</a></li>
-        <li id="WDE_sel_translate"><a onclick="browseTabFunctionality('WDE_translate')">Translate</a></li>
-        <li id="WDE_sel_features"><a onclick="browseTabFunctionality('WDE_features')">Features</a></li>
-        <li id="WDE_sel_feature_lib"><a onclick="browseTabFunctionality('WDE_feature_lib')">Feature Library</a></li>
-        <li id="WDE_sel_Settings"><a onclick="browseTabFunctionality('WDE_settings')">Settings</a></li>
+    <!-- Tabs -->
+    <div class="container">
+      <ul class="nav nav-pills mb-3" id="WDE_menu_bar">
+        <li class="nav-item" id="WDE_sel_main_tab"><a class="nav-link active" onclick="browseTabFunctionality('WDE_main_tab')">Main</a></li>
+        <li class="nav-item" id="WDE_sel_restriction_sites"><a class="nav-link" onclick="browseTabFunctionality('WDE_restriction_sites')">Restriction Sites</a></li>
+        <li class="nav-item" id="WDE_sel_digest"><a class="nav-link" onclick="browseTabFunctionality('WDE_digest')">Digest</a></li>
+        <li class="nav-item" id="WDE_sel_translate"><a class="nav-link" onclick="browseTabFunctionality('WDE_translate')">Translate</a></li>
+        <li class="nav-item" id="WDE_sel_features"><a class="nav-link" onclick="browseTabFunctionality('WDE_features')">Features</a></li>
+        <li class="nav-item" id="WDE_sel_feature_lib"><a class="nav-link" onclick="browseTabFunctionality('WDE_feature_lib')">Feature Library</a></li>
+        <li class="nav-item" id="WDE_sel_Settings"><a class="nav-link" onclick="browseTabFunctionality('WDE_settings')">Settings</a></li>
       </ul>
     </div>
 
-    <div id="WDE_main_tab" class="WDE_tab_page">
-      <a>Load:</a>&nbsp;
-      <input type="file" id="WDE_Load_File">&nbsp;
-      <input type="button" onClick="wdeSaveFasta()" value="Save Fasta">&nbsp;
-      <input type="button" onClick="wdeSaveGenBank()" value="Save GeneBank">&nbsp;
-      <input type="button" onClick="wdeSendP3P()" value="Send to Primer3Plus"/>&nbsp;&nbsp;
-      <input type="button" onClick="wdeLoadSampleFile()" value="Load Example">&nbsp;
-      <input type="button" onClick="wdeNewWindow()" value="+">
-      <br />
-      <a>Sequence Id:</a>&nbsp;
-      <input id="SEQUENCE_ID" value="" type="text" size="60">&nbsp;
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <a>Length:</a>&nbsp;
-      <input id="SEQUENCE_LENGTH" value="" type="text" style="text-align:right;" size="10">&nbsp;bp&nbsp;
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="button" id="wdeCircularButton" onClick="wdeTGCircularLinear(-1)" value="Circular">
-      <br />
-      <input type="button" onClick="wdeUpToLow()" value="UPPER -> lower">&nbsp;
-      <input type="button" onClick="wdeUpexLow()" value="UPPER <-> lower">&nbsp;
-      <input type="button" onClick="wdeLowToUp()" value="lower -> UPPER">&nbsp;
-      <input type="button" onClick="wdeCopyPaste()" value="Copy/Paste">&nbsp;
-      <input type="button" onClick="wdeRCompSel()" value="Reverse Complement Selection">&nbsp;
-      <input type="button" onClick="wdeRComp()" value="Reverse Complement All">
-      <br />
-      <input type="button" onClick="wdeHighlight()" value="Highlight Selected Restriction Sites">&nbsp;
-      <input type="button" onClick="wdeTransInSel()" value="Translate Selection">&nbsp;
-      <input type="button" onClick="wdeTransInAll()" value="Translate All">&nbsp;
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="button" id="cmdZeroOneButton" onClick="wdeTGViewZeroOne(-1,1)" value="1">&nbsp;
-      <input type="button" onClick="wdeTGViewNumbers(-1,1)" value="Numbers">
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="button" onClick="wdeSelREOutsidesSel()" value="Find RS outside Selection">&nbsp;
-      <br />
-      <input type="button" id="wdeFeatButton" onClick="wdeShowFeatures()" value="Show Features">&nbsp;
-      <input type="button" id="wdeFeatTransparent" onClick="wdeTGFeaturesTransp(-1,1)" value="Transparent Features">&nbsp;
-      <input type="button" onClick="wdeNewFeaturesFromSel()" value="New Feature from Selection">&nbsp;
-      &nbsp;&nbsp;
-      <a>Info:</a>&nbsp;
-      <input id="wdeInfoField" value="" type="text" size="40">&nbsp;
-      <br />
-      <!-- Hide the textarea and replace it with an iFrame -->
-      <textarea id="SEQUENCE_TEMPLATE" rows="12" cols="90" style="display:none;"></textarea>
-      <iframe name="WDE_RTF" id="WDE_RTF" style="border:#000000 1px solid; background-color: white; width:800px; height:500px;"></iframe>
-      <!-- End replacing the textarea -->
-    </div>
-
-    <div id="WDE_restriction_sites" class="WDE_tab_page" style="display: none;">
-      <input type="checkbox" id="WDE_USER_SEL" onclick="wdeTGUserSel(-1)">&nbsp;
-      <a id="WDE_USER_COUNT">Hits: -</a>&nbsp;
-      &nbsp;&nbsp;&nbsp;
-      <a>Name:</a>&nbsp;
-      <input id="WDE_USER_NAME" value="User_Seq" type="text" size="10" onchange="wdeSetLocalStorage('wde_USER_NAME','WDE_USER_NAME');">&nbsp;
-      <a>Sequence:</a>&nbsp;
-      <input id="WDE_USER_SEQ" value="AGC^MGCT" type="text" size="30" onchange="wdeSetLocalStorage('wde_USER_SEQ','WDE_USER_SEQ');">&nbsp;
-      <input type="button" onClick="wdeFindUserSeq()" value="Find User Sequence">
-      <br />
-      <input type="button" onClick="wdeFindRE()" value="Find All Restriction Sites">&nbsp;
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <a>Methylation:</a>&nbsp;
-      <input type="checkbox" id="WDE_DAM_DCM" onclick="wdeTGDamDcm(-1)" checked="checked">&nbsp;
-      <input type="button" onClick="wdeTGDamDcm(-1)" value="Dam/Dcm">
-      <br />
-      <a>Select:</a>&nbsp;
-      <input type="button" onClick="wdeSelREsel('E', 0)" value="Absent">&nbsp;
-      <input type="button" onClick="wdeSelREsel('E', 1)" value="Unique">&nbsp;
-      <input type="button" onClick="wdeSelREsel('M', -1)" value="All">&nbsp;
-      <input type="button" onClick="wdeSelREdeselect()" value="Deselect All">&nbsp;
-      <a>Select by Number:</a>&nbsp;
-      <input id="RESTRICTION_NR" value="2" type="text" style="text-align:right;" size="2" onchange="wdeSetLocalStorage('wde_RESTRICTION_NR','RESTRICTION_NR');">&nbsp;
-      <input type="button" onClick="wdeSelREselMLE('M')" value="More">&nbsp;
-      <input type="button" onClick="wdeSelREselMLE('E')" value="Exact">&nbsp;
-      <input type="button" onClick="wdeSelREselMLE('L')" value="Less">
-      <br />
-      <a>Select by List:</a>&nbsp;
-      <input id="RESTRICTION_LIST" value="KpnI, BstBI, HindIII, BamHI" type="text" size="30" onchange="wdeSetLocalStorage('wde_RESTRICTION_LIST','RESTRICTION_LIST');">&nbsp;
-      <input type="button" onClick="wdeSelREListDS('S')" value="Select">&nbsp;
-      <input type="button" onClick="wdeSelREListDS('D')" value="Deselect">&nbsp;
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <br />
-      <input type="button" onClick="wdeHighlight()" value="Highlight Selected in Sequence">&nbsp;
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="button" onClick="wdeDigMapDis('S')" value="Map">&nbsp;
-      <input type="button" onClick="wdeDigMapDis('U')" value="Map + Unique">&nbsp;
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="button" onClick="wdeDigList()" value="Digest as List">&nbsp;
-      <input type="button" onClick="wdeDigAsGelPic()" value="Digest as Gel Picture">&nbsp;
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="button" onClick="wdePrintEnzy()" value="Print">
-      <br />
-      <p style="font-size: 80%; line-height: 1.6;">Ambiguity Codes:<br />
-        R = [GA]; Y = [CT]; M = [AC]; K = [GT]; S = [GC]; W = [AT];
-        B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACGT]
-      </p>
-      <div id="WDE_enzymes_spacer">&nbsp;
-        <a>Enzyme Tab...</a>
+    <div class="container">
+      <!-- MAIN TAB -->
+      <div id="WDE_main_tab" class="WDE_tab_page">
+        <div class="card pane-card mb-3">
+          <div class="card-body">
+            <div class="section-title mb-2">Load / Save</div>
+            <div class="form-inline-flex">
+              <span class="mr-1">Load:</span>
+              <input type="file" id="WDE_Load_File" class="form-control-file">
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSaveFasta()">Save Fasta</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSaveGenBank()">Save GeneBank</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSendP3P()">Send to Primer3Plus</button>
+              <button class="btn btn-outline-primary btn-sm" onClick="wdeLoadSampleFile()">Load Example</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeNewWindow()">New Window</button>
+            </div>
+            <hr>
+            <div class="form-inline-flex">
+              <label class="mb-0 mr-2">Sequence Id:</label>
+              <input id="SEQUENCE_ID" class="form-control form-control-sm" type="text" size="40">
+              <label class="mb-0 ml-3 mr-1">Length:</label>
+              <input id="SEQUENCE_LENGTH" class="form-control form-control-sm text-right" type="text" size="8" readonly> bp
+              <button class="btn btn-outline-secondary btn-sm ml-3" id="wdeCircularButton" onClick="wdeTGCircularLinear(-1)">Circular</button>
+            </div>
+            <div class="btn-block-inline mt-2">
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeUpToLow()">UPPER -> lower</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeUpexLow()">UPPER <-> lower</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeLowToUp()">lower -> UPPER</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeCopyPaste()">Copy/Paste</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeRCompSel()">Reverse Complement Selection</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeRComp()">Reverse Complement All</button>
+            </div>
+            <div class="btn-block-inline mt-1">
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeHighlight()">Highlight Selected Restriction Sites</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeTransInSel()">Translate Selection</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeTransInAll()">Translate All</button>
+              <button class="btn btn-outline-secondary btn-sm" id="cmdZeroOneButton" onClick="wdeTGViewZeroOne(-1,1)">1</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeTGViewNumbers(-1,1)">Numbers</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSelREOutsidesSel()">Find RS outside Selection</button>
+            </div>
+            <div class="btn-block-inline mt-1">
+              <button class="btn btn-outline-secondary btn-sm" id="wdeFeatButton" onClick="wdeShowFeatures()">Show Features</button>
+              <button class="btn btn-outline-secondary btn-sm" id="wdeFeatTransparent" onClick="wdeTGFeaturesTransp(-1,1)">Transparent Features</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeNewFeaturesFromSel()">New Feature from Selection</button>
+              <label class="mb-0 ml-2">Info:</label>
+              <input id="wdeInfoField" class="form-control form-control-sm" type="text" size="30" readonly>
+            </div>
+            <div class="mt-3">
+              <textarea id="SEQUENCE_TEMPLATE" rows="12" cols="90" style="display:none;"></textarea>
+              <iframe name="WDE_RTF" id="WDE_RTF" class="wide-iframe" style="border:#000000 1px solid; background-color: white;"></iframe>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div id="WDE_digest" class="WDE_tab_page" style="display: none;">
-      <a>DNA Load per Lane:</a>&nbsp;
-      <input id="WDE_DIGEST_AMOUNT" value="500" type="text" style="text-align:right;" size="2" onchange="wdeSetLocalStorage('wde_DIGEST_AMOUNT','WDE_DIGEST_AMOUNT');">&nbsp;
-      <a>ng</a>&nbsp;
-      &nbsp;&nbsp;
-      <input type="button" id="WDE_DIG_BAND_BLACK" onClick="wdeTGDigGelBandBlack(-1,1)" value="Draw Bands Black">&nbsp;
-      &nbsp;&nbsp;
-      <input type="button" id="WDE_DIG_SHOW_FEATURES" onClick="wdeTGDigShowFeatures(-1,1)" value="Hide Features">&nbsp;
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="button" onClick="wdeSaveGel()" value="Save">&nbsp;
-      <input type="button" onClick="wdePrintGel()" value="Print">
-      <br />
-      <input type="button" onClick="wdeDigMapDis('S')" value="Map">&nbsp;
-      <input type="button" onClick="wdeDigMapDis('U')" value="Map + Unique">&nbsp;
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="button" onClick="wdeDigList()" value="Digest as List">&nbsp;
-      <input type="button" onClick="wdeDigAsGelPic()" value="Digest as Gel Picture">
-      <br />
-      <a>Marker (bp,ng):</a>&nbsp;
-      <input id="WDE_DIGEST_MARKER" value="10000,50;8000,50;6000,50;5000,50;4000,50;3000,150;2000,50;1500,50;1200,50;1000,150;900,50;800,50;700,50;600,50;500,150;400,50;300,50;200,50;100,50"
-        type="text" size="100" onchange="wdeSetLocalStorage('wde_DIGEST_MARKER','WDE_DIGEST_MARKER');">
-
-      <iframe name="WDE_DIGEST" id="WDE_DIGEST" style="border:#000000 1px solid; background-color: white; width:800px; height:500px;"></iframe>
-    </div>
-
-    <div id="WDE_translate" class="WDE_tab_page" style="display: none;">
-      <a>Genetic Code:</a>&nbsp;
-      <select id="WDE_TRANS_CODE" onChange="wdeSelTransCode()" ></select>&nbsp;
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="button" onClick="wdeSaveTrans()" value="Save Translation">&nbsp;
-      <input type="button" onClick="wdePrintTrans()" value="Print">
-      <br />
-      <a>Amino Acids:</a>&nbsp;
-      <input type="button" id="wdeTransTreeOneButton" onClick="wdeTGTransTreeOne(-1,1)" value="3 Letter Code">&nbsp;
-      &nbsp;&nbsp;&nbsp;<a>Translate:</a>&nbsp;
-      <input type="button" id="wdeTransFrameNrButton" onClick="wdeTGTransFrameNr(-1,1)" value="6 Frame">&nbsp;
-      &nbsp;&nbsp;&nbsp;<a>Show Reverse Complement:</a>&nbsp;
-      <input type="button" id="wdeTransRevCompButton" onClick="wdeTGTransRevComp(-1,1)" value="On">
-      <br />
-      <input type="button" onClick="wdeTransInSel()" value="Translate Selection">&nbsp;
-      <input type="button" onClick="wdeTransInAll()" value="Translate All">&nbsp;
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="button" id="wdeTransOrfViewButton" onClick="wdeTGOrfView(-1,1)" value="View ORF List">&nbsp;
-      <input type="button" id="wdeTransOrfSortButton" onClick="wdeTGOrfSort(-1,1)" value="Sort ORFs by Position">&nbsp;
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <a>Min ORF Length:</a>&nbsp;
-      <input id="ORF_AS_NR" value="10" onChange="wdeTransDrawFrame()" type="text" style="text-align:right;" size="2" onchange="wdeSetLocalStorage('wde_ORF_AS_NR','ORF_AS_NR');">&nbsp;
-      <a>As</a>
-
-      <div id="WDE_translate_spacer">&nbsp;
-        <a>Code Field...</a>
+      <!-- RESTRICTION SITES TAB -->
+      <div id="WDE_restriction_sites" class="WDE_tab_page" style="display:none;">
+        <div class="card pane-card mb-3">
+          <div class="card-body">
+            <div class="form-inline-flex mb-2">
+              <input type="checkbox" id="WDE_USER_SEL" onclick="wdeTGUserSel(-1)">&nbsp;
+              <span id="WDE_USER_COUNT" class="mr-3">Hits: -</span>
+              <label class="mb-0 mr-1">Name:</label>
+              <input id="WDE_USER_NAME" value="User_Seq" type="text" size="10" class="form-control form-control-sm" onchange="wdeSetLocalStorage('wde_USER_NAME','WDE_USER_NAME');">
+              <label class="mb-0 ml-2 mr-1">Sequence:</label>
+              <input id="WDE_USER_SEQ" value="AGC^MGCT" type="text" size="30" class="form-control form-control-sm" onchange="wdeSetLocalStorage('wde_USER_SEQ','WDE_USER_SEQ');">
+              <button class="btn btn-outline-secondary btn-sm ml-2" onClick="wdeFindUserSeq()">Find User Sequence</button>
+            </div>
+            <div class="btn-block-inline mb-2">
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeFindRE()">Find All Restriction Sites</button>
+              <span class="ml-2 mr-1">Methylation:</span>
+              <input type="checkbox" id="WDE_DAM_DCM" onclick="wdeTGDamDcm(-1)" checked>&nbsp;
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeTGDamDcm(-1)">Dam/Dcm</button>
+            </div>
+            <div class="btn-block-inline mb-2">
+              <span>Select:</span>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSelREsel('E', 0)">Absent</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSelREsel('E', 1)">Unique</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSelREsel('M', -1)">All</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSelREdeselect()">Deselect All</button>
+              <span class="ml-2">Select by Number:</span>
+              <input id="RESTRICTION_NR" value="2" type="text" size="2" class="form-control form-control-sm text-right" onchange="wdeSetLocalStorage('wde_RESTRICTION_NR','RESTRICTION_NR');">
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSelREselMLE('M')">More</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSelREselMLE('E')">Exact</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSelREselMLE('L')">Less</button>
+            </div>
+            <div class="btn-block-inline mb-2">
+              <span>Select by List:</span>
+              <input id="RESTRICTION_LIST" value="KpnI, BstBI, HindIII, BamHI" type="text" size="30" class="form-control form-control-sm" onchange="wdeSetLocalStorage('wde_RESTRICTION_LIST','RESTRICTION_LIST');">
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSelREListDS('S')">Select</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSelREListDS('D')">Deselect</button>
+            </div>
+            <div class="btn-block-inline mb-2">
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeHighlight()">Highlight Selected in Sequence</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeDigMapDis('S')">Map</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeDigMapDis('U')">Map + Unique</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeDigList()">Digest as List</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeDigAsGelPic()">Digest as Gel Picture</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdePrintEnzy()">Print</button>
+            </div>
+            <p style="font-size: 80%; line-height: 1.6;">Ambiguity Codes:<br />
+              R = [GA]; Y = [CT]; M = [AC]; K = [GT]; S = [GC]; W = [AT];
+              B = not A, [CGT]; D = not C, [AGT]; H = not G, [ACT]; V = not T, [ACG]; N = [ACGT]
+            </p>
+            <div id="WDE_enzymes_spacer">&nbsp;<a>Enzyme Tab...</a></div>
+          </div>
+        </div>
       </div>
-      <iframe name="WDE_TRANS" id="WDE_TRANS" style="border:#000000 1px solid; background-color: white; width:800px; height:500px;"></iframe>
-    </div>
 
-    <div id="WDE_features" class="WDE_tab_page" style="display: none;">
-      <a>Feature List:</a>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="button" onClick="wdeSelFeatSelMod(1)" value="Select All Features">&nbsp;
-      <input type="button" onClick="wdeSelFeatSelMod(-1)" value="Invert Feature Selection">&nbsp;
-      <input type="button" onClick="wdeSelFeatSelMod(0)" value="Unselect All Features">
-      <br>
-      <iframe name="WDE_FEAT_L" id="WDE_FEAT_L" style="border:#000000 1px solid; background-color: white; width:800px; height:250px;"></iframe>
-      <br />
-      <input type="button" onClick="wdeSetFFeatNew('')" value="New Feature">&nbsp;
-      <input type="button" onClick="wdeSetFFeatDel()" value="Delete Feature">&nbsp;
-      <input type="button" onClick="wdeSetFFeatSave()" value="Save Changes">&nbsp;
-      <br />
-      <a>Selected Feature:</a>&nbsp;
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="button" onClick="wdeSelAddLib()" value="Add Feature to Library">&nbsp;
-      <input type="button" onClick="wdeAllAddLib()" value="Add All Features to Library">
-      <br />
-      <a>Tag:</a>&nbsp;
-      <input id="WDE_FEAT_TAG" onChange="wdeSelFFeatMTag()" value="" type="text" size="40">&nbsp;
-      <input type="button" onClick="wdeSetFFeatTagDef()" value="Set Default">&nbsp;
-      <a>Type:</a>&nbsp;
-      <select id="WDE_FEAT_TYPE" onChange="wdeSelFFeatType()"></select>
-      <br />
-      <a>Regulatory Type:</a>&nbsp;
-      <select id="WDE_FEAT_REG_TYPE" onChange="wdeSelFFeatRegType()"><option>Only available with regulatory features</option></select>
-      <br />
-      <a>Location:</a>&nbsp;
-      <input id="WDE_FEAT_LOC" onChange="wdeSelFFeatLoc()" value="" type="text" size="80">&nbsp;
-      <input type="button" id="WDE_FEAT_REVCOMP" onClick="wdeSetFFeatSetRev(-1)" value="Set Reverse">
-      <br />
-      <a>Forward Color:</a>&nbsp;
-      <input id="WDE_FEAT_FCOL" value="#00ff40" onchange="wdeSetFFeatForVar()" type="color">&nbsp;
-      <input type="button" onClick="wdeSetFFeatForDef()" value="Set Default">&nbsp;
-      <a>Reverse Color:</a>&nbsp;
-      <input id="WDE_FEAT_RCOL" value="#ff0000" onchange="wdeSetFFeatRevVar()" type="color">&nbsp;
-      <input type="button" onClick="wdeSetFFeatRevDef()" value="Set Default">&nbsp;
-      <a>Shape:</a>&nbsp;
-      <select id="WDE_FEAT_SHAPE" onChange="wdeSelFFeatRegShape()"></select>
-      <br />
-      <a>Note:</a>
-      <br />
-      <textarea id="WDE_FEAT_NOTE" onChange="wdeSelFFeatNote()" rows="4" cols="90"></textarea>
-      <br />
-      <a>Qualifiers:</a>&nbsp;
-      <a href="http://www.insdc.org/documents/feature-table#2.3" target="_blank">See Features / Qualifiers Documentation</a>
-      <br />
-      <textarea id="WDE_FEAT_QUALIF"  onChange="wdeSelFFeatQualif()" rows="4" cols="90"></textarea>
-      <br />
-    </div>
-
-    <div id="WDE_feature_lib" class="WDE_tab_page" style="display: none;">
-      <a>Add Features from File:</a>&nbsp;
-      <input type="file" id="WDE_Load_Lib_File">&nbsp;
-      <input type="button" onClick="wdeLoadFeatureLibData()" value="Reload Library">
-      <input type="button" onClick="wdeSaveLibFile()" value="Save Library">&nbsp;
-      <input type="button" onClick="wdeDeleteLib()" value="Delete Library">&nbsp;
-      <br />
-      <a>Features in Library:</a>
-      &nbsp;&nbsp;&nbsp;
-      <input type="button" onClick="wdeAnnotateSequence()" value="Annotate Sequence">
-      <br />
-      <iframe name="WDE_LIB_L" id="WDE_LIB_L" style="border:#000000 1px solid; background-color: white; width:800px; height:250px;"></iframe>
-      <br />
-      <input type="button" onClick="wdeSetFLibNew('')" value="New Feature">&nbsp;
-      <input type="button" onClick="wdeSetFLibDel()" value="Delete Feature">&nbsp;
-      <input type="button" onClick="wdeSetFLibSave()" value="Save Changes">&nbsp;
-      <br />
-      <a>Selected Feature:</a>
-      <br />
-      <a>Tag:</a>&nbsp;
-      <input id="WDE_LIB_TAG" onChange="wdeSelFLibMTag()" value="" type="text" size="40">&nbsp;
-      <input type="button" onClick="wdeSetFLibTagDef()" value="Set Default">&nbsp;
-      <a>Type:</a>&nbsp;
-      <select id="WDE_LIB_TYPE" onChange="wdeSelFLibType()"></select>
-      <br />
-      <a>Regulatory Type:</a>&nbsp;
-      <select id="WDE_LIB_REG_TYPE" onChange="wdeSelFLibRegType()"><option>Only available with regulatory features</option></select>
-      <br />
-      <a>Forward Color:</a>&nbsp;
-      <input id="WDE_LIB_FCOL" value="#00ff40" onchange="wdeSetFLibForVar()" type="color">&nbsp;
-      <input type="button" onClick="wdeSetFLibForDef()" value="Set Default">&nbsp;
-      <a>Reverse Color:</a>&nbsp;
-      <input id="WDE_LIB_RCOL" value="#ff0000" onchange="wdeSetFLibRevVar()" type="color">&nbsp;
-      <input type="button" onClick="wdeSetFLibRevDef()" value="Set Default">&nbsp;
-      <a>Shape:</a>&nbsp;
-      <select id="WDE_LIB_SHAPE" onChange="wdeSelFLibRegShape()"></select>
-      <br />
-      <a>Location:</a>&nbsp;
-      <input id="WDE_LIB_LOC" onChange="wdeSelFLibLoc()" value="" type="text" size="80">
-      <br />
-      <a>Sequence:</a>
-      <br />
-      <textarea id="WDE_LIB_SEQ" onChange="wdeSelFLibSeq()" rows="8" cols="90"></textarea>
-      <br />
-      <a>Note:</a>
-      <br />
-      <textarea id="WDE_LIB_NOTE" onChange="wdeSelFLibNote()" rows="4" cols="90"></textarea>
-      <br />
-      <a>Qualifiers:</a>&nbsp;
-      <a href="http://www.insdc.org/documents/feature-table#2.3" target="_blank">See Features / Qualifiers Documentation</a>
-      <br />
-      <textarea id="WDE_LIB_QUALIF"  onChange="wdeSelFLibQualif()" rows="4" cols="90"></textarea>
-      <br />
-    </div>
-
-    <div id="WDE_settings" class="WDE_tab_page" style="display: none;">
-      <a>Load Settings:</a>&nbsp;
-      <input type="file" id="WDE_Load_Settings">&nbsp;
-      <input type="button" onClick="wdeSaveSetFile()" value="Save Settings">
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="button" onClick="wdeResetInterface()" value="Reset Interface">&nbsp;
-      <input type="button" style="background-color: red;" onClick="wdeDeleteLocalStorage()" value="Delete Local Storage">
-      <br />
-      <a>Load Test Sequences:</a>
-      <br />
-      <input type="button" onClick="wdeLoadTestSeq('SF')" value="Load Small Fasta Sequence">&nbsp;
-      <input type="button" onClick="wdeLoadTestSeq('LF')" value="Load Large Fasta Sequence">
-      <br />
-      <input type="button" onClick="wdeLoadTestSeq('SG')" value="Load Small Genebank Sequence">&nbsp;
-      <input type="button" onClick="wdeLoadTestSeq('LG')" value="Load Large Genebank Sequence">
-      <br />
-      <br />
-      <a>Functions for Testing:</a>
-      <br />
-      <a>This function is for developers and is implemented to track unintended modifications:</a>
-      <br />
-      <input type="button" onClick="wdeLoadTestSeq('TG')" value="Test Seq Genebank">&nbsp;
-      <input type="button" onClick="wdeLoadTestSeq('TA')" value="Run Tests For All Functions">&nbsp;
-      &nbsp;&nbsp;&nbsp;<input type="checkbox" id="WDE_TEST_DOWNLOAD_DIFF">&nbsp;
-      <a>Download failing test results for diff.</a>
-      <br />
-      <a>Failing tests are usually the result of minor browser differences and can be ignored by end users.</a>
-      <br />
-      <a>Test Output:</a><br>
-      <iframe name="WDE_TEST_OUT" id="WDE_TEST_OUT" style="border:#000000 1px solid; background-color: white; width:800px; height:400px;"></iframe><br>
-    </div>
-
-    <div class="wde_footer_bar">
-      <div class="wde_footer_l">
-        GEAR &#126;
-        <a target="_blank" class="wde_footer_link" href="https://www.gear-genomics.com"> Home </a> &#183;
-        <a target="_blank" class="wde_footer_link" href="https://github.com/gear-genomics"> GEAR-GitHub </a> &#183;
-        <a target="_blank" class="wde_footer_link" href="https://www.gear-genomics.com/terms"> Terms of Use </a> &#183;
-        <a target="_blank" class="wde_footer_link" href="https://www.gear-genomics.com/contact"> Contact Us </a>
+      <!-- DIGEST TAB -->
+      <div id="WDE_digest" class="WDE_tab_page" style="display:none;">
+        <div class="card pane-card mb-3">
+          <div class="card-body">
+            <div class="form-inline-flex mb-2">
+              <span class="mr-1">DNA Load per Lane:</span>
+              <input id="WDE_DIGEST_AMOUNT" value="500" type="text" size="4" class="form-control form-control-sm text-right" onchange="wdeSetLocalStorage('wde_DIGEST_AMOUNT','WDE_DIGEST_AMOUNT');">
+              <span class="ml-1">ng</span>
+              <button class="btn btn-outline-secondary btn-sm ml-3" id="WDE_DIG_BAND_BLACK" onClick="wdeTGDigGelBandBlack(-1,1)">Draw Bands Black</button>
+              <button class="btn btn-outline-secondary btn-sm ml-2" id="WDE_DIG_SHOW_FEATURES" onClick="wdeTGDigShowFeatures(-1,1)">Hide Features</button>
+              <button class="btn btn-outline-secondary btn-sm ml-2" onClick="wdeSaveGel()">Save</button>
+              <button class="btn btn-outline-secondary btn-sm ml-2" onClick="wdePrintGel()">Print</button>
+            </div>
+            <div class="btn-block-inline mb-2">
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeDigMapDis('S')">Map</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeDigMapDis('U')">Map + Unique</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeDigList()">Digest as List</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeDigAsGelPic()">Digest as Gel Picture</button>
+            </div>
+            <div class="form-group">
+              <label>Marker (bp,ng):</label>
+              <input id="WDE_DIGEST_MARKER" class="form-control form-control-sm" value="10000,50;8000,50;6000,50;5000,50;4000,50;3000,150;2000,50;1500,50;1200,50;1000,150;900,50;800,50;700,50;600,50;500,150;400,50;300,50;200,50;100,50"
+                type="text" onchange="wdeSetLocalStorage('wde_DIGEST_MARKER','WDE_DIGEST_MARKER');">
+            </div>
+            <iframe name="WDE_DIGEST" id="WDE_DIGEST" class="wide-iframe" style="border:#000000 1px solid; background-color: white;"></iframe>
+          </div>
+        </div>
       </div>
-      <div class="wde_footer_r">
+
+      <!-- TRANSLATE TAB -->
+      <div id="WDE_translate" class="WDE_tab_page" style="display:none;">
+        <div class="card pane-card mb-3">
+          <div class="card-body">
+            <div class="form-inline-flex mb-2">
+              <span class="mr-1">Genetic Code:</span>
+              <select id="WDE_TRANS_CODE" class="form-control form-control-sm" onChange="wdeSelTransCode()"></select>
+              <button class="btn btn-outline-secondary btn-sm ml-3" onClick="wdeSaveTrans()">Save Translation</button>
+              <button class="btn btn-outline-secondary btn-sm ml-2" onClick="wdePrintTrans()">Print</button>
+            </div>
+            <div class="btn-block-inline mb-2">
+              <span>Amino Acids:</span>
+              <button class="btn btn-outline-secondary btn-sm" id="wdeTransTreeOneButton" onClick="wdeTGTransTreeOne(-1,1)">3 Letter Code</button>
+              <span class="ml-3">Translate:</span>
+              <button class="btn btn-outline-secondary btn-sm" id="wdeTransFrameNrButton" onClick="wdeTGTransFrameNr(-1,1)">6 Frame</button>
+              <span class="ml-3">Show Reverse Complement:</span>
+              <button class="btn btn-outline-secondary btn-sm" id="wdeTransRevCompButton" onClick="wdeTGTransRevComp(-1,1)">On</button>
+            </div>
+            <div class="btn-block-inline mb-2">
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeTransInSel()">Translate Selection</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeTransInAll()">Translate All</button>
+              <button class="btn btn-outline-secondary btn-sm" id="wdeTransOrfViewButton" onClick="wdeTGOrfView(-1,1)">View ORF List</button>
+              <button class="btn btn-outline-secondary btn-sm" id="wdeTransOrfSortButton" onClick="wdeTGOrfSort(-1,1)">Sort ORFs by Position</button>
+              <span class="ml-3">Min ORF Length:</span>
+              <input id="ORF_AS_NR" value="10" class="form-control form-control-sm text-right" type="text" size="3" onChange="wdeTransDrawFrame()" onchange="wdeSetLocalStorage('wde_ORF_AS_NR','ORF_AS_NR');">
+              <span class="ml-1">As</span>
+            </div>
+            <div id="WDE_translate_spacer" class="mb-2">&nbsp;<a>Code Field...</a></div>
+            <iframe name="WDE_TRANS" id="WDE_TRANS" class="wide-iframe" style="border:#000000 1px solid; background-color: white;"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEATURES TAB -->
+      <div id="WDE_features" class="WDE_tab_page" style="display:none;">
+        <div class="card pane-card mb-3">
+          <div class="card-body">
+            <div class="btn-block-inline mb-2">
+              <span>Feature List:</span>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSelFeatSelMod(1)">Select All Features</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSelFeatSelMod(-1)">Invert Feature Selection</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSelFeatSelMod(0)">Unselect All Features</button>
+            </div>
+            <iframe name="WDE_FEAT_L" id="WDE_FEAT_L" class="wide-iframe-sm" style="border:#000000 1px solid; background-color: white;"></iframe>
+            <div class="btn-block-inline mt-2">
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSetFFeatNew('')">New Feature</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSetFFeatDel()">Delete Feature</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSetFFeatSave()">Save Changes</button>
+            </div>
+            <div class="btn-block-inline mt-2">
+              <span>Selected Feature:</span>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSelAddLib()">Add Feature to Library</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeAllAddLib()">Add All Features to Library</button>
+            </div>
+            <div class="form-inline-flex mt-3">
+              <label class="mb-0 mr-1">Tag:</label>
+              <input id="WDE_FEAT_TAG" onChange="wdeSelFFeatMTag()" value="" type="text" size="30" class="form-control form-control-sm">
+              <button class="btn btn-outline-secondary btn-sm ml-2" onClick="wdeSetFFeatTagDef()">Set Default</button>
+              <label class="mb-0 ml-3 mr-1">Type:</label>
+              <select id="WDE_FEAT_TYPE" onChange="wdeSelFFeatType()" class="form-control form-control-sm"></select>
+            </div>
+            <div class="form-inline-flex mt-2">
+              <label class="mb-0 mr-1">Regulatory Type:</label>
+              <select id="WDE_FEAT_REG_TYPE" onChange="wdeSelFFeatRegType()" class="form-control form-control-sm"><option>Only available with regulatory features</option></select>
+            </div>
+            <div class="form-inline-flex mt-2">
+              <label class="mb-0 mr-1">Location:</label>
+              <input id="WDE_FEAT_LOC" onChange="wdeSelFFeatLoc()" value="" type="text" size="60" class="form-control form-control-sm">
+              <button class="btn btn-outline-secondary btn-sm ml-2" id="WDE_FEAT_REVCOMP" onClick="wdeSetFFeatSetRev(-1)">Set Reverse</button>
+            </div>
+            <div class="form-inline-flex mt-2">
+              <label class="mb-0 mr-1">Forward Color:</label>
+              <input id="WDE_FEAT_FCOL" value="#00ff40" onchange="wdeSetFFeatForVar()" type="color" class="form-control form-control-color">
+              <button class="btn btn-outline-secondary btn-sm ml-2" onClick="wdeSetFFeatForDef()">Set Default</button>
+              <label class="mb-0 ml-3 mr-1">Reverse Color:</label>
+              <input id="WDE_FEAT_RCOL" value="#ff0000" onchange="wdeSetFFeatRevVar()" type="color" class="form-control form-control-color">
+              <button class="btn btn-outline-secondary btn-sm ml-2" onClick="wdeSetFFeatRevDef()">Set Default</button>
+              <label class="mb-0 ml-3 mr-1">Shape:</label>
+              <select id="WDE_FEAT_SHAPE" onChange="wdeSelFFeatRegShape()" class="form-control form-control-sm"></select>
+            </div>
+            <div class="form-group mt-2">
+              <label>Note:</label>
+              <textarea id="WDE_FEAT_NOTE" onChange="wdeSelFFeatNote()" rows="3" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Qualifiers:</label>
+              <a href="http://www.insdc.org/documents/feature-table#2.3" target="_blank">See Features / Qualifiers Documentation</a>
+              <textarea id="WDE_FEAT_QUALIF" onChange="wdeSelFFeatQualif()" rows="3" class="form-control"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEATURE LIBRARY TAB -->
+      <div id="WDE_feature_lib" class="WDE_tab_page" style="display:none;">
+        <div class="card pane-card mb-3">
+          <div class="card-body">
+            <div class="form-inline-flex mb-2">
+              <span class="mr-1">Add Features from File:</span>
+              <input type="file" id="WDE_Load_Lib_File" class="form-control-file">
+              <button class="btn btn-outline-secondary btn-sm ml-2" onClick="wdeLoadFeatureLibData()">Reload Library</button>
+              <button class="btn btn-outline-secondary btn-sm ml-2" onClick="wdeSaveLibFile()">Save Library</button>
+              <button class="btn btn-outline-danger btn-sm ml-2" onClick="wdeDeleteLib()">Delete Library</button>
+            </div>
+            <div class="btn-block-inline mb-2">
+              <span>Features in Library:</span>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeAnnotateSequence()">Annotate Sequence</button>
+            </div>
+            <iframe name="WDE_LIB_L" id="WDE_LIB_L" class="wide-iframe-sm" style="border:#000000 1px solid; background-color: white;"></iframe>
+            <div class="btn-block-inline mt-2">
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSetFLibNew('')">New Feature</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSetFLibDel()">Delete Feature</button>
+              <button class="btn btn-outline-secondary btn-sm" onClick="wdeSetFLibSave()">Save Changes</button>
+            </div>
+            <div class="form-inline-flex mt-3">
+              <label class="mb-0 mr-1">Tag:</label>
+              <input id="WDE_LIB_TAG" onChange="wdeSelFLibMTag()" value="" type="text" size="30" class="form-control form-control-sm">
+              <button class="btn btn-outline-secondary btn-sm ml-2" onClick="wdeSetFLibTagDef()">Set Default</button>
+              <label class="mb-0 ml-3 mr-1">Type:</label>
+              <select id="WDE_LIB_TYPE" onChange="wdeSelFLibType()" class="form-control form-control-sm"></select>
+            </div>
+            <div class="form-inline-flex mt-2">
+              <label class="mb-0 mr-1">Regulatory Type:</label>
+              <select id="WDE_LIB_REG_TYPE" onChange="wdeSelFLibRegType()" class="form-control form-control-sm"><option>Only available with regulatory features</option></select>
+            </div>
+            <div class="form-inline-flex mt-2">
+              <label class="mb-0 mr-1">Forward Color:</label>
+              <input id="WDE_LIB_FCOL" value="#00ff40" onchange="wdeSetFLibForVar()" type="color" class="form-control form-control-color">
+              <button class="btn btn-outline-secondary btn-sm ml-2" onClick="wdeSetFLibForDef()">Set Default</button>
+              <label class="mb-0 ml-3 mr-1">Reverse Color:</label>
+              <input id="WDE_LIB_RCOL" value="#ff0000" onchange="wdeSetFLibRevVar()" type="color" class="form-control form-control-color">
+              <button class="btn btn-outline-secondary btn-sm ml-2" onClick="wdeSetFLibRevDef()">Set Default</button>
+              <label class="mb-0 ml-3 mr-1">Shape:</label>
+              <select id="WDE_LIB_SHAPE" onChange="wdeSelFLibRegShape()" class="form-control form-control-sm"></select>
+            </div>
+            <div class="form-inline-flex mt-2">
+              <label class="mb-0 mr-1">Location:</label>
+              <input id="WDE_LIB_LOC" onChange="wdeSelFLibLoc()" value="" type="text" size="60" class="form-control form-control-sm">
+            </div>
+            <div class="form-group mt-2">
+              <label>Sequence:</label>
+              <textarea id="WDE_LIB_SEQ" onChange="wdeSelFLibSeq()" rows="5" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Note:</label>
+              <textarea id="WDE_LIB_NOTE" onChange="wdeSelFLibNote()" rows="3" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Qualifiers:</label>
+              <a href="http://www.insdc.org/documents/feature-table#2.3" target="_blank">See Features / Qualifiers Documentation</a>
+              <textarea id="WDE_LIB_QUALIF" onChange="wdeSelFLibQualif()" rows="3" class="form-control"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS TAB -->
+      <div id="WDE_settings" class="WDE_tab_page" style="display:none;">
+        <div class="card pane-card mb-3">
+          <div class="card-body">
+            <div class="form-inline-flex mb-2">
+              <span class="mr-1">Load Settings:</span>
+              <input type="file" id="WDE_Load_Settings" class="form-control-file">
+              <button class="btn btn-outline-secondary btn-sm ml-2" onClick="wdeSaveSetFile()">Save Settings</button>
+              <button class="btn btn-outline-secondary btn-sm ml-4" onClick="wdeResetInterface()">Reset Interface</button>
+              <button class="btn btn-outline-danger btn-sm ml-2" onClick="wdeDeleteLocalStorage()">Delete Local Storage</button>
+            </div>
+            <div class="mb-2">
+              <span>Load Test Sequences:</span><br>
+              <div class="btn-block-inline">
+                <button class="btn btn-outline-secondary btn-sm" onClick="wdeLoadTestSeq('SF')">Load Small Fasta Sequence</button>
+                <button class="btn btn-outline-secondary btn-sm" onClick="wdeLoadTestSeq('LF')">Load Large Fasta Sequence</button>
+              </div>
+              <div class="btn-block-inline mt-1">
+                <button class="btn btn-outline-secondary btn-sm" onClick="wdeLoadTestSeq('SG')">Load Small Genebank Sequence</button>
+                <button class="btn btn-outline-secondary btn-sm" onClick="wdeLoadTestSeq('LG')">Load Large Genebank Sequence</button>
+              </div>
+            </div>
+            <div class="mb-2">
+              <span>Functions for Testing:</span><br>
+              <div class="btn-block-inline">
+                <button class="btn btn-outline-secondary btn-sm" onClick="wdeLoadTestSeq('TG')">Test Seq Genebank</button>
+                <button class="btn btn-outline-secondary btn-sm" onClick="wdeLoadTestSeq('TA')">Run Tests For All Functions</button>
+                <label class="ml-2">
+                  <input type="checkbox" id="WDE_TEST_DOWNLOAD_DIFF"> Download failing test results for diff.
+                </label>
+              </div>
+              <small class="text-muted d-block mt-1">Failing tests are usually the result of minor browser differences and can be ignored by end users.</small>
+            </div>
+            <div class="mt-2">
+              <label>Test Output:</label>
+              <iframe name="WDE_TEST_OUT" id="WDE_TEST_OUT" class="wide-iframe" style="border:#000000 1px solid; background-color: white; min-height:400px;"></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /container -->
+  </div><!-- /container-fluid -->
+
+  <footer>
+    <div class="container">
+      <div class="float-left">
+        <a class="plain" target="_blank" href="https://www.gear-genomics.com">GEAR ~ <i class="fas fa-home"></i></a>
+        · <a class="plain" target="_blank" href="https://github.com/gear-genomics"><i class="fab fa-github-alt"></i></a>
+        · <a class="plain" target="_blank" href="https://www.gear-genomics.com/terms">Terms of Use</a>
+        · <a class="plain" target="_blank" href="https://www.gear-genomics.com/contact">Contact Us</a>
+      </div>
+      <div class="float-right">
         Supported by
-        <a target="_blank" class="wde_footer_link" href="https://www.embl.de">EMBL</a>
+        <a class="plain" target="_blank" href="https://www.embl.de/">
+          <img class="footer-logo" alt="EMBL logo" src="static/img/embl.svg"/>
+        </a>
       </div>
     </div>
+  </footer>
 
-  </div>
+  <script src="https://www.gear-genomics.com/libs/js/jquery-3.2.1.slim.min.js" crossorigin="anonymous"></script>
+  <script src="https://www.gear-genomics.com/libs/js/popper-1.12.9/popper.min.js" crossorigin="anonymous"></script>
+  <script src="https://www.gear-genomics.com/libs/bootstrap/4.0.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
 
+  <!-- Original full JS (unchanged) -->
   <script src="static/js/wilyDNAEditor.js"></script>
-
+  <script>
+    // Ensure initial tab visible
+    document.addEventListener("DOMContentLoaded", function() {
+      browseTabFunctionality('WDE_main_tab');
+    });
+  </script>
 </body>
 </html>
-
