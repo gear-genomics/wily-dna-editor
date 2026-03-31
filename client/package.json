@@ -5,6 +5,7 @@
   "description": "",
   "scripts": {
     "build": "npx rimraf dist && parcel build src/index.html --no-cache --no-source-maps --public-url ./",
+    "postbuild": "mkdir -p dist/static/js && cp src/static/js/wilyDNAEditorTestSuite.js dist/static/js/",
     "dev": "parcel src/index.html --no-cache --open"
   },
   "keywords": [],
