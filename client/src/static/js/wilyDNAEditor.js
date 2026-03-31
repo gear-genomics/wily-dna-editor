@@ -34,7 +34,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Set here the Version
-var wdeVVersion = "1.3.0";
+var wdeVVersion = "1.3.1";
 
 // Link to Primer3Plus
 const uploadTargetP3P = "https://gear.embl.de/primer3plus/api/v1/upload";
@@ -3418,10 +3418,10 @@ function wdeDigCutPosRev(enz) {
     }
     // Get the ^ positions
     pos = 0;
-    for (var k = enz.length - 1; k <= 0 ; k--) {
+    for (var k = enz.length - 1; k >= 0 ; k--) {
         if (enz.charAt(k) == "^") {
             retVal += ";" + pos;
-            k = enz.length;
+            k = 0;
         }
         if  (enz.charAt(k).match(regEx)) {
             pos++;
